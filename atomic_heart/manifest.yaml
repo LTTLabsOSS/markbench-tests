@@ -1,8 +1,7 @@
 friendly_name: "Atomic Heart"
 executable: "atomicheart.py"
 process_name: "AtomicHeart-Win64-Shipping.exe"
-asset_paths:
-  - "harness/atomic_heart/run"
+output_dir: "run"
 options:
   - name: kerasHost
     type: input

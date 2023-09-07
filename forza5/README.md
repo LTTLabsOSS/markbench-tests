@@ -22,7 +22,7 @@ tests:
   - name: forza5
     executable: "forza5.py"
     process_name: "ForzaHorizon5.exe"
-    asset_paths:
+    output_dir:
       - 'harness/forza5/run'
 ```
 
@@ -33,7 +33,7 @@ __executable__ : _(required)_ the entry point to the test harness. In this case 
 
 __process_name__ : _(required)_ The process name that should be the target for FPS recording (ex: PresentMon).
 
-__asset_paths__: _(optional)_ list of files to aggregate copies of after a successful test run. If a directory path is
+__output_dir__: _(optional)_ Directory containing files to aggregate copies of after a successful test run. If a directory path is
 given, the contents are copied.
 
 ## Common Issues

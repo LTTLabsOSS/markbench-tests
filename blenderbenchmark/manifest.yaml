@@ -3,8 +3,7 @@ executable: "blender.py"
 process_name: "blender.exe"
 disable_presentmon: true
 hidden: 0
-asset_paths:
-  - "harness/blenderbenchmark/run"
+output_dir: "run"
 options:
   - name: scene
     type: select

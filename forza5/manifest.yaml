@@ -3,8 +3,7 @@ executable: "forza5.py"
 process_name: "forzahorizon5.exe"
 # default recording delay to reduce capturing menus during setup, this should be revisited every test bench as loading times may be different 
 recording_delay: 75
-asset_paths:
-  - "harness/forza5/run"
+output_dir: "run"
 options:
   - name: preset
     type: select

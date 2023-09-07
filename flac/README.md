@@ -25,7 +25,7 @@ tests:
   - name: furmark
     executable: "furmark.py"
     process_name: "FurMark.exe"
-    asset_paths:
+    output_dir:
       - 'C:\Program Files (x86)\Geeks3D\Benchmarks\FurMark\furmark-gpu-monitoring.xml'
       - 'C:\Program Files (x86)\Geeks3D\Benchmarks\FurMark\FurMark_0001.txt'
       - 'C:\Program Files (x86)\Geeks3D\Benchmarks\FurMark\furmark-gpu-monitoring.csv'
@@ -49,7 +49,7 @@ __executable__ : _(required)_ the entry point to the test harness. In this case 
 
 __process_name__ : _(required)_ The process name that should be the target for FPS recording (ex: PresentMon).
 
-__asset_paths__: _(optional)_ list of files to aggregate copies of after a successful test run. If a directory path is
+__output_dir__: _(optional)_ Directory containing files to aggregate copies of after a successful test run. If a directory path is
 given, the contents are copied.
 
 __args__ : _(optional)_ list of arguments to be appended to the command to execute. All the arguments will be passed to

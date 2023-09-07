@@ -22,8 +22,7 @@ tests:
   - name: tinytinaswonderland
     executable: "tinytinaswonderland.py"
     process_name: "Wonderlands.exe"
-    asset_paths:
-      - 'harness/tinytinaswonderland/run'
+    output_dir: "run"
 ```
 
 __name__ : _(required)_ name of the test. This much match the name of a directory in the harness folder so the framework
@@ -33,7 +32,7 @@ __executable__ : _(required)_ the entry point to the test harness. In this case 
 
 __process_name__ : _(required)_ The process name that should be the target for FPS recording (ex: PresentMon).
 
-__asset_paths__: _(optional)_ list of files to aggregate copies of after a successful test run. If a directory path is
+__output_dir__: _(optional)_ Directory containing files to aggregate copies of after a successful test run. If a directory path is
 given, the contents are copied.
 
 ## Common Issues

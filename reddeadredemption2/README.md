@@ -22,7 +22,7 @@ tests:
   - name: reddeadredemption2
     executable: "reddeadredemption2.py"
     process_name: "RDR2.exe"
-    asset_paths:
+    output_dir:
       - 'harness/reddeadredemption2/run'
 ```
 
@@ -33,7 +33,7 @@ __executable__ : _(required)_ the entry point to the test harness. In this case 
 
 __process_name__ : _(required)_ The process name that should be the target for FPS recording (ex: PresentMon).
 
-__asset_paths__: _(optional)_ list of files to aggregate copies of after a successful test run. If a directory path is
+__output_dir__: _(optional)_ Directory containing files to aggregate copies of after a successful test run. If a directory path is
 given, the contents are copied.
 
 __args__ : _(optional)_ list of arguments to be appended to the command to execute. All the arguments will be passed to

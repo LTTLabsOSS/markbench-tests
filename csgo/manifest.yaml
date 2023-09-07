@@ -3,8 +3,7 @@ executable: "csgo.py"
 process_name: "csgo.exe"
 # default recording delay to reduce capturing menus during setup, this should be revisited every test bench as loading times may be different 
 recording_delay: 80
-asset_paths:
-  - "harness/csgo/run"
+output_dir: "run"
 options:
   - name: preset
     type: select

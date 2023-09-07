@@ -3,8 +3,7 @@ executable: "cinebench.py"
 process_name: "Cinebench.exe"
 disable_presentmon: true
 hidden: 1
-asset_paths:
-  - "harness/cinebenchr23/run"
+output_dir: "run"
 options:
 - name: test
   type: select

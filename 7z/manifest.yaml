@@ -2,5 +2,4 @@ friendly_name: "7-Zip"
 executable: "7zip.py"
 process_name: "7zr.exe"
 disable_presentmon: true
-asset_paths:
-  - "harness/7z/run"
+output_dir: "run"

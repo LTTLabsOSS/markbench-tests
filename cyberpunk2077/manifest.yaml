@@ -1,8 +1,7 @@
 friendly_name: "Cyberpunk2077"
 executable: "cyberpunk2077.py"
 process_name: "Cyberpunk2077.exe"
-asset_paths:
-  - "harness/cyberpunk2077/run"
+output_dir: "run"
 options:
   - name: kerasHost
     type: input

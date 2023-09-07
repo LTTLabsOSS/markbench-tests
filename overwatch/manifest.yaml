@@ -2,8 +2,7 @@ friendly_name: "Overwatch"
 executable: "overwatch.py"
 process_name: "Overwatch.exe"
 hidden: 1
-asset_paths:
-  - "harness/overwatch/run"
+output_dir: "run"
 options:
   - name: preset
     type: select

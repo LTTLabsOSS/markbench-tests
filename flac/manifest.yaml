@@ -2,5 +2,4 @@ friendly_name: "WAV-FLAC Encoding"
 executable: "flac.py"
 process_name: "encode-flac.bat"
 disable_presentmon: true
-asset_paths:
-  - "harness/flac/run"
+output_dir: "run"

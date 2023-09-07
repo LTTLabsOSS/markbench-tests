@@ -3,5 +3,4 @@ executable: "specviewperf.py"
 disable_presentmon: true
 hidden: 1
 process_name: "viewperf.exe"
-asset_paths:
-  - "harness/specviewperf/run"
+output_dir: "run"

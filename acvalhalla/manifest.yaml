@@ -1,8 +1,7 @@
 friendly_name: "Assassins Creed Valhalla"
 executable: "acvalhalla.py"
 process_name: "ACValhalla.exe"
-asset_paths:
-  - "harness/acvalhalla/run"
+output_dir: "run"
 options:
   - name: preset
     type: select

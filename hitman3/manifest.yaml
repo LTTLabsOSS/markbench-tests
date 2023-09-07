@@ -1,8 +1,7 @@
 friendly_name: "Hitman 3"
 executable: "hitman3.py"
 process_name: "HITMAN3.exe"
-asset_paths:
-  - "harness/hitman3/run"
+output_dir: "run"
 options:
   - name: preset
     type: select

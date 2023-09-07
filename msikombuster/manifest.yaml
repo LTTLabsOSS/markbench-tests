@@ -1,8 +1,7 @@
 friendly_name: "MSI Kombuster"
 executable: "msikombuster.py"
 process_name: "MSI-Kombustor-x64.exe"
-asset_paths:
-  - "harness/msikombuster/run"
+output_dir: "run"
 options:
 - name: test
   type: select

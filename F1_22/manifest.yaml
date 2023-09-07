@@ -2,8 +2,7 @@ friendly_name: "F1_22"
 executable: "f1.py"
 process_name: "F1_22.exe"
 hidden: 0
-asset_paths:
-  - "harness/F1_22/run"
+output_dir: "run"
 options:
   - name: kerasHost
     type: input
