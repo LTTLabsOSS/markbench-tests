@@ -1,0 +1,10 @@
+friendly_name: "Red Dead Redemption 2"
+executable: "reddeadredemption2.py"
+process_name: "RDR2.exe"
+hidden: 0
+asset_paths:
+  - "harness/reddeadredemption2/run"
+options:
+  - name: preset
+    type: select
+    values: [current] 

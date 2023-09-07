@@ -1,0 +1,10 @@
+friendly_name: "Returnal"
+executable: "returnal.py"
+process_name: "Returnal-Win64-Shipping.exe"
+asset_paths:
+  - "harness/returnal/run"
+options:
+  - name: kerasHost
+    type: input
+  - name: kerasPort
+    type: input

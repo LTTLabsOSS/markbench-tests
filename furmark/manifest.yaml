@@ -1,0 +1,7 @@
+friendly_name: "FurMark"
+executable: "furmark.py"
+process_name: "FurMark.exe"
+disable_presentmon: true
+hidden: 1
+asset_paths:
+  - "harness/furmark/run"

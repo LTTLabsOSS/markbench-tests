@@ -1,0 +1,9 @@
+friendly_name: "Far Cry 6"
+executable: "farcry6.py"
+process_name: "FarCry6.exe"
+asset_paths:
+  - "harness/farcry6/run"
+options:
+  - name: preset
+    type: select
+    values: [current] 

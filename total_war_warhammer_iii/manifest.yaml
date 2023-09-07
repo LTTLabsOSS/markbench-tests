@@ -1,0 +1,10 @@
+friendly_name: "Total War: Warhammer 3"
+executable: "twwh3.py"
+process_name: "warhammer3.exe"
+asset_paths:
+  - "harness/total_war_warhammer_iii/run"
+options:
+  - name: kerasHost
+    type: input
+  - name: kerasPort
+    type: input

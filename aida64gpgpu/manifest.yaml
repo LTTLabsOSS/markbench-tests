@@ -1,0 +1,7 @@
+friendly_name: "Aida64 GPGPU"
+executable: "aida64gpgpu.py"
+process_name: "aida64.exe"
+disable_presentmon: true
+hidden: 1
+asset_paths:
+  - "harness/aida64gpgpu/run"

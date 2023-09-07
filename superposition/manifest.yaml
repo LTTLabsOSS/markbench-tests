@@ -1,0 +1,18 @@
+friendly_name: "Unigine Superposition"
+executable: "superposition.py"
+process_name: "superposition.exe"
+hidden: 1
+asset_paths:
+  - "harness/superposition/run"
+options:
+  - name: api
+    type: select
+    values: [directx, opengl]
+    tooltip: "Select API to use in test"
+  - name: preset
+    type: select
+    values: [low, medium, high, extreme, 4k_optimized, 8k_optimized] 
+    tooltip: See Superposition doc section "Benchmark Presets"
+  - name: resolution
+    type: input
+    tooltip: Format must be height,width. 1080,1920

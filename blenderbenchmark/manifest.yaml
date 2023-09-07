@@ -1,0 +1,19 @@
+friendly_name: "Blender Benchmark"
+executable: "blender.py"
+process_name: "blender.exe"
+disable_presentmon: true
+hidden: 0
+asset_paths:
+  - "harness/blenderbenchmark/run"
+options:
+  - name: scene
+    type: select
+    # presets disabled  in favor of manual process for now
+    values: [all, classroom, junkshop, monster] 
+    tooltip: Don't forget to set graphics settings!
+  - name: version
+    type: select
+    values: ["3.5.0", "3.4.0", "3.3.0"]
+  - name: device
+    type: select
+    values: ["CPU", "GPU"]

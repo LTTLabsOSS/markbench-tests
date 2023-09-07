@@ -1,0 +1,15 @@
+friendly_name: "Shadow of the Tomb Raider"
+executable: "shadowofthetombraider.py"
+process_name: "SOTTR.exe"
+# default recording delay to reduce capturing menus during setup, this should be revisited every test bench as loading times may be different 
+recording_delay: 60
+asset_paths:
+  - "harness/shadowofthetombraider/run"
+options:
+  - name: preset
+    type: select
+    # presets disabled  in favor of manual process for now
+    # values: [current, low, medium, high, highest] 
+    values: [current] 
+    tooltip: Don't forget to set graphics settings!
+    

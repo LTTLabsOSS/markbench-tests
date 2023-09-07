@@ -1,0 +1,48 @@
+name: high
+settings:
+  - name: texture_quality
+    reg_key: TextureQuality
+    value: 2
+  - name: texture_filtering
+    reg_key: TextureFiltering
+    value: 2
+  - name: shadow_quality
+    reg_key: ShadowQuality
+    value: 2
+  - name: ambient_occlusion
+    reg_key: AmbientOcclusionQuality
+    value: 1
+  - name: depth_of_field
+    reg_key: DOFQuality
+    value: 1
+  - name: level_of_detail
+    reg_key: LevelOfDetail
+    value: 1
+  - name: tesselation
+    reg_key: Tessellation
+    value: 1
+  - name: bloom
+    reg_key: Bloom
+    value: 1
+  - name: motion_blur
+    reg_key: MotionBlur
+    value: 1
+  - name: screen_space_reflections
+    reg_key: ScreenSpaceReflections
+    value: 1
+  - name: screen_space_contact_shadows
+    reg_key: ScreenSpaceContactShadows
+    value: 0
+  - name: pure_hair
+    reg_key: TressFX
+    value: 1
+  - name: volumetric_lighting
+    reg_key: VolumetricLighting
+    value: 1
+  - name: lens_flares
+    reg_key: LensFlares
+    value: 1
+  - name: screen_effects
+    reg_key: ScreenEffects
+    value: 1
+

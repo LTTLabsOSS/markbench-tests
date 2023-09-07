@@ -1,0 +1,18 @@
+friendly_name: "Microsoft Flight Simulator"
+executable: "msflightsim.py"
+process_name: "FlightSimulator.exe"
+# default recording delay to reduce capturing menus during setup, this should be revisited every test bench as loading times may be different 
+recording_delay: 160
+hidden: 1
+asset_paths:
+  - "harness/msflightsimulator/run"
+options:
+  - name: preset
+    type: select
+    values: [current] 
+    # Unlock resolution and presets when feature finished
+    # values: [current, lowend, medium, highend, ultra] 
+    # tooltip: Select graphics preset
+    # - name: resolution
+    #   type: input
+    #   tooltip: Format must be height,width. 1080,1920

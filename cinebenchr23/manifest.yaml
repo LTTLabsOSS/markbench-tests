@@ -1,0 +1,18 @@
+friendly_name: "CinebenchR23"
+executable: "cinebench.py"
+process_name: "Cinebench.exe"
+disable_presentmon: true
+hidden: 1
+asset_paths:
+  - "harness/cinebenchr23/run"
+options:
+- name: test
+  type: select
+  values:
+    - "singlecore"
+    - "multicore"
+    - "alltests"
+  tooltip: Select Cinebench test
+- name: minduration
+  type: input
+  tooltip: Minimum duration in seconds, must be whole number.
