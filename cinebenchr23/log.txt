@@ -1,0 +1,107 @@
+Application start      : 08/15/22 at 16:17:00
+Executable             : 64 Bit
+Version / Build        : 23.200 / RBBenchmark330542
+Debugger               : not available
+Memory model           : release
+Startup path           : file:///C:/CinebenchR23
+Application path       : file:///C:/CinebenchR23/Cinebench.exe
+Application executable : file:///C:/CinebenchR23/Cinebench.exe
+Resource path          : file:///C:/CinebenchR23/resource
+Module path(s)         : file:///C:/CinebenchR23/corelibs; file:///C:/CinebenchR23/plugins; file:///C:/Users/Nikolas/AppData/Roaming/Maxon/CinebenchR23_0D4B830B/plugins
+Temporary path         : file:///C:/Users/Nikolas/AppData/Local/Temp
+Prefs path             : file:///C:/Users/Nikolas/AppData/Roaming/Maxon/CinebenchR23_0D4B830B
+Global Prefs path      : file:///C:/Users/Nikolas/AppData/Roaming/Maxon
+OS version             : Windows 10, 64 Bit, Professional Edition (build 19044)
+OS languages           : {en-US}
+App languages          : {en-US}
+Startup language       : en-US
+Processor              : 10(16)x 12th Gen Intel Core i5-12600K
+Computer name          : NHARRIS-WS
+Unique OS identifier   : 3E_XVVqMaya_MvdVXrqJ3dLEQrzHO-kzEZ6aSt9qB9g= [tpm]
+Thread Count           : 16
+CPU Speed (MHz)        : 3690.000
+Application Type       : Modular
+Command line arguments : "g_CinebenchCpuXTest=true" 
+
+Module path file:///C:/CinebenchR23/plugins couldn't be found
+Loading file:///C:/CinebenchR23/corelibs/asset.module.xdl64 with module(s) net.maxon.asset
+Loading file:///C:/CinebenchR23/corelibs/c4d_viewport_nodegraph.module.xdl64 with module(s) net.maxon.c4d_viewport_nodegraph
+Loading file:///C:/CinebenchR23/corelibs/c4dplugin.xdl64 with module(s) net.maxon.rlmlicensing net.maxon.c4d.c4dplugin
+Loading file:///C:/CinebenchR23/corelibs/command.module.xdl64 with module(s) net.maxon.command
+Loading file:///C:/CinebenchR23/corelibs/corenodes.module.xdl64 with module(s) net.maxon.corenodes
+Loading file:///C:/CinebenchR23/corelibs/crashhandler.module.xdl64 with module(s) net.maxon.crashhandler
+Loading file:///C:/CinebenchR23/corelibs/crypt.module.xdl64 with module(s) net.maxon.crypt
+Loading file:///C:/CinebenchR23/corelibs/drawport.module.xdl64 with module(s) net.maxon.drawport
+Loading file:///C:/CinebenchR23/corelibs/drawport_functioncache.module.xdl64 with module(s) net.maxon.drawport_functioncache
+Loading file:///C:/CinebenchR23/corelibs/drawport_general.module.xdl64 with module(s) net.maxon.drawport_general
+Loading file:///C:/CinebenchR23/corelibs/drawport_opengl.module.xdl64 with module(s) net.maxon.drawport_opengl
+Loading file:///C:/CinebenchR23/corelibs/drawport_selector.module.xdl64 with module(s) net.maxon.drawport_selector
+Loading file:///C:/CinebenchR23/corelibs/embree.module.xdl64 with module(s) net.maxon.embree
+Loading file:///C:/CinebenchR23/corelibs/geom.module.xdl64 with module(s) net.maxon.geom
+Loading file:///C:/CinebenchR23/corelibs/geometry_abstraction.module.xdl64 with module(s) net.maxon.geometry_abstraction
+Loading file:///C:/CinebenchR23/corelibs/gui.module.xdl64 with module(s) net.maxon.gui
+Loading file:///C:/CinebenchR23/corelibs/image.module.xdl64 with module(s) net.maxon.image
+Loading file:///C:/CinebenchR23/corelibs/image_winmf.module.xdl64 with module(s) net.maxon.image_winmf
+Loading file:///C:/CinebenchR23/corelibs/licensing.module.xdl64 with module(s) net.maxon.licensing
+Loading file:///C:/CinebenchR23/corelibs/math.module.xdl64 with module(s) net.maxon.math
+Loading file:///C:/CinebenchR23/corelibs/mesh.module.xdl64 with module(s) net.maxon.mesh
+Loading file:///C:/CinebenchR23/corelibs/misc.module.xdl64 with module(s) net.maxon.misc
+Loading file:///C:/CinebenchR23/corelibs/mvp_base_presenter.module.xdl64 with module(s) net.maxon.mvp_base_presenter
+Loading file:///C:/CinebenchR23/corelibs/mvp_base_view.module.xdl64 with module(s) net.maxon.mvp_base_view
+Loading file:///C:/CinebenchR23/corelibs/mvp_desktop2d_nodegraph_widgets.module.xdl64 with module(s) net.maxon.mvp_desktop2d_nodegraph_widgets
+Loading file:///C:/CinebenchR23/corelibs/mvp_desktop2d_widgets.module.xdl64 with module(s) net.maxon.mvp_desktop2d_widgets
+Loading file:///C:/CinebenchR23/corelibs/mvp_nodegraph_presenters.module.xdl64 with module(s) net.maxon.mvp_nodegraph_presenters
+Loading file:///C:/CinebenchR23/corelibs/mvp_nodes_presenters.module.xdl64 with module(s) net.maxon.mvp_nodes_presenters
+Loading file:///C:/CinebenchR23/corelibs/network.module.xdl64 with module(s) net.maxon.network
+Loading file:///C:/CinebenchR23/corelibs/neutron.module.xdl64 with module(s) net.maxon.neutron
+Loading file:///C:/CinebenchR23/corelibs/nodes.module.xdl64 with module(s) net.maxon.nodes
+Loading file:///C:/CinebenchR23/corelibs/nodes_corenodes.module.xdl64 with module(s) net.maxon.nodes_corenodes
+Loading file:///C:/CinebenchR23/corelibs/opensubdiv.module.xdl64 with module(s) net.maxon.opensubdiv
+Loading file:///C:/CinebenchR23/corelibs/render.module.xdl64 with module(s) net.maxon.render
+Loading file:///C:/CinebenchR23/corelibs/retargetbase.module.xdl64 with module(s) net.maxon.retargetbase
+Loading file:///C:/CinebenchR23/corelibs/shaderbase.module.xdl64 with module(s) net.maxon.shaderbase
+Loading file:///C:/CinebenchR23/corelibs/shadernodes.module.xdl64 with module(s) net.maxon.shadernodes
+Loading file:///C:/CinebenchR23/corelibs/svg.module.xdl64 with module(s) net.maxon.svg
+Loading file:///C:/CinebenchR23/corelibs/tessellation.module.xdl64 with module(s) net.maxon.tessellation
+Loading file:///C:/CinebenchR23/corelibs/advanced_render.xdl64 with module(s) net.maxon.c4d.advanced_render
+Loading file:///C:/CinebenchR23/corelibs/c4d_viewport_render.xdl64 with module(s) net.maxon.c4d.c4d_viewport_render
+Loading file:///C:/CinebenchR23/corelibs/ca.xdl64 with module(s) net.maxon.c4d.ca
+Loading file:///C:/CinebenchR23/corelibs/ca2.xdl64 with module(s) net.maxon.c4d.ca2
+Loading file:///C:/CinebenchR23/corelibs/cinebench.xdl64 with module(s) net.maxon.c4d.cinebench
+Loading file:///C:/CinebenchR23/corelibs/clothilde.xdl64 with module(s) net.maxon.c4d.clothilde
+Loading file:///C:/CinebenchR23/corelibs/colorchoosergui.xdl64 with module(s) net.maxon.c4d.colorchoosergui
+Loading file:///C:/CinebenchR23/corelibs/compositing.xdl64 with module(s) net.maxon.c4d.compositing
+Loading file:///C:/CinebenchR23/corelibs/exchanges.xdl64 with module(s) net.maxon.c4d.exchanges
+Loading file:///C:/CinebenchR23/corelibs/expressiontag.xdl64 with module(s) net.maxon.c4d.expressiontag
+Loading file:///C:/CinebenchR23/corelibs/hair.xdl64 with module(s) net.maxon.c4d.hair
+Loading file:///C:/CinebenchR23/corelibs/interop.xdl64 with module(s) net.maxon.c4d.interop
+Loading file:///C:/CinebenchR23/corelibs/mkmodeler.xdl64 with module(s) net.maxon.c4d.mkmodeler
+Loading file:///C:/CinebenchR23/corelibs/mocca.xdl64 with module(s) net.maxon.c4d.mocca
+Loading file:///C:/CinebenchR23/corelibs/model.xdl64 with module(s) net.maxon.c4d.model
+Loading file:///C:/CinebenchR23/corelibs/mograph.xdl64 with module(s) net.maxon.c4d.mograph
+Loading file:///C:/CinebenchR23/corelibs/nbo.xdl64 with module(s) net.maxon.c4d.nbo
+Loading file:///C:/CinebenchR23/corelibs/nbp.xdl64 with module(s) net.maxon.c4d.nbp
+Loading file:///C:/CinebenchR23/corelibs/newman.xdl64 with module(s) net.maxon.c4d.newman
+Loading file:///C:/CinebenchR23/corelibs/nodeeditor.xdl64 with module(s) net.maxon.c4d.nodeeditor
+Loading file:///C:/CinebenchR23/corelibs/objects.xdl64 with module(s) net.maxon.c4d.objects
+Loading file:///C:/CinebenchR23/corelibs/shader.xdl64 with module(s) net.maxon.c4d.shader
+Loading file:///C:/CinebenchR23/corelibs/sky.xdl64 with module(s) net.maxon.c4d.sky
+Loading file:///C:/CinebenchR23/corelibs/sla.xdl64 with module(s) net.maxon.c4d.sla
+Loading file:///C:/CinebenchR23/corelibs/xpressocore.xdl64 with module(s) net.maxon.c4d.xpressocore
+Loading file:///C:/CinebenchR23/corelibs/xtensions.xdl64 with module(s) net.maxon.c4d.xtensions
+CINEBENCH started
+Drawport API initialized
+    Framework        : OpenGL
+    Vendor           : NVIDIA Corporation (NVIDIA)
+    Renderer         : NVIDIA GeForce RTX 3050/PCIe/SSE2
+    Framework version: 4.6.0 NVIDIA 516.59
+    Driver version   : 516.59
+CINEBENCH AUTORUN
+Please wait until all tests are done!
+
+Running Multiple CPU Render Test...
+Minimum test duration: 0.0 ns seconds.
+Rendering...
+Values: {17104.808} -> Avg/Deviation: 17104.808/0.000
+CB 17104.81 (0.00)
+ 

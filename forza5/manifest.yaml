@@ -1,0 +1,13 @@
+friendly_name: "Forza Horizon 5"
+executable: "forza5.py"
+process_name: "forzahorizon5.exe"
+# default recording delay to reduce capturing menus during setup, this should be revisited every test bench as loading times may be different 
+recording_delay: 75
+output_dir: "run"
+options:
+  - name: preset
+    type: select
+    # removing preset options in favor of manual process for now
+    # values: [current, verylow, low, medium, high, ultra, extreme] 
+    values: [current] 
+    tooltip: Don't forget to set game graphics!

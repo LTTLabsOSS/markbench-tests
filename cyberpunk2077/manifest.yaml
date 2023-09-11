@@ -1,0 +1,9 @@
+friendly_name: "Cyberpunk2077"
+executable: "cyberpunk2077.py"
+process_name: "Cyberpunk2077.exe"
+output_dir: "run"
+options:
+  - name: kerasHost
+    type: input
+  - name: kerasPort
+    type: input

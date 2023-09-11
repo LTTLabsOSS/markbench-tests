@@ -1,0 +1,10 @@
+friendly_name: "Counter Strike: Global Offensive"
+executable: "csgo.py"
+process_name: "csgo.exe"
+# default recording delay to reduce capturing menus during setup, this should be revisited every test bench as loading times may be different 
+recording_delay: 80
+output_dir: "run"
+options:
+  - name: preset
+    type: select
+    values: [current] 

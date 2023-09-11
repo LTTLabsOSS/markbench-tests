@@ -1,0 +1,129 @@
+﻿Benchmark Validation File - DO NOT MODIFY! If you do, it will fail validation.
+
+Validation Version:    1.3
+
+Program:               y-cruncher v0.7.10 Build 9513
+Tuning:                14-BDW ~ Kurumi
+
+User:                  None Specified - You can edit this in "Username.txt".
+
+Operating System:      Windows 10.0 Build 19041
+
+Processor(s):
+    Name:              12th Gen Intel(R) Core(TM) i5-12600K
+    Logical Cores:     16
+    Physical Cores:    10
+    Sockets:           1
+    NUMA Nodes:        1
+    Base Frequency:    3,686,412,000 Hz
+
+Motherboard:
+    Manufacturer:      ASUSTeK COMPUTER INC.
+    Model:             ProArt Z690-CREATOR WIFI
+    Version:           Rev 1.xx
+    Serial Number:     Suppressed - Personally identifiable information is opt-in only.
+
+Memory:
+    Usable Memory:     34,053,980,160 (31.7 GiB)
+    Total Memory:      34,359,738,368 (32.0 GiB)
+    DIMM:              16.0 GiB - G Skill Intl - F5-5200J3636C16G    
+    DIMM:              16.0 GiB - G Skill Intl - F5-5200J3636C16G    
+
+Constant:              Pi
+Algorithm:             Chudnovsky (1988)
+Decimal Digits:        100,000,000
+Hexadecimal Digits:    Disabled
+Computation Mode:      Ram Only
+Threading Mode:        Windows Thread Pool  ->  16 / ?
+Working Memory:        549,277,824 ( 524 MiB)
+Total Memory:          600,235,392 ( 572 MiB)
+
+Configuration Dump:
+{
+    Constant : {
+        Constant : "pi"
+        Algorithm : "chudnovsky"
+    }
+    ComputeSize : {
+        DecimalDigits : 100000000
+        EnableHexDigits : "false"
+    }
+    Output : {
+        Framework : "txt"
+        Path : ""
+        RawIO : "true"
+    }
+    OutputVerify : "false"
+    Mode : "ram"
+    Parallelism : {
+        TaskDecomposition : 16
+        Framework : "winpool"
+        MaxSequentialDispatch : 64
+    }
+    Allocator : {
+        Allocator : "mmap"
+        LargePages : "attempt"
+        LockedPages : "attempt"
+    }
+}
+
+Start Date:            Thu Sep 15 11:55:52 2022
+End Date:              Thu Sep 15 11:56:07 2022
+
+Total Computation Time:    15.597 seconds
+Start-to-End Wall Time:    15.778 seconds
+
+CPU Utilization:           388.20 %  +  0.40 % kernel overhead
+Multi-core Efficiency:     24.26 %  +  0.03 % kernel overhead
+
+Last Decimal Digits:
+9948682556 3967530560 3352869667 7734610718 4471868529  :  99,999,950
+7572203175 2074898161 1683139375 1497058112 0187751592  :  100,000,000
+
+SHA256-dec(100,000,001 - 100,000,100): 7b6f04b385312a5839329e7040de5aa1e83b9fe2fcef9c14cd24b4c55c0cef0b
+
+Dec Counts: {9999922,10002475,10001092,9998442,10003863,9993478,9999417,9999610,10002180,9999521}
+
+Dec Hash: Floor(|x| * 10^dec) mod (2^61 - 1) = 199405406068015690
+
+Spot Check:                 Good through 100,000,000
+Timer Sanity Check:         Passed
+Frequency Sanity Check:     Disabled in this version of y-cruncher
+Reference Clock:            
+Reference Clock 0:          10,000,000
+Reference Clock 1:          109,073,229
+Reference Clock 2:          4,980,947
+Is Debugger Present:        No
+Is Contiguous:              Yes
+ECC Recovered Errors:       0
+Colors:                     Yes
+
+Event Log:
+Thu Sep 15 11:55:52 2022	0.004	Working Memory
+Thu Sep 15 11:55:52 2022	0.102	Working Memory:  525 MiB  (locked, spread: 100%/1)
+Thu Sep 15 11:55:52 2022	0.102	Twiddle Tables
+Thu Sep 15 11:55:52 2022	0.125	Twiddle Tables: 48.6 MiB  (locked, spread: 100%/1)
+Thu Sep 15 11:55:52 2022	0.126	Begin Computation
+Thu Sep 15 11:55:52 2022	0.126	Series CommonP2B3...  7,051,378 terms  (Expansion Factor = 2.488)
+Thu Sep 15 11:55:52 2022	0.126	Series: A ( 9 ) 0.000%
+Thu Sep 15 11:55:52 2022	0.230	Series: A ( 8 ) 1.584%
+Thu Sep 15 11:55:52 2022	0.597	Series: A ( 7 ) 5.505%
+Thu Sep 15 11:55:53 2022	0.997	Series: E ( 6 ) 9.431%
+Thu Sep 15 11:55:53 2022	1.420	Series: E ( 5 ) 13.364%
+Thu Sep 15 11:55:54 2022	2.035	Series: E ( 4 ) 18.576%
+Thu Sep 15 11:55:55 2022	2.909	Series: E ( 3 ) 25.843%
+Thu Sep 15 11:55:56 2022	4.219	Series: E ( 2 ) 35.994%
+Thu Sep 15 11:55:58 2022	6.032	Series: E ( 1 ) 50.235%
+Thu Sep 15 11:56:01 2022	8.859	Series: E ( 0 ) 70.379%
+Thu Sep 15 11:56:05 2022	12.893	Finishing Series
+Thu Sep 15 11:56:05 2022	12.904	Large Division
+Thu Sep 15 11:56:05 2022	13.701	InvSqrt(10005)...
+Thu Sep 15 11:56:06 2022	14.196	Large Multiply
+Thu Sep 15 11:56:06 2022	14.564	Base Converting
+Thu Sep 15 11:56:07 2022	15.723	Writing Decimal Digits
+Thu Sep 15 11:56:07 2022	15.777	End Computation
+
+----
+
+Checksum0: 67b3c1c01b95d630bd1247ef819b83ecc6782f489d48f26c0bd1f47c5a5f94860c509fc96d197610f4225f6c214a4da946704de13242116a97d4eaf0e0e0874d
+Checksum1: 8cfc2503ab9935d581f9485218c3e138ba971207c5d959f869412dc53cdaebf31c5ab3f9cf4cf26c3990a6a9e7f6f67fadc59f634897399483f470d6ed619883
