@@ -1,34 +1,11 @@
+"""Blender benchmark test script"""
 from argparse import ArgumentParser
 import json
 import logging
 import os.path
 import subprocess
-import sys
-import re
-import glob
-from subprocess import Popen
-
-
-SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-EXECUTABLE = "benchmark-launcher-cli.exe"
-ABS_EXECUTABLE_PATH = os.path.join(SCRIPT_DIR, EXECUTABLE)
-
-if os.path.isfile(ABS_EXECUTABLE_PATH) is False:
-    raise ValueError('No Blender Benchmark CLI installation detected! Default installation expected to be present on the system.')
-
-log_dir = os.path.join(SCRIPT_DIR, "run")
-if not os.path.isdir(log_dir):
-    os.mkdir(log_dir)
-logging_format = '%(asctime)s %(levelname)-s %(message)s'
-logging.basicConfig(filename=f'{log_dir}/harness.log',
-                    format=logging_format,
-                    datefmt='%m-%d %H:%M',
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(logging_format)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
-
+from zipfile import ZipFile
+import requests
 
 # omit the first arg which is the script name
 parser = ArgumentParser()
@@ -41,13 +18,48 @@ parser.add_argument("-v", "--version", dest="version",
 
 args = parser.parse_args()
 
-version = ""
-scene = []
-device_type = ""
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+log_dir = os.path.join(SCRIPT_DIR, "run")
+if not os.path.isdir(log_dir):
+    os.mkdir(log_dir)
+LOGGING_FORMAT = '%(asctime)s %(levelname)-s %(message)s'
+logging.basicConfig(filename=f'{log_dir}/harness.log',
+                    format=LOGGING_FORMAT,
+                    datefmt='%m-%d %H:%M',
+                    level=logging.DEBUG)
+console = logging.StreamHandler()
+formatter = logging.Formatter(LOGGING_FORMAT)
+console.setFormatter(formatter)
+logging.getLogger('').addHandler(console)
 
-logging.info(f"Downloading Blender {args.version}")
+EXECUTABLE = "benchmark-launcher-cli.exe"
+ABS_EXECUTABLE_PATH = os.path.join(SCRIPT_DIR, EXECUTABLE)
+
+
+def download_and_extract_cli():
+    """Downloads and extracts blender benchmark CLI"""
+    download_url = "https://download.blender.org/release/BlenderBenchmark2.0/launcher/benchmark-launcher-cli-3.1.0-windows.zip"
+    zip_path = os.path.join(
+        SCRIPT_DIR, "benchmark-launcher-cli-3.1.0-windows.zip")
+    response = requests.get(download_url, allow_redirects=True, timeout=120)
+    with open(zip_path, 'wb') as zip_file:
+        zip_file.write(response.content)
+    with ZipFile(zip_path, 'r') as zip_object:
+        zip_object.extractall(path=SCRIPT_DIR)
+
+
+if os.path.isfile(ABS_EXECUTABLE_PATH) is False:
+    logging.info("Downloading blender benchmark CLI")
+    download_and_extract_cli()
+
+
+VERSION = ""
+SCENE = []
+DEVICE_TYPE = ""
+
 run_array = [ABS_EXECUTABLE_PATH, "blender", "download", args.version]
-process = subprocess.run(run_array, capture_output=True, text=True)
+process = subprocess.run(
+    run_array, capture_output=True, text=True, check=False)
 
 if process.returncode > 0:
     logging.info(process.stdout)
@@ -55,15 +67,16 @@ if process.returncode > 0:
     logging.error("Test failed!")
 
 if args.scene.lower() == "all":
-    scene = ["monster", "classroom", "junkshop"]
+    SCENE = ["monster", "classroom", "junkshop"]
 else:
-    scene = [args.scene]
+    SCENE = [args.scene]
 
 if args.device.lower() == "cpu":
-    device_type = "CPU"
+    DEVICE_TYPE = "CPU"
 else:
     run_array = [ABS_EXECUTABLE_PATH, "devices", "-b", args.version]
-    process = subprocess.run(run_array, capture_output=True, text=True)
+    process = subprocess.run(
+        run_array, capture_output=True, text=True, check=False)
 
     if process.returncode > 0:
         logging.info(process.stdout)
@@ -73,30 +86,30 @@ else:
         logging.info(process.stdout)
         logging.info(process.stderr)
         if "OPTIX" in process.stdout or "OPTIX" in process.stderr:
-            device_type = "OPTIX" # nvidia
-        else:
-            device_type = "HIP" # amd
-
-logging.info(scene)
-logging.info([ABS_EXECUTABLE_PATH, "benchmark"] + scene)
-# download version
-# .\benchmark-launcher-cli.exe blender download 3.5.0
+            DEVICE_TYPE = "OPTIX"  # nvidia
+        if "CUDA" in process.stdout or "CUDA" in process.stderr:
+            DEVICE_TYPE = "CUDA"  # older non rtx nvidia
+        elif "HIP" in process.stdout or "HIP" in process.stderr:
+            DEVICE_TYPE = "HIP"  # amd
+        elif "oneAPI" in process.stdout or "oneAPI" in process.stderr:
+            DEVICE_TYPE = "oneAPI"  # intel
 
 arg_string = ["blender", "list"]
-# "monster", "junkshop"
-run_array = [ABS_EXECUTABLE_PATH, "benchmark"] + scene + ["-b", args.version, "--device-type", device_type, "--json"]
-logging.info(f"Running with arguments {run_array}")
-process = subprocess.run(run_array, capture_output=True, text=True)
+run_array = [ABS_EXECUTABLE_PATH, "benchmark"] + SCENE + \
+    ["-b", args.version, "--device-type", DEVICE_TYPE, "--json"]
+logging.info("Running with arguments %s", run_array)
+process = subprocess.run(
+    run_array, capture_output=True, text=True, check=False)
 
 if process.returncode > 0:
     logging.error(process.stderr)
     logging.error("Test failed!")
-   
-json_array= json.loads(process.stdout)
 
-results = []
+json_array = json.loads(process.stdout)
+
+json_report = []
 for report in json_array:
-    result = {
+    scene_report = {
         "timestamp": report['timestamp'],
         "version": report['blender_version']['version'],
         "scene": report['scene']['label'],
@@ -104,13 +117,12 @@ for report in json_array:
         "device": report['device_info']['compute_devices'][0]['name']
     }
 
-    logging.info(json.dumps(result, indent=2))
-    result['version_json'] = report['blender_version']
-    result['results_json'] = report['stats']
-    results.append(result)
+    logging.info(json.dumps(scene_report, indent=2))
+    scene_report['version_json'] = report['blender_version']
+    scene_report['results_json'] = report['stats']
+    json_report.append(scene_report)
 
-f = open(os.path.join(log_dir, "report.json"), "w")
-f.write(json.dumps(results))
-f.close()
+with open(os.path.join(log_dir, "report.json"), "w", encoding="utf-8") as file:
+    file.write(json.dumps(json_report))
 
 logging.info('Test finished!')
