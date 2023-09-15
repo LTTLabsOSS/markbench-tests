@@ -10,3 +10,6 @@
 
 # Built Visual Studio Code Extensions
 *.vsix
+
+# Harness output
+run/
