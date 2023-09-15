@@ -4,6 +4,7 @@
 
 - Python 3.10+
 - F1 22 installed
+- Keras OCR service
 
 ## Options
 
