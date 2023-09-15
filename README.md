@@ -11,7 +11,7 @@ Welcome to the official MarkBench testing platform developed by the LTT Labs tea
   - [Prerequisites](#prerequisites)
     - [Python 3.10+](#python-310)
     - [Poetry](#poetry)
-  - [Running your first test](#running-your-first-test)
+      - [Downloading dependencies](#downloading-dependencies)
 - [A test and its harness](#a-test-and-its-harness)
 - [Creating a test harness](#creating-a-test-harness)
 - [Tools in the toolbox](#tools-in-the-toolbox)
@@ -42,8 +42,15 @@ Open a powershell terminal and execute the following command to download and exe
 ```
 After installation you will want to add poetry to the path. On Windows this path to add is `%APPDATA%\Python\Scripts`. Test that poetry is working by executing `poetry --version`, a version number should be returned, not an error.
 
+##### Downloading dependencies
+1. Open a terminal in the root directory.
+2. Execute `poetry install`
+
+Poetry installs dependencies into virtual environments. You can read more about [managing poetry environments here.](https://python-poetry.org/docs/managing-environments/).
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<!-- omit in toc -->
 ### Running your first test
 Once you've successfully installed Python and Poetry, it's time to kick off our initial test. We'll begin by launching MSI Kombustor, which serves as our primary choice for testing and exploring new MarkBench functionalities. MSI Kombustor provides an excellent starting point for acquainting yourself with our test harnesses, as it doesn't necessitate any additional automation tools from our toolkit.
 
