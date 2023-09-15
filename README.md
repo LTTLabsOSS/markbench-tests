@@ -123,13 +123,18 @@ Harness entrypoints and any supporting files should live in a named directory in
 
 ## Tools in the toolbox
 
-### Keras
+### Keras OCR
 
-Talk about Keras here a bit
+We employ a deployment of [Keras OCR](https://github.com/faustomorales/keras-ocr) integrated into an HTTP API to assist in navigating game menus. This service accepts an image and a designated target word, and in return, it provides the coordinates of the word's location within the image. If the word cannot be located, it returns a "false" response.
+
+For detailed instructions on setting up this Keras Service locally, please refer to our Keras Service repository linked here.
+
+> Please note that although a CUDA-capable GPU is not mandatory, it's worth mentioning that certain games may not function correctly due to slower response times when this hardware is absent.
 
 ### Keyboard and Mouse Input
 
-Talk about using Win32 scan codes (PyAutoGui) and send_input (PyDirectInput)
+For keyboard and mouse input, we employ two distinct methods. The first method involves using Virtual Key Codes (VKs) with the deprecated Win32 functions mouse_event() and keybd_event(). The second method utilizes Send Input. Specifically, [PyAutoGui](https://pyautogui.readthedocs.io/en/latest/) implements the first approach, while [PyDirectInput](https://pypi.org/project/PyDirectInput/) implements the second.
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
