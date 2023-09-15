@@ -183,10 +183,12 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    elapsed_test_time = round(time.time() - test_start_time, 2)
+    test_end_time = time.time()
+    elapsed_test_time = round(test_end_time - test_start_time, 2)
+    logging.info("Benchmark took %f seconds", elapsed_test_time)
 
     terminate_processes("F1")
-    return test_start_time, elapsed_test_time
+    return test_start_time, test_end_time
 
 
 setup_log_directory(LOG_DIRECTORY)
