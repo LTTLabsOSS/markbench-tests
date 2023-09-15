@@ -4,15 +4,6 @@ process_name: "Overwatch.exe"
 hidden: 1
 output_dir: "run"
 options:
-  - name: preset
-    type: select
-    # disable presets in favor of manually setting for now
-    # values: [low, medium, high, ultra, epic] 
-    values: [current] 
-    tooltip: Select graphics preset
-  - name: resolution
-    type: select
-    values: ["1080,1920", "1440,2560", "2160,3840"]
   - name: username
     type: input
     tooltip: Username to log in with

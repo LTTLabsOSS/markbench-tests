@@ -1,13 +1,9 @@
-import logging
 import os
 import time
-from enum import Enum
-
 import cv2
 import imutils
 import numpy as np
 import pyautogui as gui
-import pydirectinput as user
 
 DEFAULT_MATCH_THRESHOLD = 0.8
 DEFAULT_INTERVAL = 2  # seconds
@@ -26,55 +22,6 @@ templates = {
     }
 }
 
-
-def get_template(name, set="16x9"):
-    return templates[name][set]
-
-
-class ClickType(Enum):
-    SINGLE = 0  # uses .click()
-    DOUBLE = 1  # uses .doubleclick()
-    HARD = 2  # uses mouse.down() and mouse.up()
-
-
-def get_middle_of_rect(top_left_corner, height, width):
-    x = top_left_corner[0] + (width / 2)
-    y = top_left_corner[1] + (height / 2)
-    return int(x), int(y)  # round to avoid fractional pixels
-
-
-def click(top_left_corner, img):
-    click_loc = get_middle_of_rect(top_left_corner, img.shape[0], img.shape[1])
-    logging.info(f"Clicking {click_loc}")
-    user.click(click_loc[0], click_loc[1])
-
-
-def double_click(top_left_corner, img):
-    click_loc = get_middle_of_rect(top_left_corner, img.shape[0], img.shape[1])
-    logging.info(f"Double clicking {click_loc}")
-    user.doubleClick(click_loc[0], click_loc[1])
-
-
-def hard_click(top_left_corner, img):
-    click_loc = get_middle_of_rect(top_left_corner, img.shape[0], img.shape[1])
-    user.moveTo(click_loc[0], click_loc[1])
-    user.mouseDown()
-    user.mouseUp()
-
-
-def wait_and_click(template_name, name, click_type: ClickType = ClickType.SINGLE, timeout=DEFAULT_TIMEOUT):
-    logging.info(f"Waiting to find and click on {name}")
-    img, img_loc = wait_for_image_on_screen(template_name, timeout=timeout)
-    if click_type == ClickType.SINGLE:
-        click(img_loc, img)
-    elif click_type == ClickType.DOUBLE:
-        double_click(img_loc, img)
-    elif click_type == ClickType.HARD:
-        hard_click(img_loc, img)
-    else:
-        raise ValueError("Unknown click type")
-
-
 class ImageNotFoundTimeout(Exception):
     pass
 
@@ -88,29 +35,32 @@ def gcd(a, b):
 
 
 def aspect_ratio(w, h):
+    """Determines aspect ratio"""
     denom = int(gcd(w, h))
     x = int(w / denom)
     y = int(h / denom)
     if x == 8 and y == 5:
         return "16x10"
-    elif x == 16 and y == 9:
+    if x == 16 and y == 9:
         return "16x9"
 
 
-def locate_on_screen(template_name, threshold=DEFAULT_MATCH_THRESHOLD, debug=1):
+def locate_on_screen(template_name, threshold=DEFAULT_MATCH_THRESHOLD, debug=0):
+    """Locates image matching a given template on screen"""
     screen = gui.screenshot()
-    screen = np.array(
-        screen)  # pyautogui is using Pillow which is giving a format that must be adapted to work with opencv.
+    # pyautogui is using Pillow which is giving a format that must be adapted to work with opencv.
+    screen = np.array(screen)
     screen = cv2.cvtColor(screen, cv2.COLOR_RGB2BGR)
-    (h, w) = screen.shape[:2]
-    r = aspect_ratio(w, h)
-    needle = get_template(template_name, r)
-    return needle, locate_in_image(needle, screen, threshold=DEFAULT_MATCH_THRESHOLD, debug=0)
+    (height, width) = screen.shape[:2]
+    ratio = aspect_ratio(width, height)
+    needle = templates[template_name][ratio]
+    return needle, locate_in_image(needle, screen, threshold, debug)
 
 
 # This approach was largely inspired by the article
 # https://pyimagesearch.com/2015/01/26/multi-scale-template-matching-using-python-opencv/
 def locate_in_image(needle, haystack, threshold=DEFAULT_MATCH_THRESHOLD, debug=0):
+    """Finds an image within image"""
     (tH, tW) = needle.shape[:2]
 
     if debug:
@@ -129,38 +79,40 @@ def locate_in_image(needle, haystack, threshold=DEFAULT_MATCH_THRESHOLD, debug=0
             break
 
         result = cv2.matchTemplate(resized, needle, cv2.TM_CCOEFF_NORMED)
-        (_, maxVal, _, maxLoc) = cv2.minMaxLoc(result)
+        (_, max_val, _, max_loc) = cv2.minMaxLoc(result)
 
         if debug:
             # draw a bounding box around the detected region
             # clone = np.dstack([edged, edged, edged])
-            cv2.rectangle(resized, (maxLoc[0], maxLoc[1]),
-                          (maxLoc[0] + tW, maxLoc[1] + tH), (0, 0, 255), 2)
+            cv2.rectangle(resized, (max_loc[0], max_loc[1]),
+                          (max_loc[0] + tW, max_loc[1] + tH), (0, 0, 255), 2)
             cv2.imshow("Searching", resized)
             cv2.waitKey(0)
-            # print(maxVal)
+            # print(max_val)
 
-        if maxVal >= threshold:
-            found = (maxVal, maxLoc, r)
+        if max_val >= threshold:
+            found = (max_val, max_loc, r)
 
             # unpack the bookkeeping variable and compute the (x, y) coordinates
             # of the bounding box based on the resized ratio
-            (_, maxLoc, r) = found
-            (startX, startY) = (int(maxLoc[0] * r), int(maxLoc[1] * r))
-            (endX, endY) = (int((maxLoc[0] + tW) * r), int((maxLoc[1] + tH) * r))
+            (_, max_loc, r) = found
+            (start_x, start_y) = (int(max_loc[0] * r), int(max_loc[1] * r))
+            (end_x, end_y) = (int((max_loc[0] + tW) * r), int((max_loc[1] + tH) * r))
 
             if debug:
                 # draw a bounding box around the detected result and display the image
-                cv2.rectangle(haystack, (startX, startY), (endX, endY), (0, 0, 255), 2)
+                cv2.rectangle(haystack, (start_x, start_y), (end_x, end_y), (0, 0, 255), 2)
                 cv2.imshow("Found", haystack)
                 cv2.waitKey(0)
 
-            return startX, startY
+            return start_x, start_y
     raise ImageNotFound("Image not found on screen")
 
 
-def wait_for_image_on_screen(template_name, match_threshold=DEFAULT_MATCH_THRESHOLD, interval=DEFAULT_INTERVAL,
-                             timeout=DEFAULT_TIMEOUT):
+def wait_for_image_on_screen(
+        template_name, match_threshold=DEFAULT_MATCH_THRESHOLD,
+        interval=DEFAULT_INTERVAL,
+        timeout=DEFAULT_TIMEOUT):
     """Function that will wait for an image to appear on screen. This function will check every
      interval for a match that meets is greater than the match threshold. The function will raise
      an error if the image is not found within the timeout given. Will return the location
