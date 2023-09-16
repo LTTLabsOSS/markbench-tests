@@ -13,7 +13,12 @@ import psutil
 import pyautogui as gui
 import pydirectinput as user
 from dotenv import load_dotenv
-from cv2_utils import wait_for_image_on_screen
+from overwatch_utils import templates
+
+#pylint: disable=wrong-import-position
+sys.path.append("..")
+import deprecated.cv2_utils
+#pylint: enable=wrong-import-position
 
 load_dotenv(override=True)
 
@@ -146,7 +151,7 @@ def run_benchmark(username, password):
     # and get into it before waiting for the lobby screen
     time.sleep(30)
 
-    wait_for_image_on_screen('start_button', interval=15, timeout=360)
+    deprecated.cv2_utils.wait_for_image_on_screen('start_button', interval=15, timeout=360)
 
     for process in psutil.process_iter():
         if "Overwatch" in process.name():
@@ -177,6 +182,7 @@ parser.add_argument("-c", "--password", dest="password",
 args = parser.parse_args()
 
 try:
+    deprecated.cv2_utils.templates = templates
     for cache in CACHE_DIRECTORIES:
         try:
             shutil.rmtree(cache)

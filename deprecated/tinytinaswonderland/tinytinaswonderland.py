@@ -1,12 +1,12 @@
 import logging
 from subprocess import Popen
 import sys
-
-from cv2_utils import *
-from utils import read_resolution, try_install_paths, get_local_drives
+import os
+import time
+from utils import read_resolution, try_install_paths, get_local_drives, templates
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-
+import deprecated.cv2_utils
 from harness_utils.logging import *
 from harness_utils.process import terminate_processes
 from harness_utils.steam import get_run_game_id_command, DEFAULT_EXECUTABLE_PATH as steam_path 
@@ -40,16 +40,16 @@ def run_benchmark():
     # wait for menu to load
     time.sleep(30)
 
-    wait_and_click("options", "options menu", ClickType.HARD)
-    wait_and_click("benchmark", "benchmark menu", ClickType.HARD)
-    wait_and_click("start", "start benchmark", ClickType.HARD)
+    deprecated.cv2_utils.wait_and_click("options", "options menu", deprecated.cv2_utils.ClickType.HARD)
+    deprecated.cv2_utils.wait_and_click("benchmark", "benchmark menu", deprecated.cv2_utils.ClickType.HARD)
+    deprecated.cv2_utils.wait_and_click("start", "start benchmark", deprecated.cv2_utils.ClickType.HARD)
     t2 = time.time()
     logging.info(f"Harness setup took {round((t2 - t1), 2)} seconds")
 
     start_time = time.time()
 
     time.sleep(124)
-    wait_for_image_on_screen("options", 0.8, 2, 60)
+    deprecated.cv2_utils.wait_for_image_on_screen("options", 0.8, 2, 60)
 
     end_time = time.time()
     logging.info(f"Benchark took {round((end_time - start_time), 2)} seconds")
@@ -69,6 +69,7 @@ console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
 try:
+    deprecated.cv2_utils.templates = templates
     start_time, end_time = run_benchmark()
     height, width = read_resolution()
     result = {

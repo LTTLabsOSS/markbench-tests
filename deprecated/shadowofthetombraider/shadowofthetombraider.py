@@ -1,14 +1,16 @@
 from subprocess import Popen
 import sys
+import os
+import logging
+from shadow_of_the_tomb_raider_utils import get_resolution, templates
 
-from cv2_utils import *
-from shadow_of_the_tomb_raider_utils import get_resolution
-
+#pylint: disable=wrong-import-position
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-
+import deprecated.cv2_utils
 from harness_utils.logging import *
 from harness_utils.process import terminate_processes
 from harness_utils.steam import get_run_game_id_command, DEFAULT_EXECUTABLE_PATH as steam_path 
+#pylint: enable=wrong-import-position
 
 STEAM_GAME_ID = 750920
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -31,7 +33,7 @@ def clickOptions(options):
         return
 
     try:
-        wait_and_click(options[0], "graphics options", ClickType.HARD)
+        deprecated.cv2_utils.wait_and_click(options[0], "graphics options", deprecated.cv2_utils.ClickType.HARD)
     except:
         clickOptions(options[1:])
 
@@ -44,9 +46,9 @@ def run_benchmark():
     game_process = start_game()
     
     try:
-        wait_and_click('load_menu_play', "play button", timeout=30)
+        deprecated.cv2_utils.wait_and_click('load_menu_play', "play button", timeout=30)
     except:
-        wait_and_click('load_menu_play_orange', "play button", timeout=30)
+        deprecated.cv2_utils.wait_and_click('load_menu_play_orange', "play button", timeout=30)
 
     """
     Wait for game to load and enter graphics submenu
@@ -58,10 +60,10 @@ def run_benchmark():
         'menu_options_highlighted',
     ]
     clickOptions(optionImages)
-    wait_and_click('menu_graphics', "graphics options", ClickType.HARD)
+    deprecated.cv2_utils.wait_and_click('menu_graphics', "graphics options", deprecated.cv2_utils.ClickType.HARD)
     time.sleep(2)  # let the menu transition
     screen = gui.screenshot(os.path.join(LOG_DIRECTORY, "display_settings.png"))
-    wait_and_click('menu_graphics_tab', "graphics tab", ClickType.HARD)
+    deprecated.cv2_utils.wait_and_click('menu_graphics_tab', "graphics tab", deprecated.cv2_utils.ClickType.HARD)
     screen = gui.screenshot(os.path.join(LOG_DIRECTORY, "graphics_settings.png"))
 
     """
@@ -76,8 +78,7 @@ def run_benchmark():
     Wait for benchmark to complete
     """
     time.sleep(180)
-    wait_for_image_on_screen('results_header', DEFAULT_MATCH_THRESHOLD, interval=2,
-                             timeout=60)
+    deprecated.cv2_utils.wait_for_image_on_screen('results_header', interval=2, timeout=60)
                         
     end_time = time.time()
     logging.info(f"Benchark took {round((end_time - start_time), 2)} seconds")
@@ -100,6 +101,7 @@ console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
 try:
+    deprecated.cv2_utils.templates = templates
     start_time, end_time = run_benchmark()
     height, width = get_resolution()
     result = {

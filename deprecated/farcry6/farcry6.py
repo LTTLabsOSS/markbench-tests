@@ -5,11 +5,11 @@ import time
 import pydirectinput as user
 import sys
 
-from cv2_utils import *
-from far_cry_6_utils import get_resolution
+from far_cry_6_utils import get_resolution, templates
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
+import deprecated.cv2_utils
 from harness_utils.logging import *
 from harness_utils.process import terminate_processes
 
@@ -35,9 +35,9 @@ def run_benchmark():
     user.press("space")
     user.press("space")
 
-    wait_and_click('options', 'options button', click_type=ClickType.HARD)
+    deprecated.cv2_utils.wait_and_click('options', 'options button', click_type=deprecated.cv2_utils.ClickType.HARD)
     time.sleep(2)
-    wait_and_click('benchmark', 'options button', click_type=ClickType.HARD)
+    deprecated.cv2_utils.wait_and_click('benchmark', 'options button', click_type=deprecated.cv2_utils.ClickType.HARD)
 
     t2 = time.time()
     logging.info(f"Setup took {round((t2 - t1), 2)} seconds")
@@ -45,7 +45,7 @@ def run_benchmark():
     start_time = time.time()
 
     time.sleep(75) # wait for benchmark to complete 60 + 15 grace
-    wait_for_image_on_screen('header', 'results', interval=2, timeout=60)
+    deprecated.cv2_utils.wait_for_image_on_screen('header', 'results', interval=2, timeout=60)
 
     end_time = time.time()
     logging.info(f"Benchark took {round((end_time - start_time), 2)} seconds")
@@ -67,6 +67,7 @@ console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
 try:
+    deprecated.cv2_utils.templates = templates
     start_time, end_time = run_benchmark()
     height, width = get_resolution()
     result = {
