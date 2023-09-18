@@ -1,6 +1,0 @@
-friendly_name: "SpecViewPerf"
-executable: "specviewperf.py"
-disable_presentmon: true
-hidden: 1
-process_name: "viewperf.exe"
-output_dir: "run"
