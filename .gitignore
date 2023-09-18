@@ -14,3 +14,8 @@
 # Harness output
 run/
 benchmark-launcher-cli-3.1.0-windows.zip
+flac-1.4.3-win/
+flac-1.4.3-win.zip
+
+# python
+__pycache__/
