@@ -1,19 +1,21 @@
-import win32api
-import win32file
-import winreg
+"""Utility functions for Tiny Tina's Wonderland test script"""
 import os
 import logging
 import re
+import winreg
+import win32api
+import win32file
 import cv2
 
 EXECUTABLE = "Wonderlands.exe"
 
 
 def get_documents_path() -> str:
-    SHELL_FOLDER_KEY = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
+    """Use registry to find documents path"""
+    shell_folder_key = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
     try:
         root_handle = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)
-        shell_folders_handle = winreg.OpenKeyEx(root_handle, SHELL_FOLDER_KEY)
+        shell_folders_handle = winreg.OpenKeyEx(root_handle, shell_folder_key)
         personal_path_key = winreg.QueryValueEx(shell_folders_handle, 'Personal')
         return personal_path_key[0]
     finally:
@@ -38,13 +40,20 @@ def get_local_drives() -> list[str]:
     for letter in drive_list:
         if win32file.GetDriveType(letter) == win32file.DRIVE_FIXED:
             list_local_drives.append(letter)
-    return list_local_drives 
+    return list_local_drives
 
 
 def try_install_paths(drives) -> str:
+    """Look for executable in common install paths"""
     for drive_letter in drives:
-        try_me = f"{drive_letter}Program Files\\Epic Games\\TinyTinasWonderlands\\OakGame\\Binaries\\Win64\\{EXECUTABLE}"
-        try_me2 = f"{drive_letter}Epic Games\\TinyTinasWonderlands\\OakGame\\Binaries\\Win64\\{EXECUTABLE}"
+        try_me = (
+            f"{drive_letter}Program Files\\Epic Games\\TinyTinasWonderlands"
+            f"\\OakGame\\Binaries\\Win64\\{EXECUTABLE}"
+        )
+        try_me2 = (
+            f"{drive_letter}Epic Games\\TinyTinasWonderlands"
+            f"\\OakGame\\Binaries\\Win64\\{EXECUTABLE}"
+        )
         if valid_filepath(try_me):
             return try_me
         if valid_filepath(try_me2):
@@ -53,12 +62,16 @@ def try_install_paths(drives) -> str:
 
 
 def read_resolution() -> tuple[int]:
-    dest = f"{get_documents_path()}\\My Games\\Tiny Tina's Wonderlands\\Saved\\Config\\WindowsNoEditor\\GameUserSettings.ini"
+    """Read resolution from local ini file"""
+    dest = (
+        f"{get_documents_path()}\\My Games\\Tiny Tina's Wonderlands" 
+        "\\Saved\\Config\\WindowsNoEditor\\GameUserSettings.ini"
+    )
     hpattern = re.compile(r"ResolutionSizeY=(\d*)")
     wpattern = re.compile(r"ResolutionSizeX=(\d*)")
     h = w = 0
-    with open(dest) as fp:
-        lines = fp.readlines()
+    with open(dest, encoding="utf-8") as file:
+        lines = file.readlines()
         for line in lines:
             result = hpattern.match(line)
             if result is not None:
@@ -69,7 +82,7 @@ def read_resolution() -> tuple[int]:
                 w = result2.group(1)
             if int(h) > 0 and int(w) > 0:
                 break
-    logging.info(f"Current resolution is {h}x{w}")
+    logging.info("Current resolution is %dx%d", h, w)
     return (h, w)
 
 
