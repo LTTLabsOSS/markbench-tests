@@ -36,6 +36,7 @@ def remove_intro_videos(file_paths: list[str]) -> None:
 
 
 def get_args() -> any:
+    """Get command line arguments"""
     parser = ArgumentParser()
     parser.add_argument(
         "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True)

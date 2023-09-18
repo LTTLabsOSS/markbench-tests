@@ -1,8 +1,10 @@
+"""Utility functions for Shadow of the Tomb Raider test script"""
 import winreg
 import os
 import cv2
 
 def get_reg(name) -> any:
+    """Get registry key value"""
     reg_path = r'SOFTWARE\Eidos Montreal\Shadow of the Tomb Raider\Graphics'
     try:
         registry_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0,
@@ -15,6 +17,7 @@ def get_reg(name) -> any:
 
 
 def get_resolution() -> tuple[int]:
+    """Get resolution from registry"""
     width = get_reg("FullscreenWidth")
     height = get_reg("FullscreenHeight")
     return (height, width)

@@ -13,6 +13,7 @@ sys.path.insert(1, os.path.join(sys.path[0], ".."))
 #pylint: disable=wrong-import-position
 
 from harness_utils.keras_service import KerasService
+from harness_utils.steam import DEFAULT_EXECUTABLE_PATH as STEAM_PATH
 from harness_utils.logging import (
     format_resolution,
     seconds_to_milliseconds,
@@ -28,8 +29,6 @@ from harness_utils.process import terminate_processes
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 STEAM_GAME_ID = 1692250
-STEAM_PATH = os.path.join(os.environ["ProgramFiles(x86)"], "steam")
-STEAM_EXECUTABLE = "steam.exe"
 VIDEO_PATH = r"C:\Program Files (x86)\Steam\steamapps\common\F1 22\videos"
 
 skippable = [
@@ -51,9 +50,8 @@ def wait_for_word(word: str, attempts: int = 5, delay_seconds: int = 1) -> bool:
 def start_game():
     """Starts the game via steam command."""
     steam_run_arg = "steam://rungameid/" + str(STEAM_GAME_ID)
-    start_cmd = STEAM_PATH + "\\" + STEAM_EXECUTABLE
-    logging.info("%s %s", start_cmd, steam_run_arg)
-    return Popen([start_cmd, steam_run_arg])
+    logging.info("%s %s", STEAM_PATH, steam_run_arg)
+    return Popen([STEAM_PATH, steam_run_arg])
 
 
 def navigate_overlay():

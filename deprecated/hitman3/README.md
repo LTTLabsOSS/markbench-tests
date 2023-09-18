@@ -5,7 +5,7 @@ This script navigates through in-game menus to the built in benchmark and runs i
 ## Prerequisites
 
 - Python 3.10+
-- Hitman 3 installed
+- Hitman 3 installed via Steam
 
 ## Output
 

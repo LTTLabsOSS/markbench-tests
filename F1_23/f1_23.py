@@ -29,8 +29,6 @@ from harness_utils.logging import (
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 STEAM_GAME_ID = 2108330
-STEAM_PATH = os.path.join(os.environ["ProgramFiles(x86)"], "steam")
-STEAM_EXECUTABLE = "steam.exe"
 PROCESS_NAME = "F1_23"
 
 
@@ -47,10 +45,8 @@ def is_word_on_screen(word: str, attempts: int = 5, delay_seconds: int = 1) -> b
 def start_game():
     """Starts the game via steam command."""
     steam_run_arg = "steam://rungameid/" + str(STEAM_GAME_ID)
-    start_cmd = STEAM_PATH + "\\" + STEAM_EXECUTABLE
-    logging.info("%s %s", start_cmd, steam_run_arg)
-    thread = Popen([start_cmd, steam_run_arg])
-    return thread
+    logging.info("%s %s", STEAM_PATH, steam_run_arg)
+    return Popen([STEAM_PATH, steam_run_arg])
 
 
 def official() -> any:

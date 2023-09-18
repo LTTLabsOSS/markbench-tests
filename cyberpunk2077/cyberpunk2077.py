@@ -19,8 +19,6 @@ from harness_utils.steam import DEFAULT_EXECUTABLE_PATH as STEAM_PATH
 #pylint: enable=wrong-import-position
 
 STEAM_GAME_ID = 1091500
-STEAM_PATH = os.path.join(os.environ["ProgramFiles(x86)"], "steam")
-STEAM_EXECUTABLE = "steam.exe"
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 PROCESS_NAME = "cyberpunk2077.exe"
@@ -28,8 +26,7 @@ PROCESS_NAME = "cyberpunk2077.exe"
 
 def start_game():
     """Launch the game with no launcher or start screen"""
-    cmd = os.path.join(STEAM_PATH, STEAM_EXECUTABLE)
-    cmd_array = [cmd, "-applaunch",
+    cmd_array = [STEAM_PATH, "-applaunch",
                  str(STEAM_GAME_ID), "--launcher-skip", "-skipStartScreen"]
     logging.info(" ".join(cmd_array))
     return Popen(cmd_array)

@@ -34,8 +34,12 @@ STEAM_GAME_ID = 1649240
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 PROCESS_NAME = "Returnal"
-LOCAL_USER_SETTINGS = f"{os.getenv('LOCALAPPDATA')}\\Returnal\\Steam\\Saved\\Config\\WindowsNoEditor\\GameUserSettings.ini"
-VIDEO_PATH = os.path.join(DEFAULT_STEAMAPPS_COMMON_PATH, "Returnal", "Returnal", "Content", "Movies")
+LOCAL_USER_SETTINGS = os.path.join(
+  os.getenv('LOCALAPPDATA'), "Returnal", "Steam",
+  "Saved", "Config", "WindowsNoEditor", "GameUserSettings.ini"
+  )
+VIDEO_PATH = os.path.join(
+    DEFAULT_STEAMAPPS_COMMON_PATH, "Returnal", "Returnal", "Content", "Movies")
 
 user.FAILSAFE = False
 
