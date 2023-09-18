@@ -19,7 +19,7 @@ from harness_utils.logging import (
 )
 from harness_utils.process import terminate_processes
 from harness_utils.steam import get_run_game_id_command, DEFAULT_EXECUTABLE_PATH as steam_path 
-#pylint: disable=wrong-import-position
+#pylint: enable=wrong-import-position
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")

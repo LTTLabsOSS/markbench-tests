@@ -1,3 +1,4 @@
+"""Utility functions for FarCry6 test script"""
 import os
 import cv2
 
@@ -22,6 +23,6 @@ templates = {
     },
 }
 
-# Stub
 def get_resolution():
+    """Stub: Return resolution"""
     return 0,0
