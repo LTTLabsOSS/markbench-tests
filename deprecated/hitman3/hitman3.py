@@ -1,17 +1,26 @@
+"""Hitman 3 test script"""
 import os
 import logging
 import time
+import sys
 from subprocess import Popen
 import pyautogui as gui
-import sys
 
 from hitman_3_utils import get_resolution, wait_for_image
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-
-from harness_utils.logging import *
+#pylint: disable=wrong-import-position
+from harness_utils.logging import (
+    format_resolution,
+    seconds_to_milliseconds,
+    setup_log_directory,
+    write_report_json,
+    DEFAULT_LOGGING_FORMAT,
+    DEFAULT_DATE_FORMAT,
+)
 from harness_utils.process import terminate_processes
 from harness_utils.steam import get_run_game_id_command, DEFAULT_EXECUTABLE_PATH as STEAM_PATH
+#pylint: enable=wrong-import-position
 
 STEAM_GAME_ID = 1659040
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -21,13 +30,15 @@ PROCESS_NAMES = ['HITMAN3.exe', 'Launcher.exe']
 
 
 def start_game():
+    """Starts the game process"""
     steam_run_arg = get_run_game_id_command(STEAM_GAME_ID)
-    logging.info(STEAM_PATH + " " + steam_run_arg)
+    logging.info("%s %s", STEAM_PATH, steam_run_arg)
     return Popen([STEAM_PATH, steam_run_arg])
 
 
 def run_benchmark():
-    t1 = time.time()
+    """Starts the benchmark"""
+    setup_start_time = time.time()
     start_game()
 
     options_image = os.path.dirname(os.path.realpath(__file__)) + "/images/hitman3_options.png"
@@ -48,22 +59,22 @@ def run_benchmark():
     print(f"Center of start button is here {click_me}")
     gui.click(click_me.x, click_me.y)
 
-    t2 = time.time()
-    logging.info(f"Harness setup took {round((t2 - t1), 2)} seconds")
-    start_time = time.time()
-  
+    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+    logging.info("Setup took %f seconds", elapsed_setup_time)
+    test_start_time = time.time()
+
     hitman_title = os.path.dirname(os.path.realpath(__file__)) + "/images/hitman_header.png"
     time.sleep(150) # sleep during benchmark 140 + 10 seconds loading.
     result = wait_for_image(hitman_title, 0.7, 2, 60)
     if not result:
         logging.error("Benchmark failed to complete! Could not find end image")
-        exit(1)
-    
-    end_time = time.time()
+        sys.exit(1)
 
-    logging.info(f"Benchark took {round((end_time - start_time), 2)} seconds")
+    test_end_time = time.time()
+    elapsed_test_time = round(test_end_time - test_start_time, 2)
+    logging.info("Benchmark took %f seconds", elapsed_test_time)
     terminate_processes(*PROCESS_NAMES)
-    return start_time, end_time
+    return test_start_time, test_end_time
 
 
 setup_log_directory(LOG_DIRECTORY)
@@ -80,16 +91,16 @@ logging.getLogger('').addHandler(console)
 try:
     start_time, end_time = run_benchmark()
     height, width = get_resolution()
-    result = {
+    report = {
         "resolution": format_resolution(width, height),
-        "graphics_preset": "current",
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time)
     }
 
-    write_report_json(LOG_DIRECTORY, "report.json", result)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
+#pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
     terminate_processes(*PROCESS_NAMES)
-    exit(1)
+    sys.exit(1)

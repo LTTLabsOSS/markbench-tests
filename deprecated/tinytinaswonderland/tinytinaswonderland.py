@@ -68,7 +68,7 @@ def run_benchmark():
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     terminate_processes("Wonderlands")
-    return start_time, end_time
+    return test_start_time, test_end_time
 
 
 setup_log_directory(LOG_DIRECTORY)
