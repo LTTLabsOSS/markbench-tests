@@ -1,11 +1,11 @@
-# F1 23
+# Cyberpunk 2077
 
-This script navigates through in-game menus to the built in benchmark and runs it with the current settings. It then waits for a results screen, expecting the benchmark to be running 3 laps.
+Navigates menus to in-game benchmark then runs it.
 
 ## Prerequisites
 
 - Python 3.10+
-- F1 23 installed
+- Cyberpunk 2077 installed
 - Keras OCR service
 
 ## Options

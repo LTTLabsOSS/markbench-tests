@@ -1,5 +1,7 @@
 # F1 22
 
+This script navigates through in-game menus to the built in benchmark and runs it with the current settings. It then waits for a results screen, expecting the benchmark to be running 3 laps.
+
 ## Prerequisites
 
 - Python 3.10+
