@@ -1,25 +1,39 @@
+"""Total War: Warhammer III test script"""
 from argparse import ArgumentParser
 import logging
 import os
-import pydirectinput as user
 import time
 import sys
-import pyautogui as gui
 import re
 import winreg
+import pyautogui as gui
+import pydirectinput as user
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-
+# pylint: disable=wrong-import-position
 from harness_utils.process import terminate_processes
-from harness_utils.logging import setup_log_directory, write_report_json, DEFAULT_LOGGING_FORMAT, DEFAULT_DATE_FORMAT
+from harness_utils.logging import (
+    format_resolution,
+    setup_log_directory,
+    write_report_json,
+    seconds_to_milliseconds,
+    DEFAULT_LOGGING_FORMAT,
+    DEFAULT_DATE_FORMAT
+)
 from harness_utils.keras_service import KerasService
-
+# pylint: enable=wrong-import-position
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 APPDATA = os.getenv("APPDATA")
+CONFIG_LOCATION = f"{APPDATA}\\The Creative Assembly\\Warhammer3\\scripts"
+CONFIG_FILENAME = "preferences.script.txt"
+PROCESS_NAME = "Warhammer3.exe"
 
-def WH_DIRECTORY() -> any:
+user.FAILSAFE = False
+
+def get_directory() -> any:
+    """Gets directory from registry key"""
     reg_path = r'Software\Microsoft\WIndows\CurrentVersion\Uninstall\Steam App 1142710'
     try:
         registry_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, reg_path, 0,
@@ -30,43 +44,39 @@ def WH_DIRECTORY() -> any:
     except WindowsError:
         return None
 
-WARHAMMER_DIRECTORY = WH_DIRECTORY()
-CONFIG_LOCATION = f"{APPDATA}\\The Creative Assembly\\Warhammer3\\scripts"
-CONFIG_FILENAME = "preferences.script.txt"
-PROCESS_NAME = "Warhammer3.exe"
-
-user.FAILSAFE = False
-
 
 def read_current_resolution():
+    """Reads resolutions settings from local game file"""
     height_pattern = re.compile(r"y_res (\d+);")
     width_pattern = re.compile(r"x_res (\d+);")
     cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
-    height = 0
-    width = 0
-    with open(cfg) as f:
-        lines = f.readlines()
+    height_value = 0
+    width_value = 0
+    with open(cfg, encoding="utf-8") as file:
+        lines = file.readlines()
         for line in lines:
             height_match = height_pattern.search(line)
             width_match = width_pattern.search(line)
             if height_match is not None:
-                height = height_match.group(1)
+                height_value = height_match.group(1)
             if width_match is not None:
-                width = width_match.group(1)
-    return (height, width)
+                width_value = width_match.group(1)
+    return (height_value, width_value)
 
 
 def start_game():
-    cmd_string = f"start /D \"{WARHAMMER_DIRECTORY}\" {PROCESS_NAME}"
+    """Starts the game process"""
+    cmd_string = f"start /D \"{get_directory()}\" {PROCESS_NAME}"
     logging.info(cmd_string)
     return os.system(cmd_string)
 
 
 def await_logo_screens(attempts: int) -> bool:
+    """Waits for logo screen"""
     logging.info("looking for logo")
     for _ in range(attempts):
         result = kerasService.capture_screenshot_find_word("warning")
-        if result != None:
+        if result is not None:
             return True
         time.sleep(5)
 
@@ -74,6 +84,7 @@ def await_logo_screens(attempts: int) -> bool:
 
 
 def skip_logo_screens() -> None:
+    """Simulate input to skip logo screens"""
     logging.info("Skipping logo screens")
 
     # Enter TWWH3 menu
@@ -94,9 +105,10 @@ def skip_logo_screens() -> None:
 
 
 def find_options(attempts: int) -> any:
+    """Find options text"""
     for _ in range(attempts):
         result = kerasService.capture_screenshot_find_word("options")
-        if result != None:
+        if result is not None:
             return (result["x"], result["y"])
         time.sleep(1)
 
@@ -104,9 +116,10 @@ def find_options(attempts: int) -> any:
 
 
 def find_advanced(attempts: int) -> any:
+    """Find advanced text"""
     for _ in range(attempts):
         result = kerasService.capture_screenshot_find_word("ad")
-        if result != None:
+        if result is not None:
             return (result["x"], result["y"])
         time.sleep(1)
 
@@ -114,9 +127,10 @@ def find_advanced(attempts: int) -> any:
 
 
 def find_benchmark(attempts: int) -> any:
+    """Find benchmark options"""
     for _ in range(attempts):
         result = kerasService.capture_screenshot_find_word("bench")
-        if result != None:
+        if result is not None:
             return (result["x"], result["y"])
         time.sleep(1)
 
@@ -124,17 +138,19 @@ def find_benchmark(attempts: int) -> any:
 
 
 def find_summary(attempts: int) -> bool:
+    """Find benchmark results"""
     for _ in range(attempts):
         result = kerasService.capture_screenshot_find_word("summary")
-        if result != None:
+        if result is not None:
             return True
         time.sleep(5)
 
 
 def await_benchmark_start(attempts: int, delay=5) -> bool:
+    """Wait for benchmark to start"""
     for _ in range(attempts):
         result = kerasService.capture_screenshot_find_word("fps")
-        if result != None:
+        if result is not None:
             return True
         time.sleep(delay)
 
@@ -142,14 +158,15 @@ def await_benchmark_start(attempts: int, delay=5) -> bool:
 
 
 def run_benchmark():
+    """Starts the benchmark"""
     start_game()
-    t1 = time.time()
+    setup_start_time = time.time()
     time.sleep(5)
 
     logo_skip = await_logo_screens(10)
     if not logo_skip:
         logging.info("Did not warnings. Did the game start?")
-        exit(1)
+        sys.exit(1)
 
     skip_logo_screens()
     time.sleep(2)
@@ -158,7 +175,7 @@ def run_benchmark():
     if not options:
         logging.info(
             "Did not find the options menu. Did the game skip the intros?")
-        exit(1)
+        sys.exit(1)
 
     gui.moveTo(options[0], options[1])
     time.sleep(0.2)
@@ -171,7 +188,7 @@ def run_benchmark():
     if not advanced:
         logging.info(
             "Did not find the advanced menu. Did the game skip the intros?")
-        exit(1)
+        sys.exit(1)
 
     gui.moveTo(advanced[0], advanced[1])
     time.sleep(0.2)
@@ -184,7 +201,7 @@ def run_benchmark():
     if not benchmark:
         logging.info(
             "Did not find the benchmark menu. Did the game skip the intros?")
-        exit(1)
+        sys.exit(1)
 
     gui.moveTo(benchmark[0], benchmark[1])
     time.sleep(0.2)
@@ -199,19 +216,19 @@ def run_benchmark():
     check_start = await_benchmark_start(5, 10)
 
     loading_screen_start = time.time()
-    while (True):
+    while True:
         check_start = await_benchmark_start(2, 2)
         if check_start:
             break
-        elif time.time()-loading_screen_start > 60:
+        if time.time()-loading_screen_start > 60:
             logging.info("Benchmark didn't start.")
-            exit(1)
+            sys.exit(1)
         logging.info("Benchmark hasn't started. Trying again in 10 seconds")
         time.sleep(10)
 
-    t2 = time.time()
-    logging.info(f"Setup took {round((t2 - t1), 2)} seconds")
-    start_time = time.time()
+    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+    logging.info("Setup took %f seconds", elapsed_setup_time)
+    test_start_time = time.time()
 
     time.sleep(100)  # Wait for benchmark
 
@@ -220,18 +237,19 @@ def run_benchmark():
     if not finish_benchmark:
         logging.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?")
-        exit(1)
+        sys.exit(1)
 
     # Wait 5 seconds for benchmark info
     time.sleep(5)
 
     # End the run
-    end_time = time.time()
-    logging.info(f"Benchmark took {round((end_time - start_time), 2)} seconds")
+    test_end_time = time.time()
+    elapsed_test_time = round(test_end_time - test_start_time, 2)
+    logging.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Exit
     terminate_processes(PROCESS_NAME)
-    return start_time, end_time
+    return test_start_time, test_end_time
 
 
 setup_log_directory(LOG_DIRECTORY)
@@ -257,16 +275,16 @@ kerasService = KerasService(args.keras_host, args.keras_port, os.path.join(
 try:
     start_time, endtime = run_benchmark()
     height, width = read_current_resolution()
-    result = {
-        "resolution": f"{width}x{height}",
-        "graphics_preset": "current",
-        "start_time": round((start_time * 1000)),  # seconds * 1000 = millis
-        "end_time": round((endtime * 1000))
+    report = {
+        "resolution": format_resolution(width, height),
+        "start_time": seconds_to_milliseconds(start_time),
+        "end_time": seconds_to_milliseconds(endtime)
     }
 
-    write_report_json(LOG_DIRECTORY, "report.json", result)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
+#pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
     terminate_processes(PROCESS_NAME)
-    exit(1)
+    sys.exit(1)
