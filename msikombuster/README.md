@@ -1,42 +1,20 @@
-# FurMark Test Harness
+# MSI Kombustor harness
+This is a wrapper for the [MSI Kombustor](https://geeks3d.com/furmark/kombustor/) application.
+
+>MSI Kombustor is MSI's exclusive burn-in benchmarking tool based on the well-known FurMark software. This program is specifically designed to push your graphics card to the limits to test stability and thermal performance. Kombustor supports cutting edge 3D APIs such as OpenGL or Vulkan. 
+
+![Alt text](msi_kombustor.png)
+
+This harness takes in the **Stess Test** and **Resolution** as command line arguments and then executes. If started in benchmark mode the score will be recorded. If not in Benchmark mode MSI Kombustor will run until manually exited.
 
 ## Prerequisites
 
 - Python 3.10+
-- MSI Kombuster installed in default path.
+- MSI Kombustor installed in default location.
 
-This harness expects that MSI Kombuster has been installed on the system using installer defaults.
-> Note: Hopefully it will install itself in the future if not present.
+## Output
 
-## Setup
-
-  1. Follow the setup instructions for the framework. If you have done so, all required python dependencies *should* be installed.
-  2. Install MSI Kombuster from `\\10.20.0.27\Users\Linus\Team_Documents\Nikolas\Benchmark_Dependencies\MSI_Kombustor4_Setup_v4.1.16.0_x64.exe`
-      1. Follow the installer's defaults.
-
-## Configuration
-
-Below is an example use of this harness as a test in a benchmark configuration.
-
-```yaml
-...
-...
-tests:
-  - name: msikombuster
-    executable: "msikombuster.py"
-    process_name: "MSI-Kombuster-x64.exe"
-    output_dir:
-      - 'harness/msikombuster/run'
-```
-
-__name__ : _(required)_ name of the test. This much match the name of a directory in the harness folder so the framework
-can find the executable and any supplementary files.
-
-__executable__ : _(required)_ the entry point to the test harness. In this case a python script.
-
-__process_name__ : _(required)_ The process name that should be the target for FPS recording (ex: PresentMon).
-
-__output_dir__: _(optional)_ Directory containing files to aggregate copies of after a successful test run. If a directory path is
-given, the contents are copied.
-
-
+report.json
+- `resolution`: resolution used for the run.
+- `test`: the test used for the run.
+- `score`: score given from a benchmark run.
