@@ -1,49 +1,58 @@
+"""Red Dead Redemption 2 test script"""
 import logging
 import os
-import pydirectinput as user
 import time
 from subprocess import Popen
 import sys
+import pydirectinput as user
 
 from red_dead_redemption_2_utils import get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-from harness_utils.logging import *
+#pylint: disable=wrong-import-position
+from harness_utils.logging import (
+    format_resolution,
+    seconds_to_milliseconds,
+    setup_log_directory,
+    write_report_json,
+    DEFAULT_LOGGING_FORMAT,
+    DEFAULT_DATE_FORMAT,
+)
 from harness_utils.process import terminate_processes
 from harness_utils.steam import get_run_game_id_command, DEFAULT_EXECUTABLE_PATH as STEAM_PATH
+#pylint: enable=wrong-import-position
 
 STEAM_GAME_ID = 1174180
 PROCESS_NAME = "RDR2"
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 
-config_path = os.path.join(os.environ["HOMEPATH"], "Documents" ,"Rockstar Games", "Red Dead Redemption 2", "Settings", "system.xml")
+config_path = os.path.join(
+    os.environ["HOMEPATH"], "Documents" ,"Rockstar Games",
+    "Red Dead Redemption 2", "Settings", "system.xml"
+)
 
 
 def start_game():
+    """Starts the game via steam command"""
     steam_run_arg = get_run_game_id_command(STEAM_GAME_ID)
-    logging.info(STEAM_PATH + " " + steam_run_arg)
+    logging.info("%s %s", STEAM_PATH, steam_run_arg)
     return Popen([STEAM_PATH, steam_run_arg])
 
 
 def run_benchmark():
-    ##
+    """Starts the benchmark"""
     # Wait for game to load to main menu
-    ##
-    t1 = time.time()
+    setup_start_time = time.time()
     start_game()
     time.sleep(65)
 
-    ##
     # Press Z to enter settings
-    ##
     user.press("z")
     time.sleep(3)
 
-    ##
     # Enter graphics menu
-    ##
     ## ensure we are starting from the top left of the screen
     user.press("up")
     user.press("up")
@@ -54,31 +63,26 @@ def run_benchmark():
     user.press("enter")
     time.sleep(3)
 
-    ##
     # Run benchmark by holding X for 2 seconds
-    ##
     user.keyDown('x')
     time.sleep(1.5)
     user.keyUp("x")
 
-    ##
     # Press enter to confirm benchmark
-    ##
-    t2 = time.time()
-    logging.info(f"Harness setup took {round((t2 - t1), 2)} seconds")
+    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+    logging.info("Setup took %f seconds", elapsed_setup_time)
     user.press("enter")
-    start_time = time.time()
+    test_start_time = time.time()
 
-    ##
     # Wait for the benchmark to complete
-    ##
     time.sleep(315)  # 5 min, 15 seconds.
-    end_time = time.time()
-    logging.info(f"Benchark took {round((end_time - start_time), 2)} seconds")
+    test_end_time = time.time()
+    elapsed_test_time = round(test_end_time - test_start_time, 2)
+    logging.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Exit
     terminate_processes(PROCESS_NAME)
-    return start_time, end_time
+    return test_start_time, test_end_time
 
 
 setup_log_directory(LOG_DIRECTORY)
@@ -95,16 +99,16 @@ logging.getLogger('').addHandler(console)
 try:
     start_time, end_time = run_benchmark()
     width, height = get_resolution(config_path)
-    result = {
+    report = {
         "resolution": format_resolution(width, height),
-        "graphics_preset": "current",
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time)
     }
 
-    write_report_json(LOG_DIRECTORY, "report.json", result)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
+#pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
     terminate_processes(PROCESS_NAME)
-    exit(1)
+    sys.exit(1)

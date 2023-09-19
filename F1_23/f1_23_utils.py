@@ -4,7 +4,7 @@ import re
 import winreg
 import logging
 
-def get_resolution() -> tuple[int]:   
+def get_resolution() -> tuple[int]:
     """Gets resolution width and height from local xml file created by game."""
     username = os.getlogin()
     config_path = f"C:\\Users\\{username}\\Documents\\My Games\\F1 22\\hardwaresettings"
