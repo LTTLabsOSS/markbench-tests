@@ -1,38 +1,38 @@
+"""Recording session test script"""
 import logging
-import time
 import os
 import socket
 import sys
+import time
 
-#####
-# Entry Point
-#####
+
 script_dir = os.path.dirname(os.path.realpath(__file__))
 log_dir = os.path.join(script_dir, "run")
 if not os.path.isdir(log_dir):
     os.mkdir(log_dir)
 
-logging_format = '%(asctime)s %(levelname)-s %(message)s'
+LOGGING_FORMAT = '%(asctime)s %(levelname)-s %(message)s'
 logging.basicConfig(filename=f'{log_dir}/harness.log',
-                    format=logging_format,
+                    format=LOGGING_FORMAT,
                     datefmt='%m-%d %H:%M',
                     level=logging.DEBUG)
 console = logging.StreamHandler()
-formatter = logging.Formatter(logging_format)
+formatter = logging.Formatter(LOGGING_FORMAT)
 console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
-HOST = '' 
-PORT = 30000 
+HOST = ''
+PORT = 30000
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 try:
     s.bind((HOST, PORT))
 except socket.error as msg:
-    print('Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
-    exit(1)
+    logging.error("Bind failed %s", msg)
+    sys.exit(1)
 
 s.listen(1)
-while (True):
+while True:
+    time.sleep(0.1)
     conn, addr = s.accept()
     if conn:
-        exit(0)
+        sys.exit(0)
