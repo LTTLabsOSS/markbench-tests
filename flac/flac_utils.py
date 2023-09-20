@@ -21,4 +21,4 @@ def download_flac(url: str) -> str:
         file.write(response.content)
     with ZipFile(destination, 'r') as zip_object:
         zip_object.extractall(path=SCRIPT_DIR)
-    return 
+        
