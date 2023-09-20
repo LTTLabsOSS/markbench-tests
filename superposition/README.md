@@ -1,15 +1,15 @@
-# FurMark Test Harness
+# Unigine Superposition benchmark
+
+Wrapper for the Unigine benchmark Superposition.
 
 ## Prerequisites
 
 - Python 3.10+
-- Unigine Superposition Pro installed in default path.
+- [Unigine Superposition](https://benchmark.unigine.com/superposition) installed.
 
-This harness expects that Unigine Superposition Pro has been installed on the system using installer defaults.
-> Note: Hopefully it will install itself in the future if not present.
+## Output
 
-## Setup
-
-  1. Follow the setup instructions for the framework. If you have done so, all required python dependencies *should* be installed.
-  2. Install MSI Kombuster from [https://benchmark.unigine.com/superposition](https://benchmark.unigine.com/superposition)
-      1. Follow the installer's defaults.
+report.json
+- `api`: graphics api to be used: directx or opengl.
+- `preset`: graphics preset to be used: low, medium, high, extreme.
+- `resolution` resolution to be used, example: 1080,1920
