@@ -11,7 +11,7 @@ from csgo_utils import get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-from harness_utils.logging import *
+from harness_utils.output import *
 from harness_utils.process import terminate_processes
 from harness_utils.steam import get_run_game_id_command, DEFAULT_EXECUTABLE_PATH as STEAM_PATH
 

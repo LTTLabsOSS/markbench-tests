@@ -9,7 +9,7 @@ from utils import read_resolution, try_install_paths, get_local_drives, template
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 #pylint: disable=wrong-import-position
 import deprecated.cv2_utils
-from harness_utils.logging import (
+from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
     setup_log_directory,

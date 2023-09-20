@@ -7,7 +7,7 @@ from forza5_utils import read_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-from harness_utils.logging import *
+from harness_utils.output import *
 from harness_utils.process import terminate_processes
 from harness_utils.rtss import  start_rtss_process, copy_rtss_profile
 from harness_utils.steam import get_run_game_id_command, DEFAULT_EXECUTABLE_PATH as steam_path 

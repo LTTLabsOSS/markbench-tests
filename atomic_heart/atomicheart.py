@@ -12,7 +12,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 #pylint: disable=wrong-import-position
 from harness_utils.steam import get_run_game_id_command, DEFAULT_EXECUTABLE_PATH as STEAM_PATH
 from harness_utils.process import terminate_processes
-from harness_utils.logging import (
+from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
     setup_log_directory,

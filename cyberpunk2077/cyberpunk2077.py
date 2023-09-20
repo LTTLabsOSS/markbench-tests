@@ -12,7 +12,7 @@ import pydirectinput as user
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 #pylint: disable=wrong-import-position
 from harness_utils.keras_service import KerasService
-from harness_utils.logging import (
+from harness_utils.output import (
     setup_log_directory, write_report_json, DEFAULT_LOGGING_FORMAT, DEFAULT_DATE_FORMAT)
 from harness_utils.process import terminate_processes
 from harness_utils.steam import DEFAULT_EXECUTABLE_PATH as STEAM_PATH

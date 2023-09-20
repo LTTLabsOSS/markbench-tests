@@ -10,7 +10,7 @@ from hitman_3_utils import get_resolution, wait_for_image
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 #pylint: disable=wrong-import-position
-from harness_utils.logging import (
+from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
     setup_log_directory,

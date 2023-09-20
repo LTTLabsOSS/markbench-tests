@@ -10,7 +10,7 @@ sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
 # pylint: disable=wrong-import-position
 from flac_utils import download_flac, flac_folder_exists
-from harness_utils.logging import DEFAULT_LOGGING_FORMAT, setup_log_directory
+from harness_utils.output import DEFAULT_LOGGING_FORMAT, setup_log_directory
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 log_dir = os.path.join(script_dir, "run")

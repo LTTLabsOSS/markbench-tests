@@ -12,7 +12,7 @@ import pydirectinput as user
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 # pylint: disable=wrong-import-position
 from harness_utils.process import terminate_processes
-from harness_utils.logging import (
+from harness_utils.output import (
     format_resolution,
     setup_log_directory,
     write_report_json,

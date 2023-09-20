@@ -11,7 +11,7 @@ from red_dead_redemption_2_utils import get_resolution
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 #pylint: disable=wrong-import-position
-from harness_utils.logging import (
+from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
     setup_log_directory,

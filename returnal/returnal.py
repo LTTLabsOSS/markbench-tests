@@ -13,7 +13,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 # pylint: disable=wrong-import-position
 
 from harness_utils.keras_service import KerasService
-from harness_utils.logging import (
+from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
     setup_log_directory,

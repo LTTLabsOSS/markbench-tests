@@ -11,7 +11,7 @@ from shadow_of_the_tomb_raider_utils import get_resolution, templates
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 #pylint: disable=wrong-import-position
 import deprecated.cv2_utils
-from harness_utils.logging import (
+from harness_utils.output import (
     seconds_to_milliseconds,
     setup_log_directory,
     write_report_json,
