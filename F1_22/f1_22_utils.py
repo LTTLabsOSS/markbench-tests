@@ -40,13 +40,3 @@ def get_args() -> any:
         required=True,
     )
     return parser.parse_args()
-
-
-def remove_intro_videos(file_paths: list[str]) -> None:
-    """Remove video files from paths to speed up game startup."""
-    for video in file_paths:
-        try:
-            os.remove(video)
-        except FileNotFoundError:
-            # If file not found, it has likely already been deleted before.
-            pass

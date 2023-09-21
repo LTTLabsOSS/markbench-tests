@@ -2,7 +2,6 @@
 import logging
 import os
 import time
-from subprocess import Popen
 import sys
 import pydirectinput as user
 
@@ -20,7 +19,7 @@ from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
 )
 from harness_utils.process import terminate_processes
-from harness_utils.steam import get_run_game_id_command, DEFAULT_EXECUTABLE_PATH as STEAM_PATH
+from harness_utils.steam import exec_steam_run_command
 #pylint: enable=wrong-import-position
 
 STEAM_GAME_ID = 1174180
@@ -28,24 +27,12 @@ PROCESS_NAME = "RDR2"
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 
-config_path = os.path.join(
-    os.environ["HOMEPATH"], "Documents" ,"Rockstar Games",
-    "Red Dead Redemption 2", "Settings", "system.xml"
-)
-
-
-def start_game():
-    """Starts the game via steam command"""
-    steam_run_arg = get_run_game_id_command(STEAM_GAME_ID)
-    logging.info("%s %s", STEAM_PATH, steam_run_arg)
-    return Popen([STEAM_PATH, steam_run_arg])
-
 
 def run_benchmark():
     """Starts the benchmark"""
     # Wait for game to load to main menu
     setup_start_time = time.time()
-    start_game()
+    exec_steam_run_command(STEAM_GAME_ID)
     time.sleep(65)
 
     # Press Z to enter settings
@@ -98,7 +85,7 @@ logging.getLogger('').addHandler(console)
 
 try:
     start_time, end_time = run_benchmark()
-    width, height = get_resolution(config_path)
+    width, height = get_resolution()
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),

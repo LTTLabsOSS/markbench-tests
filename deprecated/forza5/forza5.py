@@ -10,7 +10,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from harness_utils.output import *
 from harness_utils.process import terminate_processes
 from harness_utils.rtss import  start_rtss_process, copy_rtss_profile
-from harness_utils.steam import get_run_game_id_command, DEFAULT_EXECUTABLE_PATH as steam_path 
+from harness_utils.steam import exec_steam_run_command
 
 STEAM_GAME_ID = 1551360
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -27,18 +27,12 @@ def start_rtss():
     return start_rtss_process()
 
 
-def start_game():
-    steam_run_arg = get_run_game_id_command(STEAM_GAME_ID)
-    logging.info(steam_path + " " + steam_run_arg)
-    return Popen([steam_path, steam_run_arg])
-
-
 def run_benchmark():
     start_rtss()
     # Give RTSS time to start
     time.sleep(10)
 
-    start_game()
+    exec_steam_run_command(STEAM_GAME_ID)
     t1 = time.time()
 
     # Wait for menu to load

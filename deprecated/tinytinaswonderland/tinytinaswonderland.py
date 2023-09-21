@@ -18,7 +18,7 @@ from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
 )
 from harness_utils.process import terminate_processes
-from harness_utils.steam import get_run_game_id_command, DEFAULT_EXECUTABLE_PATH as steam_path 
+from harness_utils.steam import exec_steam_run_command
 #pylint: enable=wrong-import-position
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -37,9 +37,7 @@ def start_game() -> any:
         logging.info("Could not find executable, trying a steam launch")
 
     if game_process is None:
-        steam_run_arg = get_run_game_id_command(STEAM_GAME_ID)
-        logging.info("%s %s", steam_path, steam_run_arg)
-        game_process = Popen([steam_path, steam_run_arg])
+        game_process = exec_steam_run_command(STEAM_GAME_ID)
 
 
 def run_benchmark():

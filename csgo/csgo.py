@@ -2,7 +2,6 @@ import logging
 import os
 import time
 from argparse import ArgumentParser
-from subprocess import Popen
 import pyautogui as gui
 import pydirectinput as user
 import sys
@@ -13,7 +12,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 from harness_utils.output import *
 from harness_utils.process import terminate_processes
-from harness_utils.steam import get_run_game_id_command, DEFAULT_EXECUTABLE_PATH as STEAM_PATH
+from harness_utils.steam import exec_steam_run_command, get_steam_folder_path
 
 """
 Fortunately with Counter Strike we have access to the developer console which lets us
@@ -26,12 +25,6 @@ SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 
 
-def start_game():
-    steam_run_arg = get_run_game_id_command(STEAM_GAME_ID)
-    logging.info(STEAM_PATH + " " + steam_run_arg)
-    return Popen([STEAM_PATH, steam_run_arg])
-
-
 def console_command(command):
     for char in command:
         gui.press(char)
@@ -40,7 +33,7 @@ def console_command(command):
 
 def run_benchmark():
     t1 = time.time()
-    start_game()
+    exec_steam_run_command(STEAM_GAME_ID)
     time.sleep(40)  # wait for game to load into main menu
 
     # open developer console in main menu
@@ -78,7 +71,7 @@ logging.getLogger('').addHandler(console)
 
 parser = ArgumentParser()
 args = parser.parse_args() # This probably isn't working because there isn't steamid arg in manifest
-config_path = f"{STEAM_PATH}\\userdata\\{args.steamid}\\{STEAM_GAME_ID}\\local\\cfg\\video.txt"
+config_path = f"{get_steam_folder_path()}\\userdata\\{args.steamid}\\{STEAM_GAME_ID}\\local\\cfg\\video.txt"
 
 try:
     start_time, end_time = run_benchmark()

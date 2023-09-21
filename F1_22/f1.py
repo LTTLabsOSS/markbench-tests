@@ -3,17 +3,15 @@ import logging
 import sys
 import os.path
 import time
-from subprocess import Popen
 import pydirectinput as user
 from f1_22_utils import get_args
-from f1_22_utils import get_resolution, remove_intro_videos
+from f1_22_utils import get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
 #pylint: disable=wrong-import-position
-
 from harness_utils.keras_service import KerasService
-from harness_utils.steam import DEFAULT_EXECUTABLE_PATH as STEAM_PATH
+from harness_utils.steam import exec_steam_run_command, get_steamapps_common_path
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -22,14 +20,14 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT,
 )
+from harness_utils.misc import remove_files
 from harness_utils.process import terminate_processes
-
 #pylint: enable=wrong-import-position
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 STEAM_GAME_ID = 1692250
-VIDEO_PATH = r"C:\Program Files (x86)\Steam\steamapps\common\F1 22\videos"
+VIDEO_PATH = os.path.join(get_steamapps_common_path(), "videos")
 
 skippable = [
     os.path.join(VIDEO_PATH, "attract.bk2"),
@@ -45,14 +43,6 @@ def wait_for_word(word: str, attempts: int = 5, delay_seconds: int = 1) -> bool:
             return True
         time.sleep(delay_seconds)
     return False
-
-
-def start_game():
-    """Starts the game via steam command."""
-    steam_run_arg = "steam://rungameid/" + str(STEAM_GAME_ID)
-    logging.info("%s %s", STEAM_PATH, steam_run_arg)
-    return Popen([STEAM_PATH, steam_run_arg])
-
 
 def navigate_overlay():
     """Simulate inputs to navigate ingame overlay."""
@@ -127,8 +117,8 @@ def navigate_menu():
 def run_benchmark():
     """Runs the actual benchmark."""
     setup_start_time = time.time()
-    remove_intro_videos(skippable)
-    start_game()
+    remove_files(skippable)
+    exec_steam_run_command(STEAM_GAME_ID)
 
     time.sleep(20)
 
@@ -219,7 +209,6 @@ try:
     write_report_json(LOG_DIRECTORY, "report.json", report)
 
 #pylint: disable=broad-exception-caught
-
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

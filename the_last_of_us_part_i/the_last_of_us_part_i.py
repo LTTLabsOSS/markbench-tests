@@ -2,7 +2,6 @@
 import logging
 import os
 import time
-from subprocess import Popen
 import sys
 import pydirectinput as user
 import pyautogui as gui
@@ -22,9 +21,8 @@ from harness_utils.output import (
 )
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
-  get_run_game_id_command, 
-  get_registry_active_user, 
-  DEFAULT_EXECUTABLE_PATH as STEAM_PATH
+  get_registry_active_user,
+  exec_steam_run_command,
 )
 #pylint: enable=wrong-import-position
 
@@ -34,13 +32,6 @@ LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 PROCESS_NAME = "tlou"
 
 user.FAILSAFE = False
-
-
-def start_game():
-    """Start game process via Steam"""
-    steam_run_arg = get_run_game_id_command(STEAM_GAME_ID)
-    logging.info("%s %s", STEAM_PATH, steam_run_arg)
-    return Popen([STEAM_PATH, steam_run_arg])
 
 
 def await_start_screen(attempts: int) -> bool:
@@ -106,7 +97,7 @@ def await_fromy(attempts: int) -> bool:
 
 def run_benchmark():
     """Starts the benchmark"""
-    start_game()
+    exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = time.time()
 
     time.sleep(10)

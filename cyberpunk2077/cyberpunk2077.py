@@ -1,7 +1,6 @@
 """Cyberpunk 2077 test script"""
 import time
 import logging
-from subprocess import Popen
 import sys
 import os
 from cyberpunk_utils import copy_no_intro_mod, get_args, read_current_resolution
@@ -15,7 +14,7 @@ from harness_utils.keras_service import KerasService
 from harness_utils.output import (
     setup_log_directory, write_report_json, DEFAULT_LOGGING_FORMAT, DEFAULT_DATE_FORMAT)
 from harness_utils.process import terminate_processes
-from harness_utils.steam import DEFAULT_EXECUTABLE_PATH as STEAM_PATH
+from harness_utils.steam import exec_steam_game
 #pylint: enable=wrong-import-position
 
 STEAM_GAME_ID = 1091500
@@ -26,10 +25,7 @@ PROCESS_NAME = "cyberpunk2077.exe"
 
 def start_game():
     """Launch the game with no launcher or start screen"""
-    cmd_array = [STEAM_PATH, "-applaunch",
-                 str(STEAM_GAME_ID), "--launcher-skip", "-skipStartScreen"]
-    logging.info(" ".join(cmd_array))
-    return Popen(cmd_array)
+    return exec_steam_game(STEAM_GAME_ID, game_params=["--launcher-skip", "-skipStartScreen"])
 
 
 def is_word_present(word: str, attempts: int = 5, delay_seconds: int = 1) -> bool:
@@ -90,6 +86,7 @@ def run_benchmark():
     # Start game via Steam and enter fullscreen mode
     setup_start_time = time.time()
     start_game()
+
     time.sleep(10)
 
     settings_menu_screen = await_settings_menu()

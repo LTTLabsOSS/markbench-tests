@@ -1,5 +1,4 @@
 """Shadow of the Tomb Raider test script"""
-from subprocess import Popen
 import os
 import logging
 import time
@@ -19,19 +18,12 @@ from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
 )
 from harness_utils.process import terminate_processes
-from harness_utils.steam import get_run_game_id_command, DEFAULT_EXECUTABLE_PATH as steam_path
+from harness_utils.steam import exec_steam_run_command
 #pylint: enable=wrong-import-position
 
 STEAM_GAME_ID = 750920
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
-
-
-def start_game():
-    """Starts the game via steam command."""
-    steam_run_arg = get_run_game_id_command(STEAM_GAME_ID)
-    logging.info("%s %s", steam_path, steam_run_arg)
-    return Popen([steam_path, steam_run_arg])
 
 
 def click_options(options):
@@ -53,7 +45,7 @@ def click_options(options):
 def run_benchmark():
     """Start game via Steam and enter fullscreen mode"""
     setup_start_time = time.time()
-    start_game()
+    exec_steam_run_command(STEAM_GAME_ID)
 
     try:
         deprecated.cv2_utils.wait_and_click('load_menu_play', "play button", timeout=30)

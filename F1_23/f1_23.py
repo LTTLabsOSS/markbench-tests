@@ -3,17 +3,16 @@ import logging
 from argparse import ArgumentParser
 import os.path
 import time
-from subprocess import Popen
 import sys
 import pydirectinput as user
-from f1_23_utils import get_resolution, remove_intro_videos, skippable
+from f1_23_utils import get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
 # pylint: disable=wrong-import-position
-
-from harness_utils.steam import DEFAULT_EXECUTABLE_PATH as STEAM_PATH
+from harness_utils.steam import exec_steam_run_command, get_app_install_location
 from harness_utils.keras_service import KerasService
+from harness_utils.misc import remove_files
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
     format_resolution,
@@ -23,13 +22,18 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT,
 )
-
 # pylint: enable=wrong-import-position
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
-STEAM_GAME_ID = 2108330
 PROCESS_NAME = "F1_23"
+STEAM_GAME_ID = 2108330
+VIDEO_PATH = os.path.join(get_app_install_location(STEAM_GAME_ID), "videos")
+
+skippable = [
+    os.path.join(VIDEO_PATH, "attract.bk2"),
+    os.path.join(VIDEO_PATH, "cm_f1_sting.bk2")
+]
 
 
 def is_word_on_screen(word: str, attempts: int = 5, delay_seconds: int = 1) -> bool:
@@ -40,13 +44,6 @@ def is_word_on_screen(word: str, attempts: int = 5, delay_seconds: int = 1) -> b
             return True
         time.sleep(delay_seconds)
     return False
-
-
-def start_game():
-    """Starts the game via steam command."""
-    steam_run_arg = "steam://rungameid/" + str(STEAM_GAME_ID)
-    logging.info("%s %s", STEAM_PATH, steam_run_arg)
-    return Popen([STEAM_PATH, steam_run_arg])
 
 
 def official() -> any:
@@ -216,8 +213,8 @@ def navigate_menu():
 
 def run_benchmark():
     """Runs the actual benchmark."""
-    remove_intro_videos(skippable)
-    start_game()
+    remove_files(skippable)
+    exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = time.time()
     time.sleep(2)
     navigate_startup()

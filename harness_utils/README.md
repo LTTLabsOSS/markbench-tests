@@ -15,6 +15,12 @@ Contains class for instancing connection to a Keras Service and provides access 
 
 Functions related to logging and formatting output from test harnesses.
 
+## Misc
+
+`misc.py`
+
+Misc utility functions
+
 ## Process
 
 `process.py`

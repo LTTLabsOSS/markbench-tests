@@ -3,14 +3,14 @@ from argparse import ArgumentParser
 import logging
 import os
 import time
-from subprocess import Popen
 import sys
 import pydirectinput as user
-from utils import read_resolution, remove_intros, skippable
+from utils import read_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 #pylint: disable=wrong-import-position
-from harness_utils.steam import get_run_game_id_command, DEFAULT_EXECUTABLE_PATH as STEAM_PATH
+from harness_utils.steam import exec_steam_run_command, get_app_install_location
+from harness_utils.misc import remove_files
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
     format_resolution,
@@ -23,21 +23,25 @@ from harness_utils.output import (
 from harness_utils.keras_service import KerasService
 #pylint: enable=wrong-import-position
 
-STEAM_GAME_ID = 668580
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 APPDATA = os.getenv("LOCALAPPDATA")
 CONFIG_LOCATION = f"{APPDATA}\\AtomicHeart\\Saved\\Config\\WindowsNoEditor"
 CONFIG_FILENAME = "GameUserSettings.ini"
 PROCESS_NAME = "AtomicHeart"
+STEAM_GAME_ID = 668580
+VIDEO_PATH = os.path.join(
+    get_app_install_location(STEAM_GAME_ID), "AtomicHeart", "Content", "Movies")
+
+skippable = [
+    os.path.join(VIDEO_PATH, "Launch_4k_60FPS_PS5.mp4"),
+    os.path.join(VIDEO_PATH, "Launch_4k_60FPS_XboxXS.mp4"),
+    os.path.join(VIDEO_PATH, "Launch_FHD_30FPS_PS4.mp4"),
+    os.path.join(VIDEO_PATH, "Launch_FHD_30FPS_XboxOne.mp4"),
+    os.path.join(VIDEO_PATH, "Launch_FHD_60FPS_PC_Steam.mp4")
+]
 
 user.FAILSAFE = False
-
-def start_game():
-    """Starts the game via steam command."""
-    steam_run_arg = get_run_game_id_command(STEAM_GAME_ID)
-    logging.info("%s %s", STEAM_PATH, steam_run_arg)
-    return Popen([STEAM_PATH, steam_run_arg])
 
 
 def is_word_on_screen(word: str, attempts: int = 5, delay_seconds: int = 1) -> bool:
@@ -77,8 +81,8 @@ def await_wicked() -> any:
 
 def run_benchmark():
     """Starts the benchmark"""
-    remove_intros(skippable)
-    start_game()
+    remove_files(skippable)
+    exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = time.time()
 
     time.sleep(10)

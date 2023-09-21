@@ -4,10 +4,9 @@ import logging
 import os
 import time
 import sys
-import re
-import winreg
 import pyautogui as gui
 import pydirectinput as user
+from twwh3_utils import read_current_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 # pylint: disable=wrong-import-position
@@ -20,53 +19,21 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT
 )
+from harness_utils.steam import get_app_install_location
 from harness_utils.keras_service import KerasService
 # pylint: enable=wrong-import-position
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
-APPDATA = os.getenv("APPDATA")
-CONFIG_LOCATION = f"{APPDATA}\\The Creative Assembly\\Warhammer3\\scripts"
-CONFIG_FILENAME = "preferences.script.txt"
 PROCESS_NAME = "Warhammer3.exe"
+STEAM_GAME_ID = 1142710
 
 user.FAILSAFE = False
-
-def get_directory() -> any:
-    """Gets directory from registry key"""
-    reg_path = r'Software\Microsoft\WIndows\CurrentVersion\Uninstall\Steam App 1142710'
-    try:
-        registry_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, reg_path, 0,
-                                      winreg.KEY_READ)
-        value, _ = winreg.QueryValueEx(registry_key, "InstallLocation")
-        winreg.CloseKey(registry_key)
-        return value
-    except WindowsError:
-        return None
-
-
-def read_current_resolution():
-    """Reads resolutions settings from local game file"""
-    height_pattern = re.compile(r"y_res (\d+);")
-    width_pattern = re.compile(r"x_res (\d+);")
-    cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
-    height_value = 0
-    width_value = 0
-    with open(cfg, encoding="utf-8") as file:
-        lines = file.readlines()
-        for line in lines:
-            height_match = height_pattern.search(line)
-            width_match = width_pattern.search(line)
-            if height_match is not None:
-                height_value = height_match.group(1)
-            if width_match is not None:
-                width_value = width_match.group(1)
-    return (height_value, width_value)
 
 
 def start_game():
     """Starts the game process"""
-    cmd_string = f"start /D \"{get_directory()}\" {PROCESS_NAME}"
+    cmd_string = f"start /D \"{get_app_install_location(STEAM_GAME_ID)}\" {PROCESS_NAME}"
     logging.info(cmd_string)
     return os.system(cmd_string)
 

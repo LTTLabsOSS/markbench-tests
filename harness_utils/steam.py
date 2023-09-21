@@ -1,20 +1,8 @@
 """Utility functions related to using Steam for running games."""
-import os
 import logging
 import winreg
 from subprocess import Popen
 from pathlib import Path
-
-# TODO: Deprecate these. Replace DEFAULT_EXECUTABLE_PATH with the "exec" commands below
-# Used in basically all the harnesses
-DEFAULT_BASE_PATH = os.path.join(os.environ["ProgramFiles(x86)"], "Steam")
-DEFAULT_EXECUTABLE_NAME = "Steam.exe"
-DEFAULT_EXECUTABLE_PATH = os.path.join(
-    DEFAULT_BASE_PATH, DEFAULT_EXECUTABLE_NAME)
-
-# TODO: Deprecate this. Currently used in Returnal harness.
-DEFAULT_STEAMAPPS_COMMON_PATH = os.path.join(
-    DEFAULT_BASE_PATH, "steamapps", "common") 
 
 
 def get_run_game_id_command(game_id: int) -> str:

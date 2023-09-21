@@ -3,7 +3,6 @@ import os
 import logging
 import time
 import sys
-from subprocess import Popen
 import pyautogui as gui
 
 from hitman_3_utils import get_resolution, wait_for_image
@@ -19,7 +18,7 @@ from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
 )
 from harness_utils.process import terminate_processes
-from harness_utils.steam import get_run_game_id_command, DEFAULT_EXECUTABLE_PATH as STEAM_PATH
+from harness_utils.steam import exec_steam_run_command
 #pylint: enable=wrong-import-position
 
 STEAM_GAME_ID = 1659040
@@ -29,17 +28,10 @@ STEAM_EXECUTABLE = "steam.exe"
 PROCESS_NAMES = ['HITMAN3.exe', 'Launcher.exe']
 
 
-def start_game():
-    """Starts the game process"""
-    steam_run_arg = get_run_game_id_command(STEAM_GAME_ID)
-    logging.info("%s %s", STEAM_PATH, steam_run_arg)
-    return Popen([STEAM_PATH, steam_run_arg])
-
-
 def run_benchmark():
     """Starts the benchmark"""
     setup_start_time = time.time()
-    start_game()
+    exec_steam_run_command(STEAM_GAME_ID)
 
     options_image = os.path.dirname(os.path.realpath(__file__)) + "/images/hitman3_options.png"
     options_loc = wait_for_image(options_image, 0.7, 1, 15)

@@ -1,8 +1,7 @@
 """Utility functions supporting F1 23 test script."""
 import os
 import re
-import winreg
-import logging
+
 
 def get_resolution() -> tuple[int]:
     """Gets resolution width and height from local xml file created by game."""
@@ -23,35 +22,3 @@ def get_resolution() -> tuple[int]:
             if width_match is not None:
                 width = width_match.group(1)
     return (width, height)
-
-
-def remove_intro_videos(file_paths: list[str]) -> None:
-    """Remove video files from paths to speed up game startup."""
-    for video in file_paths:
-        try:
-            os.remove(video)
-            logging.info("Removing video %s", video)
-        except FileNotFoundError:
-            # If file not found, it has likely already been deleted before.
-            logging.info("Video already removed %s", video)
-
-
-def f1_23_directory() -> any:
-    """Gets the directory from the Windows Registry"""
-    reg_path = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 2108330'
-    try:
-        registry_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, reg_path, 0,
-                                      winreg.KEY_READ)
-        value, _ = winreg.QueryValueEx(registry_key, "InstallLocation")
-        winreg.CloseKey(registry_key)
-        return value
-    except WindowsError:
-        return None
-
-
-video_path = os.path.join(f1_23_directory(), "videos")
-
-skippable = [
-    os.path.join(video_path, "attract.bk2"),
-    os.path.join(video_path, "cm_f1_sting.bk2")
-]

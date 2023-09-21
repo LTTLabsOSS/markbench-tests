@@ -1,12 +1,11 @@
 """Returnal test script"""
 import os
 import logging
-from subprocess import Popen
 import sys
 import time
 import pydirectinput as user
 
-from returnal_utils import get_resolution, remove_intro_videos, get_args
+from returnal_utils import get_resolution, get_args
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
@@ -21,11 +20,11 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT,
 )
+from harness_utils.misc import remove_files
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
-  get_run_game_id_command,
-  DEFAULT_EXECUTABLE_PATH as STEAM_PATH,
-  DEFAULT_STEAMAPPS_COMMON_PATH
+  exec_steam_run_command,
+  get_steamapps_common_path,
 )
 
 # pylint: enable=wrong-import-position
@@ -38,8 +37,7 @@ LOCAL_USER_SETTINGS = os.path.join(
   os.getenv('LOCALAPPDATA'), "Returnal", "Steam",
   "Saved", "Config", "WindowsNoEditor", "GameUserSettings.ini"
   )
-VIDEO_PATH = os.path.join(
-    DEFAULT_STEAMAPPS_COMMON_PATH, "Returnal", "Returnal", "Content", "Movies")
+VIDEO_PATH = os.path.join(get_steamapps_common_path(), "Returnal", "Returnal", "Content", "Movies")
 
 user.FAILSAFE = False
 
@@ -51,14 +49,6 @@ skippable_videos = [
     os.path.join(VIDEO_PATH, "Logos_Short_PC_UW21.mp4"),
     os.path.join(VIDEO_PATH, "Logos_Short_PC_UW32.mp4"),
 ]
-
-
-def start_game() -> None:
-    """Start game via steam command"""
-    steam_run_arg = get_run_game_id_command(STEAM_GAME_ID)
-    logging.info("%s %s", STEAM_PATH, steam_run_arg)
-    return Popen([STEAM_PATH, steam_run_arg])
-
 
 def check_vram_alert(attempts: int) -> bool:
     """Look for VRAM alert in menu"""
@@ -120,10 +110,10 @@ def await_benchmark_menu(attempts: int) -> bool:
 def run_benchmark() -> tuple[float]:
     """Run the benchmark"""
     logging.info("Removing intro videos")
-    remove_intro_videos(skippable_videos)
+    remove_files(skippable_videos)
 
     logging.info("Starting game")
-    start_game()
+    exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = time.time()
 
     time.sleep(10)
