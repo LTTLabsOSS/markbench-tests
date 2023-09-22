@@ -44,41 +44,6 @@ skippable = [
 user.FAILSAFE = False
 
 
-def is_word_on_screen(word: str, attempts: int = 5, delay_seconds: int = 1) -> bool:
-    """Looks for given word a specified number of times"""
-    for _ in range(attempts):
-        result = kerasService.capture_screenshot_find_word(word)
-        if result is not None:
-            return True
-        time.sleep(delay_seconds)
-    return False
-
-
-def start_screen() -> any:
-    """Looks for word press"""
-    return is_word_on_screen(word="press", attempts=20, delay_seconds=1)
-
-
-def new_game() -> any:
-    """Looks for word new"""
-    return is_word_on_screen(word="new", attempts=20, delay_seconds=1)
-
-
-def check_menu_continue() -> any:
-    """Looks for word continue"""
-    return is_word_on_screen(word="continue", attempts=20, delay_seconds=1)
-
-
-def await_space_to_start() -> any:
-    """Looks for word continue"""
-    return is_word_on_screen(word="cont", attempts=20, delay_seconds=1)
-
-
-def await_wicked() -> any:
-    """Looks for word wicked"""
-    return is_word_on_screen(word="wicked", attempts=250, delay_seconds=0.1)
-
-
 def run_benchmark():
     """Starts the benchmark"""
     remove_files(skippable)
@@ -87,47 +52,41 @@ def run_benchmark():
 
     time.sleep(10)
 
-    if start_screen():
-        user.press("space")
-
-    if not start_screen():
+    result = kerasService.wait_for_word("press", timeout=25)
+    if not result:
         logging.info("Did not see start screen")
         sys.exit(1)
 
-    if new_game():
-        if check_menu_continue():
-            logging.info("Continue option available, navigating accordingly.")
-            user.press("s")
-            time.sleep(0.5)
-            user.press("d")
-            time.sleep(0.5)
-            user.press("f")
-            time.sleep(0.5)
-            user.press("space")
-        else:
-            logging.info(
-                "Continue option not available, navigating accordingly.")
-            user.press("d")
-            time.sleep(0.5)
-            user.press("f")
-            time.sleep(0.5)
-            user.press("space")
+    user.press("space")
+
+    result = kerasService.look_for_word("continue", attempts=20, interval=1)
+    if result:
+        logging.info("Continue option available, navigating accordingly.")
+        user.press("s")
+        time.sleep(0.5)
+        user.press("d")
+        time.sleep(0.5)
+        user.press("f")
+        time.sleep(0.5)
+        user.press("space")
+    else:
+        logging.info("Continue option not available, navigating accordingly.")
+        user.press("d")
+        time.sleep(0.5)
+        user.press("f")
+        time.sleep(0.5)
+        user.press("space")
 
     time.sleep(10)
 
-    loading_screen = time.time()
-    while True:
-        await_space_to_start()
-        if await_space_to_start():
-            logging.info("Continue found. Continuing Run.")
-            user.press("space")
-            time.sleep(5)
-            break
-        if time.time()-loading_screen>60:
-            logging.info("Did not see the option to continue. Check settings and try again.")
-            sys.exit(1)
-        logging.info("Game hasn't loaded. Trying again in 5 seconds")
-        time.sleep(5)
+    result = kerasService.wait_for_word("continue", interval=1, timeout=80)
+    if not result:
+        logging.info("Did not see the option to continue. Check settings and try again.")
+        sys.exit(1)
+
+    logging.info("Continue found. Continuing Run.")
+    user.press("space")
+    time.sleep(5)
 
     elapsed_setup_time = round(time.time() - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
@@ -135,20 +94,14 @@ def run_benchmark():
 
     time.sleep(230)  # wait for No Rest For the Wicked Quest
 
-    # This looks for wicked
-    wicked_check= time.time()
-    while True:
-        await_wicked()
-        if await_wicked():
-            logging.info("Wicked found. Ending Benchmark.")
-            time.sleep(5)
-            break
-        if time.time()-wicked_check>250:
-            logging.info(
-                "Wicked was not found! Did harness not wait long enough? Or test was too long?")
-            sys.exit(1)
-        logging.info("Game hasn't finished the opening sequence. Trying again in 5 seconds")
-        time.sleep(5)
+    result = kerasService.wait_for_word("wicked", interval=1, timeout=250)
+    if not result:
+        logging.info(
+            "Wicked was not found! Did harness not wait long enough? Or test was too long?")
+        sys.exit(1)
+
+    logging.info("Wicked found. Ending Benchmark.")
+    time.sleep(5)
 
     test_end_time = time.time()
     elapsed_test_time = round(test_end_time - test_start_time, 2)
