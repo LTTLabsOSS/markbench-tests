@@ -1,20 +1,25 @@
 # Counter Strike: Global Offensive
 
+Downloads and installs the [CSGO Benchmark scripts](https://github.com/samisalreadytaken/csgo-benchmark). Runs CS:GO and starts the benchmark. Waits for the benchmark sequence to display the results in the developer console.
+
 ## Prerequisites
 
 - Python 3.10+
 - Counter Strike: Global Offensive installed.
-    - Developer console enabled.
-    - Benchmark script installed.
+    - Enable developer console through Settings -> Game -> Enable Developer Console.
+- Keras OCR service
 
-## Setup
+## Options
 
-  1. Follow the setup instructions for the framework. If you have done so, all required python dependencies *should* be installed.
-  2. Install CSGO from steam.
-      1. Location does not matter, this harness uses steam to launch the game.
-  3. Enable developer console through Settings -> Game -> Enable Developer Console.
-  4. Install bench mark script.
-      1. Download the code from https://github.com/samisalreadytaken/csgo-benchmark. *[Code -> Download Code](https://github.com/samisalreadytaken/csgo-benchmark/archive/master.zip)*
-      2. Extract contents of zip.
-      3. Merge the /csgo/ folder with your /steamapps/common/Counter-Strike Global Offensive/csgo/ folder.
+- `kerasHost`: string representing the IP address of the Keras service. e.x. `0.0.0.0` 
+- `kerasPort`: string representing the port of the Keras serivce. e.x. `8080`
 
+## Output
+
+report.json
+- `resolution`: string representing the resolution the test was run at, formatted as "[width]x[heigt]", e.x. `1920x1080`
+- `start_time`: number representing a timestamp of the test's start time in milliseconds
+- `end_time`: number representing a timestamp of the test's end time in milliseconds
+
+## Known Issues
+When running the test using larger displays / higher resolutions, the Keras service has trouble identifying when the benchmark finishes due to the in-game console not scaling and the text being quite small. The test will then timeout and report as having failed even though the benchmark sequence has successfully completed otherwise.

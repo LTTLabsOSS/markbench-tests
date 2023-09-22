@@ -1,41 +1,45 @@
+"""Utility functions for CS:GO test script"""
 import logging
 import os
 from pathlib import Path
 import shutil
 import re
-import winreg
+import sys
+from zipfile import ZipFile
 
-from harness_utils.steam import get_registry_active_user, get_steam_folder_path
+import requests
+
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+
+# pylint: disable=wrong-import-position
+from harness_utils.steam import (
+    get_registry_active_user, get_steam_folder_path, get_app_install_location)
+# pylint: enable=wrong-import-position
+
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+BENCHMARK_PATH = SCRIPT_DIRECTORY.joinpath("csgo-benchmark-master", "csgo")
+ZIP_NAME = "csgo-benchmark-master.zip"
+ZIP_PATH = SCRIPT_DIRECTORY.joinpath(ZIP_NAME)
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 STEAM_GAME_ID = 730
-CSGO_BENCHMARK = os.path.join(SCRIPT_DIRECTORY, "CSGO")
-STEAM_USER_ID = get_registry_active_user()
-
-
-config_path = f"{get_steam_folder_path()}\\userdata\\{STEAM_USER_ID}\\{STEAM_GAME_ID}\\local\\cfg\\video.txt"
-
-
-def InstallLocation() -> any:
-    reg_path = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 730'
-    try:
-        registry_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, reg_path, 0,
-                                      winreg.KEY_READ)
-        value, _ = winreg.QueryValueEx(registry_key, "InstallLocation")
-        winreg.CloseKey(registry_key)
-        return value
-    except WindowsError:
-        return None
+CSGO_BENCHMARK_PATH = os.path.join(SCRIPT_DIRECTORY, "csgo-benchmark-master", "csgo")
+CSGO_BENCHMARK_ZIP_NAME = "csgo-benchmark-master.zip"
 
 
 def get_resolution():
+    """Gets the resolution from a local file"""
     height_pattern = re.compile(r"\"setting.defaultresheight\"		\"(\d+)\"")
     width_pattern = re.compile(r"\"setting.defaultres\"		\"(\d+)\"")
-    cfg = f"{config_path}"
+    steam_path = get_steam_folder_path()
+    user_id = get_registry_active_user()
+    config_path = Path(steam_path).joinpath(
+        "userdata", user_id, STEAM_GAME_ID, "local", "cfg", "video.txt")
+
     height = 0
     width = 0
-    with open(cfg) as f:
-        lines = f.readlines()
+    with open(config_path, encoding="utf-8") as file:
+        lines = file.readlines()
         for line in lines:
             height_match = height_pattern.search(line)
             width_match = width_pattern.search(line)
@@ -46,22 +50,27 @@ def get_resolution():
     return (height, width)
 
 
-def copy_benchmark() -> None:
-    is_valid_benchmark = os.path.isdir(CSGO_BENCHMARK)
+def benchmark_folder_exists() -> bool:
+    """Check if the CSGO Benchmark has been downloaded or not"""
+    return BENCHMARK_PATH.is_dir()
 
-    if not is_valid_benchmark:
-        raise Exception(f"Can't find the benchmark folder: {CSGO_BENCHMARK}")
 
-    # Validate/create path to directory where we will copy benchmark to
-    dest_dir: str = InstallLocation()
-    try:
-        Path(dest_dir).mkdir(parents=True, exist_ok=True)
-    except FileExistsError as e:
-        logging.error("Could not copy files - likely due to non-directory file existing at path.")
-        raise e
-    
-    # Copy the benchmark over
-    logging.info("Copying benchmark to install folder")
-    destination_folder = os.path.join(dest_dir, os.path.basename(CSGO_BENCHMARK))
-    logging.info(F"Copying: {CSGO_BENCHMARK} -> {destination_folder}")
-    shutil.copytree(CSGO_BENCHMARK, destination_folder, dirs_exist_ok = True)
+def download_benchmark():
+    """Downloads and extracts the CSGO Benchmark scripts"""
+    download_url = "https://github.com/samisalreadytaken/csgo-benchmark/archive/master.zip"
+    logging.info("Downloading and extracting benchmark to %s", SCRIPT_DIRECTORY)
+
+    if not ZIP_PATH.exists():
+        response = requests.get(download_url, allow_redirects=True, timeout=180)
+        with open(ZIP_PATH, "wb") as file:
+            file.write(response.content)
+
+    with ZipFile(ZIP_PATH, "r") as zip_object:
+        zip_object.extractall(path=SCRIPT_DIRECTORY)
+
+
+def copy_benchmark():
+    """Copies the downloaded benchmark to the CSGO directory"""
+    dest_dir = Path(get_app_install_location(STEAM_GAME_ID)).joinpath("csgo")
+    logging.info("Copying benchmark from %s to %s", BENCHMARK_PATH, dest_dir)
+    shutil.copytree(BENCHMARK_PATH, dest_dir, dirs_exist_ok = True)

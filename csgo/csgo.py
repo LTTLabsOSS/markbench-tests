@@ -1,117 +1,101 @@
+"""Counter Strike: Global Offensive test script"""
 import logging
 import os
 import time
+import sys
 from argparse import ArgumentParser
-from subprocess import Popen
 import pyautogui as gui
 import pydirectinput as user
-import sys
-
+from utils import (
+    get_resolution,
+    benchmark_folder_exists,
+    download_benchmark,
+    copy_benchmark,
+    STEAM_GAME_ID
+)
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-from harness_utils.output import *
+# pylint: disable=wrong-import-position
+from harness_utils.output import (
+    format_resolution,
+    seconds_to_milliseconds,
+    setup_log_directory,
+    write_report_json,
+    DEFAULT_LOGGING_FORMAT,
+    DEFAULT_DATE_FORMAT,
+)
 from harness_utils.process import terminate_processes
-from harness_utils.steam import exec_steam_run_command, get_registry_active_user
+from harness_utils.steam import exec_steam_run_command
 from harness_utils.keras_service import KerasService
-from utils import get_resolution, copy_benchmark
+# pylint: enable=wrong-import-position
 
-"""
-Fortunately with Counter Strike we have access to the developer console which lets us
-execute things via keyboard input right from the load menu.
-"""
-STEAM_USER_ID = get_registry_active_user()
-STEAM_GAME_ID = 730
 MAP = "de_dust2"
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 PROCESS_NAME = "csgo.exe"
 
 
-def is_word_on_screen(word: str, attempts: int = 5, delay_seconds: int = 1) -> bool:
-    for _ in range(attempts):
-        result = kerasService.capture_screenshot_find_word(word)
-        if result != None:
-            return True
-        time.sleep(delay_seconds)
-    return False
-
-
 def console_command(command):
+    """Types out the provided command one character at a time"""
     for char in command:
         gui.press(char)
     user.press("enter")
 
-def main_menu() -> any:
-    return is_word_on_screen(word="news", attempts=50, delay_seconds=3)
-
-def in_game() -> any:
-    return is_word_on_screen(word="terrorists", attempts=50, delay_seconds=1)
-
-def finished() -> any:
-    return is_word_on_screen(word="finished", attempts=25, delay_seconds=1)
-
 
 def run_benchmark():
-    logging.info(f"User ID is: {STEAM_USER_ID}")
+    """Start the benchmark"""
+    if not benchmark_folder_exists():
+        download_benchmark()
+
     copy_benchmark()
-    t1 = time.time()
+    setup_start_time = time.time()
     exec_steam_run_command(STEAM_GAME_ID)
     time.sleep(30)  # wait for game to load into main menu
 
-    start_game_screen= time.time()
-    while (True):
-        if main_menu():
-            logging.info('Game started. Loading map.')
-            user.press("`")
-            time.sleep(1)
-            console_command(f"map {MAP}")
-            time.sleep(5)  # wait for map to load
-            break
-        elif time.time()-start_game_screen>60:
-            logging.info("Game didn't start in time. Check settings and try again.")
-            exit(1)
-        logging.info("Game hasn't started. Trying again in 5 seconds")
-        time.sleep(5)
+    logging.info("Waiting for game to start...")
+    result = kerasService.wait_for_word("news", interval=2, timeout=120)
+    if not result:
+        logging.info("Game didn't start in time. Check settings and try again.")
+        sys.exit(1)
 
+    logging.info('Game started. Loading map.')
+    user.press("`")
+    time.sleep(1)
+    console_command(f"map {MAP}")
+    time.sleep(5)  # wait for map to load
 
-    #Running the benchmark:
-    loading_screen= time.time()
-    while (True):
-        if in_game():
-            logging.info('Map loaded. Starting benchmark.')
-            time.sleep(1)
-            user.press("`")
-            time.sleep(0.5)
-            console_command("exec benchmark")
-            time.sleep(0.5)
-            console_command("benchmark")
-            t2 = time.time()
-            logging.info(f"Harness setup took {round((t2 - t1), 2)} seconds")
-            start_time = time.time()
-            time.sleep(43) #approximate wait time
-            break
-        elif time.time()-loading_screen>60:
-            logging.info("Game didn't load map. Check settings and try again.")
-            exit(1)
-        logging.info("Game hasn't finished loading map. Trying again in 5 seconds")
-        time.sleep(5)
+    logging.info("Waiting for map to load...")
+    result = kerasService.wait_for_word("terrorists", interval=2, timeout=120)
+    if not result:
+        logging.info("Game didn't load map. Check settings and try again.")
+        sys.exit(1)
 
-    # wait for benchmark to complete
-    
-    benchmark= time.time()
-    while (True):
-        if finished():
-            logging.info('Benchmark finished. Finishing benchmark')
-            break
-        elif time.time()-benchmark>60:
-            logging.info("Game didn't finish. Check settings and try again.")
-            exit(1)
-        logging.info("Game hasn't finished running. Trying again in 5 seconds")
-        time.sleep(5)
-      
-    end_time = time.time()
-    logging.info(f"Benchmark took {round((end_time - start_time), 2)} seconds")
+    logging.info('Map loaded. Starting benchmark.')
+    time.sleep(1)
+    user.press("`")
+    time.sleep(0.5)
+    console_command("exec benchmark")
+    time.sleep(0.5)
+    console_command("benchmark")
+
+    elapsed_setup_time = round((time.time() - setup_start_time), 2)
+    logging.info("Harness setup took %.2f seconds", elapsed_setup_time)
+    test_start_time = time.time()
+
+    logging.info("Waiting for benchmark to run...")
+    time.sleep(43) #approximate wait time
+
+    logging.info("Waiting for benchmark results...")
+    result = kerasService.wait_for_word("finished", interval=1, timeout=60)
+    if not result:
+        logging.info("Game didn't finish. Check settings and try again.")
+        sys.exit(1)
+
+    test_end_time = time.time()
+    elapsed_test_time = round(test_end_time - test_start_time, 2)
+    logging.info("Benchmark took %.2f seconds", elapsed_test_time)
+
     terminate_processes(PROCESS_NAME)
     return start_time, end_time
 
@@ -135,22 +119,22 @@ parser.add_argument("--kerasPort", dest="keras_port",
                     help="Port for Keras OCR service", required=True)
 args = parser.parse_args()
 kerasService = KerasService(args.keras_host, args.keras_port, os.path.join(
-    LOG_DIRECTORY, "screenshot.jpg")) 
+    LOG_DIRECTORY, "screenshot.jpg"))
 
-
+benchmark_folder_exists()
 try:
     start_time, end_time = run_benchmark()
     height, width = get_resolution()
-    result = {
-        "resolution": f"{width}x{height}",
-        "graphics_preset": "current",
+    report = {
+        "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time)
     }
 
-    write_report_json(LOG_DIRECTORY, "report.json", result)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
+#pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
     terminate_processes(PROCESS_NAME)
-    exit(1)
+    sys.exit(1)

@@ -290,7 +290,6 @@ try:
     width, height = get_resolution()
     report = {
         "resolution": format_resolution(width, height),
-        "graphics_preset": "current",
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
     }
