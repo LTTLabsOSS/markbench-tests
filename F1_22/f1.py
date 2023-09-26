@@ -35,34 +35,19 @@ skippable = [
 ]
 
 
-def wait_for_word(word: str, attempts: int = 5, delay_seconds: int = 1) -> bool:
-    """Gets results of search for word in screenshot sent to Keras Service."""
-    for _ in range(attempts):
-        result = kerasService.capture_screenshot_find_word(word)
-        if result is not None:
-            return True
-        time.sleep(delay_seconds)
-    return False
-
 def navigate_overlay():
     """Simulate inputs to navigate ingame overlay."""
     # if steam ingame overlay is disabled it will be a an okay to press
-    okay_present = wait_for_word(word="okay", attempts=5, delay_seconds=1)
-    if okay_present:
+    if kerasService.look_for_word("okay", attempts=5, interval=1):
         user.press("enter")
-
-    time.sleep(3)
-
     # if steam ingame overlay is enabled we have to press escape and enter
-    if not okay_present:
-        please_present = wait_for_word(word="please", attempts=5, delay_seconds=1)
-        if please_present is not None:
-            user.press("esc")
-            time.sleep(0.5)
-            user.press("down")
-            time.sleep(0.5)
-            user.press("enter")
-            time.sleep(0.5)
+    elif kerasService.look_for_word("please", attempts=5, interval=1):
+        user.press("esc")
+        time.sleep(0.5)
+        user.press("down")
+        time.sleep(0.5)
+        user.press("enter")
+        time.sleep(0.5)
 
     time.sleep(3)
 
@@ -129,8 +114,8 @@ def run_benchmark():
 
     navigate_overlay()
 
-    options_present = wait_for_word("options", attempts=5, delay_seconds=1)
-    if not options_present:
+    result = kerasService.look_for_word("options", attempts=5, interval=1)
+    if not result:
         print("Didn't land on the main menu!")
         sys.exit(1)
 
@@ -141,32 +126,14 @@ def run_benchmark():
 
     test_start_time = time.time()
 
-    # sleep 6.75 for 3 laps
+    # sleep 3 laps
     time.sleep(330)
 
-    # if steam ingame overlay is disabled it will be a an okay to press
-    okay_present = wait_for_word(word="okay", attempts=5, delay_seconds=1)
-    if okay_present:
-        user.press("enter")
+    navigate_overlay()
 
-    time.sleep(3)
-
-    if not okay_present:
-        # if steam ingame overlay is enabled we have to press escape and enter
-        please_present = wait_for_word(word="please", attempts=5, delay_seconds=1)
-        if please_present is not None:
-            user.press("esc")
-            time.sleep(0.5)
-            user.press("down")
-            time.sleep(0.5)
-            user.press("enter")
-            time.sleep(0.5)
-
-    time.sleep(3)
-
-    results_present = wait_for_word(word="results", attempts=5, delay_seconds=1)
-    if not results_present:
-        print(
+    result = kerasService.wait_for_word("results", timeout=10)
+    if not result:
+        logging.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?"
         )
         sys.exit(1)
