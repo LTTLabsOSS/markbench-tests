@@ -3,9 +3,9 @@ import time
 import logging
 import sys
 import os
-from cyberpunk_utils import copy_no_intro_mod, get_args, read_current_resolution
 import pyautogui as gui
 import pydirectinput as user
+from cyberpunk_utils import copy_no_intro_mod, get_args, read_current_resolution
 
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
@@ -28,45 +28,21 @@ def start_game():
     return exec_steam_game(STEAM_GAME_ID, game_params=["--launcher-skip", "-skipStartScreen"])
 
 
-def is_word_present(word: str, attempts: int = 5, delay_seconds: int = 1) -> bool:
-    """Find given word on screen"""
-    for _ in range(attempts):
-        result = kerasService.capture_screenshot_find_word(word)
-        if result is not None:
-            return True
-        time.sleep(delay_seconds)
-    return False
-
-
-def await_settings_menu() -> any:
-    """Wait for word "new" on screen"""
-    return is_word_present(word="new", attempts=20, delay_seconds=3)
-
-
-def await_results_screen() -> bool:
-    """Wait for word "results" on screen"""
-    return is_word_present(word="results", attempts=10, delay_seconds=3)
-
-
-def await_benchmark_start() -> bool:
-    """Wait for word "fps" on screen"""
-    return is_word_present(word="fps", attempts=10, delay_seconds=2)
-
-
-def is_continue_present() -> bool:
-    """Wait for word "continue" on screen"""
-    return is_word_present(word="continue", attempts=10)
-
-
 def navigate_main_menu() -> None:
     """Simulate inputs to navigate the main menu"""
     logging.info("Navigating main menu")
-    continue_present = is_continue_present()
-    if not continue_present:
+    result = kerasService.look_for_word("continue", attempts=10)
+    if not result:
         # an account with no save game has less menu options, so just press left and enter settings
         user.press("left")
         time.sleep(0.5)
         user.press("enter")
+        time.sleep(0.5)
+        user.press("3")
+        time.sleep(0.5)
+        user.press("3")
+        time.sleep(0.5)
+        user.press("3")
         time.sleep(0.5)
         user.press("b")
     else:
@@ -75,6 +51,12 @@ def navigate_main_menu() -> None:
         user.press("down")
         time.sleep(0.5)
         user.press("enter")
+        time.sleep(0.5)
+        user.press("3")
+        time.sleep(0.5)
+        user.press("3")
+        time.sleep(0.5)
+        user.press("3")
         time.sleep(0.5)
         user.press("b")
 
@@ -89,9 +71,8 @@ def run_benchmark():
 
     time.sleep(10)
 
-    settings_menu_screen = await_settings_menu()
-
-    if not settings_menu_screen:
+    result = kerasService.wait_for_word("new", interval=3, timeout=60)
+    if not result:
         logging.info("Did not see settings menu option.")
         sys.exit(1)
 
@@ -104,35 +85,17 @@ def run_benchmark():
 
     test_start_time = time.time()
 
-    # Checking if loading screen is finished
-    benchmark_started = False
-
-    loading_screen_start = time.time()
-    logging.info("Looking for fps counter to indicate benchmark started")
-    while not benchmark_started:
-        if time.time()-loading_screen_start > 60:
-            logging.info("Benchmark didn't start.")
-            sys.exit(1)
-        benchmark_started = await_benchmark_start()
+    result = kerasService.wait_for_word("fps", timeout=60, interval=1)
+    if not result:
+        logging.info("Benchmark didn't start.")
+        sys.exit(1)
 
     logging.info("Benchmark started. Waiting for benchmark to complete.")
-
-    # Wait for benchmark to complete
     time.sleep(70)
-    logging.info("Finished sleeping, waiting for results screen")
-    count = 0
-    results_screen_present = False
-    while not results_screen_present:
-        results_screen_present = await_results_screen()
-        if results_screen_present:
-            break
-        # we check 3 times every 40 minutes because lower end cards take *forever* to finish
-        if count >= 3:
-            logging.info("Did not see results screen. Mark as DNF.")
-            sys.exit(1)
-        logging.info("Benchmark not finished yet, continuing to wait for the %d time", count)
-        time.sleep(40)
-        count += 1
+    result = kerasService.wait_for_word("results", timeout=240, interval=3)
+    if not result:
+        logging.info("Did not see results screen. Mark as DNF.")
+        sys.exit(1)
 
     test_end_time = time.time()
     elapsed_test_time = round((test_end_time - test_start_time), 2)

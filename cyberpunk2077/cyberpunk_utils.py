@@ -62,4 +62,4 @@ def read_current_resolution():
             resolution_match = resolution_pattern.search(line)
             if resolution_match is not None:
                 resolution = resolution_match.group(1)
-    return (resolution)
+    return resolution
