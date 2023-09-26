@@ -36,49 +36,9 @@ skippable = [
 ]
 
 
-def is_word_on_screen(word: str, attempts: int = 5, delay_seconds: int = 1) -> bool:
-    """Sends screenshot to Keras service to search for a given word a specified number of times"""
-    for _ in range(attempts):
-        result = kerasService.capture_screenshot_find_word(word)
-        if result is not None:
-            return True
-        time.sleep(delay_seconds)
-    return False
-
-
-def official() -> any:
-    """Look for product"""
-    return is_word_on_screen(word="product", attempts=20, delay_seconds=0.5)
-
-
-def press() -> any:
-    """Look for press"""
-    return is_word_on_screen(word="press", attempts=40, delay_seconds=2)
-
-
-def login() -> any:
-    """Look for login"""
-    return is_word_on_screen(word="login", attempts=100, delay_seconds=0.2)
-
-
-def benchmark_start() -> any:
-    """Look for lap"""
-    return is_word_on_screen(word="lap", attempts=15, delay_seconds=3)
-
-
-def results() -> any:
-    """Look for results"""
-    return is_word_on_screen(word="results", attempts=20, delay_seconds=3)
-
-
-def menu() -> any:
-    """Look for theatre"""
-    return is_word_on_screen(word="theatre", attempts=5, delay_seconds=3)
-
-
 def find_settings() -> any:
     """Look for and enter settings"""
-    if not is_word_on_screen(word="settings", attempts=5, delay_seconds=3):
+    if not kerasService.look_for_word("settings", attempts=5, interval=3):
         logging.info("Didn't find settings!")
         sys.exit(1)
     user.press("enter")
@@ -87,7 +47,7 @@ def find_settings() -> any:
 
 def find_graphics() -> any:
     """Look for and enter graphics settings"""
-    if not is_word_on_screen(word="graphics", attempts=5, delay_seconds=3):
+    if not kerasService.look_for_word("graphics", attempts=5, interval=3):
         logging.info("Didn't find graphics!")
         sys.exit(1)
     user.press("right")
@@ -98,7 +58,7 @@ def find_graphics() -> any:
 
 def find_benchmark() -> any:
     """Look for and enter benchmark options"""
-    if not is_word_on_screen(word="benchmark", attempts=5, delay_seconds=3):
+    if not kerasService.look_for_word("benchmark", attempts=5, interval=3):
         logging.info("Didn't find benchmark!")
         sys.exit(1)
     user.press("down")
@@ -115,7 +75,7 @@ def find_benchmark() -> any:
 
 def find_weather() -> any:
     """Navigate to start benchmark"""
-    if not is_word_on_screen(word="weather", attempts=5, delay_seconds=3):
+    if not kerasService.look_for_word("weather", attempts=5, interval=3):
         logging.info("Didn't find weather!")
         sys.exit(1)
     user.press("down")
@@ -136,41 +96,31 @@ def find_weather() -> any:
 
 def navigate_startup():
     """press space through the warnings and navigate startup menus"""
-    start_game_screen = time.time()
-    while True:
-        if official():
-            logging.info("Game started. Skipping intros.")
-            user.press("space")
-            time.sleep(1)
-            user.press("space")
-            time.sleep(1)
-            user.press("space")
-            time.sleep(4)
-            break
-        if time.time() - start_game_screen > 60:
-            logging.info(
-                "Game didn't start in time. Check settings and try again.")
-            sys.exit(1)
-        logging.info("Game hasn't started. Trying again in 5 seconds")
-        time.sleep(5)
+    result = kerasService.wait_for_word("product", timeout=40)
+    if not result:
+        logging.info("Game didn't start in time. Check settings and try again.")
+        sys.exit(1)
+
+    user.press("space")
+    time.sleep(1)
+    user.press("space")
+    time.sleep(1)
+    user.press("space")
+    time.sleep(4)
 
     # Press enter to proceed to the main menu
-    start_game_screen = time.time()
-    while True:
-        if press():
-            logging.info("Hit the title screen. Continuing")
-            user.press("enter")
-            time.sleep(1)
-            break
-        if time.time() - start_game_screen > 60:
-            logging.info(
-                "Game didn't start in time. Check settings and try again.")
-            sys.exit(1)
-        logging.info("Game hasn't started. Trying again in 5 seconds")
-        time.sleep(5)
+    result = kerasService.wait_for_word("press", interval=2, timeout=80)
+    if not result:
+        logging.info("Game didn't start in time. Check settings and try again.")
+        sys.exit(1)
+
+    logging.info("Hit the title screen. Continuing")
+    user.press("enter")
+    time.sleep(1)
 
     # cancel logging into ea services
-    if login():
+    result = kerasService.wait_for_word("login", timeout=50)
+    if result:
         logging.info("Cancelling logging in.")
         user.press("enter")
         time.sleep(2)
@@ -178,33 +128,29 @@ def navigate_startup():
 
 def navigate_menu():
     """Simulate inputs to navigate to benchmark option."""
-    menu_screen = time.time()
-    while True:
-        if menu():
-            logging.info("Saw the options! we are good to go!")
-            time.sleep(1)
-            user.press("down")
-            time.sleep(0.5)
-            user.press("down")
-            time.sleep(0.5)
-            user.press("down")
-            time.sleep(0.5)
-            user.press("down")
-            time.sleep(0.5)
-            user.press("down")
-            time.sleep(0.5)
-            user.press("down")
-            time.sleep(0.5)
-            user.press("down")
-            time.sleep(0.5)
-            user.press("enter")
-            time.sleep(2)
-            break
-        if time.time() - menu_screen > 60:
-            logging.info("Didn't land on the main menu!")
-            sys.exit(1)
-        logging.info("Game still loading. Trying again in 10 seconds")
-        time.sleep(10)
+    result = kerasService.wait_for_word("theatre", interval=3, timeout=60)
+    if not result:
+        logging.info("Didn't land on the main menu!")
+        sys.exit(1)
+
+    logging.info("Saw the options! we are good to go!")
+    time.sleep(1)
+    user.press("down")
+    time.sleep(0.5)
+    user.press("down")
+    time.sleep(0.5)
+    user.press("down")
+    time.sleep(0.5)
+    user.press("down")
+    time.sleep(0.5)
+    user.press("down")
+    time.sleep(0.5)
+    user.press("down")
+    time.sleep(0.5)
+    user.press("down")
+    time.sleep(0.5)
+    user.press("enter")
+    time.sleep(2)
 
     find_settings()
     find_graphics()
@@ -220,18 +166,13 @@ def run_benchmark():
     navigate_startup()
     navigate_menu()
 
-    loading_screen_start = time.time()
-    while True:
-        if benchmark_start():
-            test_start_time = time.time()
-            logging.info(
-                "Benchmark started. Waiting for benchmark to complete.")
-            break
-        if time.time() - loading_screen_start > 60:
-            logging.info("Benchmark didn't start.")
-            sys.exit(1)
-        logging.info("Benchmark hasn't started. Trying again in 10 seconds")
-        time.sleep(10)
+    result = kerasService.wait_for_word("lap", interval=3, timeout=90)
+    if not result:
+        logging.info("Benchmark didn't start.")
+        sys.exit(1)
+
+    logging.info("Benchmark started. Waiting for benchmark to complete.")
+    test_start_time = time.time()
 
     elapsed_setup_time = round(time.time() - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
@@ -239,17 +180,13 @@ def run_benchmark():
     # sleep for 3 laps
     time.sleep(350)
 
-    results_screen_start = time.time()
-    while True:
-        if results():
-            logging.info("Results screen was found! Finishing benchmark.")
-            break
-        if time.time() - results_screen_start > 60:
-            logging.info("Results screen was not found!" +
-                "Did harness not wait long enough? Or test was too long?")
-            sys.exit(1)
-        logging.info("Benchmark hasn't finished. Trying again in 10 seconds")
-        time.sleep(10)
+    result = kerasService.wait_for_word("results", interval=3, timeout=90)
+    if not result:
+        logging.info("Results screen was not found!" +
+            "Did harness not wait long enough? Or test was too long?")
+        sys.exit(1)
+
+    logging.info("Results screen was found! Finishing benchmark.")
 
     test_end_time = time.time()
     elapsed_test_time = round(test_end_time - test_start_time, 2)
@@ -295,9 +232,7 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
-
 #pylint: disable=broad-exception-caught
-
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
