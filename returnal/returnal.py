@@ -74,8 +74,11 @@ def navigate_options_menu() -> None:
     """Simulate inputs to navigate to options menu"""
     logging.info("Navigating to options menu")
     user.press("esc")
+    time.sleep(0.2)
     user.press("enter")
+    time.sleep(0.2)
     user.press("q")
+    time.sleep(0.2)
     user.keyDown("tab")
     time.sleep(5)
     user.keyUp("tab")
