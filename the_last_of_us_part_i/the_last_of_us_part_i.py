@@ -4,7 +4,6 @@ import os
 import time
 import sys
 import pydirectinput as user
-import pyautogui as gui
 
 from the_last_of_us_part_i_utils import get_args, get_resolution
 
@@ -34,17 +33,6 @@ PROCESS_NAME = "tlou"
 user.FAILSAFE = False
 
 
-def await_start_screen(attempts: int) -> bool:
-    """Wait for the start menu"""
-    for _ in range(attempts):
-        result = kerasService.capture_screenshot_find_word("press")
-        if result is not None:
-            return True
-        time.sleep(5)
-
-    return False
-
-
 def navigate_main_menu() -> None:
     """Input to navigate main menu"""
     logging.info("Navigating main menu")
@@ -54,45 +42,20 @@ def navigate_main_menu() -> None:
     time.sleep(0.5)
     user.press("space")
     time.sleep(0.5)
-
     # Press load game
-    user.press("down")
+    user.press("s")
     time.sleep(0.5)
-    user.press("down")
+    user.press("s")
     time.sleep(0.5)
     user.keyDown("space")
     time.sleep(0.5)
-
     # Go to bottom save
-    user.press("up")
+    user.press("w")
     time.sleep(0.5)
     user.press("space")
     time.sleep(0.5)
     user.press("space")
     time.sleep(2)
-
-
-def await_load_game_menu(attempts: int) -> any:
-    """Wait for load game menu"""
-    for _ in range(attempts):
-        result = kerasService.capture_screenshot_find_word("yes")
-        if result is not None:
-            return (result["x"], result["y"])
-        time.sleep(1)
-
-    return None
-
-
-def await_fromy(attempts: int) -> bool:
-    """Wait for "from? in dialogue subtitles"""
-    for _ in range(attempts):
-        result = kerasService.capture_screenshot_find_word("fromy")
-        if result is not None:
-            logging.info("Fromy found!!!")
-            return True
-        time.sleep(0.1)
-
-    return False
 
 
 def run_benchmark():
@@ -102,39 +65,34 @@ def run_benchmark():
 
     time.sleep(10)
 
-    start_screen_found = await_start_screen(10)
-
-    if not start_screen_found:
+    result = kerasService.wait_for_word("press", interval=3, timeout=60)
+    if not result:
         logging.info("Did not see start screen")
         sys.exit(1)
 
     navigate_main_menu()
 
     # press load save
-    coords = await_load_game_menu(10)
-
-    if not coords:
+    result = kerasService.look_for_word("yes", attempts=10, interval=1)
+    if not result:
         logging.info("Did not load the save")
         sys.exit(1)
 
-    user.click(coords[0], coords[1])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    user.press("a")
+    time.sleep(0.5)
+    user.press("space")
 
     elapsed_setup_time = round(time.time() - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
     test_start_time = time.time()
 
-    time.sleep(150) # wait for black screen
+    # wait for black screen
+    time.sleep(150)
 
     # This actually looks for "from?" but the current ML model sees it as fromy
-    fromy_found = await_fromy(250)
-
-    if not fromy_found:
-        logging.info(
-            "Results screen was not found! Did harness not wait long enough? Or test was too long?")
+    result = kerasService.wait_for_word("fromy", timeout=250)
+    if not result:
+        logging.info("Did not find prompt to end harness.")
         sys.exit(1)
 
     # Wait for black screen
