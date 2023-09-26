@@ -10,7 +10,6 @@ from returnal_utils import get_resolution, get_args
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 # pylint: disable=wrong-import-position
-
 from harness_utils.keras_service import KerasService
 from harness_utils.output import (
     format_resolution,
@@ -26,7 +25,6 @@ from harness_utils.steam import (
   exec_steam_run_command,
   get_steamapps_common_path,
 )
-
 # pylint: enable=wrong-import-position
 
 STEAM_GAME_ID = 1649240
@@ -72,18 +70,6 @@ def escape_vram_alert():
     user.keyUp("space")
 
 
-def await_game_start(attempts: int) -> bool:
-    """Wait for game to start to open menu"""
-    logging.info("Waiting for game to be ready to open menu")
-    for _ in range(attempts):
-        result = kerasService.capture_screenshot_find_word("locate")
-        if result is not None:
-            return True
-        time.sleep(5)
-
-    return False  
-
-
 def navigate_options_menu() -> None:
     """Simulate inputs to navigate to options menu"""
     logging.info("Navigating to options menu")
@@ -93,18 +79,6 @@ def navigate_options_menu() -> None:
     user.keyDown("tab")
     time.sleep(5)
     user.keyUp("tab")
-
-
-def await_benchmark_menu(attempts: int) -> bool:
-    """Wait to find the benchmark menu in the options"""
-    logging.info("Waiting for in-game benchmark results")
-    for _ in range(attempts):
-        result = kerasService.capture_screenshot_find_word("benchmark")
-        if result is not None:
-            return True
-        time.sleep(5)
-
-    return False
 
 
 def run_benchmark() -> tuple[float]:
@@ -125,9 +99,8 @@ def run_benchmark() -> tuple[float]:
         escape_vram_alert()
 
     # Make sure the game started correctly
-    game_started = await_game_start(10)
-
-    if not game_started:
+    result = kerasService.look_for_word("locate", 10, 5)
+    if not result:
         logging.info("Could not find prompt to open menu!")
         sys.exit(1)
 
@@ -144,9 +117,8 @@ def run_benchmark() -> tuple[float]:
     time.sleep(120)
 
     # Wait for results screen to display info
-    benchmark_menu_found = await_benchmark_menu(12)
-
-    if not benchmark_menu_found:
+    result = kerasService.look_for_word("benchmark", 12, 5)
+    if not result:
         logging.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?")
         sys.exit(1)
@@ -156,7 +128,7 @@ def run_benchmark() -> tuple[float]:
     logging.info("Benchmark took %s seconds", elapsed_test_time)
 
     terminate_processes(PROCESS_NAME)
-    return start_time, end_time
+    return test_start_time, test_end_time
 
 
 setup_log_directory(LOG_DIRECTORY)
