@@ -15,7 +15,7 @@ def ycruncher_folder_exists() -> bool:
 
 def download_ycruncher():
     """Download and extract Y-Cruncher"""
-    download_url = "http://www.numberworld.org/y-cruncher/y-cruncher%20v0.8.2.9522.zip"
+    download_url = "http://www.numberworld.org/y-cruncher/old_versions/y-cruncher%20v0.8.2.9522.zip"
     destination = os.path.join(SCRIPT_DIR, YCRUNCHER_ZIP_NAME)
     response = requests.get(download_url, allow_redirects=True, timeout=180)
     with open(destination, 'wb') as file:
