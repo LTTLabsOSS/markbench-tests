@@ -5,6 +5,10 @@
 ## About The Project
 Welcome to the official MarkBench testing platform developed by the LTT Labs team. MarkBench serves as the orchestration and data collection framework, while the tests themselves form the core of this process. The tests featured in this repository are actively employed to generate the data showcased in LTT (Linus Tech Tips) videos. We've made the code available here, allowing anyone to execute the very same tests that we use. It's worth noting that you do not require MarkBench to execute the tests provided within this project.
 
+### Project versions
+The versions of tests that are available here are taken from snapshots of our private working repository where we maintain and update existing tests as well as develop and add new tests. We are making the effort to provide new versions of our code to the public at least once a quarter (i.e. every three months). However, we may occasionally release versions more often than this, should we have changes that we feel are worth sharing sooner rather than later. Depending on the changes we have made during the time between release versions, the differences in versions may vary in the amount and significance of changes made.
+
+
 <!-- omit in toc -->
 ## Table of Contents
 - [Getting Started](#getting-started)
