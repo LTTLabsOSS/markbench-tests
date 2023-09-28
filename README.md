@@ -19,7 +19,7 @@ The versions of tests that are available here are taken from snapshots of our pr
 - [A test and its harness](#a-test-and-its-harness)
 - [Creating a test harness](#creating-a-test-harness)
 - [Tools in the toolbox](#tools-in-the-toolbox)
-  - [Keras](#keras)
+  - [Keras OCR](#keras-ocr)
   - [Keyboard and Mouse Input](#keyboard-and-mouse-input)
 - [License](#license)
 
@@ -36,7 +36,7 @@ Most of the test harnesses are written in Python, which you will need on your sy
 We reccomend you install python from the [official downloads page](https://www.python.org/downloads/) and not the Windows Store.
 
 #### Poetry
-All of python harnesses we write use [Poetry](https://python-poetry.org/docs/) for dependency management. 
+This project uses [Poetry](https://python-poetry.org/docs/) for dependency management. 
 
 <!-- omit in toc -->
 ##### Installation
@@ -131,7 +131,7 @@ Harness entrypoints and any supporting files should live in a named directory in
 
 We employ a deployment of [Keras OCR](https://github.com/faustomorales/keras-ocr) integrated into an HTTP API to assist in navigating game menus. This service accepts an image and a designated target word, and in return, it provides the coordinates of the word's location within the image. If the word cannot be located, it returns a "false" response.
 
-For detailed instructions on setting up this Keras Service locally, please refer to our Keras Service repository linked here.
+For detailed instructions on setting up this Keras Service locally, please refer to our [Keras Service repository linked here](https://github.com/LTTLabsOSS/keras-ocr-service).
 
 > Please note that although a CUDA-capable GPU is not mandatory, it's worth mentioning that certain games may not function correctly due to slower response times when this hardware is absent.
 
