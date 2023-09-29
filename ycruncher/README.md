@@ -7,7 +7,6 @@ Wrapper for the popular CPU benchmark [y-cruncher](http://www.numberworld.org/y-
 ## Prerequisites
 
 - Python 3.10+
-- Processor with AVX512 support.
 
 ## Output
 
