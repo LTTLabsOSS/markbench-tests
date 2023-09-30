@@ -10,6 +10,8 @@ import pyautogui as gui
 try:
     import pydirectinput as user
 except ImportError:
+    # pyautogui provides the same API as pydirectinput,
+    # at least for the calls made in this harness
     import pyautogui as user
 from utils import (
     get_resolution,
