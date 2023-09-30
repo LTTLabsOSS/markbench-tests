@@ -22,6 +22,7 @@ protobuf = "^4.21.2"
 WMI = {version = "^1.5.1", platform = "win32"}
 mss = "^7.0.1"
 requests = "^2.28.2"
+vdf = {version = "^3.4", platform = "linux"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"
