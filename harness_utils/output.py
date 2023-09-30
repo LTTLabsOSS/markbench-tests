@@ -2,8 +2,9 @@
 import json
 import os
 
-DEFAULT_LOGGING_FORMAT = '%(asctime)s %(levelname)-s %(message)s'
-DEFAULT_DATE_FORMAT = '%m-%d %H:%M'
+DEFAULT_LOGGING_FORMAT = "%(asctime)s %(levelname)-s %(message)s"
+DEFAULT_DATE_FORMAT = "%m-%d %H:%M"
+
 
 def setup_log_directory(log_dir: str) -> None:
     """Creates the log directory for a harness if it does not already exist"""

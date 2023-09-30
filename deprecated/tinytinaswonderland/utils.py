@@ -1,22 +1,25 @@
 """Utility functions for Tiny Tina's Wonderland test script"""
-import os
 import logging
+import os
 import re
 import winreg
+
+import cv2
 import win32api
 import win32file
-import cv2
 
 EXECUTABLE = "Wonderlands.exe"
 
 
 def get_documents_path() -> str:
     """Use registry to find documents path"""
-    shell_folder_key = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
+    shell_folder_key = (
+        r"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"
+    )
     try:
         root_handle = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)
         shell_folders_handle = winreg.OpenKeyEx(root_handle, shell_folder_key)
-        personal_path_key = winreg.QueryValueEx(shell_folders_handle, 'Personal')
+        personal_path_key = winreg.QueryValueEx(shell_folders_handle, "Personal")
         return personal_path_key[0]
     finally:
         root_handle.Close()
@@ -64,7 +67,7 @@ def try_install_paths(drives) -> str:
 def read_resolution() -> tuple[int]:
     """Read resolution from local ini file"""
     dest = (
-        f"{get_documents_path()}\\My Games\\Tiny Tina's Wonderlands" 
+        f"{get_documents_path()}\\My Games\\Tiny Tina's Wonderlands"
         "\\Saved\\Config\\WindowsNoEditor\\GameUserSettings.ini"
     )
     hpattern = re.compile(r"ResolutionSizeY=(\d*)")
@@ -94,15 +97,21 @@ dir16x10 = os.path.join(images_dir, "16x10")
 
 templates = {
     "options": {
-        "16x10": cv2.imread(os.path.join(dir16x10, "options.png"), cv2.IMREAD_UNCHANGED),
-        "16x9": cv2.imread(os.path.join(dir16x9, "options.png"), cv2.IMREAD_UNCHANGED)
+        "16x10": cv2.imread(
+            os.path.join(dir16x10, "options.png"), cv2.IMREAD_UNCHANGED
+        ),
+        "16x9": cv2.imread(os.path.join(dir16x9, "options.png"), cv2.IMREAD_UNCHANGED),
     },
     "benchmark": {
-        "16x10": cv2.imread(os.path.join(dir16x10, "benchmark.png"), cv2.IMREAD_UNCHANGED),
-        "16x9": cv2.imread(os.path.join(dir16x9, "benchmark.png"), cv2.IMREAD_UNCHANGED)
+        "16x10": cv2.imread(
+            os.path.join(dir16x10, "benchmark.png"), cv2.IMREAD_UNCHANGED
+        ),
+        "16x9": cv2.imread(
+            os.path.join(dir16x9, "benchmark.png"), cv2.IMREAD_UNCHANGED
+        ),
     },
     "start": {
         "16x10": cv2.imread(os.path.join(dir16x10, "start.png"), cv2.IMREAD_UNCHANGED),
-        "16x9": cv2.imread(os.path.join(dir16x9, "start.png"), cv2.IMREAD_UNCHANGED)
-    }
+        "16x9": cv2.imread(os.path.join(dir16x9, "start.png"), cv2.IMREAD_UNCHANGED),
+    },
 }

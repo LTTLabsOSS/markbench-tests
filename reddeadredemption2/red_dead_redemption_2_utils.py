@@ -8,9 +8,13 @@ def get_resolution() -> tuple[int]:
     """Gets resolution width and height from local xml file created by game."""
     # C:\Users\User\Documents\Rockstar Games\Red Dead Redemption 2\Settings\system.xml"
     path = pathlib.Path(
-        "C:/Users/", getpass.getuser(), 
-        "Documents", "Rockstar Games", "Red Dead Redemption 2", "Settings", 
-        "system.xml"
+        "C:/Users/",
+        getpass.getuser(),
+        "Documents",
+        "Rockstar Games",
+        "Red Dead Redemption 2",
+        "Settings",
+        "system.xml",
     )
     width = "0"
     height = "0"

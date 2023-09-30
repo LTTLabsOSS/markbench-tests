@@ -1,7 +1,7 @@
 """Utility functions supporting Returnal test script."""
-from argparse import ArgumentParser
 import os
 import re
+from argparse import ArgumentParser
 
 
 def get_resolution(config_path: str) -> tuple[int]:
@@ -39,7 +39,15 @@ def get_args() -> any:
     """Get command line arguments"""
     parser = ArgumentParser()
     parser.add_argument(
-        "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True)
+        "--kerasHost",
+        dest="keras_host",
+        help="Host for Keras OCR service",
+        required=True,
+    )
     parser.add_argument(
-        "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True)
+        "--kerasPort",
+        dest="keras_port",
+        help="Port for Keras OCR service",
+        required=True,
+    )
     return parser.parse_args()

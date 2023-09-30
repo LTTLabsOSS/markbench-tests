@@ -3,22 +3,24 @@ import json
 import logging
 import os
 import re
+import shutil
 import sys
 import time
 import winreg
 from argparse import ArgumentParser
 from subprocess import Popen
-import shutil
+
 import psutil
 import pyautogui as gui
 import pydirectinput as user
 from dotenv import load_dotenv
 from overwatch_utils import templates
 
-#pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position
 sys.path.append("..")
 import deprecated.cv2_utils
-#pylint: enable=wrong-import-position
+
+# pylint: enable=wrong-import-position
 
 load_dotenv(override=True)
 
@@ -26,20 +28,22 @@ HEIGHT_PATTERN = r"FullScreenHeight = \"(\d*)\""
 WIDTH_PATTERN = r"FullScreenWidth = \"(\d*)\""
 DEFAULT_INSTALLATION_PATH = "C:\\Program Files (x86)\\Overwatch\\_retail_"
 EXECUTABLE = "Overwatch.exe"
-WORKSHOP_CODE = "HYT6F" # same code Nvidia uses
+WORKSHOP_CODE = "HYT6F"  # same code Nvidia uses
 CACHE_DIRECTORIES = [
     "C:\\ProgramData\\Blizzard Entertainment",
-    "C:\\ProgramData\\Battle.net"
+    "C:\\ProgramData\\Battle.net",
 ]
 
 
 def get_documents_path():
     """Gets registry key of documents path."""
-    shell_folder_key = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
+    shell_folder_key = (
+        r"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"
+    )
     try:
         root_handle = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)
         shell_folders_handle = winreg.OpenKeyEx(root_handle, shell_folder_key)
-        personal_path_key = winreg.QueryValueEx(shell_folders_handle, 'Personal')
+        personal_path_key = winreg.QueryValueEx(shell_folders_handle, "Personal")
         return personal_path_key[0]
     finally:
         root_handle.Close()
@@ -73,7 +77,7 @@ def read_current_resolution():
 
 def start_game():
     """Starts game executable."""
-    cmd = DEFAULT_INSTALLATION_PATH + '\\' + EXECUTABLE
+    cmd = DEFAULT_INSTALLATION_PATH + "\\" + EXECUTABLE
     logging.info(cmd)
     return Popen(cmd)
 
@@ -97,7 +101,7 @@ def run_benchmark(username, password):
     user.press("enter")
 
     # Get into play game menu
-    time.sleep(15) # wait for login menu to authenticate
+    time.sleep(15)  # wait for login menu to authenticate
     user.press("down")
     time.sleep(1)
     user.press("space")
@@ -151,7 +155,9 @@ def run_benchmark(username, password):
     # and get into it before waiting for the lobby screen
     time.sleep(30)
 
-    deprecated.cv2_utils.wait_for_image_on_screen('start_button', interval=15, timeout=360)
+    deprecated.cv2_utils.wait_for_image_on_screen(
+        "start_button", interval=15, timeout=360
+    )
 
     for process in psutil.process_iter():
         if "Overwatch" in process.name():
@@ -164,21 +170,35 @@ log_dir = os.path.join(script_dir, "run")
 if not os.path.isdir(log_dir):
     os.mkdir(log_dir)
 
-LOGGING_FORMAT = '%(asctime)s %(levelname)-s %(message)s'
-logging.basicConfig(filename=f'{log_dir}/harness.log',
-                    format=LOGGING_FORMAT,
-                    datefmt='%m-%d %H:%M',
-                    level=logging.DEBUG)
+LOGGING_FORMAT = "%(asctime)s %(levelname)-s %(message)s"
+logging.basicConfig(
+    filename=f"{log_dir}/harness.log",
+    format=LOGGING_FORMAT,
+    datefmt="%m-%d %H:%M",
+    level=logging.DEBUG,
+)
 console = logging.StreamHandler()
 formatter = logging.Formatter(LOGGING_FORMAT)
 console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+logging.getLogger("").addHandler(console)
 
 parser = ArgumentParser()
-parser.add_argument("-u", "--username", dest="username",
-                    help="username", metavar="username", required=True)
-parser.add_argument("-c", "--password", dest="password",
-                    help="password", metavar="password", required=True)
+parser.add_argument(
+    "-u",
+    "--username",
+    dest="username",
+    help="username",
+    metavar="username",
+    required=True,
+)
+parser.add_argument(
+    "-c",
+    "--password",
+    dest="password",
+    help="password",
+    metavar="password",
+    required=True,
+)
 args = parser.parse_args()
 
 try:
@@ -194,10 +214,12 @@ try:
         "resolution": f"{w}x{h}",
     }
 
-    with open(os.path.join(log_dir, "report.json"), "w", encoding="utf-8") as report_file:
+    with open(
+        os.path.join(log_dir, "report.json"), "w", encoding="utf-8"
+    ) as report_file:
         report_file.write(json.dumps(report))
 
-#pylint: disable=broad-exception-caught
+# pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

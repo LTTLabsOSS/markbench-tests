@@ -1,25 +1,27 @@
 """Tiny Tina's Wonderland test script"""
 import logging
-import time
 import os
-from subprocess import Popen
 import sys
-from utils import read_resolution, try_install_paths, get_local_drives, templates
+import time
+from subprocess import Popen
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
-#pylint: disable=wrong-import-position
+from utils import get_local_drives, read_resolution, templates, try_install_paths
+
+sys.path.insert(1, os.path.join(sys.path[0], ".."))
+# pylint: disable=wrong-import-position
 import deprecated.cv2_utils
 from harness_utils.output import (
+    DEFAULT_DATE_FORMAT,
+    DEFAULT_LOGGING_FORMAT,
     format_resolution,
     seconds_to_milliseconds,
     setup_log_directory,
     write_report_json,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT,
 )
 from harness_utils.process import terminate_processes
 from harness_utils.steam import exec_steam_run_command
-#pylint: enable=wrong-import-position
+
+# pylint: enable=wrong-import-position
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
@@ -49,11 +51,14 @@ def run_benchmark():
     time.sleep(30)
 
     deprecated.cv2_utils.wait_and_click(
-        "options", "options menu", deprecated.cv2_utils.ClickType.HARD)
+        "options", "options menu", deprecated.cv2_utils.ClickType.HARD
+    )
     deprecated.cv2_utils.wait_and_click(
-        "benchmark", "benchmark menu", deprecated.cv2_utils.ClickType.HARD)
+        "benchmark", "benchmark menu", deprecated.cv2_utils.ClickType.HARD
+    )
     deprecated.cv2_utils.wait_and_click(
-        "start", "start benchmark", deprecated.cv2_utils.ClickType.HARD)
+        "start", "start benchmark", deprecated.cv2_utils.ClickType.HARD
+    )
     elapsed_setup_time = round(time.time() - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
@@ -71,14 +76,16 @@ def run_benchmark():
 
 setup_log_directory(LOG_DIRECTORY)
 
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
+logging.basicConfig(
+    filename=f"{LOG_DIRECTORY}/harness.log",
+    format=DEFAULT_LOGGING_FORMAT,
+    datefmt=DEFAULT_DATE_FORMAT,
+    level=logging.DEBUG,
+)
 console = logging.StreamHandler()
 formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+logging.getLogger("").addHandler(console)
 
 try:
     deprecated.cv2_utils.templates = templates
@@ -87,11 +94,11 @@ try:
     result = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time)
+        "end_time": seconds_to_milliseconds(end_time),
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", result)
-#pylint: disable=broad-exception-caught
+# pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

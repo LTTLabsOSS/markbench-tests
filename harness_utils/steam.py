@@ -1,8 +1,8 @@
 """Utility functions related to using Steam for running games."""
 import logging
 import winreg
-from subprocess import Popen
 from pathlib import Path
+from subprocess import Popen
 
 
 def get_run_game_id_command(game_id: int) -> str:
@@ -14,7 +14,7 @@ def get_steam_folder_path() -> str:
     """Gets the path to the Steam installation directory from the SteamPath registry key"""
     reg_path = r"Software\Valve\Steam"
     reg_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0, winreg.KEY_READ)
-    value, _  = winreg.QueryValueEx(reg_key, "SteamPath")
+    value, _ = winreg.QueryValueEx(reg_key, "SteamPath")
     return value
 
 
@@ -22,7 +22,7 @@ def get_steam_exe_path() -> str:
     """Gets the path to the Steam executable from the SteamExe registry key"""
     reg_path = r"Software\Valve\Steam"
     reg_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0, winreg.KEY_READ)
-    value, _  = winreg.QueryValueEx(reg_key, "SteamExe")
+    value, _ = winreg.QueryValueEx(reg_key, "SteamExe")
     return value
 
 
@@ -39,14 +39,18 @@ def get_registry_active_user() -> int:
     """
     reg_path = r"Software\Valve\Steam\ActiveProcess"
     reg_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0, winreg.KEY_READ)
-    value, _  = winreg.QueryValueEx(reg_key, "ActiveUser")
+    value, _ = winreg.QueryValueEx(reg_key, "ActiveUser")
     return value
 
 
 def get_app_install_location(app_id: int) -> str:
     """Given the Steam App ID, Gets the install directory from the Windows Registry"""
-    reg_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App " + str(app_id)
-    registry_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, reg_path, 0, winreg.KEY_READ)
+    reg_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App " + str(
+        app_id
+    )
+    registry_key = winreg.OpenKey(
+        winreg.HKEY_LOCAL_MACHINE, reg_path, 0, winreg.KEY_READ
+    )
     value, _ = winreg.QueryValueEx(registry_key, "InstallLocation")
     winreg.CloseKey(registry_key)
     return value
@@ -56,7 +60,7 @@ def exec_steam_run_command(game_id: int, steam_path=None) -> Popen:
     """Runs a game using the Steam browser protocol. The `steam_path` argument can be used to
     specify a specifc path to the Steam executable instead of relying on finding the current
     installation in the Window's registry.
-    
+
     To launch a game with provided arguments,
     see the function `exec_steam_game`.
     """

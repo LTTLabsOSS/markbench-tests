@@ -2,24 +2,28 @@
 import json
 import logging
 import time
-import mss
+
 import cv2
-import requests
+import mss
 import numpy as np
+import requests
 
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 DEFAULT_TIMEOUT = 120.0
 
-class KerasService():
+
+class KerasService:
     """Sets up connection to a Keras serivce and provides methods to use it"""
+
     def __init__(
-            self,
-            ip_addr: str,
-            port: int | str,
-            screenshot_path: str,
-            timeout: float = DEFAULT_TIMEOUT) -> None:
+        self,
+        ip_addr: str,
+        port: int | str,
+        screenshot_path: str,
+        timeout: float = DEFAULT_TIMEOUT,
+    ) -> None:
         self.ip_addr = ip_addr
         self.port = str(port)
         self.url = f"http://{ip_addr}:{str(port)}/process"
@@ -39,7 +43,7 @@ class KerasService():
                 self.url,
                 data={"word": word},
                 files={"file": report_file},
-                timeout=self.timeout
+                timeout=self.timeout,
             )
 
             if not keras_response.ok:
@@ -58,7 +62,9 @@ class KerasService():
         with open(self.screenshot_path, "rb") as report_file:
             return self._query_service(word, report_file)
 
-    def look_for_word(self, word: str, attempts: int = 1, interval: float = 0.0) -> bool:
+    def look_for_word(
+        self, word: str, attempts: int = 1, interval: float = 0.0
+    ) -> bool:
         """Takes a screenshot of the monitor and searches for a given word.
         Will look for the word at a given time interval until the specified number
         of attempts is reached.

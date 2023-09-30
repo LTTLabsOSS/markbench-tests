@@ -1,28 +1,31 @@
 """Forza Horizon 5 test script"""
-from argparse import ArgumentParser
 import logging
 import os
-import time
 import sys
+import time
+from argparse import ArgumentParser
+
 import pyautogui as gui
 import pydirectinput as user
 from forza5_utils import read_resolution
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, os.path.join(sys.path[0], ".."))
+
+from harness_utils.keras_service import KerasService
 
 # pylint: disable=wrong-import-position
 from harness_utils.output import (
+    DEFAULT_DATE_FORMAT,
+    DEFAULT_LOGGING_FORMAT,
     format_resolution,
     seconds_to_milliseconds,
     setup_log_directory,
     write_report_json,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT,
 )
 from harness_utils.process import terminate_processes
-from harness_utils.rtss import  start_rtss_process, copy_rtss_profile
+from harness_utils.rtss import copy_rtss_profile, start_rtss_process
 from harness_utils.steam import exec_steam_run_command
-from harness_utils.keras_service import KerasService
+
 # pylint: enable=wrong-import-position
 
 STEAM_GAME_ID = 1551360
@@ -103,7 +106,7 @@ def run_benchmark():
 
     test_start_time = time.time()
 
-    time.sleep(95) # wait for benchmark to finish 95 seconds
+    time.sleep(95)  # wait for benchmark to finish 95 seconds
 
     result = kerasService.wait_for_word("results", timeout=25)
     if not result:
@@ -120,23 +123,28 @@ def run_benchmark():
 
 setup_log_directory(LOG_DIRECTORY)
 
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
+logging.basicConfig(
+    filename=f"{LOG_DIRECTORY}/harness.log",
+    format=DEFAULT_LOGGING_FORMAT,
+    datefmt=DEFAULT_DATE_FORMAT,
+    level=logging.DEBUG,
+)
 console = logging.StreamHandler()
 formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+logging.getLogger("").addHandler(console)
 
 parser = ArgumentParser()
-parser.add_argument("--kerasHost", dest="keras_host",
-                    help="Host for Keras OCR service", required=True)
-parser.add_argument("--kerasPort", dest="keras_port",
-                    help="Port for Keras OCR service", required=True)
+parser.add_argument(
+    "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
+)
+parser.add_argument(
+    "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
+)
 args = parser.parse_args()
-kerasService = KerasService(args.keras_host, args.keras_port, os.path.join(
-    LOG_DIRECTORY, "screenshot.jpg"))
+kerasService = KerasService(
+    args.keras_host, args.keras_port, os.path.join(LOG_DIRECTORY, "screenshot.jpg")
+)
 
 try:
     start_time, end_time = run_benchmark()
@@ -144,11 +152,11 @@ try:
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time)
+        "end_time": seconds_to_milliseconds(end_time),
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
-#pylint: disable=broad-exception-caught
+# pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

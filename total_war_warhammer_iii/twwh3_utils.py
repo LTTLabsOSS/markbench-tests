@@ -6,6 +6,7 @@ APPDATA = os.getenv("APPDATA")
 CONFIG_LOCATION = f"{APPDATA}\\The Creative Assembly\\Warhammer3\\scripts"
 CONFIG_FILENAME = "preferences.script.txt"
 
+
 def read_current_resolution():
     """Reads resolutions settings from local game file"""
     height_pattern = re.compile(r"y_res (\d+);")

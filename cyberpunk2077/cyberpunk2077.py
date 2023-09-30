@@ -1,21 +1,26 @@
 """Cyberpunk 2077 test script"""
-import time
 import logging
-import sys
 import os
+import sys
+import time
+
 import pyautogui as gui
 import pydirectinput as user
 from cyberpunk_utils import copy_no_intro_mod, get_args, read_current_resolution
 
-
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
-#pylint: disable=wrong-import-position
+sys.path.insert(1, os.path.join(sys.path[0], ".."))
+# pylint: disable=wrong-import-position
 from harness_utils.keras_service import KerasService
 from harness_utils.output import (
-    setup_log_directory, write_report_json, DEFAULT_LOGGING_FORMAT, DEFAULT_DATE_FORMAT)
+    DEFAULT_DATE_FORMAT,
+    DEFAULT_LOGGING_FORMAT,
+    setup_log_directory,
+    write_report_json,
+)
 from harness_utils.process import terminate_processes
 from harness_utils.steam import exec_steam_game
-#pylint: enable=wrong-import-position
+
+# pylint: enable=wrong-import-position
 
 STEAM_GAME_ID = 1091500
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -25,7 +30,9 @@ PROCESS_NAME = "cyberpunk2077.exe"
 
 def start_game():
     """Launch the game with no launcher or start screen"""
-    return exec_steam_game(STEAM_GAME_ID, game_params=["--launcher-skip", "-skipStartScreen"])
+    return exec_steam_game(
+        STEAM_GAME_ID, game_params=["--launcher-skip", "-skipStartScreen"]
+    )
 
 
 def navigate_main_menu() -> None:
@@ -107,18 +114,21 @@ def run_benchmark():
 
 setup_log_directory(LOG_DIRECTORY)
 
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
+logging.basicConfig(
+    filename=f"{LOG_DIRECTORY}/harness.log",
+    format=DEFAULT_LOGGING_FORMAT,
+    datefmt=DEFAULT_DATE_FORMAT,
+    level=logging.DEBUG,
+)
 console = logging.StreamHandler()
 formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+logging.getLogger("").addHandler(console)
 
 args = get_args()
-kerasService = KerasService(args.keras_host, args.keras_port, os.path.join(
-    LOG_DIRECTORY, "screenshot.jpg"))
+kerasService = KerasService(
+    args.keras_host, args.keras_port, os.path.join(LOG_DIRECTORY, "screenshot.jpg")
+)
 
 try:
     start_time, endtime = run_benchmark()
@@ -126,11 +136,11 @@ try:
     report = {
         "resolution": f"{resolution}",
         "start_time": round((start_time * 1000)),
-        "end_time": round((endtime * 1000))
+        "end_time": round((endtime * 1000)),
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
-#pylint: disable=broad-exception-caught
+# pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

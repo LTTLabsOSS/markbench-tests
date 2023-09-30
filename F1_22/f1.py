@@ -1,28 +1,29 @@
 """F1 22 Test script"""
 import logging
-import sys
 import os.path
+import sys
 import time
+
 import pydirectinput as user
-from f1_22_utils import get_args
-from f1_22_utils import get_resolution
+from f1_22_utils import get_args, get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
-#pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position
 from harness_utils.keras_service import KerasService
-from harness_utils.steam import exec_steam_run_command, get_steamapps_common_path
+from harness_utils.misc import remove_files
 from harness_utils.output import (
+    DEFAULT_DATE_FORMAT,
+    DEFAULT_LOGGING_FORMAT,
     format_resolution,
     seconds_to_milliseconds,
     setup_log_directory,
     write_report_json,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT,
 )
-from harness_utils.misc import remove_files
 from harness_utils.process import terminate_processes
-#pylint: enable=wrong-import-position
+from harness_utils.steam import exec_steam_run_command, get_steamapps_common_path
+
+# pylint: enable=wrong-import-position
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
@@ -175,7 +176,7 @@ try:
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
 
-#pylint: disable=broad-exception-caught
+# pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

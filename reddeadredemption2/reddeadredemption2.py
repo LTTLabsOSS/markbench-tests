@@ -1,26 +1,27 @@
 """Red Dead Redemption 2 test script"""
 import logging
 import os
-import time
 import sys
-import pydirectinput as user
+import time
 
+import pydirectinput as user
 from red_dead_redemption_2_utils import get_resolution
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
-#pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position
 from harness_utils.output import (
+    DEFAULT_DATE_FORMAT,
+    DEFAULT_LOGGING_FORMAT,
     format_resolution,
     seconds_to_milliseconds,
     setup_log_directory,
     write_report_json,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT,
 )
 from harness_utils.process import terminate_processes
 from harness_utils.steam import exec_steam_run_command
-#pylint: enable=wrong-import-position
+
+# pylint: enable=wrong-import-position
 
 STEAM_GAME_ID = 1174180
 PROCESS_NAME = "RDR2"
@@ -51,7 +52,7 @@ def run_benchmark():
     time.sleep(3)
 
     # Run benchmark by holding X for 2 seconds
-    user.keyDown('x')
+    user.keyDown("x")
     time.sleep(1.5)
     user.keyUp("x")
 
@@ -74,14 +75,16 @@ def run_benchmark():
 
 setup_log_directory(LOG_DIRECTORY)
 
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
+logging.basicConfig(
+    filename=f"{LOG_DIRECTORY}/harness.log",
+    format=DEFAULT_LOGGING_FORMAT,
+    datefmt=DEFAULT_DATE_FORMAT,
+    level=logging.DEBUG,
+)
 console = logging.StreamHandler()
 formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+logging.getLogger("").addHandler(console)
 
 try:
     start_time, end_time = run_benchmark()
@@ -89,11 +92,11 @@ try:
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time)
+        "end_time": seconds_to_milliseconds(end_time),
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
-#pylint: disable=broad-exception-caught
+# pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

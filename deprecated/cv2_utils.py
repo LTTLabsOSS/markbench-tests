@@ -1,12 +1,13 @@
 """DEPRECATED: Utility functions using Open CV"""
-from enum import Enum
 import logging
 import time
+from enum import Enum
+
 import cv2
+import imutils
+import numpy as np
 import pyautogui as gui
 import pydirectinput as user
-import numpy as np
-import imutils
 
 DEFAULT_MATCH_THRESHOLD = 0.8
 DEFAULT_INTERVAL = 2  # seconds
@@ -59,7 +60,8 @@ def locate_in_image(needle, haystack, threshold=DEFAULT_MATCH_THRESHOLD, debug=0
         # resize the image according to the scale, and keep track
         # of the ratio of the resizing
         resized = imutils.resize(
-            haystack, width=int(haystack.shape[1] * scale), inter=cv2.INTER_NEAREST)
+            haystack, width=int(haystack.shape[1] * scale), inter=cv2.INTER_NEAREST
+        )
         ratio = haystack.shape[1] / float(resized.shape[1])
 
         # if the resized image is smaller than the template, then break
@@ -68,12 +70,18 @@ def locate_in_image(needle, haystack, threshold=DEFAULT_MATCH_THRESHOLD, debug=0
             break
 
         (_, max_val, _, max_loc) = cv2.minMaxLoc(
-            cv2.matchTemplate(resized, needle, cv2.TM_CCOEFF_NORMED))
+            cv2.matchTemplate(resized, needle, cv2.TM_CCOEFF_NORMED)
+        )
 
         if debug:
             # draw a bounding box around the detected region
-            cv2.rectangle(resized, (max_loc[0], max_loc[1]),
-                (max_loc[0] + template_width, max_loc[1] + template_height), (0, 0, 255), 2)
+            cv2.rectangle(
+                resized,
+                (max_loc[0], max_loc[1]),
+                (max_loc[0] + template_width, max_loc[1] + template_height),
+                (0, 0, 255),
+                2,
+            )
             cv2.imshow("Searching", resized)
             cv2.waitKey(0)
 
@@ -82,13 +90,14 @@ def locate_in_image(needle, haystack, threshold=DEFAULT_MATCH_THRESHOLD, debug=0
             (start_x, start_y) = (int(max_loc[0] * ratio), int(max_loc[1] * ratio))
             (end_x, end_y) = (
                 int((max_loc[0] + template_width) * ratio),
-                int((max_loc[1] + template_height) * ratio)
+                int((max_loc[1] + template_height) * ratio),
             )
 
             if debug:
                 # draw a bounding box around the detected result and display the image
                 cv2.rectangle(
-                    haystack, (start_x, start_y), (end_x, end_y), (0, 0, 255), 2)
+                    haystack, (start_x, start_y), (end_x, end_y), (0, 0, 255), 2
+                )
                 cv2.imshow("Found", haystack)
                 cv2.waitKey(0)
 
@@ -109,14 +118,16 @@ def locate_on_screen(template_name, threshold=DEFAULT_MATCH_THRESHOLD, debug=0):
 
 
 def wait_for_image_on_screen(
-        template_name, match_threshold=DEFAULT_MATCH_THRESHOLD,
-        interval=DEFAULT_INTERVAL,
-        timeout=DEFAULT_TIMEOUT):
+    template_name,
+    match_threshold=DEFAULT_MATCH_THRESHOLD,
+    interval=DEFAULT_INTERVAL,
+    timeout=DEFAULT_TIMEOUT,
+):
     """Function that will wait for an image to appear on screen. This function will check every
-     interval for a match that meets is greater than the match threshold. The function will raise
-     an error if the image is not found within the timeout given. Will return the location
-     of the image if found
-     """
+    interval for a match that meets is greater than the match threshold. The function will raise
+    an error if the image is not found within the timeout given. Will return the location
+    of the image if found
+    """
     start_time = time.time()
     current_time = start_time
     while not current_time - start_time > timeout:
@@ -132,6 +143,7 @@ def wait_for_image_on_screen(
 
 class ClickType(Enum):
     """Enumerates different types of clicks"""
+
     SINGLE = 0  # uses .click()
     DOUBLE = 1  # uses .doubleclick()
     HARD = 2  # uses mouse.down() and mouse.up()
@@ -148,7 +160,11 @@ def get_middle_of_rect(top_left_corner, height, width) -> tuple[int]:
 
 
 def wait_and_click(
-        template_name, name, click_type: ClickType = ClickType.SINGLE, timeout=DEFAULT_TIMEOUT):
+    template_name,
+    name,
+    click_type: ClickType = ClickType.SINGLE,
+    timeout=DEFAULT_TIMEOUT,
+):
     """Wait to find an given image on screen and then click it"""
     logging.info("Waiting to find and click on %s", name)
     img, img_loc = wait_for_image_on_screen(template_name, timeout=timeout)

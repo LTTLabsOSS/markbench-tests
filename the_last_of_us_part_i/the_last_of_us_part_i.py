@@ -1,29 +1,27 @@
 """The Last of Us Part I test script"""
 import logging
 import os
-import time
 import sys
-import pydirectinput as user
+import time
 
+import pydirectinput as user
 from the_last_of_us_part_i_utils import get_args, get_resolution
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
-#pylint: disable=wrong-import-position
+sys.path.insert(1, os.path.join(sys.path[0], ".."))
+# pylint: disable=wrong-import-position
 from harness_utils.keras_service import KerasService
 from harness_utils.output import (
+    DEFAULT_DATE_FORMAT,
+    DEFAULT_LOGGING_FORMAT,
     format_resolution,
     seconds_to_milliseconds,
     setup_log_directory,
     write_report_json,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT,
 )
 from harness_utils.process import terminate_processes
-from harness_utils.steam import (
-  get_registry_active_user,
-  exec_steam_run_command,
-)
-#pylint: enable=wrong-import-position
+from harness_utils.steam import exec_steam_run_command, get_registry_active_user
+
+# pylint: enable=wrong-import-position
 
 STEAM_GAME_ID = 1888930
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -108,35 +106,42 @@ def run_benchmark():
 
 setup_log_directory(LOG_DIRECTORY)
 
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
+logging.basicConfig(
+    filename=f"{LOG_DIRECTORY}/harness.log",
+    format=DEFAULT_LOGGING_FORMAT,
+    datefmt=DEFAULT_DATE_FORMAT,
+    level=logging.DEBUG,
+)
 console = logging.StreamHandler()
 formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+logging.getLogger("").addHandler(console)
 
 args = get_args()
 kerasService = KerasService(
-    args.keras_host, args.keras_port, os.path.join(LOG_DIRECTORY, "screenshot.jpg"))
+    args.keras_host, args.keras_port, os.path.join(LOG_DIRECTORY, "screenshot.jpg")
+)
 
 try:
     start_time, end_time = run_benchmark()
     steam_id = get_registry_active_user()
     config_path = os.path.join(
-        os.environ["HOMEPATH"], "Saved Games" ,"The Last of Us Part I",
-        "users", str(steam_id), "screeninfo.cfg"
+        os.environ["HOMEPATH"],
+        "Saved Games",
+        "The Last of Us Part I",
+        "users",
+        str(steam_id),
+        "screeninfo.cfg",
     )
     height, width = get_resolution(config_path)
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time)
+        "end_time": seconds_to_milliseconds(end_time),
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
-#pylint: disable=broad-exception-caught
+# pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

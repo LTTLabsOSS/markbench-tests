@@ -1,7 +1,8 @@
 """Utility functions supporting F1 22 test script."""
-from argparse import ArgumentParser
 import os
 import re
+from argparse import ArgumentParser
+
 
 def get_resolution() -> tuple[int]:
     """Gets resolution width and height from local xml file created by game."""
