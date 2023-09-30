@@ -1,6 +1,6 @@
 # Forza Horizon 5
 
-This script runs RTSS with the proivded profile config and navigates through in-game menus to the built in benchmark and runs it with the current settings.
+This script runs RTSS with the provided profile config and navigates through in-game menus to the built in benchmark and runs it with the current settings.
 
 ## Prerequisites
 
