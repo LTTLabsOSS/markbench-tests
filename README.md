@@ -33,7 +33,7 @@ Most of the test harnesses are written in Python, which you will need on your sy
 
 <!-- omit in toc -->
 ##### Installation
-We reccomend you install python from the [official downloads page](https://www.python.org/downloads/) and not the Windows Store.
+We recommend you install python from the [official downloads page](https://www.python.org/downloads/) and not the Windows Store.
 
 #### Poetry
 This project uses [Poetry](https://python-poetry.org/docs/) for dependency management. 
