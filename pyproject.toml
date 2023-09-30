@@ -6,12 +6,12 @@ authors = []
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pywinauto = "0.6.8"
+pywinauto = {version = "0.6.8", platform = "win32"}
 pyyaml = "6.0"
 python-dotenv = "0.20.0"
 pyfiglet = "0.8.post1"
 PyAutoGUI = "^0.9.53"
-PyDirectInput = "^1.0.4"
+PyDirectInput = {version = "^1.0.4", platform = "win32"}
 opencv-python = "^4.5.5"
 Pillow = "^9.1.1"
 psutil = "^5.9.1"
@@ -19,7 +19,7 @@ pandas = "^1.4.2"
 imutils = "^0.5.4"
 matplotlib = "^3.5.2"
 protobuf = "^4.21.2"
-WMI = "^1.5.1"
+WMI = {version = "^1.5.1", platform = "win32"}
 mss = "^7.0.1"
 requests = "^2.28.2"
 
