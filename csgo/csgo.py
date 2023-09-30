@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Counter Strike: Global Offensive test script"""
 import logging
 import os
@@ -5,7 +7,10 @@ import time
 import sys
 from argparse import ArgumentParser
 import pyautogui as gui
-import pydirectinput as user
+try:
+    import pydirectinput as user
+except ImportError:
+    import pyautogui as user
 from utils import (
     get_resolution,
     benchmark_folder_exists,
