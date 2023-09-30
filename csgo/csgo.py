@@ -102,7 +102,7 @@ def run_benchmark():
     logging.info("Benchmark took %.2f seconds", elapsed_test_time)
 
     terminate_processes(PROCESS_NAME)
-    return start_time, end_time
+    return test_start_time, test_end_time
 
 
 # Entry Point
