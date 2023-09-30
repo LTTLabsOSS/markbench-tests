@@ -1,10 +1,16 @@
+#!/usr/bin/env python3
+
 """Cyberpunk 2077 test script"""
 import time
 import logging
 import sys
 import os
 import pyautogui as gui
-import pydirectinput as user
+
+try:
+    import pydirectinput as user
+except ImportError:
+    import pyautogui as user
 from cyberpunk_utils import copy_no_intro_mod, get_args, read_current_resolution
 
 

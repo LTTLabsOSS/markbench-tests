@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Counter Strike: Global Offensive test script"""
 import logging
 import os
@@ -5,7 +7,12 @@ import time
 import sys
 from argparse import ArgumentParser
 import pyautogui as gui
-import pydirectinput as user
+try:
+    import pydirectinput as user
+except ImportError:
+    # pyautogui provides the same API as pydirectinput,
+    # at least for the calls made in this harness
+    import pyautogui as user
 from utils import (
     get_resolution,
     benchmark_folder_exists,
@@ -97,7 +104,7 @@ def run_benchmark():
     logging.info("Benchmark took %.2f seconds", elapsed_test_time)
 
     terminate_processes(PROCESS_NAME)
-    return start_time, end_time
+    return test_start_time, test_end_time
 
 
 # Entry Point
