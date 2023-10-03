@@ -6,7 +6,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2023-10-03
 
-- Fix typos found by community members @TheDevMinerTV, @KikisGamingService, @seanmrice, @Intron014
+- Fix typos found by community members @TheDevMinerTV, @KikisGamingService, @seanmrice, @Intron014, @Jcraft153
 
 ## 2023-09-29
 
