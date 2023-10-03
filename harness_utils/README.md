@@ -1,13 +1,13 @@
 # Harness Utils
 
 Harness Utils contains scripts that are loosely connected around providing helper utilities used across
-mulitiple test harnesses.
+multiple test harnesses.
 
 ## Keras Service
 
 `keras_service.py`
 
-Contains class for instancing connection to a Keras Service and provides access to it's web API.
+Contains class for instancing connection to a Keras Service and provides access to its web API.
 
 ## Logging
 
@@ -37,4 +37,4 @@ Functions related to setting up and using RTSS configs.
 
 `steam.py`
 
-Functions related to using Steam for running games.
+Functions related to using Steam for running games

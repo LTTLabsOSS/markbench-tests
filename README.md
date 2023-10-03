@@ -1,5 +1,5 @@
 <img src="images/labs_icon.png" alt="Logo" width="100" height="56" />
-<h1>Markbench Test Harnesses</h1>
+<h1>MarkBench Test Harnesses</h1>
 
 <!-- omit in toc -->
 ## About The Project
@@ -33,7 +33,7 @@ Most of the test harnesses are written in Python, which you will need on your sy
 
 <!-- omit in toc -->
 ##### Installation
-We reccomend you install python from the [official downloads page](https://www.python.org/downloads/) and not the Windows Store.
+We recommend you install python from the [official downloads page](https://www.python.org/downloads/) and not the Windows Store.
 
 #### Poetry
 This project uses [Poetry](https://python-poetry.org/docs/) for dependency management. 
@@ -121,7 +121,7 @@ os.system(command)
 ```
 This is a very simple harness which takes in the arguments passed from the commandline and then executes the `FurMark.exe` test. A test harness can vary wildly in complexity depending on the test the harness is implementing. A canned game benchmark might require use of libraries like PyAutoGui to navigate around a game menu, or edit registry to setup configuration.
 
-Harness entrypoints and any supporting files should live in a named directory in the root harness directory.
+Harness entry points and any supporting files should live in a named directory in the root harness directory.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

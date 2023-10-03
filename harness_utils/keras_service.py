@@ -13,7 +13,7 @@ logging.getLogger("urllib3").setLevel(logging.WARNING)
 DEFAULT_TIMEOUT = 120.0
 
 class KerasService():
-    """Sets up connection to a Keras serivce and provides methods to use it"""
+    """Sets up connection to a Keras service and provides methods to use it"""
     def __init__(
             self,
             ip_addr: str,

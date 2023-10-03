@@ -14,4 +14,4 @@ Navigates menus to start a custom game.
 ## Output
 
 report.json
-- `resolution`: string representing the resolution the test was run at, formatted as "[width]x[heigt]", e.x. `1920x1080`
+- `resolution`: string representing the resolution the test was run at, formatted as "[width]x[height]", e.x. `1920x1080`
