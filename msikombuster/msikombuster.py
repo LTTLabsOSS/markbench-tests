@@ -111,13 +111,13 @@ with open(log_path, encoding="utf-8") as log:
     for line in reversed(lines):
         match = pattern.search(line)
         if match:
-            score = match.group(1)
+            SCORE = match.group(1)
 
 report = {
     "resolution": f"{w}x{h}",
     "graphics_preset": "N/A",
     "test": args.test,
-    "score": score
+    "score": SCORE
 }
 
 with open(os.path.join(log_dir, "report.json"), "w", encoding="utf-8") as f:
