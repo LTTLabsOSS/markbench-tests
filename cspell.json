@@ -1,0 +1,4 @@
+{
+  "ignorePaths": [".*/"],
+  "allowCompoundWords": true
+}

@@ -1,4 +1,5 @@
 """Kombustor test script"""
+# cSpell:ignore kombustor
 from argparse import ArgumentParser
 from subprocess import Popen
 import json
@@ -30,6 +31,7 @@ flags = [
     "-logfile_in_app_folder"
 ]
 
+# cSpell:disable
 avail_tests = [
     "vkfurrytorus",
     "glfurrytorus",
@@ -55,13 +57,14 @@ avail_tests = [
     "gltessyspherex32",
     "gltessyspherex16",
 ]
+# cSpell:enable
 
-INSTALL_DIR = "C:\Program Files\Geeks3D\MSI Kombustor 4 x64"
+INSTALL_DIR = r"C:\Program Files\Geeks3D\MSI Kombustor 4 x64"
 EXECUTABLE = "MSI-Kombustor-x64.exe"
 
 parser = ArgumentParser()
 parser.add_argument("-t", "--test", dest="test",
-                    help="kombuster test", metavar="test", required=True)
+                    help="kombustor test", metavar="test", required=True)
 parser.add_argument("-r", "--resolution", dest="resolution",
                     help="resolution", metavar="resolution", required=True)
 parser.add_argument("-b", "--benchmark", dest="benchmark",
@@ -99,8 +102,8 @@ if args.benchmark == "true":
 
 print(cmd)
 print(argstr)
-process = Popen([cmd, argstr])
-EXIT_CODE = process.wait()
+with Popen([cmd, argstr]) as process:
+    EXIT_CODE = process.wait()
 
 SCORE = "N/A"
 # need to find "score => 1212 points"
