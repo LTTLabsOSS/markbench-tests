@@ -43,13 +43,22 @@ if args.device not in VALID_DEVICES:
 
 if os.path.isfile(ABSOLUTE_PATH) is False:
     download_and_install_blender(DOWNLOAD_URL, MSI_NAME)
+
+if os.path.isfile(ABSOLUTE_PATH) is False:
+    logging.error("Failed to install Blender, exiting")
+    sys.exit(1)
+
+logging.info('Blender already installed')
+
 download_barbershop_scene()
 
 try:
+    logging.info('Starting benchmark!')
     start_time = time.time()
     score = run_blender_render(
         ABSOLUTE_PATH, LOG_DIRECTORY, args.device.upper())
     end_time = time.time()
+    logging.info('Finished rendering barbership in %s seconds', (end_time - start_time)/ 60)
 
     if score is None:
         logging.error("No duration was found in the log to use as the score")

@@ -1,4 +1,4 @@
-friendly_name: "Blender Render"
+friendly_name: "Blender Render 3.6.4"
 executable: "blender.py"
 process_name: "blender.exe"
 disable_presentmon: true
