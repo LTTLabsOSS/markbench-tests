@@ -1,4 +1,12 @@
 {
   "ignorePaths": [".*/"],
-  "allowCompoundWords": true
+  "allowCompoundWords": true,
+  "words": [
+    "flac",
+    "vsix",
+    "csgo",
+    "pycache",
+    "OPTIX",
+    "CUDA"
+]
 }
