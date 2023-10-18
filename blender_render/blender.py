@@ -54,6 +54,7 @@ try:
     report = {
         "score": score,
         "version": version,
+        "device": args.device,
         "start_time": round((start_time * 1000)),
         "end_time": round((end_time * 1000))
     }
