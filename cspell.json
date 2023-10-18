@@ -8,7 +8,11 @@
     "pycache",
     "OPTIX",
     "CUDA",
-    "psutil"
+    "psutil",
+    "HIWORD",
+    "Kikis",
+    "Jcraft",
+    "Kombustor"
   ],
   "ignoreRegExpList": [
     "import .*"

@@ -3,21 +3,19 @@
 import logging
 import os
 import re
+import shutil
 import subprocess
+import sys
 import requests
+# pylint: disable=no-name-in-module
+from win32api import LOWORD, HIWORD, GetFileVersionInfo
 
-
-def download_and_install_blender(url: str, msi_name: str):
-    """Downloads blender msi"""
+def copy_from_network_drive():
+    """Download barbershop from network drive"""
+    source = r"\\Labs\labs\03_ProcessingFiles\Blender Render\barbershop_interior.blend"
     root_dir = os.path.dirname(os.path.realpath(__file__))
-    dest_path = os.path.join(root_dir, msi_name)
-    if os.path.isfile(dest_path) is not True:
-        logging.info("Downloading Blender MSI for installation")
-        response = requests.get(url, allow_redirects=True, timeout=120)
-        with open(dest_path, 'wb') as file:
-            file.write(response.content)
-    result = subprocess.run([f"MsiExec.exe /i {dest_path} ALLUSERS=1"], check=True)
-    logging.info(result)
+    destination = os.path.join(root_dir, "barbershop_interior.blend")
+    shutil.copyfile(source, destination)
 
 def download_barbershop_scene():
     """Downloads blender scene to render"""
@@ -25,8 +23,13 @@ def download_barbershop_scene():
     download_url = f"https://svn.blender.org/svnroot/bf-blender/trunk/lib/benchmarks/cycles/barbershop_interior/{blend_file_name}"
     root_dir = os.path.dirname(os.path.realpath(__file__))
     dest_path = os.path.join(root_dir, blend_file_name)
+    try:
+        if os.path.isfile(dest_path) is not True:
+            copy_from_network_drive()
+    except Exception:
+        logging.info("Could not copy barbershop blend file from network share")
     if os.path.isfile(dest_path) is not True:
-        logging.info("Downloading barbershop scene")
+        logging.info("Downloading barbershop scene from internet")
         response = requests.get(
             download_url, allow_redirects=True, timeout=120)
         with open(dest_path, 'wb') as file:
@@ -57,3 +60,26 @@ def run_blender_render(executable_path: str, log_directory: str, device: str) ->
                 time = match.group(1)
                 break
     return time
+
+
+def find_blender():
+    """Find installed blender and return path and version"""
+    path = "C:\\Program Files\\Blender Foundation\\"
+    versions = []
+    if os.path.isdir(path) is not True:
+        logging.error("Blender not detected")
+        sys.exit(1)
+    for directory in os.listdir(path):
+        # expecting subdir following pattern of Blender 3.6, Blender 3.5, etc.
+        versions.append(directory.replace("Blender", "").strip())
+    versions.sort(reverse=True)
+    latest_ver = versions[0]
+    executable_path = os.path.join(path, f"Blender {latest_ver}", "blender.exe")
+    if os.path.isfile(executable_path) is not True:
+        logging.error("Blender not detected")
+        sys.exit(1)
+    info = GetFileVersionInfo(executable_path, "\\")
+    version_ms = info['FileVersionMS']
+    version_ls = info['FileVersionLS']
+    version = f"{HIWORD (version_ms)}.{LOWORD (version_ms)}.{HIWORD (version_ls)}.{LOWORD (version_ls)}"
+    return executable_path, version

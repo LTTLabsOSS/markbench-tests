@@ -1,13 +1,10 @@
-friendly_name: "Blender Render 3.6.4"
+friendly_name: "Blender Barbershop"
 executable: "blender.py"
 process_name: "blender.exe"
 disable_presentmon: true
 hidden: 0
 output_dir: "run"
 options:
-  - name: scene
-    type: select
-    values: ['barbershop'] 
   - name: device
     type: select
     values: ["CPU", "CUDA", "OPTIX", "HIP", "ONEAPI", "METAL"]
