@@ -13,6 +13,7 @@ from utils import (
     copy_benchmark,
     STEAM_GAME_ID
 )
+# test
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 

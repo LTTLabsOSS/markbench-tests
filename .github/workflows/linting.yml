@@ -12,20 +12,32 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: streetsidesoftware/cspell-action@v3
+        with:
+          files: |
+            **/*.py
+            **/*.md
+
   exec_pylint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Get Python changed files
+        id: changed-files-python
+        uses: tj-actions/changed-files@v39
         with:
-          fetch-depth: 2
+          files: |
+            *.py
+            **/*.py
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
           python-version: "3.10"
       - name: Install dependencies
+        if: steps.changed-files-python.outputs.any_changed == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install pylint
       - name: Analysing the code with pylint
+        if: steps.changed-files-python.outputs.any_changed == 'true'
         run: |
-          pylint $(git diff --name-only -r HEAD^1 HEAD -- '*.py')
+          python -m pylint ${{ steps.changed-files-python.outputs.all_changed_files }} 

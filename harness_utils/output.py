@@ -25,3 +25,4 @@ def format_resolution(width: int, height: int) -> str:
 def seconds_to_milliseconds(seconds: float | int) -> int:
     """Convert seconds to milliseconds"""
     return round((seconds * 1000))
+# test
