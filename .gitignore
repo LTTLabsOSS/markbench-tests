@@ -15,6 +15,7 @@ y-cruncher v0.8.2.9522/
 y-cruncher v0.8.2.9522.zip
 csgo-benchmark-master/
 csgo-benchmark-master.zip
+*.blend
 
 # python
 __pycache__/

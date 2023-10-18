@@ -1,0 +1,7 @@
+[MESSAGES CONTROL]
+disable=
+    import-error,
+    wrong-import-order,
+    wrong-import-position,
+    broad-exception-caught,
+    line-too-long
