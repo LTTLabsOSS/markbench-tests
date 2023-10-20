@@ -1,0 +1,9 @@
+friendly_name: "Rocket League"
+executable: "rocket_league.py"
+process_name: "RocketLeague.exe"
+output_dir: "run"
+options:
+  - name: kerasHost
+    type: input
+  - name: kerasPort
+    type: input

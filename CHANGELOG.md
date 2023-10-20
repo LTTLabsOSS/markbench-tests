@@ -6,6 +6,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2023-10-19
 
+- Add Rocket League test harness.
 - Add Dota 2 test harness.
 
 ## 2023-10-18
