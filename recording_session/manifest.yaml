@@ -1,4 +1,5 @@
 friendly_name: "Recording Session"
 executable: "dummy.py"
+output_dir: "run"
 
 

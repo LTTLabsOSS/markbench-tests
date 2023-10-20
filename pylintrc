@@ -4,4 +4,7 @@ disable=
     wrong-import-order,
     wrong-import-position,
     broad-exception-caught,
-    line-too-long
+    broad-exception-raised,
+    line-too-long,
+    fixme,
+    c-extension-no-member
