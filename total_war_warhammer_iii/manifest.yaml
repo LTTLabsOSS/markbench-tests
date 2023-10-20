@@ -3,6 +3,9 @@ executable: "twwh3.py"
 process_name: "warhammer3.exe"
 output_dir: "run"
 options:
+  - name: benchmark
+    type: select
+    values: [battle,mom]
   - name: kerasHost
     type: input
   - name: kerasPort

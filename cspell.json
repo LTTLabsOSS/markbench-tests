@@ -12,7 +12,8 @@
     "HIWORD",
     "Kikis",
     "Jcraft",
-    "Kombustor"
+    "Kombustor",
+    "twwh"
   ],
   "ignoreRegExpList": [
     "import .*"

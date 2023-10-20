@@ -58,7 +58,7 @@ def skip_logo_screens() -> None:
     user.press("escape")
     time.sleep(0.5)
 
-
+# pylint: disable=too-many-statements
 def run_benchmark():
     """Starts the benchmark"""
     start_game()
@@ -105,8 +105,17 @@ def run_benchmark():
     gui.mouseDown()
     time.sleep(0.2)
     gui.mouseUp()
-    time.sleep(2)
-    user.press("enter")
+    if args.benchmark != "battle":
+        result = kerasService.look_for_word("mirrors", attempts=10, interval=1)
+        gui.moveTo(result["x"], result["y"])
+        time.sleep(0.2)
+        gui.mouseDown()
+        time.sleep(0.2)
+        time.sleep(2)
+        user.press("enter")
+    else:
+        time.sleep(2)
+        user.press("enter")
 
     result = kerasService.wait_for_word("fps", interval=5, timeout=100)
     if not result:
@@ -117,9 +126,12 @@ def run_benchmark():
     logging.info("Setup took %f seconds", elapsed_setup_time)
     test_start_time = time.time()
 
-    time.sleep(100)  # Wait for benchmark
+    if args.benchmark != "battle":
+        time.sleep(65) # Wait time for MOM benchmark
+    else:
+        time.sleep(100)  # Wait time for battle benchmark
 
-    result = kerasService.wait_for_word("fps", interval=5, timeout=250)
+    result = kerasService.wait_for_word("summary", interval=5, timeout=250)
     if not result:
         logging.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?")
@@ -150,6 +162,8 @@ console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
 parser = ArgumentParser()
+parser.add_argument("-s", "--benchmark", dest="benchmark",
+                    help="Benchmark Scene", metavar="benchmark", required=True)
 parser.add_argument("--kerasHost", dest="keras_host",
                     help="Host for Keras OCR service", required=True)
 parser.add_argument("--kerasPort", dest="keras_port",
