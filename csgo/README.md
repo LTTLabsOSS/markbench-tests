@@ -1,6 +1,6 @@
 # Counter Strike: Global Offensive
 
-Downloads and installs the [CSGO Benchmark scripts](https://github.com/samisalreadytaken/csgo-benchmark). Runs CS:GO and start the benchmark. Waits for the benchmark sequence to display the results in the developer console.
+Downloads and installs the [CSGO Benchmark scripts](https://github.com/samisalreadytaken/csgo-benchmark). Runs CS:GO and starts the benchmark. Waits for the benchmark sequence to display the results in the developer console.
 
 ## Prerequisites
 
