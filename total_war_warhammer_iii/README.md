@@ -1,6 +1,6 @@
 # Total War: Warhammer III
 
-This script navigates through in-game menus to the built in benchmark and runs it with the current settings. It then waits for a results screen before exiting.
+This script navigates through in-game menus to the built in benchmarking tool then runs it with the current settings. It will wait for a results screen before exiting.
 
 ## Prerequisites
 
