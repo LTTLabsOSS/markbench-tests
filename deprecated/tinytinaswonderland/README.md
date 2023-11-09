@@ -1,6 +1,6 @@
 # Tiny Tina's Wonderland
 
-This script navigates through in-game menus to the built in benchmark and runs it with the current settings.
+This script navigates through in-game menus to the built in benchmarking tool and runs it with the current settings.
 
 ## Prerequisites
 
