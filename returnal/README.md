@@ -1,5 +1,5 @@
 # Returnal
-Starts the game, opens the in-game menu and navigates to the options menu to start the in-game benchmark.
+Starts the game, opens the in-game menu and navigates to the options menu to start the in-game benchmarking tool.
 
 ## Prerequisites
 
