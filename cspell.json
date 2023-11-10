@@ -1,27 +1,30 @@
 {
-  "ignorePaths": [".*/"],
+  "ignorePaths": [
+    ".*/"
+  ],
   "allowCompoundWords": true,
   "words": [
-    "flac",
-    "vsix",
-    "csgo",
-    "pycache",
-    "OPTIX",
-    "CUDA",
-    "psutil",
-    "HIWORD",
-    "Kikis",
-    "Jcraft",
-    "Kombustor",
-    "Unigine",
-    "directx",
-    "opengl",
     "argies",
-    "turbopolsa",
-    "RLCS",
+    "csgo",
+    "CUDA",
+    "directx",
     "Dota",
+    "flac",
+    "HIWORD",
+    "Jcraft",
     "Keras",
-    "twwh"
+    "Kikis",
+    "Kombustor",
+    "opengl",
+    "opengles",
+    "OPTIX",
+    "psutil",
+    "pycache",
+    "RLCS",
+    "turbopolsa",
+    "twwh",
+    "Unigine",
+    "vsix"
   ],
   "ignoreRegExpList": [
     "import .*"

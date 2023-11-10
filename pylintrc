@@ -8,4 +8,5 @@ disable=
     too-many-statements,
     broad-exception-raised,
     fixme,
-    c-extension-no-member
+    c-extension-no-member,
+    duplicate-code

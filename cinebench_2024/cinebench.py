@@ -53,7 +53,7 @@ try:
     setup_start_time = time.time()
 
     with subprocess.Popen(
-        [CINEBENCH_PATH, test_option, DURATION_OPTION,],
+        [CINEBENCH_PATH, test_option, DURATION_OPTION],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         bufsize=1,
@@ -71,7 +71,7 @@ try:
         out, _ = proc.communicate()
 
         if proc.returncode > 0:
-            logging.error("Cinebench did exited with return code %d", proc.returncode)
+            logging.error("Cinebench exited with return code %d", proc.returncode)
             sys.exit(proc.returncode)
 
         score = get_score(out)

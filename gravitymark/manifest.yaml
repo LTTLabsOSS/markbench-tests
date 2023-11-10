@@ -1,0 +1,16 @@
+friendly_name: "GravityMark"
+executable: "gravitymark.py"
+process_name: "GravityMark.exe"
+disable_presentmon: true
+output_dir: run
+options:
+  - name: api
+    type: select
+    values:
+      - vulkan
+      - opengl
+      # - opengles # Linux only
+      - direct3d12
+      - direct3d11
+      # - metal # macOS only
+    tooltip: Select which Graphics API to use
