@@ -11,7 +11,12 @@ from utils import get_resolution, copy_replay, find_rocketleague_executable, get
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 #pylint: disable=wrong-import-position
 from harness_utils.output import (
-    setup_log_directory, write_report_json, DEFAULT_LOGGING_FORMAT, DEFAULT_DATE_FORMAT)
+    setup_log_directory,
+    write_report_json,
+    format_resolution,
+    seconds_to_milliseconds,
+    DEFAULT_LOGGING_FORMAT,
+    DEFAULT_DATE_FORMAT)
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
 
@@ -160,9 +165,9 @@ try:
     start_time, end_time = run_benchmark()
     height, width = get_resolution()
     report = {
-        "resolution": f"{width}x{height}",
-        "start_time": round((start_time * 1000)),
-        "end_time": round((end_time * 1000))
+        "resolution": format_resolution(width, height),
+        "start_time": seconds_to_milliseconds(start_time),
+        "end_time": seconds_to_milliseconds(end_time)
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)

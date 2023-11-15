@@ -76,7 +76,7 @@ def copy_replay() -> None:
         destination = os.path.join(root_dir, "benchmark.dem")
         shutil.copyfile(source, destination)
     if not os.path.isfile(src_file):
-        raise Exception(f"Can't find no intro: {src_file}")
+        raise Exception(f"Can't find intro: {src_file}")
     try:
         Path(replay_path).mkdir(parents=True, exist_ok=True)
     except FileExistsError as e:
@@ -97,7 +97,7 @@ def copy_config() -> None:
         destination = os.path.join(root_dir, "benchmark.cfg")
         shutil.copyfile(source, destination)
     if not os.path.isfile(src_file):
-        raise Exception(f"Can't find no config: {src_file}")
+        raise Exception(f"Can't find config: {src_file}")
     try:
         Path(config_path).mkdir(parents=True, exist_ok=True)
     except FileExistsError as e:

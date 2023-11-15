@@ -12,7 +12,11 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 #pylint: disable=wrong-import-position
 from harness_utils.keras_service import KerasService
 from harness_utils.output import (
-    setup_log_directory, write_report_json, DEFAULT_LOGGING_FORMAT, DEFAULT_DATE_FORMAT)
+    setup_log_directory,
+    write_report_json,
+    seconds_to_milliseconds,
+    DEFAULT_LOGGING_FORMAT,
+    DEFAULT_DATE_FORMAT)
 from harness_utils.process import terminate_processes
 from harness_utils.steam import exec_steam_game
 #pylint: enable=wrong-import-position
@@ -121,12 +125,12 @@ kerasService = KerasService(args.keras_host, args.keras_port, os.path.join(
     LOG_DIRECTORY, "screenshot.jpg"))
 
 try:
-    start_time, endtime = run_benchmark()
+    start_time, end_time = run_benchmark()
     resolution = read_current_resolution()
     report = {
         "resolution": f"{resolution}",
-        "start_time": round((start_time * 1000)),
-        "end_time": round((endtime * 1000))
+        "start_time": seconds_to_milliseconds(start_time),
+        "end_time": seconds_to_milliseconds(end_time)
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)

@@ -8,7 +8,7 @@ import sys
 import time
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-from harness_utils.output import write_report_json
+from harness_utils.output import write_report_json, seconds_to_milliseconds
 
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -55,8 +55,8 @@ try:
         "score": score,
         "version": version,
         "device": args.device,
-        "start_time": round((start_time * 1000)),
-        "end_time": round((end_time * 1000))
+        "start_time": seconds_to_milliseconds(start_time),
+        "end_time": seconds_to_milliseconds(end_time)
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
