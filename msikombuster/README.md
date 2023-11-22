@@ -5,7 +5,9 @@ This is a wrapper for the [MSI Kombustor](https://geeks3d.com/furmark/kombustor/
 
 ![Alt text](msi_kombustor.png)
 
-This harness takes in the **Stess Test** and **Resolution** as command line arguments and then executes. If started in benchmark mode the score will be recorded. If not in Benchmark mode MSI Kombustor will run until manually exited.
+This harness takes in the **Test** and **Resolution** as command line arguments and then executes. If started in benchmark mode the score will be recorded. If not in Benchmark mode MSI Kombustor will run until manually exited.
+
+The test script utilizes the `-width`, `-height`, `-benchmark`, `-<test_name>` and `-logfile_in_app_folder` cli options. See the `msi-kombustor-technical-guide.pdf` included with the MSI Kombustor installation for a full list of supported options.
 
 ## Prerequisites
 
