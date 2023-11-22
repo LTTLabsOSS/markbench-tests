@@ -33,7 +33,7 @@ STEAM_GAME_ID = 668580
 VIDEO_PATH = os.path.join(
     get_app_install_location(STEAM_GAME_ID), "AtomicHeart", "Content", "Movies")
 
-skippable = [
+intro_videos = [
     os.path.join(VIDEO_PATH, "Launch_4k_60FPS_PS5.mp4"),
     os.path.join(VIDEO_PATH, "Launch_4k_60FPS_XboxXS.mp4"),
     os.path.join(VIDEO_PATH, "Launch_FHD_30FPS_PS4.mp4"),
@@ -46,7 +46,7 @@ user.FAILSAFE = False
 
 def run_benchmark():
     """Starts the benchmark"""
-    remove_files(skippable)
+    remove_files(intro_videos)
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = time.time()
 
@@ -101,7 +101,6 @@ def run_benchmark():
         sys.exit(1)
 
     logging.info("Wicked found. Ending Benchmark.")
-    time.sleep(5)
 
     test_end_time = time.time()
     elapsed_test_time = round(test_end_time - test_start_time, 2)
