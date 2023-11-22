@@ -1,9 +1,0 @@
-friendly_name: "Counter Strike: Global Offensive"
-executable: "csgo.py"
-process_name: "csgo.exe"
-output_dir: "run"
-options:
-  - name: kerasHost
-    type: input
-  - name: kerasPort
-    type: input

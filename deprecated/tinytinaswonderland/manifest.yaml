@@ -1,5 +1,0 @@
-friendly_name: "Tiny Tina's Wonderlands"
-executable: "tinytinaswonderland.py"
-process_name: "Wonderlands.exe"
-recording_delay: 75
-output_dir: "run"
