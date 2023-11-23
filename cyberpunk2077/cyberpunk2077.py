@@ -9,7 +9,7 @@ from cyberpunk_utils import copy_no_intro_mod, get_args, read_current_resolution
 
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-#pylint: disable=wrong-import-position
+
 from harness_utils.keras_service import KerasService
 from harness_utils.output import (
     setup_log_directory,
@@ -19,7 +19,6 @@ from harness_utils.output import (
     DEFAULT_DATE_FORMAT)
 from harness_utils.process import terminate_processes
 from harness_utils.steam import exec_steam_game
-#pylint: enable=wrong-import-position
 
 STEAM_GAME_ID = 1091500
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -134,7 +133,6 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
-#pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

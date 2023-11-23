@@ -8,7 +8,7 @@ import pydirectinput as user
 from the_last_of_us_part_i_utils import get_args, get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-#pylint: disable=wrong-import-position
+
 from harness_utils.keras_service import KerasService
 from harness_utils.output import (
     format_resolution,
@@ -23,7 +23,6 @@ from harness_utils.steam import (
   get_registry_active_user,
   exec_steam_run_command,
 )
-#pylint: enable=wrong-import-position
 
 STEAM_GAME_ID = 1888930
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -136,7 +135,6 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
-#pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

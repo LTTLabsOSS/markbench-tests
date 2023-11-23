@@ -9,9 +9,7 @@ from subprocess import Popen
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
-# pylint: disable=wrong-import-position
 from ycruncher_utils import YCRUNCHER_FOLDER_NAME, download_ycruncher, ycruncher_folder_exists
-
 
 ABS_EXECUTABLE_PATH = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), YCRUNCHER_FOLDER_NAME, "y-cruncher.exe")
@@ -42,8 +40,8 @@ arg_string = ['skip-warnings', 'bench', '5b', '-o',
               os.path.join(os.path.dirname(os.path.realpath(__file__)), 'run')]
 
 logging.info(arg_string)
-process = Popen(executable=command, args=arg_string)
-EXIT_CODE = process.wait()
+with Popen(executable=command, args=arg_string) as process:
+    EXIT_CODE = process.wait()
 
 if EXIT_CODE > 0:
     logging.error("Test failed!")

@@ -13,7 +13,6 @@ import sys
 from pathlib import Path
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-#pylint: disable=wrong-import-position
 
 USERNAME = os.getlogin()
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))

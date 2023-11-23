@@ -7,7 +7,7 @@ import sys
 from dota2_utils import console_command, get_resolution, copy_replay, copy_config, get_args
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-#pylint: disable=wrong-import-position
+
 from harness_utils.output import (
     setup_log_directory,
     write_report_json,

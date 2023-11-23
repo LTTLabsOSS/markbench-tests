@@ -9,7 +9,6 @@ from f1_23_utils import get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
-# pylint: disable=wrong-import-position
 from harness_utils.steam import exec_steam_run_command, get_app_install_location
 from harness_utils.keras_service import KerasService
 from harness_utils.misc import remove_files
@@ -22,7 +21,6 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT,
 )
-# pylint: enable=wrong-import-position
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
@@ -30,7 +28,7 @@ PROCESS_NAME = "F1_23"
 STEAM_GAME_ID = 2108330
 VIDEO_PATH = os.path.join(get_app_install_location(STEAM_GAME_ID), "videos")
 
-skippable = [
+intro_videos = [
     os.path.join(VIDEO_PATH, "attract.bk2"),
     os.path.join(VIDEO_PATH, "cm_f1_sting.bk2")
 ]
@@ -159,7 +157,7 @@ def navigate_menu():
 
 def run_benchmark():
     """Runs the actual benchmark."""
-    remove_files(skippable)
+    remove_files(intro_videos)
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = time.time()
     time.sleep(2)
@@ -232,7 +230,6 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
-#pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

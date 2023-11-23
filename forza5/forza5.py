@@ -10,7 +10,6 @@ from forza5_utils import read_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-# pylint: disable=wrong-import-position
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -23,7 +22,6 @@ from harness_utils.process import terminate_processes
 from harness_utils.rtss import  start_rtss_process, copy_rtss_profile
 from harness_utils.steam import exec_steam_run_command
 from harness_utils.keras_service import KerasService
-# pylint: enable=wrong-import-position
 
 STEAM_GAME_ID = 1551360
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -62,7 +60,7 @@ def run_benchmark():
         logging.info("Game didn't start.")
         sys.exit(1)
 
-    logging.info("Accessibilty found pressing X to continue.")
+    logging.info("Accessibility found pressing X to continue.")
     user.press("x")
     time.sleep(2)
 
@@ -148,7 +146,6 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
-#pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

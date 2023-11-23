@@ -9,7 +9,6 @@ from red_dead_redemption_2_utils import get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-#pylint: disable=wrong-import-position
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -20,7 +19,6 @@ from harness_utils.output import (
 )
 from harness_utils.process import terminate_processes
 from harness_utils.steam import exec_steam_run_command
-#pylint: enable=wrong-import-position
 
 STEAM_GAME_ID = 1174180
 PROCESS_NAME = "RDR2"
@@ -93,7 +91,6 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
-#pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

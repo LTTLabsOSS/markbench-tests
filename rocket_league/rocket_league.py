@@ -6,10 +6,10 @@ from subprocess import Popen
 import pyautogui as gui
 import pydirectinput as user
 import sys
-from utils import get_resolution, copy_replay, find_rocketleague_executable, get_args
+from rocket_league_utils import get_resolution, copy_replay, find_rocketleague_executable, get_args
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-#pylint: disable=wrong-import-position
+
 from harness_utils.output import (
     setup_log_directory,
     write_report_json,

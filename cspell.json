@@ -10,6 +10,8 @@
     "directx",
     "Dota",
     "flac",
+    "Forza",
+    "fromy",
     "HIWORD",
     "Jcraft",
     "Keras",
@@ -20,11 +22,15 @@
     "OPTIX",
     "psutil",
     "pycache",
+    "Returnal",
     "RLCS",
+    "RTSS",
+    "tlou",
     "turbopolsa",
     "twwh",
     "Unigine",
-    "vsix"
+    "vsix",
+    "ycruncher"
   ],
   "ignoreRegExpList": [
     "import .*"

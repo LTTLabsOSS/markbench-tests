@@ -1,6 +1,5 @@
 """Utility functions supporting Returnal test script."""
 from argparse import ArgumentParser
-import os
 import re
 
 
@@ -23,16 +22,6 @@ def get_resolution(config_path: str) -> tuple[int]:
                 height = height_match.group(1)
 
     return (height, width)
-
-
-def remove_intro_videos(file_paths: list[str]) -> None:
-    """Removes given video file paths"""
-    for video in file_paths:
-        try:
-            os.remove(video)
-        except FileNotFoundError:
-            # If file not found, it has likely already been deleted before.
-            pass
 
 
 def get_args() -> any:

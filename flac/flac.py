@@ -8,7 +8,6 @@ from subprocess import Popen
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
-# pylint: disable=wrong-import-position
 from flac_utils import download_flac, flac_folder_exists
 from harness_utils.output import DEFAULT_LOGGING_FORMAT, setup_log_directory
 
@@ -35,9 +34,8 @@ command = f'{ABS_EXECUTABLE_PATH}'
 
 command = command.rstrip()
 start_time = time.time()
-process = Popen(executable=command, args=[],
-                cwd=os.path.dirname(os.path.realpath(__file__)))
-EXIT_CODE = process.wait()
+with Popen(executable=command, args=[], cwd=script_dir) as process:
+    EXIT_CODE = process.wait()
 
 if EXIT_CODE > 0:
     logging.error("Test failed!")
@@ -48,7 +46,7 @@ score = round((end_time - start_time), 3)
 logging.info("Benchmark took %s seconds", score)
 if EXIT_CODE > 0:
     logging.error("Test failed!")
-    exit(EXIT_CODE)
+    sys.exit(EXIT_CODE)
 
 report = {
     "score": score,

@@ -8,7 +8,7 @@ import pydirectinput as user
 from utils import read_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-#pylint: disable=wrong-import-position
+
 from harness_utils.steam import exec_steam_run_command, get_app_install_location
 from harness_utils.misc import remove_files
 from harness_utils.process import terminate_processes
@@ -21,7 +21,6 @@ from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
 )
 from harness_utils.keras_service import KerasService
-#pylint: enable=wrong-import-position
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
@@ -141,7 +140,6 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
-#pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

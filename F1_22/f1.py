@@ -9,7 +9,6 @@ from f1_22_utils import get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
-#pylint: disable=wrong-import-position
 from harness_utils.keras_service import KerasService
 from harness_utils.steam import exec_steam_run_command, get_steamapps_common_path
 from harness_utils.output import (
@@ -22,25 +21,24 @@ from harness_utils.output import (
 )
 from harness_utils.misc import remove_files
 from harness_utils.process import terminate_processes
-#pylint: enable=wrong-import-position
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 STEAM_GAME_ID = 1692250
 VIDEO_PATH = os.path.join(get_steamapps_common_path(), "videos")
 
-skippable = [
+intro_videos = [
     os.path.join(VIDEO_PATH, "attract.bk2"),
     os.path.join(VIDEO_PATH, "cm_f1_sting.bk2"),
 ]
 
 
 def navigate_overlay():
-    """Simulate inputs to navigate ingame overlay."""
-    # if steam ingame overlay is disabled it will be a an okay to press
+    """Simulate inputs to navigate in-game overlay."""
+    # if steam in-game overlay is disabled it will be a an okay to press
     if kerasService.look_for_word("okay", attempts=5, interval=1):
         user.press("enter")
-    # if steam ingame overlay is enabled we have to press escape and enter
+    # if steam in-game overlay is enabled we have to press escape and enter
     elif kerasService.look_for_word("please", attempts=5, interval=1):
         user.press("esc")
         time.sleep(0.5)
@@ -102,7 +100,7 @@ def navigate_menu():
 def run_benchmark():
     """Runs the actual benchmark."""
     setup_start_time = time.time()
-    remove_files(skippable)
+    remove_files(intro_videos)
     exec_steam_run_command(STEAM_GAME_ID)
 
     time.sleep(20)
@@ -174,8 +172,6 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
-
-#pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

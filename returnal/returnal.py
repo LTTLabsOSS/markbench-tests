@@ -9,7 +9,6 @@ from returnal_utils import get_resolution, get_args
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-# pylint: disable=wrong-import-position
 from harness_utils.keras_service import KerasService
 from harness_utils.output import (
     format_resolution,
@@ -25,7 +24,6 @@ from harness_utils.steam import (
   exec_steam_run_command,
   get_steamapps_common_path,
 )
-# pylint: enable=wrong-import-position
 
 STEAM_GAME_ID = 1649240
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -39,7 +37,7 @@ VIDEO_PATH = os.path.join(get_steamapps_common_path(), "Returnal", "Returnal", "
 
 user.FAILSAFE = False
 
-skippable_videos = [
+intro_videos = [
     os.path.join(VIDEO_PATH, "Logos_PC.mp4"),
     os.path.join(VIDEO_PATH, "Logos_PC_UW21.mp4"),
     os.path.join(VIDEO_PATH, "Logos_PC_UW32.mp4"),
@@ -87,7 +85,7 @@ def navigate_options_menu() -> None:
 def run_benchmark() -> tuple[float]:
     """Run the benchmark"""
     logging.info("Removing intro videos")
-    remove_files(skippable_videos)
+    remove_files(intro_videos)
 
     logging.info("Starting game")
     exec_steam_run_command(STEAM_GAME_ID)
@@ -159,8 +157,6 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
-
-#pylint: disable=broad-exception-caught
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
