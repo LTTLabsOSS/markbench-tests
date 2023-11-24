@@ -6,10 +6,9 @@ from pathlib import Path
 import re
 import shutil
 
-SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-CYBERPUNK_INSTALL_DIR = os.path.join(
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+CYBERPUNK_INSTALL_DIR = Path(
     os.environ["ProgramFiles(x86)"], "Steam\\steamapps\\common\\Cyberpunk 2077")
-DEFAULT_NO_INTRO_PATH = os.path.join(CYBERPUNK_INSTALL_DIR, "archive\\pc\\mod")
 
 
 def get_args() -> any:
@@ -22,30 +21,35 @@ def get_args() -> any:
     return parser.parse_args()
 
 
+def copy_from_network_drive():
+    """Copies mod file from network drive to harness folder"""
+    src_path = Path(r"\\Labs\labs\03_ProcessingFiles\Cyberpunk 2077\basegame_no_intro_videos.archive")
+    dest_path = SCRIPT_DIRECTORY / "basegame_no_intro_videos.archive"
+    shutil.copyfile(src_path, dest_path)
+
+
 def copy_no_intro_mod() -> None:
     """Copies no intro mod file"""
-    src_file = os.path.join(
-        SCRIPT_DIRECTORY, "basegame_no_intro_videos.archive")
-    is_valid_no_intro = os.path.isfile(src_file)
-
-    if not is_valid_no_intro:
-        raise OSError(f"Can't find no intro: {src_file}")
-
-    # Validate/create path to directory where we will copy profile to
-    dest_dir: str = DEFAULT_NO_INTRO_PATH
     try:
-        Path(dest_dir).mkdir(parents=True, exist_ok=True)
-    except FileExistsError as err:
-        logging.error(
-            "Could not create rtss profiles directory - " +
-            "likely due to non-directory file existing at path."
-        )
-        raise err
+        mod_path = CYBERPUNK_INSTALL_DIR / "archive" / "pc" / "mod"
+        mod_path.mkdir(parents=True, exist_ok=True)
 
-    # Copy the profile over
-    destination_file = os.path.join(dest_dir, os.path.basename(src_file))
-    logging.info("Copying: %s -> %s", src_file, destination_file)
-    shutil.copy(src_file, destination_file)
+        src_path = SCRIPT_DIRECTORY / "basegame_no_intro_videos.archive"
+        dest_path = mod_path / "basegame_no_intro_videos.archive"
+
+        logging.info("Copying: %s -> %s", src_path, dest_path)
+        shutil.copy(src_path, dest_path)
+        return
+    except OSError:
+        logging.error("Could not copy local mod file; Trying from network drive")
+    try:
+        copy_from_network_drive()
+
+        logging.info("Copying: %s -> %s", src_path, dest_path)
+        shutil.copy(src_path, dest_path)
+    except OSError as err:
+        logging.error("Could not copy mod file from network drive")
+        raise err
 
 
 def read_current_resolution():

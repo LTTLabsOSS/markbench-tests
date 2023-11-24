@@ -7,6 +7,7 @@ Navigates menus to the in-game benchmark then runs it.
 - Python 3.10+
 - Cyberpunk 2077 installed
 - Keras OCR service
+- [No Intro Videos](https://www.nexusmods.com/cyberpunk2077/mods/533) mod downloaded. Place the mod file `basegame_no_intro_videos.archive` in the test folder.
 
 ## Options
 
