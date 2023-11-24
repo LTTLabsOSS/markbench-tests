@@ -1,6 +1,6 @@
 # Cyberpunk 2077
 
-Navigates menus to in-game benchmark then runs it.
+Navigates menus to the in-game benchmark then runs it.
 
 ## Prerequisites
 
