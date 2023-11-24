@@ -2,9 +2,10 @@
 import logging
 import os
 import time
+import pyautogui as gui
 import pydirectinput as user
 import sys
-from dota2_utils import console_command, get_resolution, copy_replay, copy_config, get_args
+from dota2_utils import get_resolution, copy_replay, copy_config, get_args, STEAM_GAME_ID
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
@@ -23,7 +24,6 @@ from harness_utils.steam import exec_steam_game
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 PROCESS_NAME = "dota2.exe"
-STEAM_GAME_ID = 570
 
 setup_log_directory(LOG_DIRECTORY)
 logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
@@ -39,9 +39,17 @@ args = get_args()
 kerasService = KerasService(args.keras_host, args.keras_port, os.path.join(
     LOG_DIRECTORY, "screenshot.jpg"))
 
+
 def start_game():
     """Launch the game with console enabled and FPS unlocked"""
     return exec_steam_game(STEAM_GAME_ID, game_params=["-console", "+fps_max 0"])
+
+
+def console_command(command):
+    """Enter a console command"""
+    gui.write(command)
+    user.press("enter")
+
 
 def run_benchmark():
     """Run dota2 benchmark"""
@@ -93,6 +101,7 @@ def run_benchmark():
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     terminate_processes(PROCESS_NAME)
     return test_start_time, test_end_time
+
 
 try:
     start_time, end_time = run_benchmark()

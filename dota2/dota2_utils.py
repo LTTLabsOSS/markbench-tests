@@ -1,27 +1,21 @@
 """Dota 2 test script utils"""
 from argparse import ArgumentParser
-import win32api
-import win32file
-import winreg
 import os
 import logging
 import re
 import shutil
-import pyautogui as gui
-import pydirectinput as user
 import sys
 from pathlib import Path
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIR = str(Path(sys.path[0], ".."))
+sys.path.append(PARENT_DIR)
 
-USERNAME = os.getlogin()
-SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+from harness_utils.steam import get_app_install_location
 
-def console_command(command):
-    """Enter a console command"""
-    for char in command:
-        gui.press(char)
-    user.press("enter")
+STEAM_GAME_ID = 570
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+DEFAULT_INSTALL_PATH = Path(r"C:\Program Files (x86)\Steam\steamapps\common\dota 2 beta")
+
 
 def get_args() -> any:
     """Returns command line arg values"""
@@ -32,83 +26,80 @@ def get_args() -> any:
                         help="Port for Keras OCR service", required=True)
     return parser.parse_args()
 
-def valid_filepath(path: str) -> bool:
-    """Validate given path is valid and leads to an existing file. A directory
-    will throw an error, path must be a file"""
-    if path is None or len(path.strip()) <= 0:
-        return False
-    if os.path.isdir(path) is True:
-        return False
-    return os.path.isfile(path)
 
-def get_local_drives() -> list[str]:
-    """Returns a list containing letters from local drives"""
-    drive_list = win32api.GetLogicalDriveStrings()
-    drive_list = drive_list.split("\x00")[0:-1]  # the last element is ""
-    list_local_drives = []
-    for letter in drive_list:
-        if win32file.GetDriveType(letter) == win32file.DRIVE_FIXED:
-            list_local_drives.append(letter)
-    return list_local_drives
+def get_install_path():
+    """Gets install path for DOTA 2"""
+    install_path = get_app_install_location(STEAM_GAME_ID)
+    if not install_path:
+        return DEFAULT_INSTALL_PATH
+    return install_path
 
-def install_location() -> any:
-    """Get installation location of Dota 2"""
-    reg_path = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 570'
-    try:
-        registry_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, reg_path, 0,
-                                      winreg.KEY_READ)
-        value, _ = winreg.QueryValueEx(registry_key, "InstallLocation")
-        winreg.CloseKey(registry_key)
-        return value
-    #pylint: disable=undefined-variable
-    except WindowsError:
-        return None
+
+def copy_replay_from_network_drive():
+    """Copies replay file from network drive to harness folder"""
+    src_path = Path(r"\\Labs\labs\03_ProcessingFiles\Dota2\benchmark.dem")
+    dest_path = SCRIPT_DIRECTORY / "benchmark.dem"
+    shutil.copyfile(src_path, dest_path)
+
 
 def copy_replay() -> None:
     """Copy replay file to dota 2 folder"""
-    replay_path = os.path.join(install_location(), "game\\dota\\replays")
-    src_file = os.path.join(SCRIPT_DIRECTORY, "benchmark.dem")
-    destination_file = os.path.join(replay_path, os.path.basename(src_file))
-    if os.path.isfile(src_file) is not True:
-        source = r"\\Labs\labs\03_ProcessingFiles\Dota2\benchmark.dem"
-        root_dir = os.path.dirname(os.path.realpath(__file__))
-        destination = os.path.join(root_dir, "benchmark.dem")
-        shutil.copyfile(source, destination)
-    if not os.path.isfile(src_file):
-        raise Exception(f"Can't find intro: {src_file}")
     try:
-        Path(replay_path).mkdir(parents=True, exist_ok=True)
-    except FileExistsError as e:
-        logging.error(
-            "Could not create directory - likely due to non-directory file existing at path.")
-        raise e
-    logging.info("Copying: %s -> %s", src_file, destination_file)
-    shutil.copy(src_file, destination_file)
+        replay_path = Path(get_install_path(), "game\\dota\\replays")
+        replay_path.mkdir(parents=True, exist_ok=True)
+
+        src_path = SCRIPT_DIRECTORY / "benchmark.dem"
+        dest_path = replay_path / "benchmark.dem"
+
+        logging.info("Copying: %s -> %s", src_path, dest_path)
+        shutil.copy(src_path, dest_path)
+        return
+    except OSError:
+        logging.error("Could not copy local replay file; Trying from network drive.")
+    try:
+        copy_replay_from_network_drive()
+
+        logging.info("Copying: %s -> %s", src_path, dest_path)
+        shutil.copy(src_path, dest_path)
+    except OSError as err:
+        logging.error("Could not copy replay file.")
+        raise err
+
+
+def copy_config_from_network_drive():
+    """Copy benchmark config from network drive to harness folder"""
+    src_path = Path(r"\\Labs\labs\03_ProcessingFiles\Dota2\benchmark.cfg")
+    dest_path = SCRIPT_DIRECTORY / "benchmark.cfg"
+    shutil.copyfile(src_path, dest_path)
+
 
 def copy_config() -> None:
     """Copy benchmark config to dota 2 folder"""
-    config_path = os.path.join(install_location(), "game\\dota\\cfg")
-    src_file = os.path.join(SCRIPT_DIRECTORY, "benchmark.cfg")
-    destination_file = os.path.join(config_path, os.path.basename(src_file))
-    if os.path.isfile(src_file) is not True:
-        source = r"\\Labs\labs\03_ProcessingFiles\Dota2\benchmark.cfg"
-        root_dir = os.path.dirname(os.path.realpath(__file__))
-        destination = os.path.join(root_dir, "benchmark.cfg")
-        shutil.copyfile(source, destination)
-    if not os.path.isfile(src_file):
-        raise Exception(f"Can't find config: {src_file}")
     try:
-        Path(config_path).mkdir(parents=True, exist_ok=True)
-    except FileExistsError as e:
-        logging.error(
-            "Could not create directory - likely due to non-directory file existing at path.")
-        raise e
-    logging.info("Copying: %s -> %s", src_file, destination_file)
-    shutil.copy(src_file, destination_file)
+        config_path = Path(get_install_path(), "game\\dota\\cfg")
+        config_path.mkdir(parents=True, exist_ok=True)
+
+        src_path = SCRIPT_DIRECTORY / "benchmark.cfg"
+        dest_path = config_path / "benchmark.cfg"
+
+        logging.info("Copying: %s -> %s", src_path, dest_path)
+        shutil.copy(src_path, dest_path)
+        return
+    except OSError:
+        logging.error("Could not copy local config file; Trying from network drive.")
+    try:
+        copy_config_from_network_drive()
+
+        logging.info("Copying: %s -> %s", src_path, dest_path)
+        shutil.copy(src_path, dest_path)
+    except OSError as err:
+        logging.error("Could not copy config file.")
+        raise err
+
 
 def get_resolution():
     """Get current resolution from settings file"""
-    video_config = os.path.join(install_location(), "game\\dota\\cfg\\video.txt")
+    video_config = os.path.join(get_install_path(), "game\\dota\\cfg\\video.txt")
     height_pattern = re.compile(r"\"setting.defaultresheight\"		\"(\d+)\"")
     width_pattern = re.compile(r"\"setting.defaultres\"		\"(\d+)\"")
     cfg = f"{video_config}"
