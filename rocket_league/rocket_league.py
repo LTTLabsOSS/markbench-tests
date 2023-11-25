@@ -41,15 +41,18 @@ args = get_args()
 kerasService = KerasService(args.keras_host, args.keras_port, os.path.join(
     LOG_DIRECTORY, "screenshot.jpg"))
 
+
 def get_run_game_id_command(game_id: int) -> str:
     """Build string to launch game"""
     return "com.epicgames.launcher://apps/" + str(game_id)
+
 
 def start_game():
     """Start the game"""
     cmd_string = get_run_game_id_command(GAME_ID)
     logging.info("%s %s", EXECUTABLE_PATH, cmd_string)
     return Popen([EXECUTABLE_PATH, cmd_string])
+
 
 def run_benchmark():
     """Run the test!"""
@@ -160,6 +163,7 @@ def run_benchmark():
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     terminate_processes(PROCESS_NAME)
     return test_start_time, test_end_time
+
 
 try:
     start_time, end_time = run_benchmark()

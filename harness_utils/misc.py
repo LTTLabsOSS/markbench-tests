@@ -12,4 +12,3 @@ def remove_files(paths: list[str]) -> None:
             logging.info("Removed file: %s", path)
         except FileNotFoundError:
             logging.info("File already removed: %s", path)
-#test

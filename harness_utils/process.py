@@ -7,4 +7,3 @@ def terminate_processes(*process_names: str) -> None:
         for process in psutil.process_iter():
             if name.lower() in process.name().lower():
                 process.terminate()
-# test
