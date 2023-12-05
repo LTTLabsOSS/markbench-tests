@@ -5,7 +5,7 @@ import time
 import pyautogui as gui
 import pydirectinput as user
 import sys
-from dota2_utils import get_resolution, copy_replay, copy_config, get_args, STEAM_GAME_ID
+from dota2_utils import get_resolution, copy_replay, copy_config, get_args
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
@@ -24,6 +24,7 @@ from harness_utils.steam import exec_steam_game
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 PROCESS_NAME = "dota2.exe"
+STEAM_GAME_ID = 570
 
 setup_log_directory(LOG_DIRECTORY)
 logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
@@ -76,26 +77,36 @@ def run_benchmark():
     console_command("exec_async benchmark")
     time.sleep(0.2)
     user.press("\\")
+
     time.sleep(5)
+    if kerasService.wait_for_word(word="directed", timeout=30, interval=0.1) is None:
+        logging.error("Didn't see directed camera. Did the replay load?")
+        sys.exit(1)
 
     setup_end_time = time.time()
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
-    test_start_time = time.time()
-
+    time.sleep(25)
     # TODO -> Mark benchmark start time using video OCR by looking for a players name
-    if kerasService.wait_for_word(word="directed", timeout=100, interval=0.5) is None:
-        logging.error("Game didn't start in time. Check settings and try again.")
+    if kerasService.wait_for_word(word="120", timeout=30, interval=0.1) is None:
+        logging.error("Didn't see the gold tick up to 120 to start the benchmark. Check settings and try again.")
         sys.exit(1)
 
-    time.sleep(100) # sleep duration during gameplay
+    test_start_time = time.time()
+
+    time.sleep(75) # sleep duration during gameplay
+
+    if kerasService.wait_for_word(word="430", timeout=30, interval=0.1) is None:
+        logging.error("Didn't see 430 Gold. Did the benchmark run?")
+        sys.exit(1)
+    test_end_time = time.time()
+    time.sleep(1)
 
     if kerasService.wait_for_word(word="heroes", timeout=25, interval=1) is None:
         logging.error("Main menu after running benchmark not found, exiting")
         sys.exit(1)
 
     logging.info("Run completed. Closing game.")
-    test_end_time = time.time()
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
