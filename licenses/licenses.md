@@ -10,6 +10,12 @@ Licenses with included binaries are also located within the directory of the tes
 | FLAC Audio Encode                 | [FLAC](https://xiph.org/flac/index.html)             | [BSD](https://xiph.org/flac/license.html)                    |
 | y-cruncher                        | [y-cruncher](http://www.numberworld.org/y-cruncher/) | [Unique](http://www.numberworld.org/y-cruncher/license.html) |
 
+## Required files
+
+| Test                              | Link                                                 | License                                                          |
+| --------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------- |
+| DOTA 2                            | [D-OPTIMIZER](https://github.com/AveYo/D-OPTIMIZER)  | [MIT](https://github.com/AveYo/D-OPTIMIZER/blob/archive/LICENSE) |
+
 ## Python
 | Project                                                             | License                                                                                                   |
 | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |

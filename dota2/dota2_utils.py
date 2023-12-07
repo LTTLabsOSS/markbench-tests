@@ -66,13 +66,6 @@ def copy_replay() -> None:
         raise err
 
 
-def copy_config_from_network_drive():
-    """Copy benchmark config from network drive to harness folder"""
-    src_path = Path(r"\\Labs\labs\03_ProcessingFiles\Dota2\benchmark.cfg")
-    dest_path = SCRIPT_DIRECTORY / "benchmark.cfg"
-    shutil.copyfile(src_path, dest_path)
-
-
 def copy_config() -> None:
     """Copy benchmark config to dota 2 folder"""
     try:
@@ -81,14 +74,6 @@ def copy_config() -> None:
 
         src_path = SCRIPT_DIRECTORY / "benchmark.cfg"
         dest_path = config_path / "benchmark.cfg"
-
-        logging.info("Copying: %s -> %s", src_path, dest_path)
-        shutil.copy(src_path, dest_path)
-        return
-    except OSError:
-        logging.error("Could not copy local config file; Trying from network drive.")
-    try:
-        copy_config_from_network_drive()
 
         logging.info("Copying: %s -> %s", src_path, dest_path)
         shutil.copy(src_path, dest_path)
