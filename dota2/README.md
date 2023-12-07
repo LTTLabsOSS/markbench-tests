@@ -1,11 +1,13 @@
 # Dota 2
-Follows the benchmarking guide ["Benchmarking Dota 2" by JJ “PimpmuckL” Liebig](https://medium.com/layerth/benchmarking-dota-2-83c4322b12c0)
+Based on the benchmarking guide ["Benchmarking Dota 2" by JJ “PimpmuckL” Liebig](https://medium.com/layerth/benchmarking-dota-2-83c4322b12c0).
+The test uses a modified version of the guide's `benchmark.cfg` file originally provided by https://github.com/AveYo/D-OPTIMIZER
 
 ## Prerequisites
 
 - Python 3.10+
 - Dota 2 installed
 - Keras OCR service
+- Replay file named `benchmark.dem` copied to harness directory. This is the same file used by the benchmarking guide mentioned above. It can be downloaded [here](https://mega.nz/file/2ZlTiSaZ#byo4nSBjcsP8wsfKQAhFDuOMd0N9flUxtB8QZ4C5tSM)
 
 ## Options
 
