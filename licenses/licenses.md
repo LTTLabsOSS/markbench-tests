@@ -1,8 +1,9 @@
 # Dependency Licenses
+
 Links to licenses and repositories of dependencies used throughout MarkBench test harnesses.
 
-## Included Binaries
-Licenses with included binaries are also located within the directory of the test alongside the files.
+## Required Binaries
+
 | Test                              | Link                                                 | License                                                      |
 | --------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------ |
 | 7-zip Compression & Decompression | [7-zip](https://www.7-zip.org/)                      | [GNU LGPL*](https://www.7-zip.org/license.txt)               |
