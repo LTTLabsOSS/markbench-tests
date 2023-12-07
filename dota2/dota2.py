@@ -86,15 +86,15 @@ def run_benchmark():
     setup_end_time = time.time()
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
-    time.sleep(25)
+    time.sleep(23)
     # TODO -> Mark benchmark start time using video OCR by looking for a players name
-    if kerasService.wait_for_word(word="120", timeout=30, interval=0.1) is None:
-        logging.error("Didn't see the gold tick up to 120 to start the benchmark. Check settings and try again.")
+    if kerasService.wait_for_word(word="121", timeout=30, interval=0.1) is None:
+        logging.error("Didn't see the gold tick up to 121 to start the benchmark. Check settings and try again.")
         sys.exit(1)
 
     test_start_time = time.time()
 
-    time.sleep(75) # sleep duration during gameplay
+    time.sleep(73) # sleep duration during gameplay
 
     if kerasService.wait_for_word(word="430", timeout=30, interval=0.1) is None:
         logging.error("Didn't see 430 Gold. Did the benchmark run?")
