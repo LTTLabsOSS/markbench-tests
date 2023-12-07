@@ -78,12 +78,20 @@ def run_benchmark():
 
     time.sleep(3)
 
-    #Navigating main menu:
+    # Navigating main menu:
     if kerasService.wait_for_word(word="profile", timeout=60, interval=0.5) is None:
         logging.error("Main menu didn't show up. Check settings and try again.")
         sys.exit(1)
 
     user.press("left")
+    time.sleep(0.2)
+    user.press("up")
+    time.sleep(0.2)
+    user.press("up")
+    time.sleep(0.2)
+    user.press("up")
+    time.sleep(0.2)
+    user.press("up")
     time.sleep(0.2)
     user.press("down")
     time.sleep(0.2)
