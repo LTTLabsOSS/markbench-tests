@@ -41,7 +41,7 @@ def skip_logo_screens() -> None:
     """Simulate input to skip logo screens"""
     logging.info("Skipping logo screens")
 
-    # Enter TWWH3 menu
+    # Enter menu
     user.press("escape")
     time.sleep(0.5)
     user.press("escape")
@@ -57,7 +57,7 @@ def skip_logo_screens() -> None:
     user.press("escape")
     time.sleep(0.5)
 
-# pylint: disable=too-many-statements
+
 def run_benchmark():
     """Starts the benchmark"""
     start_game()
@@ -116,13 +116,14 @@ def run_benchmark():
         time.sleep(2)
         user.press("enter")
 
-    result = kerasService.wait_for_word("fps", interval=5, timeout=100)
+    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+    logging.info("Setup took %f seconds", elapsed_setup_time)
+
+    result = kerasService.wait_for_word("fps", interval=0.5, timeout=100)
     if not result:
         logging.info("Benchmark didn't start.")
         sys.exit(1)
 
-    elapsed_setup_time = round(time.time() - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
     test_start_time = time.time()
 
     if args.benchmark != "battle":
@@ -130,17 +131,18 @@ def run_benchmark():
     else:
         time.sleep(100)  # Wait time for battle benchmark
 
-    result = kerasService.wait_for_word("summary", interval=5, timeout=250)
+    result = kerasService.wait_for_word("summary", interval=0.2, timeout=250)
     if not result:
         logging.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?")
         sys.exit(1)
 
+    test_end_time = time.time() - 1
+
     # Wait 5 seconds for benchmark info
     time.sleep(5)
 
     # End the run
-    test_end_time = time.time()
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
 
