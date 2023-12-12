@@ -19,10 +19,15 @@ from harness_utils.output import (
 )
 
 CINEBENCH_PATH = r"C:\Cinebench2024\Cinebench.exe"
+GPU_TEST = "g_CinebenchGpuTest=true"
+CPU_1_TEST = "g_CinebenchCpu1Test=true"
+CPU_X_TEST = "g_CinebenchCpuXTest=true"
 TEST_OPTIONS = {
-    "cpu-single-core": "g_CinebenchCpu1Test=true",
-    "cpu-multi-core": "g_CinebenchCpuXTest=true",
-    "gpu": "g_CinebenchGpuTest=true"
+    "cpu-single-core": [CPU_1_TEST],
+    "cpu-multi-core": [CPU_X_TEST],
+    "cpu-both": [CPU_X_TEST, CPU_1_TEST],
+    "gpu": [GPU_TEST],
+    "all": [GPU_TEST, CPU_X_TEST, CPU_1_TEST]
 }
 DURATION_OPTION = "g_CinebenchMinimumTestDuration=1"
 
@@ -46,51 +51,53 @@ formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
-test_option = TEST_OPTIONS[args.test]
+test_types = TEST_OPTIONS[args.test]
 
 try:
     logging.info('Starting benchmark!')
-    setup_start_time = time.time()
+    session_report = []
+    for test_type in test_types:
+        setup_start_time = time.time()
+        with subprocess.Popen(
+            [CINEBENCH_PATH, test_type, DURATION_OPTION],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            bufsize=1,
+            universal_newlines=True) as proc:
+            logging.info("Cinebench started. Waiting for setup to finish to set process priority.")
+            for line in proc.stdout:
+                if "BEFORERENDERING" in line:
+                    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+                    logging.info("Setup took %.2f seconds", elapsed_setup_time)
+                    logging.info("Setting Cinebench process priority to high (PID: %s)", proc.pid)
+                    process = psutil.Process(proc.pid)
+                    process.nice(psutil.HIGH_PRIORITY_CLASS)
+                    start_time = time.time()
+                    break
+            out, _ = proc.communicate()
 
-    with subprocess.Popen(
-        [CINEBENCH_PATH, test_option, DURATION_OPTION],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        bufsize=1,
-        universal_newlines=True) as proc:
-        logging.info("Cinebench started. Waiting for setup to finish to set process priority.")
-        for line in proc.stdout:
-            if "BEFORERENDERING" in line:
-                elapsed_setup_time = round(time.time() - setup_start_time, 2)
-                logging.info("Setup took %.2f seconds", elapsed_setup_time)
-                logging.info("Setting Cinebench process priority to high (PID: %s)", proc.pid)
-                process = psutil.Process(proc.pid)
-                process.nice(psutil.HIGH_PRIORITY_CLASS)
-                start_time = time.time()
-                break
-        out, _ = proc.communicate()
+            if proc.returncode > 0:
+                logging.error("Cinebench exited with return code %d", proc.returncode)
+                sys.exit(proc.returncode)
 
-        if proc.returncode > 0:
-            logging.error("Cinebench exited with return code %d", proc.returncode)
-            sys.exit(proc.returncode)
+            score = get_score(out)
+            if score is None:
+                logging.error("Could not find score in Cinebench output!")
+                sys.exit(1)
 
-        score = get_score(out)
-        if score is None:
-            logging.error("Could not find score in Cinebench output!")
-            sys.exit(1)
+            end_time = time.time()
+            elapsed_test_time = round(end_time - start_time, 2)
+            logging.info("Benchmark took %.2f seconds", elapsed_test_time)
 
-        end_time = time.time()
-        elapsed_test_time = round(end_time - start_time, 2)
-        logging.info("Benchmark took %.2f seconds", elapsed_test_time)
+            report = {
+                "test_arg": test_type,
+                "score": score,
+                "start_time": seconds_to_milliseconds(start_time),
+                "end_time": seconds_to_milliseconds(end_time)
+            }
+            session_report.append(report)
 
-        report = {
-            "test": args.test,
-            "score": score,
-            "start_time": seconds_to_milliseconds(start_time),
-            "end_time": seconds_to_milliseconds(end_time)
-        }
-
-        write_report_json(log_dir, "report.json", report)
+    write_report_json(log_dir, "report.json", session_report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
