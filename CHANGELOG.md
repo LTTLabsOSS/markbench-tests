@@ -8,6 +8,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 - Update strategies for marking start and end time in Returnal test harness
 - Minor changes to logging output in DOTA 2 and Total War: Warhammer III test harnesses
+- Update Cinebench test harness to allow for sequential runs of different Cinebench performance tests
 
 ## 2023-12-07
 
