@@ -7,9 +7,9 @@ options:
   - name: test
     type: select
     values:
-      - "cpu-single-core"
-      - "cpu-multi-core"
-      - "cpu-both"
-      - "gpu"
-      - "all"
+      - cpu-single-core
+      - cpu-multi-core
+      - cpu-both
+      - gpu
+      - all
     tooltip: Select which Cinebench test to run
