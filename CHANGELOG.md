@@ -27,6 +27,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2023-11-23
 
+<!-- cspell:disable-next-line -->
 - Fix issues with links in `CONTRIBUTING.MD` found by @chomes and @OwenHunter
 
 ## 2023-11-22
@@ -60,6 +61,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2023-10-03
 
+<!-- cspell:disable-next-line -->
 - Fix typos found by community members @TheDevMinerTV, @KikisGamingService, @seanmrice, @Intron014, @Jcraft153
 
 ## 2023-09-29
