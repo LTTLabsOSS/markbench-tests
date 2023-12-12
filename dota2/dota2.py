@@ -89,7 +89,7 @@ def run_benchmark():
     time.sleep(23)
     # TODO -> Mark benchmark start time using video OCR by looking for a players name
     if kerasService.wait_for_word(word="121", timeout=30, interval=0.1) is None:
-        logging.error("Didn't see the gold tick up to 121 to start the benchmark. Check settings and try again.")
+        logging.error("Didn't see the gold tick up to 121 at beginning of benchmark. Could not mark start time!")
         sys.exit(1)
 
     test_start_time = time.time()
@@ -97,7 +97,7 @@ def run_benchmark():
     time.sleep(73) # sleep duration during gameplay
 
     if kerasService.wait_for_word(word="430", timeout=30, interval=0.1) is None:
-        logging.error("Didn't see 430 Gold. Did the benchmark run?")
+        logging.error("Didn't see 430 Gold. Unable to mark end time. Check settings and try again.")
         sys.exit(1)
     test_end_time = time.time()
     time.sleep(1)
