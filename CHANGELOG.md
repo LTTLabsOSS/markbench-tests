@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 Changes are grouped by the date they are merged to the main branch of the repository and are ordered from newest to oldest. Dates use the ISO 8601 extended calendar date format, i.e. YYYY-MM-DD.
 
+## 2023-12-12
+
+- Update strategies for marking start and end time in Returnal test harness
+- Minor changes to logging output in DOTA 2 and Total War: Warhammer III test harnesses
+
 ## 2023-12-07
 
 - Update DOTA 2 test harness
@@ -22,6 +27,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2023-11-23
 
+<!-- cspell:disable-next-line -->
 - Fix issues with links in `CONTRIBUTING.MD` found by @chomes and @OwenHunter
 
 ## 2023-11-22
@@ -55,6 +61,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2023-10-03
 
+<!-- cspell:disable-next-line -->
 - Fix typos found by community members @TheDevMinerTV, @KikisGamingService, @seanmrice, @Intron014, @Jcraft153
 
 ## 2023-09-29

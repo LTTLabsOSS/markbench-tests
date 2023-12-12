@@ -121,7 +121,7 @@ def run_benchmark():
 
     result = kerasService.wait_for_word("fps", interval=0.5, timeout=100)
     if not result:
-        logging.info("Benchmark didn't start.")
+        logging.info("Could not find FPS. Unable to mark start time!")
         sys.exit(1)
 
     test_start_time = time.time()
