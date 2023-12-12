@@ -55,10 +55,9 @@ test_types = TEST_OPTIONS[args.test]
 
 try:
     logging.info('Starting benchmark!')
-    setup_start_time = time.time()
-
+    session_report = []
     for test_type in test_types:
-        session_report = []
+        setup_start_time = time.time()
         with subprocess.Popen(
             [CINEBENCH_PATH, test_type, DURATION_OPTION],
             stdout=subprocess.PIPE,
@@ -91,7 +90,7 @@ try:
             logging.info("Benchmark took %.2f seconds", elapsed_test_time)
 
             report = {
-                "test": args.test,
+                "test": test_type,
                 "score": score,
                 "start_time": seconds_to_milliseconds(start_time),
                 "end_time": seconds_to_milliseconds(end_time)
