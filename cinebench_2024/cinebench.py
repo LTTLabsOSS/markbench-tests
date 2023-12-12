@@ -90,7 +90,7 @@ try:
             logging.info("Benchmark took %.2f seconds", elapsed_test_time)
 
             report = {
-                "test": test_type,
+                "test_arg": test_type,
                 "score": score,
                 "start_time": seconds_to_milliseconds(start_time),
                 "end_time": seconds_to_milliseconds(end_time)
