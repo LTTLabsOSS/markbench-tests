@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<benchmark>
+
+  <application_info>
+    <selected_workloads>
+      <selected_workload name="PortRoyalGt1P"/>
+    </selected_workloads>
+  </application_info>
+
+  <settings>
+    <setting>
+      <name>dxgi_adapter_luid</name>
+      <value></value>
+    </setting>
+    <setting>
+      <name>display_id</name>
+      <value></value>
+    </setting>
+  </settings>
+
+</benchmark>
