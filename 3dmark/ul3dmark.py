@@ -83,9 +83,9 @@ def create_3dmark_command(test_option):
     return command
 
 
-def run_benchmark(process_name, cmd):
+def run_benchmark(process_name, command_to_run):
     """run the benchmark"""
-    with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as proc:
+    with subprocess.Popen(command_to_run, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as proc:
         logging.info("3DMark has started.")
         start_time = time.time()
         while True:
