@@ -56,6 +56,7 @@ RESULTS_FILENAME = "myresults.xml"
 REPORT_PATH = LOG_DIR / RESULTS_FILENAME
 
 def setup_logging():
+    """setup logging"""
     setup_log_directory(LOG_DIR)
     logging.basicConfig(filename=LOG_DIR / "harness.log",
                         format=DEFAULT_LOGGING_FORMAT,
@@ -67,19 +68,24 @@ def setup_logging():
     logging.getLogger('').addHandler(console)
 
 
-def get_arguments(): 
+def get_arguments():
+    """get arguments"""
     parser = ArgumentParser()
     parser.add_argument(
         "--benchmark", dest="benchmark", help="Benchmark test type", required=True, choices=BENCHMARK_CONFIG.keys())
     args = parser.parse_args()
     return args
+    
 
 def create_3dmark_command(test_option):
+    """create command string"""
     command = f'\"{ABS_EXECUTABLE_PATH}\" --definition={test_option} --export=\"{REPORT_PATH}\"'
     command = command.rstrip()
     return command
 
+
 def run_benchmark(process_name):
+    """run the benchmark"""
     with subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as proc:
         logging.info("3DMark has started.")
         start_time = time.time()
