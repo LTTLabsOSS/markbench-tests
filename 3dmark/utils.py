@@ -1,22 +1,25 @@
+"""3dmark test utils"""
 import os
 from pathlib import Path
 import psutil
 import xml.etree.ElementTree as ET
 
 def is_process_running(process_name):
+    """check if given process is running"""
     for process in psutil.process_iter(['pid', 'name']):
         if process.info['name'] == process_name:
             return process
     return None
 
 def get_score(element_name, xml_path):
+    """fetch the score from the xml report"""
     tree = ET.parse(xml_path)
     root = tree.getroot()
     found_elements = root.findall(".//{}".format(element_name))
 
     if len(found_elements) == 0:
         raise ValueError("Could not find a score in the XML report")
-    
+
     return found_elements[0].text
 
 if __name__ == "__main__":

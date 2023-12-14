@@ -8,7 +8,6 @@ import os
 import time
 import psutil
 from utils import get_score, is_process_running
-from pathlib import Path
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -75,7 +74,7 @@ def get_arguments():
         "--benchmark", dest="benchmark", help="Benchmark test type", required=True, choices=BENCHMARK_CONFIG.keys())
     args = parser.parse_args()
     return args
-    
+
 
 def create_3dmark_command(test_option):
     """create command string"""
