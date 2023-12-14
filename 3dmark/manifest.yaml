@@ -1,5 +1,5 @@
 friendly_name: "3DMark"
-executable: "3dmark.py"
+executable: "ul3dmark.py"
 process_name: "3DMarkCmd.exe"
 disable_presentmon: true
 output_dir: "run"

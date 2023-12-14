@@ -1,6 +1,7 @@
 {
   "ignorePaths": [
-    ".*/"
+    ".*/",
+    "*.py"
   ],
   "allowCompoundWords": true,
   "words": [
