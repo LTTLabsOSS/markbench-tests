@@ -31,7 +31,11 @@
     "twwh",
     "Unigine",
     "vsix",
-    "ycruncher"
+    "ycruncher",
+    "DMARK",
+    "dmdef",
+    "firestrikegraphicscorep",
+    "myresults"
   ],
   "ignoreRegExpList": [
     "import .*"
