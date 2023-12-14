@@ -83,9 +83,9 @@ def create_3dmark_command(test_option):
     return command
 
 
-def run_benchmark(process_name):
+def run_benchmark(process_name, cmd):
     """run the benchmark"""
-    with subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as proc:
+    with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as proc:
         logging.info("3DMark has started.")
         start_time = time.time()
         while True:
@@ -109,7 +109,7 @@ try:
     logging.info('Starting benchmark!')
     logging.info(cmd)
     strt = time.time()
-    pr = run_benchmark(BENCHMARK_CONFIG[args.benchmark]["process_name"])
+    pr = run_benchmark(BENCHMARK_CONFIG[args.benchmark]["process_name"], cmd)
 
     if pr.returncode > 0:
         logging.error("3DMark exited with return code %d", pr.returncode)
