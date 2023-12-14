@@ -15,7 +15,7 @@ def get_score(element_name, xml_path):
     """fetch the score from the xml report"""
     tree = ET.parse(xml_path)
     root = tree.getroot()
-    found_elements = root.findall(".//{}".format(element_name))
+    found_elements = root.findall(f".//{element_name}")
 
     if len(found_elements) == 0:
         raise ValueError("Could not find a score in the XML report")

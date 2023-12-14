@@ -72,8 +72,8 @@ def get_arguments():
     parser = ArgumentParser()
     parser.add_argument(
         "--benchmark", dest="benchmark", help="Benchmark test type", required=True, choices=BENCHMARK_CONFIG.keys())
-    args = parser.parse_args()
-    return args
+    argies = parser.parse_args()
+    return argies
 
 
 def create_3dmark_command(test_option):
@@ -94,7 +94,7 @@ def run_benchmark(process_name):
             if elapsed >= 30: #seconds
                 raise ValueError("BenchMark subprocess did not start in time")
             process = is_process_running(process_name)
-            if process is not None: 
+            if process is not None:
                 process.nice(psutil.HIGH_PRIORITY_CLASS)
                 break
             time.sleep(0.2)
@@ -104,16 +104,16 @@ def run_benchmark(process_name):
 try:
     setup_logging()
     args = get_arguments()
-    test_option = BENCHMARK_CONFIG[args.benchmark]["config"]
-    command = create_3dmark_command(test_option)
+    option = BENCHMARK_CONFIG[args.benchmark]["config"]
+    cmd = create_3dmark_command(option)
     logging.info('Starting benchmark!')
-    logging.info(command)
-    start_time = time.time()
-    proc = run_benchmark(BENCHMARK_CONFIG[args.benchmark]["process_name"])
+    logging.info(cmd)
+    strt = time.time()
+    pr = run_benchmark(BENCHMARK_CONFIG[args.benchmark]["process_name"])
 
-    if proc.returncode > 0:
-        logging.error("3DMark exited with return code %d", proc.returncode)
-        sys.exit(proc.returncode)
+    if pr.returncode > 0:
+        logging.error("3DMark exited with return code %d", pr.returncode)
+        sys.exit(pr.returncode)
 
     score = get_score(BENCHMARK_CONFIG[args.benchmark]["score_name"], REPORT_PATH)
     if score is None:
@@ -121,14 +121,14 @@ try:
         sys.exit(1)
 
     end_time = time.time()
-    elapsed_test_time = round(end_time - start_time, 2)
+    elapsed_test_time = round(end_time - strt, 2)
     logging.info("Benchmark took %.2f seconds", elapsed_test_time)
     logging.info("Score was %s", score)
 
     report = {
         "test": args.benchmark,
         "score": score,
-        "start_time": seconds_to_milliseconds(start_time),
+        "start_time": seconds_to_milliseconds(strt),
         "end_time": seconds_to_milliseconds(end_time)
     }
 
