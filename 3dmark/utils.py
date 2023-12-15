@@ -1,5 +1,4 @@
 """3dmark test utils"""
-import os
 from pathlib import Path
 import psutil
 import xml.etree.ElementTree as ET

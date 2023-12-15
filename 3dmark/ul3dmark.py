@@ -4,7 +4,6 @@ import logging
 from pathlib import Path
 import subprocess
 import sys
-import os
 import time
 import psutil
 from utils import get_score, is_process_running
