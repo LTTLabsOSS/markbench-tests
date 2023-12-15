@@ -23,7 +23,7 @@ from harness_utils.output import (
 #####
 ### Globals
 #####
-SCRIPT_DIR = Path(os.path.dirname(os.path.realpath(__file__)))
+SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR / "run"
 DIR_3DMARK = Path(r"C:\\Program Files\\UL\3DMark\\")
 EXECUTABLE = "3DMarkCmd.exe"

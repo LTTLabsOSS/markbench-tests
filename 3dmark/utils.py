@@ -23,7 +23,7 @@ def get_score(element_name, xml_path):
     return found_elements[0].text
 
 if __name__ == "__main__":
-    script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
+    script_dir = Path(__file__).resolve().parent
     firestrike_example = script_dir / "sample_reports" / "firestrike_result.xml"
     portroyal_example = script_dir / "sample_reports" / "portroyal_result.xml"
     solarbay_example = script_dir / "sample_reports" / "solarbay_result.xml"
