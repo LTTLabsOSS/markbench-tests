@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 Changes are grouped by the date they are merged to the main branch of the repository and are ordered from newest to oldest. Dates use the ISO 8601 extended calendar date format, i.e. YYYY-MM-DD.
 
+## 2023-12-13
+
+- Add initial 3DMark harness.
+
 ## 2023-12-12
 
 - Update strategies for marking start and end time in Returnal test harness
