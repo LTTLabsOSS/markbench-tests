@@ -6,6 +6,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2023-12-19
 
+- Update menu navigation and start/end time marking for Rocket League harness
 - Update Returnal harness to not fail if end time prompt not found
 - Update menu navigation and start/end time marking strategies for Cyberpunk 2077 test harness
 

@@ -93,23 +93,27 @@ def run_benchmark():
     time.sleep(0.2)
     user.press("up")
     time.sleep(0.2)
-    user.press("down")
-    time.sleep(0.2)
-    user.press("down")
-    time.sleep(0.2)
 
     if kerasService.look_for_word(word="esports", attempts=5, interval=0.2):
         logging.info('Saw esports. Navigating accordingly.')
         user.press("down")
         time.sleep(0.2)
+
+    if kerasService.look_for_word(word="shop", attempts=10, interval=0.2):
+        logging.info('Saw item shop. Navigating accordingly.')
+        user.press("down")
+        time.sleep(0.2)
+
     if kerasService.look_for_word(word="pass", attempts=5, interval=0.2):
         logging.info('Saw rocket pass. Navigating accordingly.')
         user.press("down")
         time.sleep(0.2)
-    if kerasService.look_for_word(word="item", attempts=5, interval=0.2):
-        logging.info('Saw item shop. Navigating accordingly.')
-        user.press("down")
-        time.sleep(0.2)
+
+    user.press("down")
+    time.sleep(0.2)
+    user.press("down")
+    time.sleep(0.2)
+
     user.press("enter")
     time.sleep(1)
 
@@ -135,11 +139,10 @@ def run_benchmark():
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
 
     #Beginning the "benchmark":
-    if kerasService.wait_for_word(word="director", timeout=60, interval=0.5) is None:
+    if kerasService.wait_for_word(word="special", timeout=60, interval=0.5) is None:
         logging.error("Game didn't load map. Check settings and try again.")
         sys.exit(1)
 
-    test_start_time = time.time()
     user.press("shiftleft")
     time.sleep(0.2)
     user.press("left")
@@ -156,19 +159,19 @@ def run_benchmark():
     time.sleep(0.2)
     user.press("shiftleft")
     logging.info("Benchmark started. Waiting for completion.")
-    time.sleep(1)
+    time.sleep(4)
+    test_start_time = time.time()
 
     # wait for benchmark to complete
-    time.sleep(360)
+    time.sleep(359)
 
-    if kerasService.wait_for_word(word="turbopolsa", timeout=7, interval=1) is None:
-        logging.error("Game finish as expected")
-        sys.exit(1)
-
-    logging.info("Run completed. Closing game.")
     test_end_time = time.time()
+    time.sleep(2)
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
+
+    logging.info("Run completed. Closing game.")
+    time.sleep(2)
     terminate_processes(PROCESS_NAME)
     return test_start_time, test_end_time
 
