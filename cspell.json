@@ -1,6 +1,7 @@
 {
   "ignorePaths": [
-    ".*/"
+    ".*/",
+    "*.py"
   ],
   "allowCompoundWords": true,
   "words": [
@@ -31,7 +32,11 @@
     "twwh",
     "Unigine",
     "vsix",
-    "ycruncher"
+    "ycruncher",
+    "DMARK",
+    "dmdef",
+    "firestrikegraphicsscorep",
+    "myresults"
   ],
   "ignoreRegExpList": [
     "import .*"

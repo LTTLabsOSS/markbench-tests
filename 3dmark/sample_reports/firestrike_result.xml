@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<benchmark>
+    <results>
+        <result>
+            <name/>
+            <description/>
+            <passIndex>-1</passIndex>
+            <sourceId>3DMark-FireStrike-0-20231213094539.3dmark-result</sourceId>
+            <firestrikecombinedscorep>0</firestrikecombinedscorep>
+            <firestrikegraphicsscorep>86784</firestrikegraphicsscorep>
+            <firestrikeoverallscorep>0</firestrikeoverallscorep>
+            <firestrikephysicsscorep>0</firestrikephysicsscorep>
+            <benchmarkRunId>7d9c7b1e-c2a3-4af2-9966-0caff972c1ee</benchmarkRunId>
+        </result>
+        <result>
+            <name/>
+            <description/>
+            <passIndex>0</passIndex>
+            <sourceId>3DMark-FireStrike-0-20231213094539.3dmark-result</sourceId>
+            <firestrikegraphicsscorepforpass>86784</firestrikegraphicsscorepforpass>
+            <firestrikephysicsscorepforpass>0</firestrikephysicsscorepforpass>
+            <firestrikecombinedscorepforpass>0</firestrikecombinedscorepforpass>
+            <firestrikeoverallscorepforpass>0</firestrikeoverallscorepforpass>
+            <firestrikegt1p>426.59</firestrikegt1p>
+            <firestrikegt2p>338.26</firestrikegt2p>
+            <benchmarkRunId>7d9c7b1e-c2a3-4af2-9966-0caff972c1ee</benchmarkRunId>
+        </result>
+    </results>
+</benchmark>

@@ -8,6 +8,10 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 - Update menu navigation and start/end time marking for Rocket League harness
 
+## 2023-12-13
+
+- Add initial 3DMark harness.
+
 ## 2023-12-12
 
 - Update strategies for marking start and end time in Returnal test harness
