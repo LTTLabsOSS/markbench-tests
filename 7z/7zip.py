@@ -65,10 +65,20 @@ for line in list_of_strings:
 
 t2 = time.time()
 logging.info("Benchmark took %s seconds", round((t2 - t1), 3))
-result = {
-    "score": SPEED_C + " Compression (KiB/s) | " + SPEED_D + " Decompression (KiB/s)",
-    "version": VERSION.strip()
-}
+result = [
+    {
+        "test": "compression",
+        "score": SPEED_C,
+        "unit": "KiB/s",
+        "version": VERSION.strip()
+    },
+    {
+        "test": "decompression",
+        "score": SPEED_D,
+        "unit": "KiB/s",
+        "version": VERSION.strip()
+    },
+]
 
 with open(os.path.join(log_dir, "report.json"), "w", encoding="utf-8") as file:
     file.write(json.dumps(result))

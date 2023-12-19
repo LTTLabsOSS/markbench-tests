@@ -70,6 +70,7 @@ for line in Lines:
 
 report = {
     "score": time,
+    "unit": "seconds",
     "test": tuning
 }
 

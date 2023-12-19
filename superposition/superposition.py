@@ -68,7 +68,7 @@ with open(log_path, encoding="utf-8") as log:
             score = match.group(1)
 
 report = {
-    "preset": args.preset,
+    "test": args.preset,
     "score": score
 }
 

@@ -49,6 +49,8 @@ if EXIT_CODE > 0:
     sys.exit(EXIT_CODE)
 
 report = {
+    "test": "nin-theslip.wav",
+    "unit": "seconds",
     "score": score,
     "version": "1.4.3"
 }

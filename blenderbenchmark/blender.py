@@ -109,11 +109,13 @@ json_array = json.loads(process.stdout)
 
 json_report = []
 for report in json_array:
+    blender_version = report['blender_version']['version']
     scene_report = {
         "timestamp": report['timestamp'],
-        "version": report['blender_version']['version'],
-        "scene": report['scene']['label'],
+        "version": blender_version,
+        "test": f"{report['scene']['label']}",
         "score": round(report['stats']['samples_per_minute'], 2),
+        "unit": "samples per minute",
         "device": report['device_info']['compute_devices'][0]['name']
     }
 
