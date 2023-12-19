@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 Changes are grouped by the date they are merged to the main branch of the repository and are ordered from newest to oldest. Dates use the ISO 8601 extended calendar date format, i.e. YYYY-MM-DD.
 
+## 2023-12-19
+
+- Update Return harness to not fail if end time prompt not found
+
 ## 2023-12-13
 
 - Add initial 3DMark harness.
