@@ -48,6 +48,8 @@ def navigate_main_menu() -> None:
         user.press("3")
         time.sleep(0.5)
         user.press("b")
+        time.sleep(0.5)
+        user.press("enter")
     else:
         user.press("left")
         time.sleep(0.5)
@@ -62,6 +64,8 @@ def navigate_main_menu() -> None:
         user.press("3")
         time.sleep(0.5)
         user.press("b")
+        time.sleep(0.5)
+        user.press("enter")
 
 
 def run_benchmark():
@@ -86,24 +90,26 @@ def run_benchmark():
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
 
-    test_start_time = time.time()
-
-    result = kerasService.wait_for_word("fps", timeout=60, interval=1)
+    result = kerasService.wait_for_word("fps", timeout=60, interval=0.2)
     if not result:
         logging.info("Benchmark didn't start.")
         sys.exit(1)
 
+    test_start_time = time.time() - 5
+
     logging.info("Benchmark started. Waiting for benchmark to complete.")
-    time.sleep(70)
-    result = kerasService.wait_for_word("results", timeout=240, interval=3)
+    time.sleep(60)
+    result = kerasService.wait_for_word("results", timeout=240, interval=0.5)
     if not result:
         logging.info("Did not see results screen. Mark as DNF.")
         sys.exit(1)
 
-    test_end_time = time.time()
+    test_end_time = time.time() - 2
+    time.sleep(2)
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     gui.screenshot(os.path.join(LOG_DIRECTORY, "results.png"))
+    time.sleep(3)
     terminate_processes(PROCESS_NAME)
     return test_start_time, test_end_time
 
