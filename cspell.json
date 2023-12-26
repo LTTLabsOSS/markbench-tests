@@ -38,10 +38,12 @@
     "firestrikegraphicsscorep",
     "myresults",
     "msikombuster",
+    "msikombustor",
     "isfile",
     "rstrip",
     "keybd",
-    "vkfurrytorus"
+    "vkfurrytorus",
+    "GPGPU"
   ],
   "ignoreRegExpList": [
     "import .*"

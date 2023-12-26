@@ -39,46 +39,46 @@ command = command.rstrip()
 t1 = time.time()
 args = ["b"]
 logging.info("Starting 7-Zip benchmark! This may take a minute or so...")
-process = Popen([command, "b"], cwd=os.path.dirname(
-    os.path.realpath(__file__)), stdout=subprocess.PIPE)
-list_of_strings = [x.decode('utf-8').rstrip('\n')
+with Popen([command, "b"], cwd=os.path.dirname(
+    os.path.realpath(__file__)), stdout=subprocess.PIPE) as process:
+    list_of_strings = [x.decode('utf-8').rstrip('\n')
                    for x in iter(process.stdout.readlines())]
-EXIT_CODE = process.wait()
+    EXIT_CODE = process.wait()
 
-SPEED_PATTERN = r'^Avr:\s*([0-9]*)\s.*\|\s*([0-9]*)\s.*$'
-VERSION_PATTERN = '7-Zip \(r\) (.*)\('
+    SPEED_PATTERN = r'^Avr:\s*([0-9]*)\s.*\|\s*([0-9]*)\s.*$'
+    VERSION_PATTERN = r'7-Zip \(r\) (.*)\('
 
-VERSION = ""
-SPEED_C = ""
-SPEED_D = ""
+    VERSION = ""
+    SPEED_C = ""
+    SPEED_D = ""
 
-# Strips the newline character
-for line in list_of_strings:
-    if line.isspace():
-        continue
-    logging.info(line.strip())
-    if '7-Zip' in line:
-        VERSION = re.match(VERSION_PATTERN, line).group(1)
-    if 'Avr:' in line:
-        SPEED_C = re.match(SPEED_PATTERN, line).group(1)
-        SPEED_D = re.match(SPEED_PATTERN, line).group(2)
+    # Strips the newline character
+    for line in list_of_strings:
+        if line.isspace():
+            continue
+        logging.info(line.strip())
+        if '7-Zip' in line:
+            VERSION = re.match(VERSION_PATTERN, line).group(1)
+        if 'Avr:' in line:
+            SPEED_C = re.match(SPEED_PATTERN, line).group(1)
+            SPEED_D = re.match(SPEED_PATTERN, line).group(2)
 
-t2 = time.time()
-logging.info("Benchmark took %s seconds", round((t2 - t1), 3))
-result = [
-    {
-        "test": "compression",
-        "score": SPEED_C,
-        "unit": "KiB/s",
-        "version": VERSION.strip()
-    },
-    {
-        "test": "decompression",
-        "score": SPEED_D,
-        "unit": "KiB/s",
-        "version": VERSION.strip()
-    },
-]
+    t2 = time.time()
+    logging.info("Benchmark took %s seconds", round((t2 - t1), 3))
+    result = [
+        {
+            "test": "compression",
+            "score": SPEED_C,
+            "unit": "KiB/s",
+            "version": VERSION.strip()
+        },
+        {
+            "test": "decompression",
+            "score": SPEED_D,
+            "unit": "KiB/s",
+            "version": VERSION.strip()
+        },
+    ]
 
-with open(os.path.join(log_dir, "report.json"), "w", encoding="utf-8") as file:
-    file.write(json.dumps(result))
+    with open(os.path.join(log_dir, "report.json"), "w", encoding="utf-8") as file:
+        file.write(json.dumps(result))

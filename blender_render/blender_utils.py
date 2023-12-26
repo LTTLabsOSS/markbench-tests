@@ -38,6 +38,7 @@ def download_barbershop_scene():
     logging.info('Barbershop already downloaded')
 
 def time_to_seconds(time_string):
+    """convert string to duration in seconds"""
     time_obj = datetime.strptime(time_string, "%H:%M:%S.%f")
     seconds = (time_obj.hour * 3600) + (time_obj.minute * 60) + time_obj.second + (time_obj.microsecond / 1e6)
     return seconds
