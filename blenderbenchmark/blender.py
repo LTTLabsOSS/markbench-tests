@@ -83,20 +83,20 @@ else:
         logging.info(process.stderr)
         logging.error("Test failed!")
     else:
-        optix = "OPTIX"
-        cuda = "CUDA"
-        hip = "HIP"
-        one_api = "ONEAPI"
+        OPTIX = "OPTIX"
+        CUDA = "CUDA"
+        HIP = "HIP"
+        ONE_API = "ONEAPI"
         logging.info(process.stdout)
         logging.info(process.stderr)
-        if optix in process.stdout or optix in process.stderr:
-            DEVICE_TYPE = optix  # nvidia
-        if cuda in process.stdout or cuda in process.stderr:
-            DEVICE_TYPE = cuda  # older non rtx nvidia
-        elif hip in process.stdout or hip in process.stderr:
-            DEVICE_TYPE = hip  # amd
-        elif one_api in process.stdout or one_api in process.stderr:
-            DEVICE_TYPE = one_api  # intel
+        if OPTIX in process.stdout or OPTIX in process.stderr:
+            DEVICE_TYPE = OPTIX  # nvidia
+        if CUDA in process.stdout or CUDA in process.stderr:
+            DEVICE_TYPE = CUDA  # older non rtx nvidia
+        elif HIP in process.stdout or HIP in process.stderr:
+            DEVICE_TYPE = HIP  # amd
+        elif ONE_API in process.stdout or ONE_API in process.stderr:
+            DEVICE_TYPE = ONE_API  # intel
 
 arg_string = ["blender", "list"]
 run_array = [ABS_EXECUTABLE_PATH, "benchmark"] + SCENE + \
