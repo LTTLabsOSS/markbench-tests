@@ -7,6 +7,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 ## 2023-12-26
 
 - Fix Blender Benchmark harness not running on device type gpu when Intel Arc GPU present.
+- Update non-game benchmark reports to fit new schema. This is for downstream reporting compatibility.
 
 ## 2023-12-19
 
