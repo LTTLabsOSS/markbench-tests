@@ -83,16 +83,20 @@ else:
         logging.info(process.stderr)
         logging.error("Test failed!")
     else:
+        OPTIX = "OPTIX"
+        CUDA = "CUDA"
+        HIP = "HIP"
+        ONE_API = "ONEAPI"
         logging.info(process.stdout)
         logging.info(process.stderr)
-        if "OPTIX" in process.stdout or "OPTIX" in process.stderr:
-            DEVICE_TYPE = "OPTIX"  # nvidia
-        if "CUDA" in process.stdout or "CUDA" in process.stderr:
-            DEVICE_TYPE = "CUDA"  # older non rtx nvidia
-        elif "HIP" in process.stdout or "HIP" in process.stderr:
-            DEVICE_TYPE = "HIP"  # amd
-        elif "oneAPI" in process.stdout or "oneAPI" in process.stderr:
-            DEVICE_TYPE = "oneAPI"  # intel
+        if OPTIX in process.stdout or OPTIX in process.stderr:
+            DEVICE_TYPE = OPTIX  # nvidia
+        if CUDA in process.stdout or CUDA in process.stderr:
+            DEVICE_TYPE = CUDA  # older non rtx nvidia
+        elif HIP in process.stdout or HIP in process.stderr:
+            DEVICE_TYPE = HIP  # amd
+        elif ONE_API in process.stdout or ONE_API in process.stderr:
+            DEVICE_TYPE = ONE_API  # intel
 
 arg_string = ["blender", "list"]
 run_array = [ABS_EXECUTABLE_PATH, "benchmark"] + SCENE + \
@@ -109,11 +113,13 @@ json_array = json.loads(process.stdout)
 
 json_report = []
 for report in json_array:
+    blender_version = report['blender_version']['version']
     scene_report = {
         "timestamp": report['timestamp'],
-        "version": report['blender_version']['version'],
-        "scene": report['scene']['label'],
+        "version": blender_version,
+        "test": f"{report['scene']['label']}",
         "score": round(report['stats']['samples_per_minute'], 2),
+        "unit": "samples per minute",
         "device": report['device_info']['compute_devices'][0]['name']
     }
 

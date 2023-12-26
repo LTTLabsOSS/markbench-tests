@@ -36,7 +36,14 @@
     "DMARK",
     "dmdef",
     "firestrikegraphicsscorep",
-    "myresults"
+    "myresults",
+    "msikombuster",
+    "msikombustor",
+    "isfile",
+    "rstrip",
+    "keybd",
+    "vkfurrytorus",
+    "GPGPU"
   ],
   "ignoreRegExpList": [
     "import .*"

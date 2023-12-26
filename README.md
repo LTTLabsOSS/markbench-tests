@@ -12,11 +12,9 @@ The versions of tests that are available here are taken from snapshots of our pr
 <!-- omit in toc -->
 ## Table of Contents
 - [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-    - [Python 3.10+](#python-310)
-    - [Poetry](#poetry)
-      - [Downloading dependencies](#downloading-dependencies)
 - [A test and its harness](#a-test-and-its-harness)
+  - [Harness Manifest](#harness-manifest)
+  - [JSON Report](#json-report)
 - [Creating a test harness](#creating-a-test-harness)
 - [Tools in the toolbox](#tools-in-the-toolbox)
   - [Keras OCR](#keras-ocr)
@@ -26,8 +24,10 @@ The versions of tests that are available here are taken from snapshots of our pr
 ## Getting Started
 Configuring your system to execute these tests is straightforward; you'll only need Python, Poetry, and git. However, it's important to note that some of the tests in this repository may necessitate additional services or specific applications to be installed. For instance, if you intend to run the game tests, you will need to possess a valid copy of the respective game title.
 
+<!-- omit in toc -->
 ### Prerequisites
 
+<!-- omit in toc -->
 #### Python 3.10+
 Most of the test harnesses are written in Python, which you will need on your system. We use Python 3.11 on our test benches, but should work on versions since 3.10.
 
@@ -35,6 +35,7 @@ Most of the test harnesses are written in Python, which you will need on your sy
 ##### Installation
 We recommend you install python from the [official downloads page](https://www.python.org/downloads/) and not the Windows Store.
 
+<!-- omit in toc -->
 #### Poetry
 This project uses [Poetry](https://python-poetry.org/docs/) for dependency management. 
 
@@ -46,6 +47,7 @@ Open a powershell terminal and execute the following command to download and exe
 ```
 After installation you will want to add poetry to the path. On Windows this path to add is `%APPDATA%\Python\Scripts`. Test that poetry is working by executing `poetry --version`, a version number should be returned, not an error.
 
+<!-- omit in toc -->
 ##### Downloading dependencies
 1. Open a terminal in the root directory.
 2. Execute `poetry install`
@@ -95,6 +97,70 @@ The test harness is responsible for:
 2. Execution
 3. Gathering of assets
 4. Cleanup
+
+### Harness Manifest
+In MarkBench, the manifest.yaml file serves as a configuration file containing metadata about a test, providing essential information for MarkBench to execute the test correctly.
+
+Example
+```yaml
+friendly_name: "Blender Benchmark"
+executable: "blender.py"
+process_name: "blender.exe"
+disable_presentmon: true
+hidden: 0
+output_dir: "run"
+options:
+  - name: scene
+    type: select
+    values: [all, classroom, junkshop, monster] 
+  - name: version
+    type: select
+    values: ["3.6.0", "3.5.0", "3.4.0", "3.3.0"]
+  - name: device
+    type: select
+    values: ["CPU", "GPU"]
+```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### JSON Report
+Every harness (optionally) will write out some results in JSON format to a file called report.json. The JSON contents are read and stored in the database by MarkBench.
+
+<!-- omit in toc -->
+#### Non Game Report
+Any test that isn't a game *should* include a report for MarkBench to upload to the database. This report if present requires a value for the following properties:
+- **test** string - indicates any subparameters. For example BlenderBenchmark has the tests (scenes) classroom, junkshop, and monster.
+- **version** string - applicable version of the test or program under test. This property is optional if no version is available.
+- **score** string - a scalar output from the test. This could be a benchmark score, or duration.
+- **unit** string - the unit of measurement of the scalar. If duration, this could be seconds or minutes. If the score is simply a score, than this property can be omitted or left empty.
+- **label** string - optional friendly name for the unit of measurement. For example "fps" vs "Frames Per Second". This property is mainly used to override an axis on a graph downstream. 
+
+The JSON report can be a single object, or array of reports, indicating to MarkBench there is more than one result to record.
+```json
+{ 
+  "test": "FireStrike", 
+  "version": "4.5.1",
+  "score": "16099",
+  "unit": "",
+  "label": "",
+  "start_time": 1702514174861, 
+  "end_time": 1702514209166
+}
+```
+
+<!-- omit in toc -->
+#### Game Report
+Game reports don't require a report as the score is the FPS which is calculated downstream of MarkBench. It is helpful if the report does include things such as resolution, start time, and end time.
+```json
+{ 
+  "resolution": "1920x1080",  
+  "start_time": 1702514174861, 
+  "end_time": 1702514209166
+}
+```
+> Note, start_time and end_time given in the report.json of a game test will be used as the markers of when to start measuring FPS and when to stop.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Creating a test harness
 Let's create a harness for the test FurMark.

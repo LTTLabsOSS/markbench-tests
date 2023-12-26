@@ -1,5 +1,6 @@
 
 """Blender render test script"""
+from datetime import datetime
 import logging
 import os
 import re
@@ -36,6 +37,12 @@ def download_barbershop_scene():
             file.write(response.content)
     logging.info('Barbershop already downloaded')
 
+def time_to_seconds(time_string):
+    """convert string to duration in seconds"""
+    time_obj = datetime.strptime(time_string, "%H:%M:%S.%f")
+    seconds = (time_obj.hour * 3600) + (time_obj.minute * 60) + time_obj.second + (time_obj.microsecond / 1e6)
+    return seconds
+
 def run_blender_render(executable_path: str, log_directory: str, device: str) -> str:
     """Execute the blender render of barbershop, returns the duration as string"""
     blend_log = os.path.join(log_directory, "blender.log")
@@ -59,7 +66,7 @@ def run_blender_render(executable_path: str, log_directory: str, device: str) ->
             if match:
                 time = match.group(1)
                 break
-    return time
+    return time_to_seconds(time)
 
 
 def find_blender():

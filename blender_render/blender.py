@@ -52,7 +52,9 @@ try:
         sys.exit(1)
 
     report = {
+        "test": "barbershop",
         "score": score,
+        "unit": "seconds",
         "version": version,
         "device": args.device,
         "start_time": seconds_to_milliseconds(start_time),
