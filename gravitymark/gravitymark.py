@@ -57,7 +57,7 @@ try:
         sys.exit(1)
 
     report = {
-        "api": args.api,
+        "test": args.api,
         "score": score
     }
 
