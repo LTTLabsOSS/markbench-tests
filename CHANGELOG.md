@@ -7,7 +7,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 ## 2024-01-01
 
 - Update start and end time marking strategies for Atomic Heart test harness
-- Update start and end time marking strategies for F1 2023 test harness
+- Update start and end time marking strategies for F1 23 test harness
 
 ## 2023-12-26
 
