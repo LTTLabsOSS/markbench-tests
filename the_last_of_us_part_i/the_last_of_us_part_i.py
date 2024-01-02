@@ -83,13 +83,19 @@ def run_benchmark():
 
     elapsed_setup_time = round(time.time() - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
+
+    result = kerasService.wait_for_word("tommy", interval=0.2, timeout=250)
+    if not result:
+        logging.info("Did not see Tommy's first subtitle. Did the game load?")
+        sys.exit(1)
     test_start_time = time.time()
+    logging.info("Saw Tommy's first line. Benchmark has started.")
 
     # wait for black screen
     time.sleep(150)
 
     # This actually looks for "from?" but the current ML model sees it as fromy
-    result = kerasService.wait_for_word("fromy", timeout=250)
+    result = kerasService.wait_for_word("fromy", interval=0.2, timeout=250)
     if not result:
         logging.info("Did not find prompt to end harness.")
         sys.exit(1)
@@ -98,8 +104,11 @@ def run_benchmark():
     time.sleep(24)
 
     test_end_time = time.time()
+
+    time.sleep(2)
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
+    time.sleep(3)
 
     terminate_processes(PROCESS_NAME)
     return test_start_time, test_end_time
