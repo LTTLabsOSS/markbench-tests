@@ -164,19 +164,29 @@ def run_benchmark():
     navigate_startup()
     navigate_menu()
 
-    result = kerasService.wait_for_word("lap", interval=3, timeout=90)
+    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+    logging.info("Setup took %f seconds", elapsed_setup_time)
+
+    result = kerasService.wait_for_word("lap", interval=0.5, timeout=90)
     if not result:
         logging.info("Benchmark didn't start.")
         sys.exit(1)
 
     logging.info("Benchmark started. Waiting for benchmark to complete.")
-    test_start_time = time.time()
-
-    elapsed_setup_time = round(time.time() - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
+    test_start_time = time.time() + 8
 
     # sleep for 3 laps
-    time.sleep(350)
+    time.sleep(310)
+
+    test_end_time = None
+
+    result = kerasService.wait_for_word("loading", interval=0.5, timeout=90)
+    if result:
+        logging.info("Found the loading screen. Marking the out time.")
+        test_end_time = time.time() - 2
+        time.sleep(2)
+    else:
+        logging.info("Could not find the loading screen. Could not mark end time!")
 
     result = kerasService.wait_for_word("results", interval=3, timeout=90)
     if not result:
@@ -186,7 +196,10 @@ def run_benchmark():
 
     logging.info("Results screen was found! Finishing benchmark.")
 
-    test_end_time = time.time()
+    if test_end_time is None:
+        logging.info("Loading screen end time not found. Using results screen fallback time.")
+        test_end_time = time.time()
+
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
 
