@@ -58,6 +58,7 @@ def run_benchmark():
 
     user.press("space")
 
+    # This is for the menu checking for if there's a continue option
     result = kerasService.look_for_word("continue", attempts=20, interval=1)
     if result:
         logging.info("Continue option available, navigating accordingly.")
@@ -78,30 +79,43 @@ def run_benchmark():
 
     time.sleep(10)
 
+    # This is for the loading screen continue
     result = kerasService.wait_for_word("continue", interval=1, timeout=80)
     if not result:
         logging.info("Did not see the option to continue. Check settings and try again.")
         sys.exit(1)
 
-    logging.info("Continue found. Continuing Run.")
+    logging.info("Continue found. Starting opening scene benchmark.")
     user.press("space")
-    time.sleep(5)
 
     elapsed_setup_time = round(time.time() - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
+
+    result = kerasService.wait_for_word("vibes", interval=0.5, timeout=250)
+    if not result:
+        logging.info("Good vibes were not found! Could not mark the start time.")
+        sys.exit(1)
+
     test_start_time = time.time()
 
-    time.sleep(230)  # wait for No Rest For the Wicked Quest
+    time.sleep(216) # Wait for benchmark till the end time
+
+    result = kerasService.wait_for_word("83", interval=0.5, timeout=250)
+    if not result:
+        logging.info("Waypoint distance was not found! Could not mark the end time.")
+        sys.exit(1)
+
+    test_end_time = time.time()
+
+    time.sleep(13) # wait for No Rest For the Wicked Quest
 
     result = kerasService.wait_for_word("wicked", interval=1, timeout=250)
     if not result:
-        logging.info(
-            "Wicked was not found! Did harness not wait long enough? Or test was too long?")
+        logging.info("Wicked was not found! Did harness not wait long enough? Or test was too long?")
         sys.exit(1)
 
     logging.info("Wicked found. Ending Benchmark.")
 
-    test_end_time = time.time()
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
 
