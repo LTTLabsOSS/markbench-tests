@@ -51,3 +51,4 @@ while True:
 
         write_report_json(LOG_DIRECTORY, "report.json", report)
         sys.exit(0)
+        
