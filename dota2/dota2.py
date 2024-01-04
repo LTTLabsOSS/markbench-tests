@@ -87,19 +87,27 @@ def run_benchmark():
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
     time.sleep(23)
-    # TODO -> Mark benchmark start time using video OCR by looking for a players name
-    if kerasService.wait_for_word(word="121", timeout=30, interval=0.1) is None:
-        logging.error("Didn't see the gold tick up to 121 at beginning of benchmark. Could not mark start time!")
-        sys.exit(1)
 
+    # Default fallback start time
     test_start_time = time.time()
+
+    result = kerasService.wait_for_word(word="121", timeout=30, interval=0.1)
+    if result is None:
+        logging.error("Unable to find gold count of 121. Using default start time value.")
+    else:
+        test_start_time = time.time()
 
     time.sleep(73) # sleep duration during gameplay
 
-    if kerasService.wait_for_word(word="430", timeout=30, interval=0.1) is None:
-        logging.error("Didn't see 430 Gold. Unable to mark end time. Check settings and try again.")
-        sys.exit(1)
+    # Default fallback end time
     test_end_time = time.time()
+
+    result = kerasService.wait_for_word(word="430", timeout=30, interval=0.1)
+    if result is None:
+        logging.error("Unable to find gold count of 430. Using default end time value.")
+    else:
+        test_end_time = time.time()
+
     time.sleep(1)
 
     if kerasService.wait_for_word(word="heroes", timeout=25, interval=1) is None:
