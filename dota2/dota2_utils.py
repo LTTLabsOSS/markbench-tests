@@ -1,6 +1,5 @@
 """Dota 2 test script utils"""
 from argparse import ArgumentParser
-import os
 import logging
 import re
 import shutil
