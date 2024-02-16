@@ -7,6 +7,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 ## 2024-02-16
 
 - Update DOTA 2 test utils script to check for alternative file path when attempting to read video config file if initial file is not found
+- small tweak to mouse input timings in Total War: Warhammer III test script 
 
 ## 2024-01-04
 
