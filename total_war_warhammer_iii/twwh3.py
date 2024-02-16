@@ -82,6 +82,7 @@ def run_benchmark():
     gui.mouseDown()
     time.sleep(0.2)
     gui.mouseUp()
+    time.sleep(2)
 
     result = kerasService.look_for_word("ad", attempts=10, interval=1)
     if not result:
@@ -93,6 +94,7 @@ def run_benchmark():
     gui.mouseDown()
     time.sleep(0.2)
     gui.mouseUp()
+    time.sleep(0.5)
 
     result = kerasService.look_for_word("bench", attempts=10, interval=1)
     if not result:
