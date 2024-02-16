@@ -10,10 +10,11 @@ from pathlib import Path
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
 
-from harness_utils.steam import get_app_install_location
+from harness_utils.steam import get_app_install_location, get_registry_active_user, get_steam_folder_path
 
 STEAM_GAME_ID = 570
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+STEAM_USER_ID = get_registry_active_user()
 DEFAULT_INSTALL_PATH = Path(r"C:\Program Files (x86)\Steam\steamapps\common\dota 2 beta")
 
 
@@ -82,23 +83,42 @@ def copy_config() -> None:
         raise err
 
 
+def read_config() -> list[str] | None:
+    """Looks for config file and returns contents if found"""
+    userdata_path = Path(get_steam_folder_path(), "userdata", STEAM_USER_ID, STEAM_GAME_ID, "local", "cfg", "video.txt")
+    install_path = Path(get_install_path(), "game", "dota", "cfg", "video.txt")
+    try:
+        with open(userdata_path, encoding="utf-8") as f:
+            return f.readlines()
+    except OSError:
+        logging.error("Did not find config file at path %s", userdata_path)
+    try:
+        with open(install_path, encoding="utf-8") as f:
+            return f.readlines()
+    except OSError:
+        logging.error("Did not find config file at path %s", install_path)
+    return None
+
+
 def get_resolution():
     """Get current resolution from settings file"""
-    video_config = os.path.join(get_install_path(), "game\\dota\\cfg\\video.txt")
     height_pattern = re.compile(r"\"setting.defaultresheight\"		\"(\d+)\"")
     width_pattern = re.compile(r"\"setting.defaultres\"		\"(\d+)\"")
-    cfg = f"{video_config}"
     height = 0
     width = 0
-    with open(cfg, encoding="utf-8") as f:
-        lines = f.readlines()
-        for line in lines:
-            height_match = height_pattern.search(line)
-            width_match = width_pattern.search(line)
-            if height_match is not None:
-                height = height_match.group(1)
-            if width_match is not None:
-                width = width_match.group(1)
-            if height != 0 and width !=0:
-                return (height, width)
+    lines = read_config()
+
+    if lines is None:
+        logging.error("Could not find the video config file.")
+        return (height, width)
+
+    for line in lines:
+        height_match = height_pattern.search(line)
+        width_match = width_pattern.search(line)
+        if height_match is not None:
+            height = height_match.group(1)
+        if width_match is not None:
+            width = width_match.group(1)
+        if height != 0 and width !=0:
+            return (height, width)
     return (height, width)
