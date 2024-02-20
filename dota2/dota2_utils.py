@@ -84,13 +84,13 @@ def copy_config() -> None:
 
 def read_config() -> list[str] | None:
     """Looks for config file and returns contents if found"""
-    userdata_path = Path(get_steam_folder_path(), "userdata", STEAM_USER_ID, STEAM_GAME_ID, "local", "cfg", "video.txt")
+    userdata_path = Path(get_steam_folder_path(), "userdata", str(STEAM_USER_ID), str(STEAM_GAME_ID), "local", "cfg", "video.txt")
     install_path = Path(get_install_path(), "game", "dota", "cfg", "video.txt")
     try:
         with open(userdata_path, encoding="utf-8") as f:
             return f.readlines()
     except OSError:
-        logging.error("Did not find config file at path %s", userdata_path)
+        logging.error("Did not find config file at path %s. Trying path %s", userdata_path, install_path)
     try:
         with open(install_path, encoding="utf-8") as f:
             return f.readlines()
