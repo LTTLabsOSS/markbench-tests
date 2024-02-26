@@ -6,7 +6,7 @@ import subprocess
 import sys
 import time
 import psutil
-from cinebench_utils import friendlyTestName, get_score
+from cinebench_utils import friendly_test_name, get_score
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -90,7 +90,7 @@ try:
             logging.info("Benchmark took %.2f seconds", elapsed_test_time)
 
             report = {
-                "test": friendlyTestName(test_type),
+                "test": friendly_test_name(test_type),
                 "score": score,
                 "unit": "score",
                 "start_time": seconds_to_milliseconds(start_time),

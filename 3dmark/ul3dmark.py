@@ -128,8 +128,6 @@ try:
     logging.info("Benchmark took %.2f seconds", elapsed_test_time)
     logging.info("Score was %s", score)
 
-    
-
     report = {
         "test": BENCHMARK_CONFIG[args.benchmark]["test_name"],
         "unit": "score",

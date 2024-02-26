@@ -13,11 +13,13 @@ def get_score(output: str) -> str | None:
     return None
 
 
-def friendlyTestName(test: str) -> str:
+def friendly_test_name(test: str) -> str:
+    """Return a friendlier string given a test argument"""
     if test == "g_CinebenchCpu1Test=true":
         return "Cinebench 2024 Single Core"
     if test == "g_CinebenchCpuXTest=true":
         return "Cinebench 2024 Multicore"
-    if test == "g_CinebenchGpuTest=true": 
+    if test == "g_CinebenchGpuTest=true":
         return "Cinebench 2024 GPU"
+    return test
     
