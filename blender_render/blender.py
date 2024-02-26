@@ -52,7 +52,7 @@ try:
         sys.exit(1)
 
     report = {
-        "test": "barbershop",
+        "test": "Blender Barbershop Render",
         "score": score,
         "unit": "seconds",
         "version": version,

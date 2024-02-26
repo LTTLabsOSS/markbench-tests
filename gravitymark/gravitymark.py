@@ -4,7 +4,7 @@ import getpass
 import subprocess
 import sys
 from pathlib import Path
-from gravitymark_utils import get_args, get_score, create_gravitymark_command
+from gravitymark_utils import friendly_test_name, get_args, get_score, create_gravitymark_command
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -57,8 +57,9 @@ try:
         sys.exit(1)
 
     report = {
-        "test": args.api,
-        "score": score
+        "test": friendly_test_name(args.api),
+        "score": score,
+        "unit": "score"
     }
 
     write_report_json(log_dir, "report.json", report)
