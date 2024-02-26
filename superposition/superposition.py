@@ -68,8 +68,9 @@ with open(log_path, encoding="utf-8") as log:
             score = match.group(1)
 
 report = {
-    "test": args.preset,
-    "score": score
+    "test": f"Unigine Superposition 2017 {args.preset}",
+    "score": score,
+    "unit": "score"
 }
 
 with open(os.path.join(log_dir, "report.json"), "w", encoding="utf-8") as file:

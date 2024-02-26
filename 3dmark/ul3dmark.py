@@ -32,22 +32,26 @@ BENCHMARK_CONFIG = {
     "TimeSpy": {
         "config": CONFIG_DIR / "timespy.3dmdef",
         "process_name":  "3DMarkTimeSpy.exe",
-        "score_name": "TimeSpyPerformanceGraphicsScore"
+        "score_name": "TimeSpyPerformanceGraphicsScore",
+        "test_name": "3DMark Time Spy"
     },
     "FireStrike": {
         "config": CONFIG_DIR / "firestrike.3dmdef",
         "process_name":  "3DMarkICFWorkload.exe",
-        "score_name": "firestrikegraphicsscorep"
+        "score_name": "firestrikegraphicsscorep",
+        "test_name": "3DMark Fire Strike"
     },
     "PortRoyal": {
         "config": CONFIG_DIR / "portroyal.3dmdef",
         "process_name":  "3DMarkPortRoyal.exe",
-        "score_name": "PortRoyalPerformanceGraphicsScore"
+        "score_name": "PortRoyalPerformanceGraphicsScore",
+        "test_name": "3DMark Port Royal"
     },
     "SolarBay": {
         "config": CONFIG_DIR / "solarbay.3dmdef",
         "process_name":  "3DMarkSolarBay.exe",
-        "score_name": "SolarBayPerformanceGraphicsScore"
+        "score_name": "SolarBayPerformanceGraphicsScore",
+        "test_name": "3DMark Solar Bay"
     }
 }
 RESULTS_FILENAME = "myresults.xml"
@@ -124,8 +128,11 @@ try:
     logging.info("Benchmark took %.2f seconds", elapsed_test_time)
     logging.info("Score was %s", score)
 
+    
+
     report = {
-        "test": args.benchmark,
+        "test": BENCHMARK_CONFIG[args.benchmark]["test_name"],
+        "unit": "score",
         "score": score,
         "start_time": seconds_to_milliseconds(strt),
         "end_time": seconds_to_milliseconds(end_time)

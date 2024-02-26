@@ -23,6 +23,15 @@ CLI_OPTIONS = {
     "-status": "1"
 }
 
+def friendlyTestName(api: str) -> str:
+    if api == "vulkan":
+        return "GravityMark Vulkan"
+    if api == "opengl":
+        return "GravityMark OpenGL"
+    if api == "direct3d12":
+        return "GravityMark DX12"
+    if api == "direct3d11":
+        return "GravityMark DX11"
 
 def get_args() -> Namespace:
     """Get command line arguments for test script"""

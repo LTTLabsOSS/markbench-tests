@@ -11,3 +11,13 @@ def get_score(output: str) -> str | None:
             return match.group(1)
 
     return None
+
+
+def friendlyTestName(test: str) -> str:
+    if test == "g_CinebenchCpu1Test=true":
+        return "Cinebench 2024 Single Core"
+    if test == "g_CinebenchCpuXTest=true":
+        return "Cinebench 2024 Multicore"
+    if test == "g_CinebenchGpuTest=true": 
+        return "Cinebench 2024 GPU"
+    
