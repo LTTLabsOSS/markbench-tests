@@ -52,7 +52,7 @@ try:
         sys.exit(1)
 
     report = {
-        "test": "Blender Barbershop Render",
+        "test": f"Blender Barbershop Render {args.device.upper()}",
         "score": score,
         "unit": "seconds",
         "version": version,

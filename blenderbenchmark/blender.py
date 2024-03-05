@@ -117,7 +117,7 @@ for report in json_array:
     scene_report = {
         "timestamp": report['timestamp'],
         "version": blender_version,
-        "test": f"Blender Benchmark {report['scene']['label']}",
+        "test": f"Blender Benchmark {report['scene']['label']} {DEVICE_TYPE}",
         "score": round(report['stats']['samples_per_minute'], 2),
         "unit": "samples per minute",
         "device": report['device_info']['compute_devices'][0]['name']
