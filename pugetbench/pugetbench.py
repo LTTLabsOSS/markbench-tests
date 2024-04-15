@@ -55,7 +55,10 @@ def main():
     start_time = time.time()
     parser = ArgumentParser()
     parser.add_argument(
-        "--app", dest="app", help="Host for Keras OCR service", required=True
+        "--app", dest="app", help="Application name to test", required=True
+    )
+    parser.add_argument(
+        "--app_version", dest="app_version", help="Application version to test", required=True
     )
     args = parser.parse_args()
     apps = [
@@ -65,7 +68,10 @@ def main():
 
     if args.app is None or args.app not in apps:
         logging.info(f"unrecognized option for program {args.app}")
-        print('what')
+        sys.exit(1)
+
+    if args.app_version is None:
+        logging.info("you must submit an application version")
         sys.exit(1)
 
     # 1 check if pugetbench is installed
