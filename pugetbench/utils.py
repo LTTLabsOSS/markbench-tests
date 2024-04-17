@@ -1,6 +1,8 @@
 import re
 import os
 from pathlib import Path
+import win32api
+from win32com.client import Dispatch
 
 
 def find_latest_log():
@@ -28,3 +30,23 @@ def is_score_line(line):
         return match.group(1)
     else:
         return None
+    
+def get_photoshop_version() -> str:
+    path = "C:\\Program Files\\Adobe\\Adobe Photoshop 2024\\Photoshop.exe"
+    try:
+        lang, codepage = win32api.GetFileVersionInfo(path, "\\VarFileInfo\\Translation")[0]
+        strInfoPath = u"\\StringFileInfo\\%04X%04X\\%s" % (lang,  codepage, "ProductVersion")
+        return win32api.GetFileVersionInfo(path, strInfoPath)
+    except Exception as e:
+        print(e)
+    return None
+
+def get_premierepro_version() -> str:
+    path = "C:\\Program Files\\Adobe\\Adobe Premiere Pro 2024\\Adobe Premiere Pro.exe"
+    try:
+        lang, codepage = win32api.GetFileVersionInfo(path, "\\VarFileInfo\\Translation")[0]
+        strInfoPath = u"\\StringFileInfo\\%04X%04X\\%s" % (lang,  codepage, "ProductVersion")
+        return win32api.GetFileVersionInfo(path, strInfoPath)
+    except Exception as e:
+        print(e)
+    return None

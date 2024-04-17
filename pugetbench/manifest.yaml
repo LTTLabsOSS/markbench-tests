@@ -10,6 +10,6 @@ options:
   - name: app
     type: select
     values:
-      - premeire
+      - premierepro
       - photoshop
     tooltip: Select which test to run

@@ -1,5 +1,5 @@
 """pugetbench for creators test script"""
-import json
+import win32api
 import logging
 import os.path
 from pathlib import Path
@@ -8,7 +8,7 @@ import sys
 from argparse import ArgumentParser
 import time
 from subprocess import Popen
-from utils import find_latest_log, find_score_in_log
+from utils import find_latest_log, find_score_in_log, get_photoshop_version, get_premierepro_version
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 from harness_utils.process import terminate_processes
@@ -34,15 +34,15 @@ logging.getLogger('').addHandler(console)
 
 executable_name = "PugetBench for Creators.exe"
 
-def run_benchmark(application: str) -> Popen:
+def run_benchmark(application: str, app_version: str) -> Popen:
     start_time = time.time()
     executable_path =  Path(f"C:\\Program Files\\PugetBench for Creators\\{executable_name}")
-    command_args = ["--run_count" , "1", "--rerun_count", "1", "--benchmark_version", "1.0.0", "--preset", "Standard"]
+    command_args = ["--run_count" , "1", "--rerun_count", "1", "--benchmark_version", "1.0.0", "--preset", "Standard", "--app_version", f"{app_version}"]
     photoshop_args = command_args + ["--app", "photoshop"]
-    premiere_args = command_args + ["--app", '"Premiere Pro"']
+    premiere_args = command_args + ["--app", "premierepro"]
 
     process = None
-    if application == "premiere":
+    if application == "premierepro":
         process = Popen([executable_path] +  premiere_args)
     elif application == "photoshop":
         process = Popen([executable_path] + photoshop_args)
@@ -58,11 +58,11 @@ def main():
         "--app", dest="app", help="Application name to test", required=True
     )
     parser.add_argument(
-        "--app_version", dest="app_version", help="Application version to test", required=True
+        "--app_version", dest="app_version", help="Application version to test", required=False
     )
     args = parser.parse_args()
     apps = [
-        "premiere",
+        "premierepro",
         "photoshop"
     ]
 
@@ -70,24 +70,24 @@ def main():
         logging.info(f"unrecognized option for program {args.app}")
         sys.exit(1)
 
-    if args.app_version is None:
-        logging.info("you must submit an application version")
-        sys.exit(1)
+    version = args.app_version
 
     # 1 check if pugetbench is installed
     # 2 check adobe photoshop or premiere is present
-    # parse the report
-    # print the report
 
     score = 0
     test = ""
-    if args.app == "premiere":
-        test = "Adobe Premiere Pro"
+    if args.app == "premierepro":
+        test = "PugetBench Adobe Premiere Pro"
+        if version is None:
+            version = get_premierepro_version()
     elif args.app == "photoshop":
-        test = "Adobe Photoshop"
+        test = "PugentBench Adobe Photoshop"
+        if version is None:
+            version = get_photoshop_version()
 
     try:
-        start_time, end_time, exit_code = run_benchmark(args.app)
+        start_time, end_time, exit_code = run_benchmark(args.app, version)
 
         if exit_code > 0:
             logging.error("Test failed!")
