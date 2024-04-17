@@ -1,11 +1,12 @@
+"""utils file for pugetbench harness"""
 import re
 import os
 from pathlib import Path
 import win32api
-from win32com.client import Dispatch
 
 
 def find_latest_log():
+    """find latest log from pugetbench"""
     appdata_path = os.getenv('LOCALAPPDATA')
     puget_lunch_dir = Path(appdata_path) / "com.puget.benchmark" / "csv"
     files = [os.path.join(puget_lunch_dir, file) for file in os.listdir(
@@ -16,6 +17,7 @@ def find_latest_log():
 
 
 def find_score_in_log(log_path):
+    """find score in pugentbench log file"""
     with open(log_path, 'r') as file:
         for line in file:
             score = is_score_line(line)
@@ -24,6 +26,7 @@ def find_score_in_log(log_path):
 
 
 def is_score_line(line):
+    """check if string is a score using regex"""
     regex_pattern = r"^Overall Score.+,+(\d+),+"
     match = re.search(regex_pattern, line)
     if match and len(match.groups()) > 0:
@@ -32,6 +35,7 @@ def is_score_line(line):
         return None
     
 def get_photoshop_version() -> str:
+    """get current photoshop version string"""
     path = "C:\\Program Files\\Adobe\\Adobe Photoshop 2024\\Photoshop.exe"
     try:
         lang, codepage = win32api.GetFileVersionInfo(path, "\\VarFileInfo\\Translation")[0]
@@ -42,6 +46,7 @@ def get_photoshop_version() -> str:
     return None
 
 def get_premierepro_version() -> str:
+    """get current premiere pro version string"""
     path = "C:\\Program Files\\Adobe\\Adobe Premiere Pro 2024\\Adobe Premiere Pro.exe"
     try:
         lang, codepage = win32api.GetFileVersionInfo(path, "\\VarFileInfo\\Translation")[0]

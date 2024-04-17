@@ -1,5 +1,4 @@
 """pugetbench for creators test script"""
-import win32api
 import logging
 import os.path
 from pathlib import Path
@@ -16,8 +15,7 @@ from harness_utils.output import (
     seconds_to_milliseconds,
     setup_log_directory,
     write_report_json,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT,
+    DEFAULT_LOGGING_FORMAT
 )
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -32,11 +30,12 @@ formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
-executable_name = "PugetBench for Creators.exe"
+EXECUTABLE_NAME = "PugetBench for Creators.exe"
 
 def run_benchmark(application: str, app_version: str) -> Popen:
+    """run benchmark"""
     start_time = time.time()
-    executable_path =  Path(f"C:\\Program Files\\PugetBench for Creators\\{executable_name}")
+    executable_path =  Path(f"C:\\Program Files\\PugetBench for Creators\\{EXECUTABLE_NAME}")
     command_args = ["--run_count" , "1", "--rerun_count", "1", "--benchmark_version", "1.0.0", "--preset", "Standard", "--app_version", f"{app_version}"]
     photoshop_args = command_args + ["--app", "photoshop"]
     premiere_args = command_args + ["--app", "premierepro"]
@@ -46,12 +45,12 @@ def run_benchmark(application: str, app_version: str) -> Popen:
         process = Popen([executable_path] +  premiere_args)
     elif application == "photoshop":
         process = Popen([executable_path] + photoshop_args)
-    
     exit_code = process.wait()
     end_time = time.time()
     return start_time, end_time, exit_code
 
 def main():
+    """main"""
     start_time = time.time()
     parser = ArgumentParser()
     parser.add_argument(
@@ -88,7 +87,6 @@ def main():
         if exit_code > 0:
             logging.error("Test failed!")
             sys.exit(exit_code)
-        
         log_file = find_latest_log()
         score = find_score_in_log(log_file)
         destination = Path(script_dir) / "run" / os.path.split(log_file)[1]
@@ -105,7 +103,7 @@ def main():
     except Exception as e:
         logging.error("Something went wrong running the benchmark!")
         logging.exception(e)
-        terminate_processes(executable_name)
+        terminate_processes(EXECUTABLE_NAME)
         sys.exit(1)
 
 
