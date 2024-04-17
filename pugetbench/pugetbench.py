@@ -39,15 +39,16 @@ def run_benchmark(application: str, app_version: str) -> Popen:
     command_args = ["--run_count" , "1", "--rerun_count", "1", "--benchmark_version", "1.0.0", "--preset", "Standard", "--app_version", f"{app_version}"]
     photoshop_args = command_args + ["--app", "photoshop"]
     premiere_args = command_args + ["--app", "premierepro"]
-
-    process = None
+    command = None
     if application == "premierepro":
-        process = Popen([executable_path] +  premiere_args)
+        command = [executable_path] +  premiere_args
     elif application == "photoshop":
-        process = Popen([executable_path] + photoshop_args)
-    exit_code = process.wait()
-    end_time = time.time()
-    return start_time, end_time, exit_code
+        command =[executable_path] + photoshop_args
+
+    with Popen(command) as process:
+        exit_code = process.wait()
+        end_time = time.time()
+        return start_time, end_time, exit_code
 
 def main():
     """main"""
@@ -66,7 +67,7 @@ def main():
     ]
 
     if args.app is None or args.app not in apps:
-        logging.info(f"unrecognized option for program {args.app}")
+        logging.info("unrecognized option for program")
         sys.exit(1)
 
     version = args.app_version

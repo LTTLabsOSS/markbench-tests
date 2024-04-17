@@ -32,7 +32,6 @@ def is_score_line(line):
     match = re.search(regex_pattern, line)
     if match and len(match.groups()) > 0:
         return match.group(1)
-   
     return None
 
 
@@ -42,8 +41,7 @@ def get_photoshop_version() -> str:
     try:
         lang, codepage = win32api.GetFileVersionInfo(
             path, "\\VarFileInfo\\Translation")[0]
-        str_info_path = "\\StringFileInfo\\%04X%04X\\%s" % (
-            lang,  codepage, "ProductVersion")
+        str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
         return win32api.GetFileVersionInfo(path, str_info_path)
     except Exception as e:
         print(e)
@@ -56,8 +54,7 @@ def get_premierepro_version() -> str:
     try:
         lang, codepage = win32api.GetFileVersionInfo(
             path, "\\VarFileInfo\\Translation")[0]
-        str_info_path = "\\StringFileInfo\\%04X%04X\\%s" % (
-            lang,  codepage, "ProductVersion")
+        str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
         return win32api.GetFileVersionInfo(path, str_info_path)
     except Exception as e:
         print(e)
