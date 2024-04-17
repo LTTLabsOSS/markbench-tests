@@ -18,11 +18,12 @@ def find_latest_log():
 
 def find_score_in_log(log_path):
     """find score in pugentbench log file"""
-    with open(log_path, 'r') as file:
+    with open(log_path, 'r', encoding="utf-8") as file:
         for line in file:
             score = is_score_line(line)
             if score is not None:
                 return score
+    return None
 
 
 def is_score_line(line):
@@ -31,27 +32,33 @@ def is_score_line(line):
     match = re.search(regex_pattern, line)
     if match and len(match.groups()) > 0:
         return match.group(1)
-    else:
-        return None
-    
+   
+    return None
+
+
 def get_photoshop_version() -> str:
     """get current photoshop version string"""
     path = "C:\\Program Files\\Adobe\\Adobe Photoshop 2024\\Photoshop.exe"
     try:
-        lang, codepage = win32api.GetFileVersionInfo(path, "\\VarFileInfo\\Translation")[0]
-        strInfoPath = u"\\StringFileInfo\\%04X%04X\\%s" % (lang,  codepage, "ProductVersion")
-        return win32api.GetFileVersionInfo(path, strInfoPath)
+        lang, codepage = win32api.GetFileVersionInfo(
+            path, "\\VarFileInfo\\Translation")[0]
+        str_info_path = "\\StringFileInfo\\%04X%04X\\%s" % (
+            lang,  codepage, "ProductVersion")
+        return win32api.GetFileVersionInfo(path, str_info_path)
     except Exception as e:
         print(e)
     return None
+
 
 def get_premierepro_version() -> str:
     """get current premiere pro version string"""
     path = "C:\\Program Files\\Adobe\\Adobe Premiere Pro 2024\\Adobe Premiere Pro.exe"
     try:
-        lang, codepage = win32api.GetFileVersionInfo(path, "\\VarFileInfo\\Translation")[0]
-        strInfoPath = u"\\StringFileInfo\\%04X%04X\\%s" % (lang,  codepage, "ProductVersion")
-        return win32api.GetFileVersionInfo(path, strInfoPath)
+        lang, codepage = win32api.GetFileVersionInfo(
+            path, "\\VarFileInfo\\Translation")[0]
+        str_info_path = "\\StringFileInfo\\%04X%04X\\%s" % (
+            lang,  codepage, "ProductVersion")
+        return win32api.GetFileVersionInfo(path, str_info_path)
     except Exception as e:
         print(e)
     return None
