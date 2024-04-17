@@ -71,10 +71,6 @@ def main():
         sys.exit(1)
 
     version = args.app_version
-
-    # 1 check if pugetbench is installed
-    # 2 check adobe photoshop or premiere is present
-
     score = 0
     test = ""
     if args.app == "premierepro":
