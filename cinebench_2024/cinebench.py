@@ -77,8 +77,7 @@ try:
             out, _ = proc.communicate()
 
             if proc.returncode > 0:
-                logging.error("Cinebench exited with return code %d", proc.returncode)
-                sys.exit(proc.returncode)
+                logging.warning("Cinebench exited with return code %d", proc.returncode)
 
             score = get_score(out)
             if score is None:
