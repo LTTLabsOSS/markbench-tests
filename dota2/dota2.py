@@ -75,7 +75,7 @@ def run_benchmark():
     user.press("\\")
     time.sleep(0.2)
     console_command("exec_async benchmark")
-    time.sleep(0.2)
+    time.sleep(1)
     user.press("\\")
 
     time.sleep(5)
@@ -91,29 +91,32 @@ def run_benchmark():
     # Default fallback start time
     test_start_time = time.time()
 
-    result = kerasService.wait_for_word(word="121", timeout=30, interval=0.1)
+    result = kerasService.wait_for_word(word="2560", timeout=30, interval=0.1)
     if result is None:
-        logging.error("Unable to find gold count of 121. Using default start time value.")
+        logging.error("Unable to find Leshrac's HP. Using default start time value.")
     else:
         test_start_time = time.time()
+        logging.info("Found Leshrac's HP! Marking the start time accordingly.")
 
     time.sleep(73) # sleep duration during gameplay
 
     # Default fallback end time
     test_end_time = time.time()
 
-    result = kerasService.wait_for_word(word="430", timeout=30, interval=0.1)
+    result = kerasService.wait_for_word(word="1195", timeout=30, interval=0.1)
     if result is None:
-        logging.error("Unable to find gold count of 430. Using default end time value.")
+        logging.error("Unable to find gold count of 1195. Using default end time value.")
     else:
         test_end_time = time.time()
+        logging.info("Found the gold. Marking end time.")
 
-    time.sleep(1)
+    time.sleep(2)
 
     if kerasService.wait_for_word(word="heroes", timeout=25, interval=1) is None:
         logging.error("Main menu after running benchmark not found, exiting")
         sys.exit(1)
 
+    time.sleep(4)
     logging.info("Run completed. Closing game.")
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
