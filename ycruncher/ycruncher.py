@@ -76,10 +76,10 @@ for i in range(5):
                 tunings.append(tuning)
 end_time = current_time_ms()
 
-score_sum = 0
+SCORE_SUM = 0
 for score in scores:
-    score_sum += score
-avg_score = round(score_sum / len(scores), 2)
+    SCORE_SUM += score
+avg_score = round(SCORE_SUM / len(scores), 2)
 
 report = {
     "start_time": start_time,

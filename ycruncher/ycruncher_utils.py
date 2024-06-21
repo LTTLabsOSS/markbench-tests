@@ -25,6 +25,7 @@ def download_ycruncher():
     with ZipFile(destination, 'r') as zip_object:
         zip_object.extractall(path=SCRIPT_DIR)
 
-def current_time_ms(): 
+def current_time_ms():
+    """Get current timestamp in milliseconds since epoch"""
     return int(time.time() * 1000)
         
