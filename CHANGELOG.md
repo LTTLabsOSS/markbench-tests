@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 Changes are grouped by the date they are merged to the main branch of the repository and are ordered from newest to oldest. Dates use the ISO 8601 extended calendar date format, i.e. YYYY-MM-DD.
 
+## 2024-06-21
+
+- Update y-cruncher version, and change parameter to 1b from 5b to loosen memory constraints.
+- Update y-cruncher to run 5 times and average the score.
+
 ## 2024-02-20
 
 - Fix type error in DOTA2 `read_config` utility function

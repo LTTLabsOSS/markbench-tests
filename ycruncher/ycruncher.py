@@ -9,7 +9,7 @@ from subprocess import Popen
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
-from ycruncher_utils import YCRUNCHER_FOLDER_NAME, download_ycruncher, ycruncher_folder_exists
+from ycruncher_utils import YCRUNCHER_FOLDER_NAME, current_time_ms, download_ycruncher, ycruncher_folder_exists
 
 ABS_EXECUTABLE_PATH = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), YCRUNCHER_FOLDER_NAME, "y-cruncher.exe")
@@ -29,6 +29,7 @@ console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
 if ycruncher_folder_exists() is False:
+    logging.info("Downloading ycruncher")
     download_ycruncher()
 
 # omit the first arg which is the script name
@@ -36,42 +37,57 @@ args = sys.argv[1:]
 logging.info(args)
 command = f'{ABS_EXECUTABLE_PATH}'
 command = command.rstrip()
-arg_string = ['skip-warnings', 'bench', '5b', '-o',
+arg_string = ['skip-warnings', 'bench', '1b', '-o',
               os.path.join(os.path.dirname(os.path.realpath(__file__)), 'run')]
 
 logging.info(arg_string)
-with Popen(executable=command, args=arg_string) as process:
-    EXIT_CODE = process.wait()
+scores = []
+tunings = []
+start_time = current_time_ms()
+for i in range(5):
+    with Popen(executable=command, args=arg_string) as process:
+        EXIT_CODE = process.wait()
 
-if EXIT_CODE > 0:
-    logging.error("Test failed!")
-    sys.exit(EXIT_CODE)
+    if EXIT_CODE > 0:
+        logging.error("Test failed!")
+        sys.exit(EXIT_CODE)
 
-list_of_files = glob.glob(os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), 'run', '*.txt'))
-latest_file = max(list_of_files, key=os.path.getctime)
-print(latest_file)
+    list_of_files = glob.glob(os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), 'run', '*.txt'))
+    latest_file = max(list_of_files, key=os.path.getctime)
+    print(latest_file)
 
-with open(os.path.join(os.path.dirname(
+    with open(os.path.join(os.path.dirname(
     os.path.realpath(__file__)), 'run', latest_file), "r", encoding="utf-8") as file:
-    Lines = file.readlines()
+        Lines = file.readlines()
 
-TIME_PATTERN = r'^.*:\s*(.*) seconds$'
-TUNE_PATTERN = r'^.*:\s*(.*)$'
-TIME = ""
-TUNING = ""
+        TIME_PATTERN = r'^.*:\s*(.*) seconds$'
+        TUNE_PATTERN = r'^.*:\s*(.*)$'
+        TIME = ""
+        TUNING = ""
 
-# Strips the newline character
-for line in Lines:
-    if 'Total Computation Time' in line:
-        time = re.match(TIME_PATTERN, line).group(1)
-    if 'Tuning:' in line:
-        tuning = re.match(TUNE_PATTERN, line).group(1)
+        # Strips the newline character
+        for line in Lines:
+            if 'Total Computation Time' in line:
+                time = re.match(TIME_PATTERN, line).group(1)
+                scores.append(float(time))
+            if 'Tuning:' in line:
+                tuning = re.match(TUNE_PATTERN, line).group(1)
+                tunings.append(tuning)
+end_time = current_time_ms()
+
+SCORE_SUM = 0
+for score in scores:
+    SCORE_SUM += score
+avg_score = round(SCORE_SUM / len(scores), 2)
 
 report = {
-    "score": time,
+    "start_time": start_time,
+    "version": "v0.8.4.9538a 1b",
+    "end_time": end_time,
+    "score": avg_score,
     "unit": "seconds",
-    "test": tuning
+    "test": tunings[0]
 }
 
 with open(os.path.join(log_dir, "report.json"), "w", encoding="utf-8") as report_file:
