@@ -8,6 +8,8 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 - Update y-cruncher version, and change parameter to 1b from 5b to loosen memory constraints.
 - Update y-cruncher to run 5 times and average the score.
+- Update 7-Zip to used a locked version, 24.07.
+- Update 7-Zip to iterate 3 times each test run.
 
 ## 2024-02-20
 

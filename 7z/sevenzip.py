@@ -3,10 +3,14 @@ import json
 import logging
 import os.path
 import re
+import sys
 import time
 from subprocess import Popen
 import subprocess
-import requests
+
+sys.path.insert(1, os.path.join(sys.path[0], ".."))
+
+from sevenzip_utils import copy_from_network_drive
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 log_dir = os.path.join(script_dir, "run")
@@ -22,24 +26,20 @@ formatter = logging.Formatter(LOGGING_FORMAT)
 console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
-EXECUTABLE = "7zr.exe"
-DOWNLOAD_URL = f"https://www.7-zip.org/a/{EXECUTABLE}"
+EXECUTABLE = "7zr_24.07.exe"
 ABS_EXECUTABLE_PATH = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), EXECUTABLE)
 
 if os.path.isfile(ABS_EXECUTABLE_PATH) is False:
     logging.info(
-        "7-Zip executable not found, downloading from %s", DOWNLOAD_URL)
-    r = requests.get(DOWNLOAD_URL, allow_redirects=True, timeout=120)
-    with open(ABS_EXECUTABLE_PATH, 'wb') as file:
-        file.write(r.content)
+        "7-Zip executable not found, downloading from network drive")
+    copy_from_network_drive()
 
 command = f'{ABS_EXECUTABLE_PATH}'
 command = command.rstrip()
 t1 = time.time()
-args = ["b"]
 logging.info("Starting 7-Zip benchmark! This may take a minute or so...")
-with Popen([command, "b"], cwd=os.path.dirname(
+with Popen([command, "b", "3"], cwd=os.path.dirname(
     os.path.realpath(__file__)), stdout=subprocess.PIPE) as process:
     list_of_strings = [x.decode('utf-8').rstrip('\n')
                    for x in iter(process.stdout.readlines())]
@@ -67,13 +67,13 @@ with Popen([command, "b"], cwd=os.path.dirname(
     logging.info("Benchmark took %s seconds", round((t2 - t1), 3))
     result = [
         {
-            "test": "compression",
+            "test": "7-Zip Compression",
             "score": SPEED_C,
             "unit": "KiB/s",
             "version": VERSION.strip()
         },
         {
-            "test": "decompression",
+            "test": "7-Zip Decompression",
             "score": SPEED_D,
             "unit": "KiB/s",
             "version": VERSION.strip()
