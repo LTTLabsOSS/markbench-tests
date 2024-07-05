@@ -36,7 +36,7 @@ command = command.rstrip()
 scores = []
 start_time = current_time_ms()
 for i in range(3):
-    output = subprocess.check_output([command, "1e12", "--quiet", "--time"], text=True) 
+    output = subprocess.check_output([command, "1e12", "--quiet", "--time"], text=True)
     SCORE_PATTERN = r'Seconds:\s(\d+\.\d+)'
     if "Seconds" in output:
         duration = re.match(SCORE_PATTERN, output).group(1)
