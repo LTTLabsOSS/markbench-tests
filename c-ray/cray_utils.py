@@ -1,4 +1,4 @@
-"""collection of functions to assist in running of primesieve test script"""
+"""collection of functions to assist in running of c-ray test script"""
 import os
 from pathlib import Path
 import time
