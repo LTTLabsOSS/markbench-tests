@@ -1,4 +1,4 @@
-# Primesieve
+# c-ray
 
 Wrapper for [c-ray](https://github.com/jtsiomb/c-ray) test which is a simple ray tracer widely used as a benchmark. Good for measuring pure floating point performance.
 
