@@ -18,6 +18,9 @@ basegame_no_intro_videos.archive
 *.blend
 0001.png
 *.msi
+c-ray-fast*
+sphfract.scn
+output.ppm
 
 # python
 __pycache__/

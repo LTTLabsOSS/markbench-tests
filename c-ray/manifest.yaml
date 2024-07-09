@@ -1,0 +1,5 @@
+friendly_name: "C-ray"
+executable: "cray.py"
+process_name: "c-ray-fast.exe"
+disable_presentmon: true
+output_dir: "run"
