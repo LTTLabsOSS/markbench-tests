@@ -1,4 +1,4 @@
-"""Test script for primesieve"""
+"""Test script for c-ray"""
 import json
 import logging
 import os.path
