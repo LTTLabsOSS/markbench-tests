@@ -4,7 +4,6 @@ import logging
 import os.path
 import subprocess
 import sys
-import time
 import psutil
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
