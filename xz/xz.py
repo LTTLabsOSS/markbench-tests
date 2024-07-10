@@ -4,14 +4,11 @@ import logging
 import os.path
 import subprocess
 import sys
-import time
 import psutil
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
-def current_time_ms():
-    """Get current timestamp in milliseconds since epoch"""
-    return int(time.time() * 1000)
+from xz_utils import XZ_EXECUTABLE, xz_executable_exists, copy_from_network_drive, current_time_ms
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 log_dir = os.path.join(script_dir, "run")
@@ -27,15 +24,15 @@ formatter = logging.Formatter(LOGGING_FORMAT)
 console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
-# if primesieve_folder_exists() is False:
-#     logging.info("Downloading primesieve")
-#     download_primesieve()
+if xz_executable_exists() is False:
+    logging.info("Downloading xz utils")
+    copy_from_network_drive()
 
-ABS_EXECUTABLE_PATH = os.path.join(script_dir, "xz.exe")
+ABS_EXECUTABLE_PATH = os.path.join(script_dir, XZ_EXECUTABLE)
 
 scores = []
 start_time = current_time_ms()
-command = [ABS_EXECUTABLE_PATH, "-7", "-z", "-k", "-f", "-T1", "DNDS1FINAL.mov"]
+command = [ABS_EXECUTABLE_PATH, "-9", "-z", "-k", "-f", "-T1", "tq_dlss_explained_1080p.mp4"]
 processors = [0, 1, 2, 3, 4, 5]
 COUNT = 0
 
@@ -51,18 +48,21 @@ for i in range(5):
 end_time = current_time_ms()
 
 SCORE_SUM = 0
+CORE_COUNT = 0
 for score in scores:
-    print(score)
+    print(f"core {CORE_COUNT} took {score} milliseconds")
     SCORE_SUM += score
+    CORE_COUNT += 1
 avg_score = round(SCORE_SUM / len(scores), 2)
 
 report = {
     "start_time": start_time,
-    "version": "12.3",
+    "version": "5.6.2",
     "end_time": end_time,
     "score": avg_score,
     "unit": "milliseconds",
-    "test": "XZ Compression"
+    "test": "XZ Single Core Compression",
+    "per_core_score": scores
 }
 
 with open(os.path.join(log_dir, "report.json"), "w", encoding="utf-8") as report_file:
