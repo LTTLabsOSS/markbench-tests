@@ -11,10 +11,6 @@ sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
 from xz_utils import XZ_EXECUTABLE, xz_executable_exists, copy_from_network_drive, current_time_ms
 
-def current_time_ms():
-    """Get current timestamp in milliseconds since epoch"""
-    return int(time.time() * 1000)
-
 script_dir = os.path.dirname(os.path.realpath(__file__))
 log_dir = os.path.join(script_dir, "run")
 if not os.path.isdir(log_dir):
@@ -53,11 +49,11 @@ for i in range(5):
 end_time = current_time_ms()
 
 SCORE_SUM = 0
-count = 0
+CORE_COUNT = 0
 for score in scores:
-    print(f"core {count} took {score} milliseconds")
+    print(f"core {CORE_COUNT} took {score} milliseconds")
     SCORE_SUM += score
-    count += 1
+    CORE_COUNT += 1
 avg_score = round(SCORE_SUM / len(scores), 2)
 
 report = {
