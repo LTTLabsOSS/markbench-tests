@@ -41,12 +41,12 @@ t1 = time.time()
 logging.info("Starting 7-Zip benchmark! This may take a minute or so...")
 with Popen([command, "b", "3"], cwd=os.path.dirname(
     os.path.realpath(__file__)), stdout=subprocess.PIPE) as process:
-    list_of_strings = [x.decode('utf-8').rstrip('\n')
-                   for x in iter(process.stdout.readlines())]
-    EXIT_CODE = process.wait()
+
+    stdout_data, stderr = process.communicate()
+    list_of_strings = stdout_data.decode('utf-8').splitlines()
 
     SPEED_PATTERN = r'^Avr:\s*([0-9]*)\s.*\|\s*([0-9]*)\s.*$'
-    VERSION_PATTERN = r'7-Zip \(r\) (.*)\('
+    VERSION_PATTERN = r'7-Zip (\d+\.\d+).*'
 
     VERSION = ""
     SPEED_C = ""
