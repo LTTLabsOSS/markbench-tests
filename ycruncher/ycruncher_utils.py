@@ -4,7 +4,7 @@ from zipfile import ZipFile
 from pathlib import Path
 import requests
 
-YCRUNCHER_FOLDER_NAME = "y-cruncher.v0.8.5.9543"
+YCRUNCHER_FOLDER_NAME = "y-cruncher v0.8.5.9543"
 YCRUNCHER_ZIP_NAME = "y-cruncher.v0.8.5.9543.zip"
 
 SCRIPT_DIR = Path(__file__).resolve().parent
