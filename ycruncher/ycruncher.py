@@ -1,14 +1,15 @@
 """Test script for y-cruncher"""
 import logging
+import os
 import sys
 import re
 from pathlib import Path
 from subprocess import Popen
+from ycruncher_utils import YCRUNCHER_FOLDER_NAME, current_time_ms, download_ycruncher, ycruncher_folder_exists
 
-sys.path.insert(1, Path(sys.path[0], ".."))
+sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
 from harness_utils.output import write_report_json, DEFAULT_LOGGING_FORMAT, DEFAULT_DATE_FORMAT
-from ycruncher_utils import YCRUNCHER_FOLDER_NAME, current_time_ms, download_ycruncher, ycruncher_folder_exists
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
