@@ -72,14 +72,14 @@ def main():
             for line in file.readlines():
                 if 'Total Computation Time' in line:
                     scores.append(float(match_time(line)))
-                if 'Tuning:' in line:
+                if 'Binary:' in line:
                     tunings.append(match_tune(line))
     end_time = current_time_ms()
     avg_score = round(sum(scores) / len(scores), 2)
 
     report = {
         "start_time": start_time,
-        "version": "v0.8.4.9538a 1b",
+        "version": "v0.8.5.9543",
         "end_time": end_time,
         "score": avg_score,
         "unit": "seconds",

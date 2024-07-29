@@ -4,8 +4,8 @@ from zipfile import ZipFile
 from pathlib import Path
 import requests
 
-YCRUNCHER_FOLDER_NAME = "y-cruncher v0.8.4.9538a"
-YCRUNCHER_ZIP_NAME = "y-cruncher 0.8.4.9538a.zip"
+YCRUNCHER_FOLDER_NAME = "y-cruncher.v0.8.5.9543"
+YCRUNCHER_ZIP_NAME = "y-cruncher.v0.8.5.9543.zip"
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 
@@ -16,7 +16,7 @@ def ycruncher_folder_exists() -> bool:
 
 def download_ycruncher():
     """Download and extract Y-Cruncher"""
-    download_url = "https://github.com/Mysticial/y-cruncher/releases/download/v0.8.4.9538a/y-cruncher.v0.8.4.9538a.zip"
+    download_url = "https://github.com/Mysticial/y-cruncher/releases/download/v0.8.5.9543/y-cruncher.v0.8.5.9543.zip"
     destination = SCRIPT_DIR / YCRUNCHER_ZIP_NAME
     response = requests.get(download_url, allow_redirects=True, timeout=180)
     with open(destination, 'wb') as file:
