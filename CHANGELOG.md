@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 Changes are grouped by the date they are merged to the main branch of the repository and are ordered from newest to oldest. Dates use the ISO 8601 extended calendar date format, i.e. YYYY-MM-DD.
 
+## 2024-07-29
+
+- Update Y Cruncher test to use version 0.8.5.9543 of Y Cruncher
+
 ## 2024-07-08
 
 - Add initial c-ray harness.

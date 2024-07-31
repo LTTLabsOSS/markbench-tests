@@ -1,94 +1,93 @@
 """Test script for y-cruncher"""
-import json
 import logging
-import os.path
+import os
 import sys
 import re
-import glob
+from pathlib import Path
 from subprocess import Popen
+from ycruncher_utils import YCRUNCHER_FOLDER_NAME, current_time_ms, download_ycruncher, ycruncher_folder_exists
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
-from ycruncher_utils import YCRUNCHER_FOLDER_NAME, current_time_ms, download_ycruncher, ycruncher_folder_exists
+from harness_utils.output import write_report_json, DEFAULT_LOGGING_FORMAT, DEFAULT_DATE_FORMAT
 
-ABS_EXECUTABLE_PATH = os.path.join(os.path.dirname(
-    os.path.realpath(__file__)), YCRUNCHER_FOLDER_NAME, "y-cruncher.exe")
+SCRIPT_DIR = Path(__file__).resolve().parent
+LOG_DIR = SCRIPT_DIR.joinpath("run")
+EXECUTABLE_PATH = SCRIPT_DIR.joinpath(YCRUNCHER_FOLDER_NAME, "y-cruncher.exe")
 
-script_dir = os.path.dirname(os.path.realpath(__file__))
-log_dir = os.path.join(script_dir, "run")
-if not os.path.isdir(log_dir):
-    os.mkdir(log_dir)
-LOGGING_FORMAT = '%(asctime)s %(levelname)-s %(message)s'
-logging.basicConfig(filename=f'{log_dir}/harness.log',
-                    format=LOGGING_FORMAT,
-                    datefmt='%m-%d %H:%M',
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
 
-if ycruncher_folder_exists() is False:
-    logging.info("Downloading ycruncher")
-    download_ycruncher()
+def setup_logging():
+    """Configures root logger"""
+    LOG_DIR.mkdir(exist_ok=True)
+    logging.basicConfig(filename=f'{LOG_DIR}/harness.log',
+                        format=DEFAULT_LOGGING_FORMAT,
+                        datefmt=DEFAULT_DATE_FORMAT,
+                        level=logging.DEBUG)
+    console = logging.StreamHandler()
+    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
+    console.setFormatter(formatter)
+    logging.getLogger('').addHandler(console)
 
-# omit the first arg which is the script name
-args = sys.argv[1:]
-logging.info(args)
-command = f'{ABS_EXECUTABLE_PATH}'
-command = command.rstrip()
-arg_string = ['skip-warnings', 'bench', '1b', '-o',
-              os.path.join(os.path.dirname(os.path.realpath(__file__)), 'run')]
 
-logging.info(arg_string)
-scores = []
-tunings = []
-start_time = current_time_ms()
-for i in range(5):
-    with Popen(executable=command, args=arg_string) as process:
-        EXIT_CODE = process.wait()
+def match_time(subject: str):
+    """Extract time value from line"""
+    time_pattern = r'^.*:\s*(.*) seconds$'
+    return re.match(time_pattern, subject).group(1)
 
-    if EXIT_CODE > 0:
-        logging.error("Test failed!")
-        sys.exit(EXIT_CODE)
 
-    list_of_files = glob.glob(os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), 'run', '*.txt'))
-    latest_file = max(list_of_files, key=os.path.getctime)
-    print(latest_file)
+def match_tune(subject: str):
+    """Extract tuning value from line"""
+    tune_pattern = r'^.*:\s*(.*)$'
+    return re.match(tune_pattern, subject).group(1)
 
-    with open(os.path.join(os.path.dirname(
-    os.path.realpath(__file__)), 'run', latest_file), "r", encoding="utf-8") as file:
-        Lines = file.readlines()
 
-        TIME_PATTERN = r'^.*:\s*(.*) seconds$'
-        TUNE_PATTERN = r'^.*:\s*(.*)$'
-        TIME = ""
-        TUNING = ""
+def main():
+    """Test script entrypoint"""
+    setup_logging()
 
-        # Strips the newline character
-        for line in Lines:
-            if 'Total Computation Time' in line:
-                time = re.match(TIME_PATTERN, line).group(1)
-                scores.append(float(time))
-            if 'Tuning:' in line:
-                tuning = re.match(TUNE_PATTERN, line).group(1)
-                tunings.append(tuning)
-end_time = current_time_ms()
+    if not ycruncher_folder_exists():
+        logging.info("Downloading ycruncher")
+        download_ycruncher()
 
-SCORE_SUM = 0
-for score in scores:
-    SCORE_SUM += score
-avg_score = round(SCORE_SUM / len(scores), 2)
+    # omit the first arg which is the script name
+    logging.info(sys.argv[1:])
 
-report = {
-    "start_time": start_time,
-    "version": "v0.8.4.9538a 1b",
-    "end_time": end_time,
-    "score": avg_score,
-    "unit": "seconds",
-    "test": tunings[0]
-}
+    arg_string = ['skip-warnings', 'bench', '1b', '-o', LOG_DIR]
 
-with open(os.path.join(log_dir, "report.json"), "w", encoding="utf-8") as report_file:
-    report_file.write(json.dumps(report))
+    logging.info(arg_string)
+    scores = []
+    tunings = []
+    start_time = current_time_ms()
+    for _ in range(5):
+        with Popen(executable=f'{EXECUTABLE_PATH}'.rstrip(), args=arg_string) as process:
+            exit_code = process.wait()
+            if exit_code > 0:
+                logging.error("Test failed!")
+                sys.exit(exit_code)
+
+        latest_file = max(LOG_DIR.glob('*.txt'), key=lambda item: item.stat().st_ctime)
+        logging.info(latest_file)
+
+        with latest_file.open(encoding="utf-8") as file:
+            for line in file.readlines():
+                if 'Total Computation Time' in line:
+                    scores.append(float(match_time(line)))
+                if 'Binary:' in line:
+                    tunings.append(match_tune(line))
+    end_time = current_time_ms()
+    avg_score = round(sum(scores) / len(scores), 2)
+
+    report = {
+        "start_time": start_time,
+        "version": "v0.8.5.9543",
+        "end_time": end_time,
+        "score": avg_score,
+        "unit": "seconds",
+        "test": tunings[0]
+    }
+
+    write_report_json(LOG_DIR, "report.json", report)
+
+
+if __name__ == "__main__":
+    main()
