@@ -55,7 +55,7 @@ def main():
                         help="encoder", metavar="encoder", required=True)
     args = parser.parse_args()
 
-    if args.encoder not in list(ENCODER_TO_PRESET.keys()):
+    if args.encoder not in ENCODER_TO_PRESET:
         logging.error("Invalid encoder selection: %s", args.encoder)
         sys.exit(1)
 
