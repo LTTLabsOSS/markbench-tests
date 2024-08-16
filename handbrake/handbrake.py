@@ -56,7 +56,7 @@ def main():
     args = parser.parse_args()
 
     if args.encoder not in list(ENCODER_TO_PRESET.keys()):
-        logging.error(f"Invalid encoder selection: {args.encoder}")
+        logging.error("Invalid encoder selection: %s", args.encoder)
         sys.exit(1)
 
     try:
@@ -97,13 +97,14 @@ def main():
         logging.getLogger("").removeHandler(console)
         logging.info(output)
         logging.getLogger("").addHandler(console)
-       
+
         match = re.search(avgencoding_pattern, output)
         if not match:
             raise Exception("score was not found in the process output!")
         score = match.group(1)
-        logging.info(f"Average Encoding Speed: {score}")
-        logging.info(f"Finished in: {(end_time - start_time) / 1000} seconds")
+        logging.info("Average Encoding Speed: %s", score)
+        duration = (end_time - start_time) / 1000
+        logging.info("Finished in: %f seconds", duration)
 
         end_time = current_time_ms()
 
