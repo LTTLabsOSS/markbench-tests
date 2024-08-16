@@ -16,6 +16,20 @@ from harness_utils.output import (
     write_report_json
 )
 
+ENCODER_TO_PRESET = {
+        "h264": {
+            "file": "./presets/h264_bigbuckbunny_1080p_cpu_test.json",
+            "name": "CPU 1080p BBB H264"
+        },
+        "h265": {
+            "file": "./presets/h265_bigbuckbunny_1080p_cpu_test.json",
+            "name": "CPU 1080p BBB H265"
+        },
+        "av1": {
+            "file": "./presets/av1-svt_bigbuckbunny_1080p_cpu_test.json",
+            "name": "CPU 1080p BBB AV1"
+        }
+    }
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
@@ -41,28 +55,13 @@ def main():
                         help="encoder", metavar="encoder", required=True)
     args = parser.parse_args()
 
-    encoder_to_preset = {
-        "h264": {
-            "file": "./presets/h264_bigbuckbunny_1080p_cpu_test.json",
-            "name": "CPU 1080p BBB H264"
-        },
-        "h265": {
-            "file": "./presets/h265_bigbuckbunny_1080p_cpu_test.json",
-            "name": "CPU 1080p BBB H265"
-        },
-        "av1": {
-            "file": "./presets/av1-svt_bigbuckbunny_1080p_cpu_test.json",
-            "name": "CPU 1080p BBB AV1"
-        }
-    }
-
-    if args.encoder not in list(encoder_to_preset.keys()):
+    if args.encoder not in list(ENCODER_TO_PRESET.keys()):
         logging.error(f"Invalid encoder selection: {args.encoder}")
         sys.exit(1)
 
     try:
         score = 0
-        preset = encoder_to_preset[args.encoder]
+        preset = ENCODER_TO_PRESET[args.encoder]
         if handbrake_present() is False:
             logging.info("copying handbrake from network drive")
             copy_handbrake_from_network_drive()
