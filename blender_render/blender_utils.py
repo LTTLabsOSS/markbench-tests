@@ -94,3 +94,6 @@ def find_blender():
     version_ls = info['FileVersionLS']
     version = f"{HIWORD (version_ms)}.{LOWORD (version_ms)}.{HIWORD (version_ls)}.{LOWORD (version_ls)}"
     return executable_path, version
+
+
+copy_from_network_drive()

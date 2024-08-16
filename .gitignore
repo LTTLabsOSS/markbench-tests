@@ -23,6 +23,9 @@ sphfract.scn
 output.ppm
 tq_dlss_explained_1080*
 xz_5.6.2_x86*
+*.y4m
+*.exe
+*.mp4
 
 # python
 __pycache__/
