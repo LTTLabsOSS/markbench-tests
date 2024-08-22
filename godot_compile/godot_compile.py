@@ -4,7 +4,6 @@ import os
 import sys
 import re
 from pathlib import Path
-from subprocess import Popen
 from godot_compile_utils import  convert_duration_string_to_seconds, copy_godot_source_from_network_drive, create_conda_environment, install_mingw, install_miniconda, run_conda_command
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
@@ -69,14 +68,14 @@ def main():
     score = None
     for line in output.splitlines():
         score_match = re.search(score_regex, line.strip())
-        if score_match: 
+        if score_match:
             duration_string  = score_match.group(1)
             score = convert_duration_string_to_seconds(duration_string)
             break
 
-    if score is None: 
-            raise Exception("could not find score from scons output, check log and try again")
-    
+    if score is None:
+        raise Exception("could not find score from scons output, check log and try again")
+
     report = {
         "start_time": start_time,
         "version": "4.2.1-stable",

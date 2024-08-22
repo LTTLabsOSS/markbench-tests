@@ -33,7 +33,7 @@ def install_mingw() -> str:
 
 def copy_miniconda_from_network_drive():
     """copies miniconda installer from network drive"""
-    source = Path("\\\\Labs\\\labs\\01_Installers_Utilities\\Miniconda\\" + MINICONDA_INSTALLER)
+    source = Path("\\\\Labs\\labs\\01_Installers_Utilities\\Miniconda\\" + MINICONDA_INSTALLER)
     destination = SCRIPT_DIR.joinpath(MINICONDA_INSTALLER)
     shutil.copyfile(source, destination)
 
@@ -54,7 +54,7 @@ def install_miniconda() -> str:
     return output
 
 
-def copy_godot_source_from_network_drive() -> str: 
+def copy_godot_source_from_network_drive() -> str:
     """copies godot source files from the network drive"""
     if SCRIPT_DIR.joinpath("godot-4.2.1-stable").is_dir():
         return "existing godot source directory detected"
@@ -65,7 +65,7 @@ def copy_godot_source_from_network_drive() -> str:
     with ZipFile(destination, 'r') as zip_object:
         zip_object.extractall(path=SCRIPT_DIR)
     return "godot source copied and unpacked from network drive"
-    
+
 
 def check_conda_environment_exists() -> bool:
     """check if godotbuild environment exists"""
@@ -75,11 +75,10 @@ def check_conda_environment_exists() -> bool:
         "-n",
         CONDA_ENV_NAME
     ]
-    process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
     if process.returncode == 1:
         return False
-    else:
-        return True
+    return True
 
 
 def create_conda_environment() -> str:
@@ -92,7 +91,7 @@ def create_conda_environment() -> str:
         "-n",
         CONDA_ENV_NAME,
         "python=3.11"
-    ] 
+    ]
     output = subprocess.check_output(command, stderr=subprocess.PIPE, text=True)
     return output
 
@@ -118,5 +117,5 @@ def convert_duration_string_to_seconds(duration: str) -> int:
         minutes=int(duration.split(':')[1]),
         seconds=float(duration.split('.')[0].split(':')[2]),
         milliseconds=int(float('0.' + duration.split('.')[1])*1000))
-    
+
     return round(time_obj.total_seconds())
