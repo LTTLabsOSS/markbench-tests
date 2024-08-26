@@ -69,7 +69,7 @@ def copy_godot_source_from_network_drive() -> str:
         try:
             zip_object.extractall(path=SCRIPT_DIR)
         except Exception as ex:
-            raise Exception ("error extracting godot zip")
+            raise Exception ("error extracting godot zip") from ex
         return "godot source copied and unpacked from network drive"
 
 
