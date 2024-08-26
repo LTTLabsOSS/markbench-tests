@@ -6,6 +6,10 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2024-08-22
 
+- Fixed some bugs with handbrake harness.
+
+## 2024-08-22
+
 - Add godot compile harness.
 
 ## 2024-08-16
