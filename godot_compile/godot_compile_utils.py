@@ -19,22 +19,24 @@ GODOT_DIR = "godot-4.3-stable"
 
 def install_mingw() -> str:
     """copies mingw from the network drive and adds to path"""
+    original_path = os.environ.get('PATH', '')
     if MINGW_FOLDER.is_dir():
+        if str(MINGW_FOLDER) not in original_path:
+            os.environ['PATH'] = str(MINGW_FOLDER.joinpath('bin')) + os.pathsep + original_path
         return "existing mingw installation detected"
-    source = Path("\\\\Labs\\labs\\01_Installers_Utilities\\MinGW\\" + MINGW_ZIP)
+    source = Path("\\\\Labs\\labs\\01_Installers_Utilities\\MinGW\\").joinpath(MINGW_ZIP)
     destination = SCRIPT_DIR.joinpath(MINGW_ZIP)
     shutil.copyfile(source, destination)
     with ZipFile(destination, 'r') as zip_object:
         zip_object.extractall(path=SCRIPT_DIR)
-    original_path = os.environ.get('PATH', '')
     if str(MINGW_FOLDER) not in original_path:
-        os.environ['PATH'] = MINGW_FOLDER + os.pathsep + original_path
+        os.environ['PATH'] = str(MINGW_FOLDER.joinpath('bin')) + os.pathsep + original_path
     return "installed mingw from network drive"
 
 
 def copy_miniconda_from_network_drive():
     """copies miniconda installer from network drive"""
-    source = Path("\\\\Labs\\labs\\01_Installers_Utilities\\Miniconda\\" + MINICONDA_INSTALLER)
+    source = Path("\\\\Labs\\labs\\01_Installers_Utilities\\Miniconda\\").joinpath(MINICONDA_INSTALLER)
     destination = SCRIPT_DIR.joinpath(MINICONDA_INSTALLER)
     shutil.copyfile(source, destination)
 
@@ -60,12 +62,15 @@ def copy_godot_source_from_network_drive() -> str:
     if SCRIPT_DIR.joinpath(GODOT_DIR).is_dir():
         return "existing godot source directory detected"
     zip_name = f"{GODOT_DIR}.zip"
-    source = Path("\\\\Labs\\labs\\03_ProcessingFiles\\Godot Files\\" + zip_name)
+    source = Path("\\\\Labs\\labs\\03_ProcessingFiles\\Godot Files\\").joinpath(zip_name)
     destination = SCRIPT_DIR.joinpath(zip_name)
     shutil.copyfile(source, destination)
     with ZipFile(destination, 'r') as zip_object:
-        zip_object.extractall(path=SCRIPT_DIR)
-    return "godot source copied and unpacked from network drive"
+        try:
+            zip_object.extractall(path=SCRIPT_DIR)
+        except Exception as ex:
+            raise Exception ("error extracting godot zip") from ex
+        return "godot source copied and unpacked from network drive"
 
 
 def check_conda_environment_exists() -> bool:
@@ -93,7 +98,7 @@ def create_conda_environment() -> str:
         CONDA_ENV_NAME,
         "python=3.11"
     ]
-    output = subprocess.check_output(command, stderr=subprocess.PIPE, text=True)
+    output = subprocess.check_output(command, stderr=subprocess.STDOUT, text=True)
     return output
 
 
@@ -107,7 +112,7 @@ def run_conda_command(conda_cmd: List[str]) -> str:
         "--cwd",
         str(SCRIPT_DIR.joinpath(GODOT_DIR)),
     ] + conda_cmd
-    output = subprocess.check_output(command, stderr=subprocess.PIPE, text=True)
+    output = subprocess.check_output(command, stderr=subprocess.STDOUT, text=True)
     return output
 
 
