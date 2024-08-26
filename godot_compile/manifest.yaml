@@ -1,0 +1,6 @@
+friendly_name: "Godot Compile"
+executable: "godot_compile.py"
+process_name: "HandBrakeCLI.exe"
+disable_presentmon: true
+output_dir: run
+options:
