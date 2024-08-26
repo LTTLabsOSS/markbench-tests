@@ -28,6 +28,8 @@ xz_5.6.2_x86*
 *.mp4
 godot-4.2.1-stable/
 godot-4.2.1-stable.zip
+godot-4.3-stable/
+godot-4.3-stable.zip
 mingw64/
 
 # python

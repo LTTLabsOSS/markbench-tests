@@ -14,6 +14,7 @@ MINGW_ZIP = "x86_64-13.2.0-release-posix-seh-msvcrt-rt_v11-rev1.zip"
 MINGW_FOLDER = SCRIPT_DIR.joinpath("mingw64")
 MINICONDA_EXECUTABLE_PATH = Path("C:\\ProgramData\\miniconda3\\_conda.exe")
 CONDA_ENV_NAME = "godotbuild"
+GODOT_DIR = "godot-4.3-stable"
 
 
 def install_mingw() -> str:
@@ -56,9 +57,9 @@ def install_miniconda() -> str:
 
 def copy_godot_source_from_network_drive() -> str:
     """copies godot source files from the network drive"""
-    if SCRIPT_DIR.joinpath("godot-4.2.1-stable").is_dir():
+    if SCRIPT_DIR.joinpath(GODOT_DIR).is_dir():
         return "existing godot source directory detected"
-    zip_name = "godot-4.2.1-stable.zip"
+    zip_name = f"{GODOT_DIR}.zip"
     source = Path("\\\\Labs\\labs\\03_ProcessingFiles\\Godot Files\\" + zip_name)
     destination = SCRIPT_DIR.joinpath(zip_name)
     shutil.copyfile(source, destination)
@@ -104,7 +105,7 @@ def run_conda_command(conda_cmd: List[str]) -> str:
         "-n",
         "godotbuild",
         "--cwd",
-        str(SCRIPT_DIR.joinpath("godot-4.2.1-stable")),
+        str(SCRIPT_DIR.joinpath(GODOT_DIR)),
     ] + conda_cmd
     output = subprocess.check_output(command, stderr=subprocess.PIPE, text=True)
     return output
