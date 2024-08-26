@@ -88,7 +88,7 @@ def main():
             command,
             text=True,
             stderr=subprocess.STDOUT)
-        
+
         end_time = current_time_ms()
 
         logging.getLogger("").removeHandler(console)
