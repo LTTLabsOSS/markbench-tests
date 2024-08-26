@@ -1,6 +1,5 @@
 """Blender render test script"""
-from blender_utils import \
-    download_barbershop_scene, find_blender, run_blender_render
+from blender_utils import find_blender, run_blender_render, download_scene
 from argparse import ArgumentParser
 import logging
 import os.path
@@ -26,9 +25,20 @@ console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
 VALID_DEVICES = ["CPU", "CUDA", "OPTIX", "HIP", "ONEAPI", "METAL"]
+BENCHMARK_CONFIG = {
+    "Barbershop": "barbershop_interior.blend",
+    "Monster": "monster_under_the_bed_sss_demo_by_metin_seven.blend",
+    "Junkshop": "Junkshop.blend",
+    "BMW": "bmw27_cpu.blend",
+    
+}
+
 parser = ArgumentParser()
 parser.add_argument("-d", "--device", dest="device",
                     help="device", metavar="device", required=True)
+parser.add_argument(
+        "--benchmark", dest="benchmark", help="Benchmark test type", metavar="benchmark", required=True)
+    
 
 args = parser.parse_args()
 
@@ -37,26 +47,30 @@ if args.device not in VALID_DEVICES:
     sys.exit(1)
 
 executable_path, version = find_blender()
-download_barbershop_scene()
+benchmark = args.benchmark
+logging.info(f"The selected scene is {benchmark}")
+download_scene(benchmark)
 
 try:
     logging.info('Starting benchmark!')
     start_time = time.time()
+    benchmark= BENCHMARK_CONFIG[args.benchmark]
     score = run_blender_render(
-        executable_path, LOG_DIRECTORY, args.device.upper())
+        executable_path, LOG_DIRECTORY, args.device.upper(), benchmark)
     end_time = time.time()
-    logging.info('Finished rendering barbership in %d seconds', (end_time - start_time))
+    logging.info(f'Finished rendering {args.benchmark} in %d seconds', (end_time - start_time))
 
     if score is None:
         logging.error("No duration was found in the log to use as the score")
         sys.exit(1)
 
     report = {
-        "test": f"Blender Barbershop Render {args.device.upper()}",
+        "test": f"Blender {args.benchmark} Render {args.device.upper()}",
         "score": score,
         "unit": "seconds",
         "version": version,
         "device": args.device,
+        "benchmark": args.benchmark,
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time)
     }
