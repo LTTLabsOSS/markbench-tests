@@ -16,20 +16,7 @@ from harness_utils.output import (
     write_report_json
 )
 
-ENCODER_TO_PRESET = {
-        "h264": {
-            "file": "./presets/h264_bigbuckbunny_1080p_cpu_test.json",
-            "name": "CPU 1080p BBB H264"
-        },
-        "h265": {
-            "file": "./presets/h265_bigbuckbunny_1080p_cpu_test.json",
-            "name": "CPU 1080p BBB H265"
-        },
-        "av1": {
-            "file": "./presets/av1-svt_bigbuckbunny_1080p_cpu_test.json",
-            "name": "CPU 1080p BBB AV1"
-        }
-    }
+
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
@@ -42,6 +29,21 @@ logging.basicConfig(
     datefmt=DEFAULT_DATE_FORMAT,
     level=logging.DEBUG
 )
+
+ENCODER_TO_PRESET = {
+    "h264": {
+        "file": f"{SCRIPT_DIR}\\presets\\h264_bigbuckbunny_1080p_cpu_test.json",
+        "name": "\"CPU 1080p BBB H264\""
+    },
+    "h265": {
+        "file": f"{SCRIPT_DIR}\\presets\\h265_bigbuckbunny_1080p_cpu_test.json",
+        "name": "\"CPU 1080p BBB H265\""
+    },
+    "av1": {
+        "file": f"{SCRIPT_DIR}\\presets\\av1-svt_bigbuckbunny_1080p_cpu_test.json",
+        "name": "\"CPU 1080p BBB AV1\""
+    }
+}
 
 console = logging.StreamHandler()
 formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
@@ -77,21 +79,16 @@ def main():
         logging.info("starting benchmark, this may take a few minutes")
         logging.info(
             "you can ensure the test is running by checking that cpu usage is 100% in task manager")
-        command = f"{SCRIPT_DIR}\\{HANDBRAKE_EXECUTABLE}"
+        execute_me = f"{SCRIPT_DIR}\\{HANDBRAKE_EXECUTABLE}"
         start_time = current_time_ms()
         avgencoding_pattern = r'average encoding speed for job is (\d+\.\d+) fps'
-        output = subprocess.check_output([
+        command = f"{execute_me} -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -o {SCRIPT_DIR}\\bbboutput.mp4 --preset-import-file {preset['file']} --preset {preset['name']}"
+
+        output = subprocess.check_output(
             command,
-            "-i",
-            "big_buck_bunny_1080p24.y4m",
-            "-o",
-            "bbboutput.mp4",
-            "--preset-import-file",
-            preset['file'],
-            "--preset",
-            preset['name']],
             text=True,
             stderr=subprocess.STDOUT)
+        
         end_time = current_time_ms()
 
         logging.getLogger("").removeHandler(console)
