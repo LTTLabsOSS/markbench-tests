@@ -61,19 +61,19 @@ def console_command(command):
 
 def run_benchmark(keras_host, keras_port):
     """Starts the benchmark"""
-    kerasService = KerasService(keras_host, keras_port, LOG_DIR.join("screenshot.jpg"))
+    keras_service = KerasService(keras_host, keras_port, LOG_DIR.join("screenshot.jpg"))
     copy_benchmarkfiles()
     copy_benchmarksave()
     start_game()
     setup_start_time = time.time()
     time.sleep(5)
 
-    result = kerasService.wait_for_word("credits", interval=0.5, timeout=100)
+    result = keras_service.wait_for_word("credits", interval=0.5, timeout=100)
     if not result:
         logging.info("Could not find the paused notification. Unable to mark start time!")
         sys.exit(1)
 
-    result = kerasService.look_for_word("load", attempts=10, interval=1)
+    result = keras_service.look_for_word("load", attempts=10, interval=1)
     if not result:
         logging.info("Did not find the load save menu. Is there something wrong on the screen?")
         sys.exit(1)
@@ -85,7 +85,7 @@ def run_benchmark(keras_host, keras_port):
     gui.mouseUp()
     time.sleep(2)
 
-    result = kerasService.look_for_word("latest", attempts=10, interval=1)
+    result = keras_service.look_for_word("latest", attempts=10, interval=1)
     if not result:
         logging.info("Did not find the load latest save button. Did keras click correctly?")
         sys.exit(1)
@@ -97,12 +97,12 @@ def run_benchmark(keras_host, keras_port):
     gui.mouseUp()
     time.sleep(0.5)
 
-    result = kerasService.wait_for_word("paused", interval=0.5, timeout=100)
+    result = keras_service.wait_for_word("paused", interval=0.5, timeout=100)
     if not result:
         logging.info("Could not find the paused notification. Unable to mark start time!")
         sys.exit(1)
-    
-    result = kerasService.look_for_word("government", attempts=10, interval=1)
+
+    result = keras_service.look_for_word("government", attempts=10, interval=1)
     if not result:
         logging.info("Did not find the load latest save button. Did keras click correctly?")
         sys.exit(1)
@@ -122,7 +122,7 @@ def run_benchmark(keras_host, keras_port):
     test_start_time = time.time()
     time.sleep(30)
 
-    result = kerasService.wait_for_word("finished", interval=0.2, timeout=250)
+    result = keras_service.wait_for_word("finished", interval=0.2, timeout=250)
     if not result:
         logging.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?")
@@ -152,7 +152,7 @@ def main():
     parser.add_argument("--kerasPort", dest="keras_port",
                         help="Port for Keras OCR service", required=True)
     args = parser.parse_args()
-  
+
     test_start_time, test_end_time, score = run_benchmark(args.keras_host, args.keras_port)
     height, width = read_current_resolution()
     report = {

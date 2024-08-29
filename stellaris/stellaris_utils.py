@@ -58,10 +58,10 @@ def find_score_in_log():
             score_match = score_pattern.search(line)
             if score_match is not None:
                 score_value = score_match.group(1)
-    return (score_value)
+    return score_value
 
 
-def copy_benchmarkfiles(benchmark_files: list[str]) -> None:
+def copy_benchmarkfiles() -> None:
     """Copy benchmark config files to config directory"""
     for file in benchmark_files:
         try:
@@ -92,9 +92,9 @@ def delete_existing_saves():
                 file_path = BENCHMARK_LOCATION.joinpath(file)
                 if file_path.exists():
                     os.remove(file_path)
-            logging.info(f"Removing any additional save files from {BENCHMARK_LOCATION}")
+            logging.info("Removing any additional save files from %s", BENCHMARK_LOCATION)
         except OSError as e:
-            logging.error(f"Error occurred while deleting files: {e}")
+            logging.error("Error occurred while deleting files: %s", e)
 
 
 def copy_benchmarksave() -> None:
