@@ -61,7 +61,7 @@ def console_command(command):
 
 def run_benchmark(keras_host, keras_port):
     """Starts the benchmark"""
-    keras_service = KerasService(keras_host, keras_port, LOG_DIR.join("screenshot.jpg"))
+    keras_service = KerasService(keras_host, keras_port, LOG_DIR.joinpath("screenshot.jpg"))
     copy_benchmarkfiles()
     copy_benchmarksave()
     start_game()
@@ -139,13 +139,13 @@ def run_benchmark(keras_host, keras_port):
 
     # Exit
     score = find_score_in_log()
-    logging.info(f"The one year passed in {score} seconds")
+    logging.info("The one year passed in %d seconds", score)
     terminate_processes(PROCESS_NAME)
     return test_start_time, test_end_time, score
 
 
 def main():
-
+    """entry point to test script"""
     parser = ArgumentParser()
     parser.add_argument("--kerasHost", dest="keras_host",
                         help="Host for Keras OCR service", required=True)
@@ -173,6 +173,6 @@ if __name__ == "__main__":
         main()
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")
-        logging.exception(e)
+        logging.exception(ex)
         terminate_processes(PROCESS_NAME)
         sys.exit(1)

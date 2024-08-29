@@ -93,8 +93,8 @@ def delete_existing_saves():
                 if file_path.exists():
                     os.remove(file_path)
             logging.info("Removing any additional save files from %s", BENCHMARK_LOCATION)
-        except OSError as e:
-            logging.error("Error occurred while deleting files: %s", e)
+        except OSError as ex:
+            logging.error("Error occurred while deleting files: %s", ex)
 
 
 def copy_benchmarksave() -> None:
