@@ -15,6 +15,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
 
 def setup_logging():
+    """default logging config"""
     LOG_DIR.mkdir(exist_ok=True)
     logging.basicConfig(filename=f'{LOG_DIR}/harness.log',
                         format=DEFAULT_LOGGING_FORMAT,
@@ -28,6 +29,7 @@ def setup_logging():
 VALID_DEVICES = ["CPU", "CUDA", "OPTIX", "HIP", "ONEAPI", "METAL"]
 
 def main():
+    """entry point for test script"""
     parser = ArgumentParser()
     parser.add_argument("-d", "--device", dest="device",
                         help="device", metavar="device", required=True)
@@ -35,10 +37,10 @@ def main():
             "--benchmark", dest="benchmark", help="Benchmark test type", metavar="benchmark", required=True)
     args = parser.parse_args()
     if args.device not in VALID_DEVICES:
-        raise Exception("invalid device selection: %s", args.device)
-    
-    logging.info("The selected scene is %s", benchmark)
-    benchmark= BENCHMARK_CONFIG[args.benchmark]
+        raise Exception("invalid device selection: %s" % args.device)
+
+    logging.info("The selected scene is %s", args.benchmark)
+    benchmark = BENCHMARK_CONFIG[args.benchmark]
     download_scene(benchmark)
     executable_path, version = find_blender()
 

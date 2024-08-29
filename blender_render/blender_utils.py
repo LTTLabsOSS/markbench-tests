@@ -21,6 +21,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 
 @dataclass
 class BlenderScene:
+    """a renderable blender project"""
     name: str
     file_name: str
     download_url: str
@@ -49,7 +50,9 @@ BENCHMARK_CONFIG = {
     )
 }
 
+
 def download_scene(scene: BlenderScene) -> None:
+    """download blender project to script directory, tries network drive then the internet"""
     destination = SCRIPT_DIR.joinpath(scene.file_name)
     if destination.exists():
         logging.info("%s scene file detected, no downloading required", scene.file_name)
@@ -73,15 +76,16 @@ def download_scene(scene: BlenderScene) -> None:
             return
     except Exception as ex:
         logging.error("could not download scene from any source, check connections and try again")
-        raise Exception("error downloading scene", cause=ex)
-    
+        raise Exception("error downloading scene", cause=ex) from ex
+
 
 def copy_scene_from_network_drive(file_name, destination):
+    """copy blend file from network drive"""
     network_dir = Path("\\\\Labs\\labs\\03_ProcessingFiles\\Blender Render")
     source_path = network_dir.joinpath(file_name)
     logging.info("Copying %s from %s", file_name, source_path)
     shutil.copyfile(source_path, destination)
- 
+
 
 def time_to_seconds(time_string):
     """convert string to duration in seconds"""
