@@ -37,7 +37,7 @@ def main():
             "--benchmark", dest="benchmark", help="Benchmark test type", metavar="benchmark", required=True)
     args = parser.parse_args()
     if args.device not in VALID_DEVICES:
-        raise Exception("invalid device selection: %s" % args.device)
+        raise Exception(f"invalid device selection: {args.device}")
 
     logging.info("The selected scene is %s", args.benchmark)
     benchmark = BENCHMARK_CONFIG[args.benchmark]
@@ -73,5 +73,5 @@ if __name__ == "__main__":
         main()
     except Exception as ex:
         logging.error("something went wrong running the benchmark!")
-        logging.exception(e)
+        logging.exception(ex)
         sys.exit(1)
