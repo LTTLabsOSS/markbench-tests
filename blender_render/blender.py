@@ -70,6 +70,7 @@ def main():
 
 if __name__ == "__main__":
     try:
+        setup_logging()
         main()
     except Exception as ex:
         logging.error("something went wrong running the benchmark!")

@@ -59,7 +59,6 @@ def download_scene(scene: BlenderScene) -> None:
         return
 
     try:
-        logging.info("copying %s from network drive...", scene.file_name)
         copy_scene_from_network_drive(scene.file_name, destination)
         if Path(destination).exists():
             return
@@ -102,7 +101,7 @@ def run_blender_render(executable_path: Path, log_directory: Path, device: str, 
     """Execute the blender render of barbershop, returns the duration as string"""
     blend_log = log_directory.joinpath("blender.log")
     blend_path = SCRIPT_DIR.joinpath(benchmark.file_name)
-    cmd_line = f"\"{str(executable_path)}\" -b -E CYCLES -y \"{str(blend_path)}\" -f 1 -- --cycles-device {device} --cycles-print-stats"
+    cmd_line = f'"{str(executable_path)}" -b -E CYCLES -y "{str(blend_path)}" -f 1 -- --cycles-device {device} --cycles-print-stats'
     with open(blend_log,'w' , encoding="utf-8") as f_obj:
         subprocess.run(cmd_line, stdout=f_obj, text=True, check=True)
 
@@ -137,7 +136,7 @@ def find_blender():
     executable_path = blender_dir.joinpath(f"Blender {latest_ver}", "blender.exe")
     if not executable_path.exists():
         raise Exception("Blender not detected")
-    info = GetFileVersionInfo(executable_path, "\\")
+    info = GetFileVersionInfo(str(executable_path), "\\")
     version_ms = info['FileVersionMS']
     version_ls = info['FileVersionLS']
     version = f"{HIWORD (version_ms)}.{LOWORD (version_ms)}.{HIWORD (version_ls)}.{LOWORD (version_ls)}"
