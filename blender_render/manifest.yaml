@@ -1,4 +1,4 @@
-friendly_name: "Blender Barbershop"
+friendly_name: "Blender Render"
 executable: "blender.py"
 process_name: "blender.exe"
 disable_presentmon: true
@@ -8,3 +8,12 @@ options:
   - name: device
     type: select
     values: ["CPU", "CUDA", "OPTIX", "HIP", "ONEAPI", "METAL"]
+  - name: benchmark
+    type: select
+    values:
+      - "Barbershop"
+      - "Monster"
+      - "Classroom"
+      - "Junkshop"
+      - "BMW"
+    tooltip: Select which Blender scene to render
