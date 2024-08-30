@@ -7,6 +7,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 ## 2024-08-30
 
 - Add Stellaris harness based on one_year console command.
+- Add City Skylines 2 harness.
 
 ## 2024-08-29
 
