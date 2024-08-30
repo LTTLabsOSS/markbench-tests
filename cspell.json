@@ -43,7 +43,8 @@
     "rstrip",
     "keybd",
     "vkfurrytorus",
-    "GPGPU"
+    "GPGPU",
+    "Stellaris"
   ],
   "ignoreRegExpList": [
     "import .*"
