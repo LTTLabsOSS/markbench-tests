@@ -14,8 +14,6 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
-    format_resolution,
-    setup_log_directory,
     write_report_json,
     seconds_to_milliseconds,
     DEFAULT_LOGGING_FORMAT,
@@ -77,7 +75,7 @@ def run_benchmark(keras_service):
     start_game()
     setup_start_time = time.time()
     time.sleep(14)
-    
+
     result = keras_service.wait_for_word("paradox", interval=0.5, timeout=100)
     if not result:
         logging.info("Could not find the paused notification. Unable to mark start time!")
@@ -144,6 +142,6 @@ if __name__ == "__main__":
         main()
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")
-        logging.exception(e)
+        logging.exception(ex)
         terminate_processes(PROCESS_NAME)
         sys.exit(1)

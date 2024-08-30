@@ -18,7 +18,7 @@ LOCALAPPDATA = os.getenv("LOCALAPPDATA")
 LAUNCHCONFIG_LOCATION = Path(f"{LOCALAPPDATA}\\Paradox Interactive")
 INSTALL_LOCATION = Path(get_app_install_location(STEAM_GAME_ID))
 APPDATA = os.getenv("APPDATA")
-CONFIG_LOCATION = Path(f"{APPDATA}\\..\\LocalLow\\Colossal Order\Cities Skylines II")
+CONFIG_LOCATION = Path(f"{APPDATA}\\..\\LocalLow\\Colossal Order\\Cities Skylines II")
 SAVE_LOCATION = Path(f"{CONFIG_LOCATION}\\Saves")
 CONFIG_FILENAME = "launcher-settings.json"
 
@@ -36,7 +36,7 @@ def read_current_resolution():
                 resolution = resolution_match.group(1)
     return resolution
 
-    
+
 def copy_continuegame(config_files: list[str]) -> None:
     """Copy launcher files to game directory"""
     for file in config_files:
@@ -47,7 +47,7 @@ def copy_continuegame(config_files: list[str]) -> None:
             logging.info("Copying: %s -> %s", file, dest_path)
             shutil.copy(src_path, dest_path)
         except OSError as err:
-            logging.error(f"Could not copy save information files. {err}")
+            logging.error("Could not copy save information files. %s", err)
             raise err
 
 
@@ -61,7 +61,7 @@ def copy_launcherfiles(launcher_files: list[str]) -> None:
             logging.info("Copying: %s -> %s", file, dest_path)
             shutil.copy(src_path, dest_path)
         except OSError as err:
-            logging.error(f"Could not copy launcher files. {err}")
+            logging.error("Could not copy launcher files %s", err)
             raise err
 
 
@@ -73,21 +73,20 @@ def copy_launcherpath():
         LAUNCHCONFIG_LOCATION.mkdir(parents=True, exist_ok=True)
         dest_path = LAUNCHCONFIG_LOCATION / launcherpath
         if os.path.exists(dest_path) is True:
-            try:    
+            try:
                 file_path = os.path.join(LAUNCHCONFIG_LOCATION, launcherpath)
                 os.chmod(file_path, stat.S_IWRITE)
                 os.remove(file_path)
-                logging.info(f"Removing old launcher file from {LAUNCHCONFIG_LOCATION}")
+                logging.info("Removing old launcher file from %s", LAUNCHCONFIG_LOCATION)
             except OSError as e:
-                logging.error(f"The following error occurred while trying to remove the launcherpath file: {e}.")
+                logging.error("The following error occurred while trying to remove the launcherpath file: %s.", e)
         logging.info("Copying: %s -> %s", launcherpath, dest_path)
-        f = open(f"{src_path}", "w")
-        f.write(f"{INSTALL_LOCATION}")
-        f.close()
+        with open(f"{src_path}", "w", encoding="utf-8") as f:
+            f.write(f"{INSTALL_LOCATION}")
         shutil.copy(src_path, dest_path)
         os.chmod(dest_path, stat.S_IREAD)
     except OSError as err:
-        logging.error(f"Could not copy the launcherpath file. {err}")
+        logging.error("Could not copy the launcherpath file. %s", e)
         raise err
 
 
@@ -101,5 +100,5 @@ def copy_benchmarksave(save_files: list[str]) -> None:
             logging.info("Copying: %s -> %s", file, dest_path)
             shutil.copy(src_path, dest_path)
         except OSError as err:
-            logging.error(f"Could not copy launcher files. {err}")
+            logging.error("Could not copy launcher files. %s", err)
             raise err
