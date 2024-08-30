@@ -104,6 +104,7 @@ def copy_benchmarksave() -> None:
         copy_destination = SCRIPT_DIR.joinpath(benchmark_save)
         copy_save_from_network_drive(benchmark_save, copy_destination)
         config_dest = BENCHMARK_LOCATION / benchmark_save
+        delete_existing_saves()
         logging.info("Copying: %s -> %s", copy_destination, config_dest)
         shutil.copy(copy_destination, config_dest)
     except OSError as err:
