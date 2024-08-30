@@ -8,6 +8,8 @@ This benchmark uses vanilla Stellaris (No DLC) and the popular [console command]
 
 We used the fast_forward command to get to year 2400.
 
+## Prerequisites
+
 - Python 3.10+
 - Stellaris installed
 - Keras OCR service
