@@ -60,7 +60,7 @@ def download_scene(scene: BlenderScene) -> None:
 
     try:
         copy_scene_from_network_drive(scene.file_name, destination)
-        if Path(destination).exists():
+        if destination.exists():
             return
     except Exception as ex:
         logging.warning(ex)

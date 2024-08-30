@@ -1,0 +1,9 @@
+friendly_name: "Counter-Strike 2"
+executable: "cs2.py"
+process_name: "cs2.exe"
+output_dir: "run"
+options:
+  - name: kerasHost
+    type: input
+  - name: kerasPort
+    type: input
