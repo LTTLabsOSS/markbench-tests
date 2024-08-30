@@ -2,6 +2,7 @@
 from argparse import ArgumentParser
 import logging
 import os
+from pathlib import Path
 import time
 import sys
 import pyautogui as gui
@@ -23,8 +24,6 @@ from harness_utils.output import (
 from harness_utils.steam import exec_steam_game
 from harness_utils.keras_service import KerasService
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
 PROCESS_NAME = "cities2.exe"
 STEAM_GAME_ID = 949230
 launcher_files = [

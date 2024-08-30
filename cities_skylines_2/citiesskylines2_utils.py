@@ -50,6 +50,7 @@ def copy_continuegame(config_files: list[str]) -> None:
             logging.error(f"Could not copy save information files. {err}")
             raise err
 
+
 def copy_launcherfiles(launcher_files: list[str]) -> None:
     """Copy launcher files to game directory"""
     for file in launcher_files:
@@ -62,7 +63,8 @@ def copy_launcherfiles(launcher_files: list[str]) -> None:
         except OSError as err:
             logging.error(f"Could not copy launcher files. {err}")
             raise err
-        
+
+
 def copy_launcherpath():
     """Copy the override launcherpath file to launcherpath directory"""
     try:
@@ -87,7 +89,8 @@ def copy_launcherpath():
     except OSError as err:
         logging.error(f"Could not copy the launcherpath file. {err}")
         raise err
-    
+
+
 def copy_benchmarksave(save_files: list[str]) -> None:
     """Copy benchmark save file to save directory"""
     for file in save_files:
