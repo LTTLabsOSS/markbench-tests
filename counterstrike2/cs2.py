@@ -7,7 +7,7 @@ import time
 import pyautogui as gui
 import pydirectinput as user
 import sys
-from cs2_utils import get_resolution, get_args, copy_config
+from cs2_utils import get_resolution, copy_config
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
@@ -66,7 +66,7 @@ def run_benchmark(keras_service):
     logging.info('Starting benchmark')
     user.press("`")
     time.sleep(0.5)
-    console_command("exec maps\de_dust2_benchmark")
+    console_command(r"exec maps\de_dust2_benchmark")
     time.sleep(1)
     console_command("ui_playsettings_maps_workshop @workshop/3240880604/de_dust2_benchmark")
     time.sleep(1)
@@ -127,9 +127,9 @@ def main():
 
     keras_service = KerasService(args.keras_host, args.keras_port, os.path.join(
         LOG_DIR, "screenshot.jpg"))
-    
+
     start_time, end_time = run_benchmark(keras_service)
-    
+
     height, width = get_resolution()
     report = {
         "resolution": format_resolution(width, height),

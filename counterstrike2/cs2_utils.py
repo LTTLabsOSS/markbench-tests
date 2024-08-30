@@ -1,5 +1,4 @@
 """Counter-Strike 2 test script utils"""
-from argparse import ArgumentParser
 import logging
 import re
 import shutil
