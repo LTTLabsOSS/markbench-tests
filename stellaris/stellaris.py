@@ -139,7 +139,7 @@ def run_benchmark(keras_host, keras_port):
 
     # Exit
     score = find_score_in_log()
-    logging.info("The one year passed in %d seconds", score)
+    logging.info("The one year passed in %s seconds", score)
     terminate_processes(PROCESS_NAME)
     return test_start_time, test_end_time, score
 
