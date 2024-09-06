@@ -3,15 +3,22 @@
 Harness Utils contains scripts that are loosely connected around providing helper utilities used across
 multiple test harnesses.
 
+## Artifacts
+
+`artifacts.py`
+
+Contains class for capturing test artifacts.
+
+
 ## Keras Service
 
 `keras_service.py`
 
 Contains class for instancing connection to a Keras Service and provides access to its web API.
 
-## Logging
+## Output
 
-`logging.py`
+`output.py`
 
 Functions related to logging and formatting output from test harnesses.
 
