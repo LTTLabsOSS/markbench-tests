@@ -8,6 +8,10 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 - Add `artifacts.py` to `harness_utils` for capturing test artifacts.
 
+## 2024-08-30
+
+- Add Stellaris harness based on one_year console command.
+
 ## 2024-08-29
 
 - Update blender harness to support different scenes.

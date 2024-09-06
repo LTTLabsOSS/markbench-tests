@@ -1,0 +1,45 @@
+force_pow2_textures=no
+language="l_english"
+graphics={
+	size={
+		x=1920
+		y=1080
+	}
+
+	gui_scale=1.000000
+	gui_safe_ratio=1.000000
+	refreshRate=50
+	fullScreen=yes
+	borderless=no
+	display_index=0
+	renderer=0
+	shadowSize=2048
+	multi_sampling=0
+	multi_sampling_quality=0
+	maxanisotropy=16
+	gamma=50.000000
+	vsync=yes
+}
+sound_fx_volume=20.000000
+music_volume=20.000000
+scroll_speed=50.000000
+camera_rotation_speed=50.000000
+zoom_speed=50.000000
+mouse_speed=50.000000
+soundgroup="l_english"
+master_volume=52.000000
+ambient_volume=21.000000
+dev_master_volume=75.000000
+input_type=0
+voice_volume=22.000000
+tts_volume=75.000000
+camera_look_sensitivity=1.000000
+camera_speed=50.000000
+autosave=0
+tutorial=0
+completed_tutorial_missions=0
+gfx_quality=0
+bloom={
+	quality=0
+	lens_flare=no
+}
