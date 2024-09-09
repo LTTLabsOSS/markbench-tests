@@ -79,7 +79,7 @@ class ArtifactManager:
         `artifact_type` and `description` arguments respectively while the artifact's `filename`
         is set to the basename of `src`.
         
-        Raises a `ValueError` if `src` points to a file, not a directory.
+        Raises a `ValueError` if `src` points to a directory instead of a file.
         """
         src_path = Path(src)
         if src_path.is_dir():
