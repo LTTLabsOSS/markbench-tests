@@ -15,32 +15,32 @@ class ArtifactType(Enum):
     Describes different types of artifacts to be saved from test runs.
     """
 
-    IMAGE_CONFIG = "image_config"
+    CONFIG_IMAGE = "config_image"
     """
     Meant to describe images displaying an applications settings.
     For games this might be a screenshot of the in-game settings menu.
     """
 
-    IMAGE_RESULTS = "image_results"
+    RESULTS_IMAGE = "results_image"
     """
     Meant to describe images displaying results of a benchmark.
     For games with built in benchmarks, this might be a screenshot of an in-game benchmark results screen.
     """
 
-    TEXT_CONFIG = "text_config"
+    CONFIG_TEXT = "config_text"
     """
     Meant to describe text-based files which contain application settings.
     For games this might be a .ini or .cfg file containing graphics settings.
     """
 
-    TEXT_RESULTS = "text_results"
+    RESULTS_TEXT = "results_text"
     """
     Meant to describe text-based files which contain results of a benchmark.
     For games with built in benchmarks, this might be a .txt or .xml file containing results from an in-game benchmark.
     """
 
 
-_IMAGE_ARTIFACT_TYPES = (ArtifactType.IMAGE_CONFIG, ArtifactType.IMAGE_RESULTS)
+_IMAGE_ARTIFACT_TYPES = (ArtifactType.CONFIG_IMAGE, ArtifactType.RESULTS_IMAGE)
 
 
 @dataclass

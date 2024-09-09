@@ -31,18 +31,27 @@ Capture artifacts using `ArtifactManager.copy_file` and `ArtifactManager.take_sc
 
 ```python
 # src as a string, capturing a configuration text file
-am.copy_file("path/to/config.ini", ArtifactType.TEXT_CONFIG, "a config file")
+am.copy_file("path/to/config.ini", ArtifactType.CONFIG_TEXT, "a config file")
 
 # src as a pathlib.Path, capturing a results text file
-am.copy_file(Path("path", "to", "results.txt"), ArtifactType.TEXT_RESULTS, "some results")
+am.copy_file(Path("path", "to", "results.txt"), ArtifactType.RESULTS_TEXT, "some results")
 
-am.take_screenshot("cool_picture.png", ArtifactType.IMAGE_CONFIG, "picture of settings")
+am.take_screenshot("cool_picture.png", ArtifactType.CONFIG_IMAGE, "picture of settings")
+```
+
+Optionally, an override to the screenshot function can optionally be provided if the `mss` library is not sufficient.
+
+```python
+def my_screenshot_function(filename: str) -> None:
+    # Take the screenshot here using the filename
+    pass
+
+am.take_screenshot("something.png", ArtifactType.CONFIG_IMAGE, "a picture taken with my function", my_screenshot_function)
 ```
 
 Once all desired artifacts have been captured, create an artifact manifest with `ArtifactManager.create_manifest`.
 
 ```python
-
 am.create_manifest()
 ```
 
@@ -50,14 +59,17 @@ Given the configuration and artifacts captured in the above code snippets, the r
 
 ```yaml
 - filename: config.ini
-  type: text_config
+  type: config_text
   description: a config file
 - filename: results.txt
-  type: text_results
+  type: results_text
   description: some results
 - filename: cool_picture.png
-  type: image_config
+  type: config_image
   description: picture of settings
+- filename: something.png
+  type: config_image
+  description: a picture taken with my function
 ```
 
 ## Keras Service
