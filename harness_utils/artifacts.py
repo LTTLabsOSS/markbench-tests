@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from enum import Enum, unique
 from shutil import copy
 from pathlib import Path
+from collections.abc import Callable
 
 
 @unique
@@ -92,7 +93,12 @@ class ArtifactManager:
         except OSError as e:
             raise e
 
-    def take_screenshot(self, filename: str | os.PathLike, artifact_type: ArtifactType, description=""):
+    def take_screenshot(
+            self,
+            filename: str,
+            artifact_type: ArtifactType,
+            description="",
+            screenshot_override: Callable[[str | os.PathLike], None] | None = None):
         """
         Takes a screenshot and saves it to the manager's `output_path` with the given `filename`
         and adds a new Artifact to the manager's artifact list.
@@ -104,8 +110,12 @@ class ArtifactManager:
         """
         if artifact_type not in _IMAGE_ARTIFACT_TYPES:
             raise ValueError("artifact_type should be a type that represents an image artifact")
-        with mss.mss() as sct:
-            sct.shot(output=str(self.output_path / filename))
+
+        if screenshot_override is None:
+            with mss.mss() as sct:
+                sct.shot(output=str(self.output_path / filename))
+        else:
+            screenshot_override(self.output_path / filename)
         artifact = Artifact(filename, artifact_type, description)
         self.artifacts.append(artifact)
 
