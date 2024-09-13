@@ -1,5 +1,7 @@
 """Utility functions for Shadow of the Tomb Raider test script"""
 from argparse import ArgumentParser
+import os
+from pathlib import Path
 import winreg
 
 
@@ -31,3 +33,22 @@ def get_args() -> any:
     parser.add_argument("--kerasPort", dest="keras_port",
                         help="Port for Keras OCR service", required=True)
     return parser.parse_args()
+
+
+def get_latest_file_report(directory: Path):
+    """
+    get latest benchmark report from SOTTR documents directory
+    """
+    # Get list of all items in the directory with full paths
+    entries = (os.path.join(directory, fn) for fn in os.listdir(directory))
+    # Filter out directories, keep only files
+    files = [
+        file for file in entries
+        if os.path.isfile(file) and not file.endswith('.log')
+    ]
+    if not files:
+        return None  # No files found
+    # Get the file with the latest modification time
+    latest_file = max(files, key=os.path.getmtime)
+    return latest_file
+    

@@ -5,7 +5,7 @@ from pathlib import Path
 import time
 import pydirectinput as user
 import sys
-from shadow_of_the_tomb_raider_utils import get_resolution, get_args
+from shadow_of_the_tomb_raider_utils import get_latest_file_report, get_resolution, get_args
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
@@ -52,7 +52,7 @@ def run_benchmark():
     start_game()
 
     args = get_args()
-    kerasService = KerasService(args.keras_host, args.keras_port, str(LOG_DIR.joinpath("screenshot.jpg")))
+    kerasService = KerasService(args.keras_host, args.keras_port, LOG_DIR.joinpath("screenshot.jpg"))
     am = ArtifactManager(LOG_DIR)
 
     if kerasService.wait_for_word(word="options", timeout=30, interval=1) is None:
@@ -71,7 +71,6 @@ def run_benchmark():
     if kerasService.wait_for_word(word="graphics", timeout=30, interval=1) is None:
         logging.info("Did not find the graphics menu. Did the menu get stuck?")
         sys.exit(1)
-    am.take_screenshot("graphics.png", ArtifactType.CONFIG_IMAGE, "picture of settings")
 
     user.press("down")
     time.sleep(0.2)
@@ -85,6 +84,8 @@ def run_benchmark():
     if kerasService.wait_for_word(word="benchmark", timeout=30, interval=1) is None:
         logging.info("Did not find the benchmark option on the screen. Did the menu get stuck?")
         sys.exit(1)
+
+    am.take_screenshot("graphics.png", ArtifactType.CONFIG_IMAGE, "picture of settings")
 
     user.press("r")
     elapsed_setup_time = round(time.time() - setup_start_time, 2)
@@ -115,6 +116,12 @@ def run_benchmark():
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+
+    username = os.getlogin()
+    game_document_dir = Path(f"C:\\Users\\{username}\\Documents\\Shadow of the Tomb Raider")
+    game_log = game_document_dir.joinpath("Shadow of the Tomb Raider.log")
+    am.copy_file(Path(game_log), ArtifactType.RESULTS_TEXT, "game log")
+    am.copy_file(get_latest_file_report(game_document_dir), ArtifactType.RESULTS_TEXT, "benchmark result")
 
     terminate_processes(PROCESS_NAME)
     height, width = get_resolution()
