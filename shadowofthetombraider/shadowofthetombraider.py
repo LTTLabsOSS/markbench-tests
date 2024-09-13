@@ -131,6 +131,7 @@ def run_benchmark():
         "end_time": seconds_to_milliseconds(test_end_time)
     }
 
+    am.create_manifest()
     write_report_json(LOG_DIR, "report.json", report)
 
 
