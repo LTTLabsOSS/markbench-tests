@@ -1,0 +1,9 @@
+friendly_name: "Shadow of the Tomb Raider"
+executable: "shadowofthetombraider.py"
+process_name: "SOTTR.exe"
+output_dir: "run"
+options:
+  - name: kerasHost
+    type: input
+  - name: kerasPort
+    type: input

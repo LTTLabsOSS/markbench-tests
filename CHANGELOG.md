@@ -7,6 +7,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 ## 2024-09-13
 
 - Update godot compile harness with some path fixes.
+- Add back Shadow of The Tomb Raider harness that uses Keras.
 
 ## 2024-09-06
 
