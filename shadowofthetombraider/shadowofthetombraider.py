@@ -85,7 +85,14 @@ def run_benchmark():
         logging.info("Did not find the benchmark option on the screen. Did the menu get stuck?")
         sys.exit(1)
 
-    am.take_screenshot("graphics.png", ArtifactType.CONFIG_IMAGE, "picture of settings")
+    am.take_screenshot("display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings")
+
+    # press up until we have DISPLAY hilighted so we can flip to the graphics tab
+    for i in range(21):
+        user.press("up")
+        time.sleep(0.2)
+
+    user.press("right")
 
     user.press("r")
     elapsed_setup_time = round(time.time() - setup_start_time, 2)
