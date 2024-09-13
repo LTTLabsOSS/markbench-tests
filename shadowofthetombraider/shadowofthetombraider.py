@@ -3,7 +3,6 @@ import logging
 import os
 from pathlib import Path
 import time
-import pyautogui as gui
 import pydirectinput as user
 import sys
 from shadow_of_the_tomb_raider_utils import get_resolution, get_args
@@ -53,7 +52,7 @@ def run_benchmark():
     start_game()
 
     args = get_args()
-    kerasService = KerasService(args.keras_host, args.keras_port, LOG_DIR.joinpath("screenshot.jpg"))
+    kerasService = KerasService(args.keras_host, args.keras_port, str(LOG_DIR.joinpath("screenshot.jpg")))
     am = ArtifactManager(LOG_DIR)
 
     if kerasService.wait_for_word(word="options", timeout=30, interval=1) is None:

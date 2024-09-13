@@ -1,6 +1,7 @@
 """Allows accessing Keras Service if available."""
 import json
 import logging
+import os
 import time
 import mss
 import cv2
@@ -18,7 +19,7 @@ class KerasService():
             self,
             ip_addr: str,
             port: int | str,
-            screenshot_path: str,
+            screenshot_path: str | os.PathLike,
             timeout: float = DEFAULT_TIMEOUT) -> None:
         self.ip_addr = ip_addr
         self.port = str(port)
@@ -31,7 +32,7 @@ class KerasService():
             monitor_1 = sct.monitors[1]  # Identify the display to capture
             screen = np.array(sct.grab(monitor_1))
             screen = cv2.cvtColor(screen, cv2.COLOR_RGB2GRAY)
-            cv2.imwrite(self.screenshot_path, screen)
+            cv2.imwrite(str(self.screenshot_path), screen)
 
     def _query_service(self, word: str, report_file: any) -> any:
         try:
