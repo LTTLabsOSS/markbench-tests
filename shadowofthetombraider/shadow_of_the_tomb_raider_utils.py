@@ -44,7 +44,7 @@ def get_latest_file_report(directory: Path):
     # Filter out directories, keep only files
     files = [
         file for file in entries
-        if os.path.isfile(file) and not file.endswith('.log')
+        if os.path.isfile(file) and not file.endswith('.log') and "frametimes" not in file
     ]
     if not files:
         return None  # No files found
