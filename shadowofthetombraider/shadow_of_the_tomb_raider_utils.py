@@ -14,7 +14,7 @@ def get_reg(name) -> any:
         value, _ = winreg.QueryValueEx(registry_key, name)
         winreg.CloseKey(registry_key)
         return value
-    except WindowsError:
+    except Exception:
         return None
 
 

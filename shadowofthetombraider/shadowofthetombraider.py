@@ -52,10 +52,10 @@ def run_benchmark():
     start_game()
 
     args = get_args()
-    kerasService = KerasService(args.keras_host, args.keras_port, LOG_DIR.joinpath("screenshot.jpg"))
+    keras_service = KerasService(args.keras_host, args.keras_port, LOG_DIR.joinpath("screenshot.jpg"))
     am = ArtifactManager(LOG_DIR)
 
-    if kerasService.wait_for_word(word="options", timeout=30, interval=1) is None:
+    if keras_service.wait_for_word(word="options", timeout=30, interval=1) is None:
         logging.info("Did not find the options menu. Did the game launch correctly?")
         sys.exit(1)
 
@@ -68,7 +68,7 @@ def run_benchmark():
     user.press("enter")
     time.sleep(1)
 
-    if kerasService.wait_for_word(word="graphics", timeout=30, interval=1) is None:
+    if keras_service.wait_for_word(word="graphics", timeout=30, interval=1) is None:
         logging.info("Did not find the graphics menu. Did the menu get stuck?")
         sys.exit(1)
 
@@ -81,14 +81,14 @@ def run_benchmark():
     user.press("enter")
     time.sleep(1)
 
-    if kerasService.wait_for_word(word="benchmark", timeout=30, interval=1) is None:
+    if keras_service.wait_for_word(word="benchmark", timeout=30, interval=1) is None:
         logging.info("Did not find the benchmark option on the screen. Did the menu get stuck?")
         sys.exit(1)
 
     am.take_screenshot("display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings")
 
     # press up until we have DISPLAY hilighted so we can flip to the graphics tab
-    for i in range(21):
+    for _ in range(21):
         user.press("up")
         time.sleep(0.2)
 
@@ -104,21 +104,21 @@ def run_benchmark():
 
     # Wait for benchmark to complete
     time.sleep(180)
-    
+
     test_end_time = time.time()
 
-    result = kerasService.wait_for_word(word="tomb", timeout=10, interval=0.1)
+    result = keras_service.wait_for_word(word="tomb", timeout=10, interval=0.1)
     if result is None:
         logging.error("Unable to find the loading screen. Using default end time value.")
     else:
         test_end_time = time.time()
-    
-    if kerasService.wait_for_word(word="results", timeout=20, interval=1) is None:
+
+    if keras_service.wait_for_word(word="results", timeout=20, interval=1) is None:
         logging.error("Results screen after running benchmark not found, exiting.")
         sys.exit(1)
 
     logging.info("Run completed. Closing game.")
-    
+
     time.sleep(2)
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
