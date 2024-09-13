@@ -61,7 +61,7 @@ def install_miniconda() -> str:
     try:
         output = subprocess.check_output(command, stderr=subprocess.PIPE, text=True)
     except Exception as err:
-        raise Exception("could not install miniconda using command %s" % " ".join(command)) from err
+        raise Exception(f"could not install miniconda using command {" ".join(command)}") from err
     return output
 
 
