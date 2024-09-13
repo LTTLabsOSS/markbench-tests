@@ -93,6 +93,7 @@ def run_benchmark():
         time.sleep(0.2)
 
     user.press("right")
+    am.take_screenshot("graphics.png", ArtifactType.CONFIG_IMAGE, "picture of graphics settings")
 
     user.press("r")
     elapsed_setup_time = round(time.time() - setup_start_time, 2)
