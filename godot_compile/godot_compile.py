@@ -92,5 +92,5 @@ if __name__ == "__main__":
         main()
     except Exception as ex:
         logging.error("error running benchmark")
-        logging.error(ex)
+        logging.exception(ex)
         sys.exit(1)
