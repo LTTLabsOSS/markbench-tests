@@ -139,8 +139,8 @@ def run_benchmark(keras_service):
     return test_start_time, test_end_time
 
 
-
-try:
+def main():
+    """entry point"""
     args = get_args()
     keras_service = KerasService(args.keras_host, args.keras_port, LOG_DIR.joinpath("screenshot.jpg"))
     start_time, end_time = run_benchmark(keras_service)
@@ -155,14 +155,11 @@ try:
     }
 
     write_report_json(LOG_DIR, "report.json", report)
-except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
-    terminate_processes(PROCESS_NAME)
-    sys.exit(1)
+
 
 if __name__ == "__main__":
     try:
+        main()
         setup_logging()
         run_benchmark()
     except Exception as ex:
