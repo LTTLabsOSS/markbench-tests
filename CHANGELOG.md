@@ -7,6 +7,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 ## 2024-9-20
 
 - Add Grid Legends test harness.
+- Add Total War: Pharaoh harness.
 
 ## 2024-09-13
 
