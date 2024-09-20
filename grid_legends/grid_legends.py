@@ -159,9 +159,8 @@ def main():
 
 if __name__ == "__main__":
     try:
-        main()
         setup_logging()
-        run_benchmark()
+        main()
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")
         logging.exception(ex)
