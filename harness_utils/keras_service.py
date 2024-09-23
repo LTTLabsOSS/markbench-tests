@@ -153,7 +153,7 @@ class KerasService():
         empty_config = ScreenSplitConfig(divide_method=ScreenShotDivideMethod.NONE, quadrant=ScreenShotQuadrant.TOP)
         return self._look_for_word(word, attempts, interval, empty_config)
 
-    def look_for_word(self, word: str, attempts: int = 1, interval: float = 0.0, split_config: ScreenSplitConfig = None) -> bool:
+    def look_for_word_split(self, word: str, attempts: int = 1, interval: float = 0.0, split_config: ScreenSplitConfig = None) -> bool:
         """Overload for look_for_word but allows for screen splitting
         which will look for a word in only part of the screen
         """
@@ -184,7 +184,7 @@ class KerasService():
         empty_config = ScreenSplitConfig(divide_method=ScreenShotDivideMethod.NONE, quadrant=ScreenShotQuadrant.TOP)
         return self._wait_for_word(word, interval, timeout, empty_config)
 
-    def wait_for_word(self, word: str, interval: float = 0.0, timeout: float = 0.0, split_config: ScreenSplitConfig = None) -> bool:
+    def wait_for_word_split(self, word: str, interval: float = 0.0, timeout: float = 0.0, split_config: ScreenSplitConfig = None) -> bool:
         """Overload for wait_for_word but allows for screen splitting
         which will look for a word in only part of the screen
         """
