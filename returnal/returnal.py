@@ -156,8 +156,7 @@ console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
 args = get_args()
-kerasService = KerasService(
-    args.keras_host, args.keras_port, os.path.join(LOG_DIRECTORY, "screenshot.jpg"))
+kerasService = KerasService(args.keras_host, args.keras_port)
 
 try:
     start_time, end_time = run_benchmark()

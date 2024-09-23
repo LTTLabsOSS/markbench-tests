@@ -125,8 +125,7 @@ def main():
                         help="Port for Keras OCR service", required=True)
     args = parser.parse_args()
 
-    keras_service = KerasService(args.keras_host, args.keras_port, os.path.join(
-        LOG_DIR, "screenshot.jpg"))
+    keras_service = KerasService(args.keras_host, args.keras_port)
 
     start_time, end_time = run_benchmark(keras_service)
 

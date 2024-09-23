@@ -52,7 +52,7 @@ def run_benchmark():
     start_game()
 
     args = get_args()
-    keras_service = KerasService(args.keras_host, args.keras_port, LOG_DIR.joinpath("screenshot.jpg"))
+    keras_service = KerasService(args.keras_host, args.keras_port)
     am = ArtifactManager(LOG_DIR)
 
     if keras_service.wait_for_word(word="options", timeout=30, interval=1) is None:
