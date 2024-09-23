@@ -68,11 +68,14 @@ class KerasService():
             screenshot = cv2.cvtColor(screenshot, cv2.COLOR_RGB2GRAY)
 
         if split_config.divide_method == ScreenShotDivideMethod.HORIZONTAL:
-            screenshot = self._divide_horizontal(screenshot, split_config.quadrant)
+            screenshot = self._divide_horizontal(
+                screenshot, split_config.quadrant)
         elif split_config.divide_method == ScreenShotDivideMethod.VERTICAL:
-            screenshot = self._divide_vertical(screenshot, split_config.quadrant)
+            screenshot = self._divide_vertical(
+                screenshot, split_config.quadrant)
         elif split_config.divide_method == ScreenShotDivideMethod.QUADRANT:
-            screenshot = self._divide_in_four(screenshot, split_config.quadrant)
+            screenshot = self._divide_in_four(
+                screenshot, split_config.quadrant)
 
         _, encoded_image = cv2.imencode('.jpg', screenshot)
         return io.BytesIO(encoded_image)
@@ -114,7 +117,7 @@ class KerasService():
         if quadrant == quadrant.RIGHT:
             return screenshot[:, int(width/2):int(width)]
         raise FrameDivideException(
-                f"Unrecognized quadrant for vertical: {quadrant}")
+            f"Unrecognized quadrant for vertical: {quadrant}")
 
     def _divide_in_four(self, screenshot, quadrant: ScreenShotQuadrant):
         """divide the screenshot in four quadrants"""
@@ -130,12 +133,13 @@ class KerasService():
         raise FrameDivideException(
             f"Unrecognized quadrant for in four: {quadrant}")
 
-    def _look_for_word(
-            self, word: str,
-            attempts: int = 1,
-            interval: float = 0.0,
-            split_config: ScreenSplitConfig = None) -> bool:
-        """implementation of look for word"""
+    def look_for_word(self, word: str, attempts: int = 1, interval: float = 0.0, split_config: ScreenSplitConfig = None) -> bool:
+        """Overload for look_for_word but allows for screen splitting
+        which will look for a word in only part of the screen
+        """
+        if split_config is None:
+            split_config = ScreenSplitConfig(
+                divide_method=ScreenShotDivideMethod.NONE, quadrant=ScreenShotQuadrant.TOP)
         for _ in range(attempts):
             image_bytes = self._capture_screenshot(split_config)
             result = self._query_service(word, image_bytes)
@@ -144,28 +148,15 @@ class KerasService():
             time.sleep(interval)
         return None
 
-    def look_for_word(self, word: str, attempts: int = 1, interval: float = 0.0) -> bool:
+    def wait_for_word(self, word: str, interval: float = 0.0, timeout: float = 0.0, split_config: ScreenSplitConfig = None) -> bool:
         """Takes a screenshot of the monitor and searches for a given word.
-        Will look for the word at a given time interval until the specified number
-        of attempts is reached.
+        Will look for the word at a given time interval until the specified timeout
+        has been exceeded.
         Will return early if the query result comes back with a match.
         """
-        empty_config = ScreenSplitConfig(divide_method=ScreenShotDivideMethod.NONE, quadrant=ScreenShotQuadrant.TOP)
-        return self._look_for_word(word, attempts, interval, empty_config)
-
-    def look_for_word_split(self, word: str, attempts: int = 1, interval: float = 0.0, split_config: ScreenSplitConfig = None) -> bool:
-        """Overload for look_for_word but allows for screen splitting
-        which will look for a word in only part of the screen
-        """
-        return self._look_for_word(word, attempts, interval, split_config)
-
-    def _wait_for_word(
-            self,
-            word: str,
-            interval: float,
-            timeout: float,
-            split_config: ScreenSplitConfig) -> bool:
-        """implementation of wait for word"""
+        if split_config is None:
+            split_config = ScreenSplitConfig(
+                divide_method=ScreenShotDivideMethod.NONE, quadrant=ScreenShotQuadrant.TOP)
         search_start_time = time.time()
         while time.time() - search_start_time < timeout:
             image_bytes = self._capture_screenshot(split_config)
@@ -174,18 +165,3 @@ class KerasService():
                 return result
             time.sleep(interval)
         return None
-
-    def wait_for_word(self, word: str, interval: float = 0.0, timeout: float = 0.0) -> bool:
-        """Takes a screenshot of the monitor and searches for a given word.
-        Will look for the word at a given time interval until the specified timeout
-        has been exceeded.
-        Will return early if the query result comes back with a match.
-        """
-        empty_config = ScreenSplitConfig(divide_method=ScreenShotDivideMethod.NONE, quadrant=ScreenShotQuadrant.TOP)
-        return self._wait_for_word(word, interval, timeout, empty_config)
-
-    def wait_for_word_split(self, word: str, interval: float = 0.0, timeout: float = 0.0, split_config: ScreenSplitConfig = None) -> bool:
-        """Overload for wait_for_word but allows for screen splitting
-        which will look for a word in only part of the screen
-        """
-        return self._wait_for_word(word, interval, timeout, split_config)
