@@ -68,13 +68,11 @@ class KerasService():
             screenshot = cv2.cvtColor(screenshot, cv2.COLOR_RGB2GRAY)
 
         if split_config.divide_method == ScreenShotDivideMethod.HORIZONTAL:
-            screenshot = self._divide_horizontal(screenshot)
+            screenshot = self._divide_horizontal(screenshot, split_config.quadrant)
         elif split_config.divide_method == ScreenShotDivideMethod.VERTICAL:
-            screenshot = self._divide_vertical(screenshot)
+            screenshot = self._divide_vertical(screenshot, split_config.quadrant)
         elif split_config.divide_method == ScreenShotDivideMethod.QUADRANT:
-            screenshot = self._divide_in_four(screenshot)
-        elif split_config.divide_method == ScreenShotDivideMethod.NONE:
-            screenshot = screenshot
+            screenshot = self._divide_in_four(screenshot, split_config.quadrant)
 
         _, encoded_image = cv2.imencode('.jpg', screenshot)
         return io.BytesIO(encoded_image)
@@ -103,7 +101,7 @@ class KerasService():
         height, _, _ = screenshot.shape
         if quadrant == ScreenShotQuadrant.TOP:
             return screenshot[0:int(height/2), :]
-        elif quadrant == ScreenShotQuadrant.BOTTOM:
+        if quadrant == ScreenShotQuadrant.BOTTOM:
             return screenshot[int(height/2):int(height), :]
         else:
             raise FrameDivideException(
@@ -114,7 +112,7 @@ class KerasService():
         _, width, _ = screenshot.shape
         if quadrant == quadrant.LEFT:
             return screenshot[:, 0:int(width/2)]
-        elif quadrant == quadrant.RIGHT:
+        if quadrant == quadrant.RIGHT:
             return screenshot[:, int(width/2):int(width)]
         else:
             raise FrameDivideException(
