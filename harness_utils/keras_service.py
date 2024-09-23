@@ -18,10 +18,10 @@ DEFAULT_TIMEOUT = 120.0
 
 class ScreenShotDivideMethod(Enum):
     """split method"""
-    horizontal = "horizontal"
-    vertical = "vertical"
-    quadrant = "quadrant"
-    none = "none"
+    HORIZONTAL = "horizontal"
+    VERTICAL = "vertical"
+    QUADRANT = "quadrant"
+    NONE = "none"
 
 
 class ScreenShotQuadrant(Enum):
@@ -67,13 +67,13 @@ class KerasService():
             screenshot = np.array(sct.grab(monitor_1))
             screenshot = cv2.cvtColor(screenshot, cv2.COLOR_RGB2GRAY)
 
-        if split_config.divide_method == ScreenShotDivideMethod.horizontal:
+        if split_config.divide_method == ScreenShotDivideMethod.HORIZONTAL:
             screenshot = self._divide_horizontal(screenshot)
-        elif split_config.divide_method == ScreenShotDivideMethod.vertical:
+        elif split_config.divide_method == ScreenShotDivideMethod.VERTICAL:
             screenshot = self._divide_vertical(screenshot)
-        elif split_config.divide_method == ScreenShotDivideMethod.quadrant:
+        elif split_config.divide_method == ScreenShotDivideMethod.QUADRANT:
             screenshot = self._divide_in_four(screenshot)
-        elif split_config.divide_method == ScreenShotDivideMethod.none:
+        elif split_config.divide_method == ScreenShotDivideMethod.NONE:
             screenshot = screenshot
 
         _, encoded_image = cv2.imencode('.jpg', screenshot)
@@ -107,33 +107,33 @@ class KerasService():
             return screenshot[int(height/2):int(height), :]
         else:
             raise FrameDivideException(
-                f"Unrecognized quadrant for horizontal: {self.quadrant}")
+                f"Unrecognized quadrant for horizontal: {quadrant}")
 
     def _divide_vertical(self, screenshot, quadrant: ScreenShotQuadrant):
         """divide the screenshot vertically"""
         _, width, _ = screenshot.shape
-        if self.quadrant == quadrant.LEFT:
+        if quadrant == quadrant.LEFT:
             return screenshot[:, 0:int(width/2)]
-        elif self.quadrant == quadrant.RIGHT:
+        elif quadrant == quadrant.RIGHT:
             return screenshot[:, int(width/2):int(width)]
         else:
             raise FrameDivideException(
-                f"Unrecognized quadrant for vertical: {self.quadrant}")
+                f"Unrecognized quadrant for vertical: {quadrant}")
 
     def _divide_in_four(self, screenshot, quadrant: ScreenShotQuadrant):
         """divide the screenshot in four quadrants"""
         height, width, _ = screenshot.shape
-        if self.quadrant == ScreenShotQuadrant.TOP_LEFT:
+        if quadrant == ScreenShotQuadrant.TOP_LEFT:
             return screenshot[0:int(height/2), 0:int(width/2)]
-        elif self.quadrant == ScreenShotQuadrant.TOP_RIGHT:
+        elif quadrant == ScreenShotQuadrant.TOP_RIGHT:
             return screenshot[0:int(height/2), int(width/2):int(width)]
-        elif self.quadrant == ScreenShotQuadrant.BOTTOM_LEFT:
+        elif quadrant == ScreenShotQuadrant.BOTTOM_LEFT:
             return screenshot[int(height/2):int(height), 0:int(width/2)]
-        elif self.quadrant == ScreenShotQuadrant.BOTTOM_RIGHT:
+        elif quadrant == ScreenShotQuadrant.BOTTOM_RIGHT:
             return screenshot[int(height/2):int(height), int(width/2):int(width)]
         else:
             raise FrameDivideException(
-                f"Unrecognized quadrant for in four: {self.quadrant}")
+                f"Unrecognized quadrant for in four: {quadrant}")
 
     def _look_for_word(
             self, word: str,
@@ -155,7 +155,7 @@ class KerasService():
         of attempts is reached.
         Will return early if the query result comes back with a match.
         """
-        return self._look_for_word(word, attempts, interval, ScreenSplitConfig(divide_method=ScreenShotDivideMethod.none))
+        return self._look_for_word(word, attempts, interval, ScreenSplitConfig(divide_method=ScreenShotDivideMethod.NONE))
 
     def look_for_word(self, word: str, attempts: int = 1, interval: float = 0.0, split_config: ScreenSplitConfig = None) -> bool:
         """Overload for look_for_word but allows for screen splitting
@@ -185,7 +185,7 @@ class KerasService():
         has been exceeded.
         Will return early if the query result comes back with a match.
         """
-        return self._wait_for_word(word, interval, timeout, ScreenSplitConfig(divide_method=ScreenShotDivideMethod.none))
+        return self._wait_for_word(word, interval, timeout, ScreenSplitConfig(divide_method=ScreenShotDivideMethod.NONE))
 
     def wait_for_word(self, word: str, interval: float = 0.0, timeout: float = 0.0, split_config: ScreenSplitConfig = None) -> bool:
         """Overload for wait_for_word but allows for screen splitting
