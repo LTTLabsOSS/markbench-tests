@@ -75,7 +75,6 @@ def copy_launcherpath():
         if os.path.exists(dest_path) is True:
             try:
                 file_path = os.path.join(LAUNCHCONFIG_LOCATION, launcherpath)
-                os.chmod(file_path, stat.S_IWRITE)
                 os.remove(file_path)
                 logging.info("Removing old launcher file from %s", LAUNCHCONFIG_LOCATION)
             except OSError as e:
@@ -84,7 +83,7 @@ def copy_launcherpath():
         with open(f"{src_path}", "w", encoding="utf-8") as f:
             f.write(f"{INSTALL_LOCATION}")
         shutil.copy(src_path, dest_path)
-        os.chmod(dest_path, stat.S_IREAD)
+        #os.chmod(dest_path, stat.S_IREAD)
     except OSError as err:
         logging.error("Could not copy the launcherpath file. %s", e)
         raise err
