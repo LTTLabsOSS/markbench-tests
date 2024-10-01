@@ -21,6 +21,8 @@ from harness_utils.output import (
 )
 from harness_utils.steam import exec_steam_game
 from harness_utils.keras_service import KerasService
+from harness_utils.artifacts import ArtifactManager, ArtifactType
+
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
@@ -39,6 +41,11 @@ config_files = [
     "continue_game.json",
     "UserState.coc"
 ]
+
+APPDATA = os.getenv("APPDATA")
+CONFIG_LOCATION = Path(f"{APPDATA}\\..\\LocalLow\\Colossal Order\\Cities Skylines II")
+CONFIG_FILENAME = "launcher-settings.json"
+cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
 
 user.FAILSAFE = False
 
@@ -72,6 +79,9 @@ def run_benchmark(keras_service):
     copy_launcherpath()
     copy_benchmarksave(save_files)
     copy_continuegame(config_files)
+
+    am = ArtifactManager(LOG_DIR)
+
     start_game()
     setup_start_time = time.time()
     time.sleep(14)
@@ -96,6 +106,7 @@ def run_benchmark(keras_service):
     user.press("3")
     time.sleep(2)
 
+    # TODO: switch back to 180 after testing 
     test_start_time = time.time()
     time.sleep(180)
 
@@ -109,6 +120,63 @@ def run_benchmark(keras_service):
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
+
+    # Open quick menu
+    user.press("esc")
+    time.sleep(0.2)
+
+    result = keras_service.look_for_word("options", attempts=10, interval=1)
+    if not result:
+        logging.info("Did not find the options menu. Did the game open the quick dialog menu properly?")
+        sys.exit(1)
+
+    # Navigate to options menu
+    gui.moveTo(result["x"], result["y"])
+    time.sleep(0.2)
+    gui.click()
+    time.sleep(0.2)
+
+    am.take_screenshot("general.png", ArtifactType.CONFIG_IMAGE, "general settings menu")
+
+    result = keras_service.look_for_word("graphics", attempts=10, interval=1)
+    if not result:
+        logging.info("Did not find the graphics menu. Did the game navigate to the general settings correctly?")
+        sys.exit(1)
+
+    # Navigate to graphics menu
+    gui.moveTo(result["x"], result["y"])
+    time.sleep(0.2)
+    gui.click()
+    time.sleep(0.2)  
+
+    am.take_screenshot("graphics_1.png", ArtifactType.CONFIG_IMAGE, "first picture of graphics settings menu")
+
+    result = keras_service.look_for_word("window", attempts=10, interval=1)
+    if not result:
+        logging.info("Did not find the keyword 'window' in graphics menu. Did the game navigate to the graphics menu correctly?")
+        sys.exit(1)
+
+    gui.moveTo(result["x"], result["y"])
+    time.sleep(0.2)
+
+    for i in range (8):
+        gui.scroll(-400)
+        time.sleep(0.2)
+
+    if keras_service.wait_for_word(word="water", timeout=30, interval=1) is None:
+        logging.info("Did not find the keyword 'water' in menu. Did the game scroll correctly?")
+        sys.exit(1)
+    am.take_screenshot("graphics_2.png", ArtifactType.CONFIG_IMAGE, "second picture of graphics settings menu")
+
+    for i in range (8):
+        gui.scroll(-400)
+        time.sleep(0.2)
+    
+    if keras_service.wait_for_word(word="texture", timeout=30, interval=1) is None:
+        logging.info("Did not find the keyword 'texture' in menu. Did the game scroll correctly?")
+        sys.exit(1)
+    am.take_screenshot("graphics_3.png", ArtifactType.CONFIG_IMAGE, "third picture of graphics settings menu")
+    am.copy_file(cfg, ArtifactType.CONFIG_TEXT, "config file")
 
     # Exit
     terminate_processes(PROCESS_NAME)
