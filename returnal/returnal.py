@@ -24,6 +24,7 @@ from harness_utils.steam import (
   exec_steam_run_command,
   get_steamapps_common_path,
 )
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 STEAM_GAME_ID = 1649240
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -90,6 +91,7 @@ def run_benchmark() -> tuple[float]:
     logging.info("Starting game")
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = time.time()
+    am = ArtifactManager(LOG_DIRECTORY)
 
     time.sleep(10)
 
@@ -105,8 +107,63 @@ def run_benchmark() -> tuple[float]:
         logging.info("Could not find prompt to open menu!")
         sys.exit(1)
 
-    # Navigate to in-game benchmark and start it
-    navigate_options_menu()
+    # Navigate to display menu
+    user.press("esc")
+    time.sleep(1)
+    user.press("enter")
+    time.sleep(1)
+    user.press("q")
+    time.sleep(1)
+    user.press("q")
+    time.sleep(1)
+    
+    if kerasService.wait_for_word(word="aspect", timeout=30, interval=1) is None:
+        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        sys.exit(1)
+    am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings")
+
+    # Navigate to graphics menu
+    user.press("e")
+    time.sleep(1)
+
+    if kerasService.wait_for_word(word="vsync", timeout=30, interval=1) is None:
+        logging.info("Did not find the graphics settings menu. Did the menu get stuck?")
+        sys.exit(1)
+    am.take_screenshot("graphics_1.png", ArtifactType.CONFIG_IMAGE, "first picture of graphics settings")
+
+    # We check for a keyword that indicates DLSS is active because this changes how we navigate the menu
+    if kerasService.wait_for_word(word="sharpness", timeout=10, interval=1) is None:
+        logging.info("No DLSS Settings Detected")
+        # Scroll down graphics menu
+        for i in range(15):
+            user.press("down")
+            time.sleep(0.2)
+    else:
+        logging.info("DLSS Settings Detected")
+        # Scroll down graphics menu
+        for i in range(17):
+            user.press("down")
+            time.sleep(0.2)
+
+    if kerasService.wait_for_word(word="volumetric", timeout=30, interval=1) is None:
+        logging.info("Did not find the keyword 'volumetric'. Did the the menu scroll correctly?")
+        sys.exit(1)
+    am.take_screenshot("graphics_2.png", ArtifactType.CONFIG_IMAGE, "second picture of graphics settings")
+
+    # Scroll down graphics menu
+    for i in range(15):
+        user.press("down")
+        time.sleep(0.2)
+
+    if kerasService.wait_for_word(word="hdr", timeout=30, interval=1) is None:
+        logging.info("Did not find the keyword 'hdr'. Did the the menu scroll correctly?")
+        sys.exit(1)
+    am.take_screenshot("graphics_3.png", ArtifactType.CONFIG_IMAGE, "third picture of graphics settings")
+
+    # Launch the benchmark
+    user.keyDown("tab")
+    time.sleep(5)
+    user.keyUp("tab")
 
     setup_end_time = time.time()
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
@@ -136,6 +193,11 @@ def run_benchmark() -> tuple[float]:
         logging.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?")
         sys.exit(1)
+    
+    # Give results screen time to fill out, then save screenshot and config file 
+    time.sleep(2)
+    am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "screenshot of benchmark result")
+    am.copy_file(LOCAL_USER_SETTINGS, ArtifactType.CONFIG_TEXT, "config file")
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %s seconds", elapsed_test_time)
