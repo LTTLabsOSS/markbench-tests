@@ -45,7 +45,7 @@ config_files = [
 APPDATA = os.getenv("APPDATA")
 CONFIG_LOCATION = Path(f"{APPDATA}\\..\\LocalLow\\Colossal Order\\Cities Skylines II")
 CONFIG_FILENAME = "launcher-settings.json"
-cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
+CONFIG_FULL_PATH = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
 
 user.FAILSAFE = False
 
@@ -106,7 +106,7 @@ def run_benchmark(keras_service):
     user.press("3")
     time.sleep(2)
 
-    # TODO: switch back to 180 after testing 
+    # TODO: switch back to 180 after testing
     test_start_time = time.time()
     time.sleep(180)
 
@@ -147,7 +147,7 @@ def run_benchmark(keras_service):
     gui.moveTo(result["x"], result["y"])
     time.sleep(0.2)
     gui.click()
-    time.sleep(0.2)  
+    time.sleep(0.2)
 
     am.take_screenshot("graphics_1.png", ArtifactType.CONFIG_IMAGE, "first picture of graphics settings menu")
 
@@ -171,12 +171,13 @@ def run_benchmark(keras_service):
     for i in range (8):
         gui.scroll(-400)
         time.sleep(0.2)
-    
+
+   # verify that we scrolled through the menu correctly
     if keras_service.wait_for_word(word="texture", timeout=30, interval=1) is None:
         logging.info("Did not find the keyword 'texture' in menu. Did the game scroll correctly?")
         sys.exit(1)
     am.take_screenshot("graphics_3.png", ArtifactType.CONFIG_IMAGE, "third picture of graphics settings menu")
-    am.copy_file(cfg, ArtifactType.CONFIG_TEXT, "config file")
+    am.copy_file(CONFIG_FULL_PATH, ArtifactType.CONFIG_TEXT, "config file")
 
     # Exit
     terminate_processes(PROCESS_NAME)
