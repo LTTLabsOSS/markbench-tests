@@ -19,9 +19,10 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT
 )
-from harness_utils.steam import exec_steam_game
+from harness_utils.steam import exec_steam_game, get_build_id
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.misc import mouse_scroll_n_times
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -159,18 +160,14 @@ def run_benchmark(keras_service):
     gui.moveTo(result["x"], result["y"])
     time.sleep(0.2)
 
-    for i in range (8):
-        gui.scroll(-400)
-        time.sleep(0.2)
+    mouse_scroll_n_times(8, -400,  0.2)
 
     if keras_service.wait_for_word(word="water", timeout=30, interval=1) is None:
         logging.info("Did not find the keyword 'water' in menu. Did the game scroll correctly?")
         sys.exit(1)
     am.take_screenshot("graphics_2.png", ArtifactType.CONFIG_IMAGE, "second picture of graphics settings menu")
 
-    for i in range (8):
-        gui.scroll(-400)
-        time.sleep(0.2)
+    mouse_scroll_n_times(8, -400,  0.2)
 
    # verify that we scrolled through the menu correctly
     if keras_service.wait_for_word(word="texture", timeout=30, interval=1) is None:
@@ -199,7 +196,8 @@ def main():
     report = {
         "resolution": f"{resolution}",
         "start_time": seconds_to_milliseconds(test_start_time),
-        "end_time": seconds_to_milliseconds(test_end_time)
+        "end_time": seconds_to_milliseconds(test_end_time),
+        "version": get_build_id(STEAM_GAME_ID)
     }
 
     write_report_json(LOG_DIR, "report.json", report)
