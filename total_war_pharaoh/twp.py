@@ -21,7 +21,7 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT
 )
-from harness_utils.steam import get_app_install_location
+from harness_utils.steam import get_app_install_location, get_build_id
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.misc import mouse_scroll_n_times
@@ -227,7 +227,8 @@ def main():
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(endtime)
+        "end_time": seconds_to_milliseconds(endtime),
+        "version": get_build_id(STEAM_GAME_ID)
     }
 
     write_report_json(LOG_DIR, "report.json", report)
