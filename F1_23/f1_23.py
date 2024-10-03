@@ -12,7 +12,7 @@ sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
 from harness_utils.steam import exec_steam_run_command, get_app_install_location, get_build_id
 from harness_utils.keras_service import KerasService
-from harness_utils.misc import remove_files
+from harness_utils.misc import remove_files, press_n_times
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
     format_resolution,
@@ -54,12 +54,6 @@ def find_latest_result_file(base_path):
     latest_file = max(list_of_files, key=os.path.getmtime)
 
     return latest_file
-
-def press_n_times(button: str, n: int, pause: float):
-    """A helper function press the same button multiple times"""
-    for _ in range(n):
-        user.press(button)
-        time.sleep(pause)
 
 def find_settings() -> any:
     """Look for and enter settings"""
