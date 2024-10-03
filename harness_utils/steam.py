@@ -79,3 +79,21 @@ def exec_steam_game(game_id: int, steam_path=None, game_params=None) -> Popen:
     command = [steam_path, "-applaunch", str(game_id)] + game_params
     logging.info(", ".join(command))
     return Popen(command)
+
+def get_build_id(game_id: int) -> str:
+    """Gets the build ID of a game from the Steam installation directory"""
+    game_folder = Path(get_steamapps_common_path()) / f"../" / f"appmanifest_{game_id}.acf"
+    if not game_folder.exists():
+        logging.error("Game folder not found")
+        return None
+    
+    with open(game_folder, 'r') as file:
+        data = file.read()
+
+    buildid_match = re.search('"buildid"\s*"(\d+)"', data)
+    if buildid_match is not None:
+        return buildid_match.group(1)
+    else:
+        logging.error("No 'buildid' found in the file")
+        return None
+

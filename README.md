@@ -201,6 +201,8 @@ For detailed instructions on setting up this Keras Service locally, please refer
 
 > Please note that although a CUDA-capable GPU is not mandatory, it's worth mentioning that certain games may not function correctly due to slower response times when this hardware is absent.
 
+If Keras is taking images on the wrong monitor, the primary display can be modified by changing `monitor_1 = sct.monitors[2]  # Identify the display to capture` in `keras_sevice.py`
+
 ### Keyboard and Mouse Input
 
 For keyboard and mouse input, we employ two distinct methods. The first method involves using Virtual Key Codes (VKs) with the deprecated Win32 functions mouse_event() and keybd_event(). The second method utilizes Send Input. Specifically, [PyAutoGui](https://pyautogui.readthedocs.io/en/latest/) implements the first approach, while [PyDirectInput](https://pypi.org/project/PyDirectInput/) implements the second.
