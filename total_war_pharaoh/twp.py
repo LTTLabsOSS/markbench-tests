@@ -21,8 +21,10 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT
 )
-from harness_utils.steam import get_app_install_location
+from harness_utils.steam import get_app_install_location, get_build_id
 from harness_utils.keras_service import KerasService
+from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.misc import mouse_scroll_n_times
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
@@ -78,8 +80,10 @@ def skip_logo_screens() -> None:
 
 def run_benchmark(keras_service):
     """Starts the benchmark"""
+    cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
     start_game()
     setup_start_time = time.time()
+    am = ArtifactManager(LOG_DIR)
     time.sleep(5)
 
     result = keras_service.look_for_word("warning", attempts=10, interval=5)
@@ -100,6 +104,54 @@ def run_benchmark(keras_service):
     gui.mouseDown()
     time.sleep(0.2)
     gui.mouseUp()
+
+    if keras_service.wait_for_word(word="brightness", timeout=30, interval=1) is None:
+        logging.info("Did not find the main menu. Did Keras click correctly?")
+        sys.exit(1)
+
+    am.take_screenshot("main.png", ArtifactType.CONFIG_IMAGE, "screenshot of main settings menu")
+    time.sleep(0.5)
+
+    result = keras_service.look_for_word("advanced", attempts=10, interval=1)
+    if not result:
+        logging.info("Did not find the advanced options menu. Did the game navigate to options correctly?")
+        sys.exit(1)
+
+    gui.moveTo(result["x"], result["y"])
+    time.sleep(0.2)
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+
+    if keras_service.wait_for_word(word="water", timeout=30, interval=1) is None:
+        logging.info("Did not find the keyword 'water' in the menu. Did Keras navigate to the advanced menu correctly?")
+        sys.exit(1)
+
+    am.take_screenshot("advanced_1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of advanced settings menu")
+    time.sleep(0.5)
+
+    result = keras_service.look_for_word("water", attempts=10, interval=1)
+    if not result:
+        logging.info("Did not find the keyword 'water' in the menu. Did Keras navigate to the advanced menu correctly?")
+        sys.exit(1)
+    gui.moveTo(result["x"], result["y"])
+    time.sleep(1)
+
+    # Scroll to the middle of the advanced menu
+    mouse_scroll_n_times(15, -1, 0.1)
+    if keras_service.wait_for_word(word="heat", timeout=30, interval=1) is None:
+        logging.info("Did not find the keyword 'heat' in the menu. Did Keras scroll down the advanced menu far enough?")
+        sys.exit(1)
+    am.take_screenshot("advanced_2.png", ArtifactType.CONFIG_IMAGE, "second screenshot of advanced settings menu")
+    time.sleep(0.5)
+
+    # Scroll to the bottom of the advanced menu
+    mouse_scroll_n_times(15, -1, 0.1)
+    if keras_service.wait_for_word(word="bodies", timeout=30, interval=1) is None:
+        logging.info("Did not find the keyword 'bodies' in the menu. Did Keras scroll down the advanced menu far enough?")
+        sys.exit(1)
+    am.take_screenshot("advanced_3.png", ArtifactType.CONFIG_IMAGE, "third screenshot of advanced settings menu")
+    time.sleep(0.5)
 
     result = keras_service.look_for_word("bench", attempts=10, interval=1)
     if not result:
@@ -132,10 +184,12 @@ def run_benchmark(keras_service):
             "Results screen was not found! Did harness not wait long enough? Or test was too long?")
         sys.exit(1)
 
-    test_end_time = time.time() - 1
-
     # Wait 5 seconds for benchmark info
+    test_end_time = time.time() - 1
     time.sleep(5)
+    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    time.sleep(0.5)
+    am.copy_file(Path(cfg), ArtifactType.CONFIG_TEXT, "preferences.script.txt")
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
@@ -173,7 +227,8 @@ def main():
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(endtime)
+        "end_time": seconds_to_milliseconds(endtime),
+        "version": get_build_id(STEAM_GAME_ID)
     }
 
     write_report_json(LOG_DIR, "report.json", report)
