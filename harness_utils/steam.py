@@ -3,6 +3,7 @@ import logging
 import winreg
 from subprocess import Popen
 from pathlib import Path
+import re
 
 
 def get_run_game_id_command(game_id: int) -> str:
@@ -79,3 +80,17 @@ def exec_steam_game(game_id: int, steam_path=None, game_params=None) -> Popen:
     command = [steam_path, "-applaunch", str(game_id)] + game_params
     logging.info(", ".join(command))
     return Popen(command)
+
+def get_build_id(game_id: int) -> str:
+    """Gets the build ID of a game from the Steam installation directory"""
+    game_folder = Path(get_steamapps_common_path()) / "../" / f"appmanifest_{game_id}.acf"
+    if not game_folder.exists():
+        logging.error("Game folder not found")
+        return None
+    with open(game_folder, 'r', encoding='utf-8') as file:
+        data = file.read()
+    buildid_match = re.search(r'"buildid"\s*"(\d+)"', data)
+    if buildid_match is not None:
+        return buildid_match.group(1)
+    logging.error("No 'buildid' found in the file")
+    return None
