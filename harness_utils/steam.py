@@ -87,14 +87,12 @@ def get_build_id(game_id: int) -> str:
     if not game_folder.exists():
         logging.error("Game folder not found")
         return None
-    
     with open(game_folder, 'r') as file:
         data = file.read()
 
     buildid_match = re.search('"buildid"\s*"(\d+)"', data)
     if buildid_match is not None:
         return buildid_match.group(1)
-    else:
-        logging.error("No 'buildid' found in the file")
-        return None
-
+    
+    logging.error("No 'buildid' found in the file")
+    return None

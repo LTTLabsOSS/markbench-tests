@@ -201,7 +201,7 @@ For detailed instructions on setting up this Keras Service locally, please refer
 
 > Please note that although a CUDA-capable GPU is not mandatory, it's worth mentioning that certain games may not function correctly due to slower response times when this hardware is absent.
 
-If Keras is taking images on the wrong monitor, the primary display can be modified by changing `monitor_1 = sct.monitors[2]  # Identify the display to capture` in `keras_sevice.py`
+If Keras is taking images on the wrong monitor, the primary display can be modified by changing `monitor_1 = sct.monitors[2]  # Identify the display to capture` in `keras_service.py`
 
 ### Keyboard and Mouse Input
 
