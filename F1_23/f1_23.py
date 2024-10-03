@@ -32,8 +32,8 @@ VIDEO_PATH = os.path.join(get_app_install_location(STEAM_GAME_ID), "videos")
 
 username = os.getlogin()
 config_path = f"C:\\Users\\{username}\\Documents\\My Games\\F1 23\\hardwaresettings"
-config_filename = "hardware_settings_config.xml"
-cfg = f"{config_path}\\{config_filename}"
+CONFIG_FILENAME = "hardware_settings_config.xml"
+cfg = f"{config_path}\\{CONFIG_FILENAME}"
 
 benchmark_results_path = f"C:\\Users\\{username}\\Documents\\My Games\\F1 23\\benchmark"
 
@@ -118,7 +118,7 @@ def run_benchmark():
     setup_start_time = time.time()
     time.sleep(2)
     navigate_startup()
-    
+
     # Navigate menus and take screenshots using the artifact manager
     result = kerasService.wait_for_word("theatre", interval=3, timeout=60)
     if not result:
@@ -127,29 +127,26 @@ def run_benchmark():
 
     logging.info("Saw the options! we are good to go!")
     time.sleep(1)
-    
-    for i in range(7):
+
+    for _ in range(7):
         user.press("down")
         time.sleep(0.2)
-   
     user.press("enter")
     time.sleep(2)
-
     find_settings()
     find_graphics()
 
     # Navigate to video settings
-    for i in range(3):
+    for _ in range(3):
         user.press("down")
         time.sleep(0.2)
     user.press("enter")
     time.sleep(0.2)
-    
+
     result = kerasService.wait_for_word("vsync", interval=3, timeout=60)
     if not result:
         logging.info("Didn't find the keyword 'vsync'. Did the program navigate to the video mode menu correctly?")
         sys.exit(1)
-
     am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings menu")
     user.press("esc")
     time.sleep(0.2)
@@ -161,7 +158,7 @@ def run_benchmark():
 
     # Navigate through graphics settings and take screenshots of all settings contained within
     am.take_screenshot("graphics_1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of graphics settings")
-    for i in range(30):
+    for _ in range(30):
         user.press("down")
         time.sleep(0.2)
 
@@ -171,7 +168,7 @@ def run_benchmark():
         sys.exit(1)
 
     am.take_screenshot("graphics_2.png", ArtifactType.CONFIG_IMAGE, "second screenshot of graphics settings")
-    for i in range(29):
+    for _ in range(29):
         user.press("up")
         time.sleep(0.2)
     user.press("enter")
@@ -184,10 +181,9 @@ def run_benchmark():
 
     am.take_screenshot("benchmark.png", ArtifactType.CONFIG_IMAGE, "screenshot of benchmark settings")
 
-    for i in range(6):
+    for _ in range(6):
         user.press("down")
         time.sleep(0.2)
-    
     user.press("enter")
     time.sleep(2)
 
@@ -220,10 +216,7 @@ def run_benchmark():
         logging.info("Results screen was not found!" +
             "Did harness not wait long enough? Or test was too long?")
         sys.exit(1)
-
     logging.info("Results screen was found! Finishing benchmark.")
-    
-    # Save results and game config
     results_file = find_latest_result_file(benchmark_results_path)
     am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "screenshot of results")
     am.copy_file(cfg, ArtifactType.CONFIG_TEXT, "config file")
