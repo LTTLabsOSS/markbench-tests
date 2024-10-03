@@ -3,8 +3,16 @@ import logging
 import os
 from pathlib import Path
 from zipfile import ZipFile
+import time
+import pydirectinput as user
 
 import requests
+
+def press_n_times(key: str, n: int, pause: float):
+    """A helper function press the same button multiple times"""
+    for _ in range(n):
+        user.press(key)
+        time.sleep(pause)
 
 def remove_files(paths: list[str]) -> None:
     """Removes files specified by provided list of file paths.
