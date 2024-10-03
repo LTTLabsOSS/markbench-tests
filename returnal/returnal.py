@@ -18,11 +18,12 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT,
 )
-from harness_utils.misc import remove_files
+from harness_utils.misc import remove_files, press_n_times
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
   exec_steam_run_command,
   get_steamapps_common_path,
+  get_build_id
 )
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
@@ -116,7 +117,8 @@ def run_benchmark() -> tuple[float]:
     time.sleep(1)
     user.press("q")
     time.sleep(1)
-    
+
+    # Verify that we have navigated to the video settings menu and take a screenshot
     if kerasService.wait_for_word(word="aspect", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
@@ -135,15 +137,11 @@ def run_benchmark() -> tuple[float]:
     if kerasService.wait_for_word(word="sharpness", timeout=10, interval=1) is None:
         logging.info("No DLSS Settings Detected")
         # Scroll down graphics menu
-        for i in range(15):
-            user.press("down")
-            time.sleep(0.2)
+        press_n_times("down", 15, 0.2)
     else:
         logging.info("DLSS Settings Detected")
         # Scroll down graphics menu
-        for i in range(17):
-            user.press("down")
-            time.sleep(0.2)
+        press_n_times("down", 17, 0.2)
 
     if kerasService.wait_for_word(word="volumetric", timeout=30, interval=1) is None:
         logging.info("Did not find the keyword 'volumetric'. Did the the menu scroll correctly?")
@@ -151,9 +149,7 @@ def run_benchmark() -> tuple[float]:
     am.take_screenshot("graphics_2.png", ArtifactType.CONFIG_IMAGE, "second picture of graphics settings")
 
     # Scroll down graphics menu
-    for i in range(15):
-        user.press("down")
-        time.sleep(0.2)
+    press_n_times("down", 15, 0.2)
 
     if kerasService.wait_for_word(word="hdr", timeout=30, interval=1) is None:
         logging.info("Did not find the keyword 'hdr'. Did the the menu scroll correctly?")
@@ -193,8 +189,8 @@ def run_benchmark() -> tuple[float]:
         logging.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?")
         sys.exit(1)
-    
-    # Give results screen time to fill out, then save screenshot and config file 
+
+    # Give results screen time to fill out, then save screenshot and config file
     time.sleep(2)
     am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "screenshot of benchmark result")
     am.copy_file(LOCAL_USER_SETTINGS, ArtifactType.CONFIG_TEXT, "config file")
@@ -227,7 +223,8 @@ try:
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time)
+        "end_time": seconds_to_milliseconds(end_time),
+        "version": get_build_id(STEAM_GAME_ID)
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
