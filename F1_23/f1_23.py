@@ -2,6 +2,7 @@
 import logging
 from argparse import ArgumentParser
 import os.path
+import re
 import time
 import sys
 import pydirectinput as user
@@ -21,6 +22,7 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT,
 )
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
@@ -28,10 +30,31 @@ PROCESS_NAME = "F1_23"
 STEAM_GAME_ID = 2108330
 VIDEO_PATH = os.path.join(get_app_install_location(STEAM_GAME_ID), "videos")
 
+username = os.getlogin()
+config_path = f"C:\\Users\\{username}\\Documents\\My Games\\F1 23\\hardwaresettings"
+config_filename = "hardware_settings_config.xml"
+cfg = f"{config_path}\\{config_filename}"
+
+benchmark_results_path = f"C:\\Users\\{username}\\Documents\\My Games\\F1 23\\benchmark"
+
 intro_videos = [
     os.path.join(VIDEO_PATH, "attract.bk2"),
     os.path.join(VIDEO_PATH, "cm_f1_sting.bk2")
 ]
+
+
+def find_latest_result_file(base_path):
+    """Look for files in the benchmark results path that match the pattern in the regular expression"""
+    pattern = r"benchmark_.*\.xml"
+    list_of_files = []
+
+    for filename in os.listdir(base_path):
+        if re.search(pattern, filename, re.IGNORECASE):
+            list_of_files.append(base_path + '\\' +filename)
+
+    latest_file = max(list_of_files, key=os.path.getmtime)
+
+    return latest_file
 
 
 def find_settings() -> any:
@@ -49,47 +72,9 @@ def find_graphics() -> any:
         logging.info("Didn't find graphics!")
         sys.exit(1)
     user.press("right")
-    time.sleep(0.5)
+    time.sleep(0.2)
     user.press("enter")
     time.sleep(1.5)
-
-
-def find_benchmark() -> any:
-    """Look for and enter benchmark options"""
-    if not kerasService.look_for_word("benchmark", attempts=5, interval=3):
-        logging.info("Didn't find benchmark!")
-        sys.exit(1)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("enter")
-    time.sleep(1.5)
-
-
-def find_weather() -> any:
-    """Navigate to start benchmark"""
-    if not kerasService.look_for_word("weather", attempts=5, interval=3):
-        logging.info("Didn't find weather!")
-        sys.exit(1)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("enter")
-    time.sleep(2)
 
 
 def navigate_startup():
@@ -124,8 +109,17 @@ def navigate_startup():
         time.sleep(2)
 
 
-def navigate_menu():
-    """Simulate inputs to navigate to benchmark option."""
+def run_benchmark():
+    """Runs the actual benchmark."""
+    remove_files(intro_videos)
+    exec_steam_run_command(STEAM_GAME_ID)
+    am = ArtifactManager(LOG_DIRECTORY)
+
+    setup_start_time = time.time()
+    time.sleep(2)
+    navigate_startup()
+    
+    # Navigate menus and take screenshots using the artifact manager
     result = kerasService.wait_for_word("theatre", interval=3, timeout=60)
     if not result:
         logging.info("Didn't land on the main menu!")
@@ -133,36 +127,69 @@ def navigate_menu():
 
     logging.info("Saw the options! we are good to go!")
     time.sleep(1)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
+    
+    for i in range(7):
+        user.press("down")
+        time.sleep(0.2)
+   
     user.press("enter")
     time.sleep(2)
 
     find_settings()
     find_graphics()
-    find_benchmark()
-    find_weather() # Run benchmark!
 
-def run_benchmark():
-    """Runs the actual benchmark."""
-    remove_files(intro_videos)
-    exec_steam_run_command(STEAM_GAME_ID)
-    setup_start_time = time.time()
+    # Navigate to video settings
+    for i in range(3):
+        user.press("down")
+        time.sleep(0.2)
+    user.press("enter")
+    time.sleep(0.2)
+    
+    result = kerasService.wait_for_word("vsync", interval=3, timeout=60)
+    if not result:
+        logging.info("Didn't find the keyword 'vsync'. Did the program navigate to the video mode menu correctly?")
+        sys.exit(1)
+
+    am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings menu")
+    user.press("esc")
+    time.sleep(0.2)
+
+    result = kerasService.wait_for_word("steering", interval=3, timeout=60)
+    if not result:
+        logging.info("Didn't find the keyword 'steering'. Did the program exit the video mode menu correctly?")
+        sys.exit(1)
+
+    # Navigate through graphics settings and take screenshots of all settings contained within
+    am.take_screenshot("graphics_1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of graphics settings")
+    for i in range(30):
+        user.press("down")
+        time.sleep(0.2)
+
+    result = kerasService.wait_for_word("chromatic", interval=3, timeout=60)
+    if not result:
+        logging.info("Didn't find the keyword 'chromatic'. Did we navigate the menu correctly?")
+        sys.exit(1)
+
+    am.take_screenshot("graphics_2.png", ArtifactType.CONFIG_IMAGE, "second screenshot of graphics settings")
+    for i in range(29):
+        user.press("up")
+        time.sleep(0.2)
+    user.press("enter")
+    time.sleep(0.2)
+
+    # Navigate benchmark menu
+    if not kerasService.look_for_word("weather", attempts=5, interval=3):
+        logging.info("Didn't find weather!")
+        sys.exit(1)
+
+    am.take_screenshot("benchmark.png", ArtifactType.CONFIG_IMAGE, "screenshot of benchmark settings")
+
+    for i in range(6):
+        user.press("down")
+        time.sleep(0.2)
+    
+    user.press("enter")
     time.sleep(2)
-    navigate_startup()
-    navigate_menu()
 
     elapsed_setup_time = round(time.time() - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
@@ -195,6 +222,12 @@ def run_benchmark():
         sys.exit(1)
 
     logging.info("Results screen was found! Finishing benchmark.")
+    
+    # Save results and game config
+    results_file = find_latest_result_file(benchmark_results_path)
+    am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "screenshot of results")
+    am.copy_file(cfg, ArtifactType.CONFIG_TEXT, "config file")
+    am.copy_file(results_file, ArtifactType.RESULTS_TEXT, "benchmark results xml file")
 
     if test_end_time is None:
         logging.info("Loading screen end time not found. Using results screen fallback time.")
