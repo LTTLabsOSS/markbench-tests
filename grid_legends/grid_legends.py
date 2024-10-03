@@ -29,16 +29,16 @@ PROCESS_NAME = "gridlegends.exe"
 STEAM_GAME_ID = 1307710
 
 username = os.getlogin()
-config_path = f"C:\\Users\\{username}\\Documents\\My Games\\GRID Legends\\hardwaresettings"
-config_filename = "hardware_settings_config.xml"
-cfg = f"{config_path}\\{config_filename}"
+CONFIG_PATH = f"C:\\Users\\{username}\\Documents\\My Games\\GRID Legends\\hardwaresettings"
+CONFIG_FILENAME = "hardware_settings_config.xml"
+CONFIG_FULL_PATH = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
 
 def get_resolution() -> tuple[int]:
     """Gets resolution width and height from local xml file created by game."""
     resolution = re.compile(r"<resolution width=\"(\d+)\" height=\"(\d+)\"")
     height = 0
     width = 0
-    with open(cfg, encoding="utf-8") as file:
+    with open(CONFIG_FULL_PATH, encoding="utf-8") as file:
         lines = file.readlines()
         for line in lines:
             height_match = resolution.search(line)
@@ -113,7 +113,6 @@ def run_benchmark(keras_service):
     if keras_service.wait_for_word(word="basic", timeout=30, interval=0.1) is None:
         logging.error("Didn't basic video options. Did the menu navigate correctly?")
         sys.exit(1)
-    
     am.take_screenshot("basic.png", ArtifactType.CONFIG_IMAGE, "picture of basic settings")
 
     user.press("f3")
@@ -122,7 +121,6 @@ def run_benchmark(keras_service):
     if keras_service.wait_for_word(word="benchmark", timeout=30, interval=0.1) is None:
         logging.error("Didn't reach advanced video options. Did the menu navigate correctly?")
         sys.exit(1)
-    
     am.take_screenshot("advanced_1.png", ArtifactType.CONFIG_IMAGE, "first picture of advanced settings")
 
     user.press("up")
@@ -131,7 +129,6 @@ def run_benchmark(keras_service):
     if keras_service.wait_for_word(word="shading", timeout=30, interval=0.1) is None:
         logging.error("Didn't reach bottom of advanced video settings. Did the menu navigate correctly?")
         sys.exit(1)
-    
     am.take_screenshot("advanced_2.png", ArtifactType.CONFIG_IMAGE, "second picture of advanced settings")
 
     user.press("down")
@@ -158,7 +155,7 @@ def run_benchmark(keras_service):
     time.sleep(2)
 
     am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
-    am.copy_file(Path(cfg), ArtifactType.CONFIG_TEXT, "game config")
+    am.copy_file(Path(CONFIG_FULL_PATH), ArtifactType.CONFIG_TEXT, "game config")
 
     logging.info("Run completed. Closing game.")
     time.sleep(2)
