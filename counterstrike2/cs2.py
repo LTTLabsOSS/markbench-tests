@@ -60,7 +60,6 @@ def run_benchmark(keras_service):
     copy_config()
     setup_start_time = time.time()
     start_game()
-    
     am = ArtifactManager(LOG_DIR)
     time.sleep(20)  # wait for game to load into main menu
 
@@ -75,17 +74,20 @@ def run_benchmark(keras_service):
     # We check the resolution so we know which screenshot to use for the locate on screen function
     match width:
         case "1920":
-            location = gui.locateOnScreen("C:\markbench-2.1.2-2f39666\harness\LTTLabsOSS-markbench-tests\counterstrike2_2\screenshots\settings_1080.png")
+            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\settings_1080.png")
         case "2560":
-            location = gui.locateOnScreen("C:\markbench-2.1.2-2f39666\harness\LTTLabsOSS-markbench-tests\counterstrike2_2\screenshots\settings_1440.png")
+            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\settings_1440.png")
         case "3840":
-            location = gui.locateOnScreen("C:\markbench-2.1.2-2f39666\harness\LTTLabsOSS-markbench-tests\counterstrike2_2\screenshots\settings_2160.png")
+            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\settings_2160.png")
         case _:
-            logging.error("Could not find the settings cog. The game resolution is currently " + height + "," + width  + ". Are you using a standard resolution?")
+            logging.error("Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?", height, width)
             sys.exit(1)
 
     click_me = gui.center(location)
-    gui.click(click_me.x, click_me.y)
+    gui.moveTo(click_me.x, click_me.y)
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
     time.sleep(0.2)
 
     if keras_service.wait_for_word(word="brightness", timeout=30, interval=1) is None:
@@ -99,7 +101,10 @@ def run_benchmark(keras_service):
         logging.info("Did not find the advanced video menu. Did Keras click correctly?")
         sys.exit(1)
 
-    gui.click(result["x"], result["y"])
+    gui.moveTo(result["x"], result["y"])
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
     time.sleep(0.2)
 
     am.take_screenshot("advanced_video_1.png", ArtifactType.CONFIG_IMAGE, "first picture of advanced video settings")
@@ -117,8 +122,7 @@ def run_benchmark(keras_service):
     if keras_service.wait_for_word(word="particle", timeout=30, interval=1) is None:
         logging.info("Did not find the keyword 'Particle' in advanced video menu. Did Keras scroll correctly?")
         sys.exit(1)
-
-    am.take_screenshot("advanced_video_2.png", ArtifactType.CONFIG_IMAGE, "second picture of advanced video settings")    
+    am.take_screenshot("advanced_video_2.png", ArtifactType.CONFIG_IMAGE, "second picture of advanced video settings")
 
     logging.info('Starting benchmark')
     user.press("`")
@@ -164,12 +168,12 @@ def run_benchmark(keras_service):
         test_end_time = time.time()
         logging.info("The console opened. Marking end time.")
 
+    # allow time for result screen to populate
     time.sleep(8)
-    
+
     am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
     am.copy_file(Path(cfg), ArtifactType.CONFIG_TEXT, "cs2 video config")
     logging.info("Run completed. Closing game.")
-
     time.sleep(2)
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
