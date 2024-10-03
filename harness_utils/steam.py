@@ -3,6 +3,7 @@ import logging
 import winreg
 from subprocess import Popen
 from pathlib import Path
+import re
 
 
 def get_run_game_id_command(game_id: int) -> str:
