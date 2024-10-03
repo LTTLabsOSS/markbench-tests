@@ -55,6 +55,11 @@ def find_latest_result_file(base_path):
 
     return latest_file
 
+def press_n_times(button: str, n: int, pause: float):
+    """A helper function press the same button multiple times"""
+    for _ in range(n):
+        user.press(button)
+        time.sleep(pause)
 
 def find_settings() -> any:
     """Look for and enter settings"""
@@ -127,18 +132,14 @@ def run_benchmark():
     logging.info("Saw the options! we are good to go!")
     time.sleep(1)
 
-    for _ in range(7):
-        user.press("down")
-        time.sleep(0.2)
+    press_n_times("down", 7, 0.2)
     user.press("enter")
     time.sleep(2)
     find_settings()
     find_graphics()
 
     # Navigate to video settings
-    for _ in range(3):
-        user.press("down")
-        time.sleep(0.2)
+    press_n_times("down", 3, 0.2)
     user.press("enter")
     time.sleep(0.2)
 
@@ -157,9 +158,7 @@ def run_benchmark():
 
     # Navigate through graphics settings and take screenshots of all settings contained within
     am.take_screenshot("graphics_1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of graphics settings")
-    for _ in range(30):
-        user.press("down")
-        time.sleep(0.2)
+    press_n_times("down", 30, 0.2)
 
     result = kerasService.wait_for_word("chromatic", interval=3, timeout=60)
     if not result:
@@ -167,9 +166,7 @@ def run_benchmark():
         sys.exit(1)
 
     am.take_screenshot("graphics_2.png", ArtifactType.CONFIG_IMAGE, "second screenshot of graphics settings")
-    for _ in range(29):
-        user.press("up")
-        time.sleep(0.2)
+    press_n_times("up", 29, 0.2)
     user.press("enter")
     time.sleep(0.2)
 
@@ -180,9 +177,7 @@ def run_benchmark():
 
     am.take_screenshot("benchmark.png", ArtifactType.CONFIG_IMAGE, "screenshot of benchmark settings")
 
-    for _ in range(6):
-        user.press("down")
-        time.sleep(0.2)
+    press_n_times("down", 6, 0.2)
     user.press("enter")
     time.sleep(2)
 
