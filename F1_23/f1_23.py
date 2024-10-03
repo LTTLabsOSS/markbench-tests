@@ -10,7 +10,7 @@ from f1_23_utils import get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
-from harness_utils.steam import exec_steam_run_command, get_app_install_location
+from harness_utils.steam import exec_steam_run_command, get_app_install_location, get_build_id
 from harness_utils.keras_service import KerasService
 from harness_utils.misc import remove_files
 from harness_utils.process import terminate_processes
@@ -31,11 +31,10 @@ STEAM_GAME_ID = 2108330
 VIDEO_PATH = os.path.join(get_app_install_location(STEAM_GAME_ID), "videos")
 
 username = os.getlogin()
-config_path = f"C:\\Users\\{username}\\Documents\\My Games\\F1 23\\hardwaresettings"
+CONFIG_PATH = f"C:\\Users\\{username}\\Documents\\My Games\\F1 23\\hardwaresettings"
 CONFIG_FILENAME = "hardware_settings_config.xml"
-cfg = f"{config_path}\\{CONFIG_FILENAME}"
-
-benchmark_results_path = f"C:\\Users\\{username}\\Documents\\My Games\\F1 23\\benchmark"
+CONFIG = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
+BENCHMARK_RESULTS_PATH = f"C:\\Users\\{username}\\Documents\\My Games\\F1 23\\benchmark"
 
 intro_videos = [
     os.path.join(VIDEO_PATH, "attract.bk2"),
@@ -217,9 +216,9 @@ def run_benchmark():
             "Did harness not wait long enough? Or test was too long?")
         sys.exit(1)
     logging.info("Results screen was found! Finishing benchmark.")
-    results_file = find_latest_result_file(benchmark_results_path)
+    results_file = find_latest_result_file(BENCHMARK_RESULTS_PATH)
     am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "screenshot of results")
-    am.copy_file(cfg, ArtifactType.CONFIG_TEXT, "config file")
+    am.copy_file(CONFIG, ArtifactType.CONFIG_TEXT, "config file")
     am.copy_file(results_file, ArtifactType.RESULTS_TEXT, "benchmark results xml file")
 
     if test_end_time is None:
@@ -266,6 +265,7 @@ try:
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
+        "version": get_build_id(STEAM_GAME_ID)
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
