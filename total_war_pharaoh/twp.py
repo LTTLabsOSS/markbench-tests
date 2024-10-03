@@ -24,6 +24,7 @@ from harness_utils.output import (
 from harness_utils.steam import get_app_install_location
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.misc import mouse_scroll_n_times
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
@@ -80,10 +81,8 @@ def skip_logo_screens() -> None:
 def run_benchmark(keras_service):
     """Starts the benchmark"""
     cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
-    
     start_game()
     setup_start_time = time.time()
-    
     am = ArtifactManager(LOG_DIR)
     time.sleep(5)
 
@@ -135,28 +134,22 @@ def run_benchmark(keras_service):
     if not result:
         logging.info("Did not find the keyword 'water' in the menu. Did Keras navigate to the advanced menu correctly?")
         sys.exit(1)
-
     gui.moveTo(result["x"], result["y"])
     time.sleep(1)
-    for i in range(15):
-        gui.vscroll(-1)
-        time.sleep(0.1)
-    
+
+    # Scroll to the middle of the advanced menu
+    mouse_scroll_n_times(15, -1, 0.1)
     if keras_service.wait_for_word(word="heat", timeout=30, interval=1) is None:
         logging.info("Did not find the keyword 'heat' in the menu. Did Keras scroll down the advanced menu far enough?")
         sys.exit(1)
-    
     am.take_screenshot("advanced_2.png", ArtifactType.CONFIG_IMAGE, "second screenshot of advanced settings menu")
     time.sleep(0.5)
 
-    for i in range(15):
-        gui.vscroll(-1)
-        time.sleep(0.1)
-    
+    # Scroll to the bottom of the advanced menu
+    mouse_scroll_n_times(15, -1, 0.1)
     if keras_service.wait_for_word(word="bodies", timeout=30, interval=1) is None:
         logging.info("Did not find the keyword 'bodies' in the menu. Did Keras scroll down the advanced menu far enough?")
         sys.exit(1)
-    
     am.take_screenshot("advanced_3.png", ArtifactType.CONFIG_IMAGE, "third screenshot of advanced settings menu")
     time.sleep(0.5)
 
@@ -191,12 +184,10 @@ def run_benchmark(keras_service):
             "Results screen was not found! Did harness not wait long enough? Or test was too long?")
         sys.exit(1)
 
-    test_end_time = time.time() - 1
-
     # Wait 5 seconds for benchmark info
+    test_end_time = time.time() - 1
     time.sleep(5)
-    
-    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")    
+    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
     time.sleep(0.5)
     am.copy_file(Path(cfg), ArtifactType.CONFIG_TEXT, "preferences.script.txt")
 
