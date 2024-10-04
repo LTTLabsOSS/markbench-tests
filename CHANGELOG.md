@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 Changes are grouped by the date they are merged to the main branch of the repository and are ordered from newest to oldest. Dates use the ISO 8601 extended calendar date format, i.e. YYYY-MM-DD.
 
+## 2024-10-04
+
+- Implemented the artifact manager to capture screenshots of in game settings and config for atomic heart
+- Added steam build ID tracking to atomic heart
+
 ## 2024-10-03
 
 - Implemented the artifact manager to capture screenshots of in game settings and results for the following games:
