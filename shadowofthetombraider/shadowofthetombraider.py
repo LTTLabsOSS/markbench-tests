@@ -57,8 +57,8 @@ def run_benchmark():
     time.sleep(10)
 
     ss_config = ScreenSplitConfig(
-        divide_method=ScreenShotDivideMethod.QUADRANT,
-        quadrant=ScreenShotQuadrant.BOTTOM_RIGHT
+        divide_method=ScreenShotDivideMethod.HORIZONTAL,
+        quadrant=ScreenShotQuadrant.TOP
     )
 
     if keras_service.wait_for_word(word="options", timeout=30, interval=1, split_config=ss_config) is None:
