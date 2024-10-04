@@ -5,7 +5,6 @@ import sys
 import logging
 import shutil
 from pathlib import Path
-import stat
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
