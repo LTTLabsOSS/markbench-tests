@@ -18,6 +18,7 @@ Links to licenses and repositories of dependencies used throughout MarkBench tes
 | Test                              | Link                                                 | License                                                          |
 | --------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------- |
 | DOTA 2                            | [D-OPTIMIZER](https://github.com/AveYo/D-OPTIMIZER)  | [MIT](https://github.com/AveYo/D-OPTIMIZER/blob/archive/LICENSE) |
+| Cities Skylines 2                 | [Not Paradox Launcher](https://github.com/shusaura85/notparadoxlauncher)  | [MIT](https://github.com/shusaura85/notparadoxlauncher/blob/master/LICENSE) |
 
 ## Python
 | Project                                                             | License                                                                                                   |
