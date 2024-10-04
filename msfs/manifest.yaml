@@ -1,0 +1,9 @@
+friendly_name: "Microsoft Flight Simulator"
+executable: "msfs.py"
+process_name: "FlightSimulator.exe"
+output_dir: "run"
+options:
+  - name: kerasHost
+    type: input
+  - name: kerasPort
+    type: input

@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<SimBase.Document Type="AceXML" version="1,0">
+    <Descr>AceXML Document</Descr>
+    <FlightPlan.FlightPlan>
+        <Title>Pitt Meadows to Vancouver/Boundary Bay</Title>
+        <FPType>VFR</FPType>
+        <CruisingAlt>1700.000</CruisingAlt>
+        <DepartureID>CYPK</DepartureID>
+        <DepartureLLA>N49° 12' 57.92",W122° 42' 48.23",+000010.16</DepartureLLA>
+        <DestinationID>CZBB</DestinationID>
+        <DestinationLLA>N49° 4' 24.49",W123° 0' 30.23",+000000.00</DestinationLLA>
+        <Descr>Pitt Meadows to Vancouver/Boundary Bay</Descr>
+        <DeparturePosition>8R</DeparturePosition>
+        <DepartureName>Pitt Meadows</DepartureName>
+        <DestinationName>Vancouver/Boundary Bay</DestinationName>
+        <AppVersion>
+            <AppVersionMajor>11</AppVersionMajor>
+            <AppVersionBuild>282174</AppVersionBuild>
+        </AppVersion>
+        <ATCWaypoint id="CYPK">
+            <ATCWaypointType>Airport</ATCWaypointType>
+            <WorldPosition>N49° 12' 57.92",W122° 42' 48.23",+000010.16</WorldPosition>
+            <SpeedMaxFP>-1</SpeedMaxFP>
+            <ICAO>
+                <ICAOIdent>CYPK</ICAOIdent>
+            </ICAO>
+        </ATCWaypoint>
+        <ATCWaypoint id="TIMECLIMB">
+            <ATCWaypointType>User</ATCWaypointType>
+            <WorldPosition>N49° 12' 30.71",W122° 38' 48.58",+000610.16</WorldPosition>
+            <SpeedMaxFP>-1</SpeedMaxFP>
+        </ATCWaypoint>
+        <ATCWaypoint id="Custom">
+            <ATCWaypointType>User</ATCWaypointType>
+            <WorldPosition>N49° 5' 57.10",W122° 42' 43.52",+001700.00</WorldPosition>
+            <SpeedMaxFP>-1</SpeedMaxFP>
+        </ATCWaypoint>
+        <ATCWaypoint id="TIMECRUIS">
+            <ATCWaypointType>User</ATCWaypointType>
+            <WorldPosition>N49° 5' 46.01",W122° 44' 53.03",+001700.00</WorldPosition>
+            <SpeedMaxFP>-1</SpeedMaxFP>
+        </ATCWaypoint>
+        <ATCWaypoint id="TIMEDSCNT">
+            <ATCWaypointType>User</ATCWaypointType>
+            <WorldPosition>N49° 5' 31.77",W122° 47' 38.56",+001700.00</WorldPosition>
+            <SpeedMaxFP>-1</SpeedMaxFP>
+        </ATCWaypoint>
+        <ATCWaypoint id="TIMEAPPROACH">
+            <ATCWaypointType>User</ATCWaypointType>
+            <WorldPosition>N49° 7' 3.25",W123° 3' 50.51",+000700.00</WorldPosition>
+            <SpeedMaxFP>-1</SpeedMaxFP>
+        </ATCWaypoint>
+        <ATCWaypoint id="CZBB">
+            <ATCWaypointType>Airport</ATCWaypointType>
+            <WorldPosition>N49° 4' 24.49",W123° 0' 30.23",+000000.00</WorldPosition>
+            <SpeedMaxFP>-1</SpeedMaxFP>
+            <ICAO>
+                <ICAOIdent>CZBB</ICAOIdent>
+            </ICAO>
+        </ATCWaypoint>
+    </FlightPlan.FlightPlan>
+</SimBase.Document>
