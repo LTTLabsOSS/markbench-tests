@@ -2,6 +2,7 @@
 from argparse import ArgumentParser
 import logging
 import os
+from pathlib import Path
 import time
 import sys
 import pyautogui as gui
@@ -19,13 +20,19 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT
 )
-from harness_utils.steam import get_app_install_location
+from harness_utils.steam import get_app_install_location, get_build_id
 from harness_utils.keras_service import KerasService
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 PROCESS_NAME = "Warhammer3.exe"
 STEAM_GAME_ID = 1142710
+
+APPDATA = os.getenv("APPDATA")
+CONFIG_LOCATION = f"{APPDATA}\\The Creative Assembly\\Warhammer3\\scripts"
+CONFIG_FILENAME = "preferences.script.txt"
+CONFIG_FULL_PATH = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
 
 user.FAILSAFE = False
 
@@ -63,6 +70,7 @@ def run_benchmark():
     start_game()
     setup_start_time = time.time()
     time.sleep(5)
+    am = ArtifactManager(LOG_DIRECTORY)
 
     result = kerasService.look_for_word("warning", attempts=10, interval=5)
     if not result:
@@ -84,6 +92,8 @@ def run_benchmark():
     gui.mouseUp()
     time.sleep(2)
 
+    am.take_screenshot("main.png", ArtifactType.CONFIG_IMAGE, "picture of basic settings")
+
     result = kerasService.look_for_word("ad", attempts=10, interval=1)
     if not result:
         logging.info("Did not find the advanced menu. Did the game skip the intros?")
@@ -95,6 +105,8 @@ def run_benchmark():
     time.sleep(0.2)
     gui.mouseUp()
     time.sleep(0.5)
+
+    am.take_screenshot("advanced.png", ArtifactType.CONFIG_IMAGE, "picture of advanced settings")
 
     result = kerasService.look_for_word("bench", attempts=10, interval=1)
     if not result:
@@ -144,6 +156,9 @@ def run_benchmark():
     # Wait 5 seconds for benchmark info
     time.sleep(5)
 
+    am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    am.copy_file(Path(CONFIG_FULL_PATH), ArtifactType.RESULTS_TEXT, "preferences.script.txt")
+
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
@@ -180,7 +195,8 @@ try:
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(endtime)
+        "end_time": seconds_to_milliseconds(endtime),
+        "version": get_build_id(STEAM_GAME_ID)
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)

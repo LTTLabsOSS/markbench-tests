@@ -3,8 +3,28 @@ import logging
 import os
 from pathlib import Path
 from zipfile import ZipFile
-
+import time
+import pydirectinput as user
+import pyautogui as gui
 import requests
+
+def mouse_scroll_n_times(n: int, scroll_amount: int, pause: float):
+    """
+    Pyautogui's mouse scroll function often fails to actually scroll in game menus, this functions solves that problem
+    
+    n --> the number of times you want to scroll, should be a positive integer
+    scroll_amount --> positive is scroll up, negative is scroll down
+    pause --> the amount of time to pause betwee subsequent scrolls
+    """
+    for _ in range(n):
+        gui.vscroll(scroll_amount)
+        time.sleep(pause)
+
+def press_n_times(key: str, n: int, pause: float):
+    """A helper function press the same button multiple times"""
+    for _ in range(n):
+        user.press(key)
+        time.sleep(pause)
 
 def remove_files(paths: list[str]) -> None:
     """Removes files specified by provided list of file paths.

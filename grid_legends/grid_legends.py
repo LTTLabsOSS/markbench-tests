@@ -20,24 +20,25 @@ from harness_utils.output import (
     DEFAULT_DATE_FORMAT)
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
-from harness_utils.steam import exec_steam_game
+from harness_utils.steam import exec_steam_game, get_build_id
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
 PROCESS_NAME = "gridlegends.exe"
 STEAM_GAME_ID = 1307710
 
+username = os.getlogin()
+CONFIG_PATH = f"C:\\Users\\{username}\\Documents\\My Games\\GRID Legends\\hardwaresettings"
+CONFIG_FILENAME = "hardware_settings_config.xml"
+CONFIG_FULL_PATH = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
 
 def get_resolution() -> tuple[int]:
     """Gets resolution width and height from local xml file created by game."""
-    username = os.getlogin()
-    config_path = f"C:\\Users\\{username}\\Documents\\My Games\\GRID Legends\\hardwaresettings"
-    config_filename = "hardware_settings_config.xml"
     resolution = re.compile(r"<resolution width=\"(\d+)\" height=\"(\d+)\"")
-    cfg = f"{config_path}\\{config_filename}"
     height = 0
     width = 0
-    with open(cfg, encoding="utf-8") as file:
+    with open(CONFIG_FULL_PATH, encoding="utf-8") as file:
         lines = file.readlines()
         for line in lines:
             height_match = resolution.search(line)
@@ -81,6 +82,8 @@ def run_benchmark(keras_service):
     """Run Grid Legends benchmark"""
     setup_start_time = time.time()
     start_game()
+    am = ArtifactManager(LOG_DIR)
+
     time.sleep(20)  # wait for game to load to the start screen
 
     if keras_service.wait_for_word(word="press", timeout=80, interval=1) is None:
@@ -110,8 +113,25 @@ def run_benchmark(keras_service):
     if keras_service.wait_for_word(word="basic", timeout=30, interval=0.1) is None:
         logging.error("Didn't basic video options. Did the menu navigate correctly?")
         sys.exit(1)
+    am.take_screenshot("basic.png", ArtifactType.CONFIG_IMAGE, "picture of basic settings")
 
     user.press("f3")
+    time.sleep(0.2)
+
+    if keras_service.wait_for_word(word="benchmark", timeout=30, interval=0.1) is None:
+        logging.error("Didn't reach advanced video options. Did the menu navigate correctly?")
+        sys.exit(1)
+    am.take_screenshot("advanced_1.png", ArtifactType.CONFIG_IMAGE, "first picture of advanced settings")
+
+    user.press("up")
+    time.sleep(0.2)
+
+    if keras_service.wait_for_word(word="shading", timeout=30, interval=0.1) is None:
+        logging.error("Didn't reach bottom of advanced video settings. Did the menu navigate correctly?")
+        sys.exit(1)
+    am.take_screenshot("advanced_2.png", ArtifactType.CONFIG_IMAGE, "second picture of advanced settings")
+
+    user.press("down")
     time.sleep(0.2)
     user.press("enter")
     time.sleep(0.2)
@@ -134,6 +154,9 @@ def run_benchmark(keras_service):
     test_end_time = time.time() - 2
     time.sleep(2)
 
+    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    am.copy_file(Path(CONFIG_FULL_PATH), ArtifactType.CONFIG_TEXT, "game config")
+
     logging.info("Run completed. Closing game.")
     time.sleep(2)
     return test_start_time, test_end_time
@@ -151,7 +174,8 @@ def main():
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time)
+        "end_time": seconds_to_milliseconds(end_time),
+        "version": get_build_id(STEAM_GAME_ID)
     }
 
     write_report_json(LOG_DIR, "report.json", report)
