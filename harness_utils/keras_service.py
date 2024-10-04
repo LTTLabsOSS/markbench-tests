@@ -101,7 +101,7 @@ class KerasService():
 
     def _divide_horizontal(self, screenshot, quadrant: ScreenShotQuadrant):
         """divide the screenshot horizontally"""
-        height, _, _ = screenshot.shape
+        height, _ = screenshot.shape
         if quadrant == ScreenShotQuadrant.TOP:
             return screenshot[0:int(height/2), :]
         if quadrant == ScreenShotQuadrant.BOTTOM:
@@ -111,7 +111,7 @@ class KerasService():
 
     def _divide_vertical(self, screenshot, quadrant: ScreenShotQuadrant):
         """divide the screenshot vertically"""
-        _, width, _ = screenshot.shape
+        _, width = screenshot.shape
         if quadrant == quadrant.LEFT:
             return screenshot[:, 0:int(width/2)]
         if quadrant == quadrant.RIGHT:
@@ -121,7 +121,7 @@ class KerasService():
 
     def _divide_in_four(self, screenshot, quadrant: ScreenShotQuadrant):
         """divide the screenshot in four quadrants"""
-        height, width, _ = screenshot.shape
+        height, width = screenshot.shape
         if quadrant == ScreenShotQuadrant.TOP_LEFT:
             return screenshot[0:int(height/2), 0:int(width/2)]
         if quadrant == ScreenShotQuadrant.TOP_RIGHT:
