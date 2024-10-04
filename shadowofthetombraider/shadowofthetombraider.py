@@ -46,12 +46,8 @@ def start_game():
     return exec_steam_game(STEAM_GAME_ID, game_params=["-nolauncher"])
 
 
-def run_benchmark():
+def run_benchmark(keras_service, am):
     """Start game via Steam and enter fullscreen mode"""
-    args = get_args()
-    keras_service = KerasService(args.keras_host, args.keras_port)
-    am = ArtifactManager(LOG_DIR)
-
     setup_start_time = time.time()
     start_game()
     time.sleep(10)
@@ -156,7 +152,12 @@ def run_benchmark():
 if __name__ == "__main__":
     try:
         setup_logging()
-        run_benchmark()
+
+        args = get_args()
+        keras_service = KerasService(args.keras_host, args.keras_port)
+        am = ArtifactManager(LOG_DIR)
+
+        run_benchmark(keras_service, am)
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")
         logging.exception(ex)
