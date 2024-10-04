@@ -9,8 +9,8 @@ from utils import read_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-from harness_utils.steam import exec_steam_run_command, get_app_install_location
-from harness_utils.misc import remove_files
+from harness_utils.steam import exec_steam_run_command, get_app_install_location, get_build_id
+from harness_utils.misc import remove_files, press_n_times
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
     format_resolution,
@@ -21,12 +21,14 @@ from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
 )
 from harness_utils.keras_service import KerasService
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 APPDATA = os.getenv("LOCALAPPDATA")
 CONFIG_LOCATION = f"{APPDATA}\\AtomicHeart\\Saved\\Config\\WindowsNoEditor"
 CONFIG_FILENAME = "GameUserSettings.ini"
+CONFIG_FULL_PATH = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
 PROCESS_NAME = "AtomicHeart"
 STEAM_GAME_ID = 668580
 VIDEO_PATH = os.path.join(
@@ -42,11 +44,37 @@ intro_videos = [
 
 user.FAILSAFE = False
 
+def navigate_game_menus(am: ArtifactManager):
+    """Navigate in game menus and take screenshots where appropriate"""
+    result = kerasService.wait_for_word("vsync", timeout=25)
+    if not result:
+        logging.info("Did not see display menu. Did we navigate to the options correctly?")
+        sys.exit(1)
+    am.take_screenshot("display.png", ArtifactType.CONFIG_IMAGE, "screenshot of the display settings")
+
+    user.press("e")
+    time.sleep(0.5)
+    result = kerasService.wait_for_word("dlss", timeout=25)
+    if not result:
+        logging.info("Did not see the top of quality menu. Did we navigate to the quality menu correctly?")
+        sys.exit(1)
+    am.take_screenshot("quality_1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of quality menu")
+
+    user.press("w")
+    time.sleep(0.5)
+    result = kerasService.wait_for_word("vegetation", timeout=25)
+    if not result:
+        logging.info("Did not see the bottom of quality menu. Did we scroll the quality menu correctly?")
+        sys.exit(1)
+    am.take_screenshot("quality_2.png", ArtifactType.CONFIG_IMAGE, "second screenshot of quality menu")
+    user.press("esc")
+    time.sleep(0.5)
 
 def run_benchmark():
     """Starts the benchmark"""
     remove_files(intro_videos)
     exec_steam_run_command(STEAM_GAME_ID)
+    am = ArtifactManager(LOG_DIRECTORY)
     setup_start_time = time.time()
 
     time.sleep(10)
@@ -62,6 +90,12 @@ def run_benchmark():
     result = kerasService.look_for_word("continue", attempts=20, interval=1)
     if result:
         logging.info("Continue option available, navigating accordingly.")
+        press_n_times("s", 3, 0.5)
+        user.press("f")
+        time.sleep(0.5)
+        navigate_game_menus(am)
+
+        # Launch benchmark
         user.press("s")
         time.sleep(0.5)
         user.press("d")
@@ -71,6 +105,17 @@ def run_benchmark():
         user.press("space")
     else:
         logging.info("Continue option not available, navigating accordingly.")
+        user.press("s")
+        time.sleep(0.5)
+        user.press("f")
+        time.sleep(0.5)
+        navigate_game_menus(am)
+
+        # Launch benchmark
+        user.press("s")
+        time.sleep(0.5)
+        user.press("w")
+        time.sleep(0.5)
         user.press("d")
         time.sleep(0.5)
         user.press("f")
@@ -115,6 +160,7 @@ def run_benchmark():
         sys.exit(1)
 
     logging.info("Wicked found. Ending Benchmark.")
+    am.copy_file(CONFIG_FULL_PATH, ArtifactType.CONFIG_TEXT, "GameUserSettings.ini")
 
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
@@ -150,7 +196,8 @@ try:
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time)
+        "end_time": seconds_to_milliseconds(end_time),
+        "version": get_build_id(STEAM_GAME_ID)
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
