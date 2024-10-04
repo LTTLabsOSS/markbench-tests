@@ -25,6 +25,7 @@ tq_dlss_explained_1080*
 xz_5.6.2_x86*
 *.y4m
 *.exe
+!/cities_skylines_2/launcher/*.exe
 *.mp4
 godot-4.2.1-stable/
 godot-4.2.1-stable.zip
