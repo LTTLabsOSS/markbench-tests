@@ -19,13 +19,17 @@ from harness_utils.output import (
     DEFAULT_DATE_FORMAT)
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
-from harness_utils.steam import exec_steam_game
+from harness_utils.steam import exec_steam_game, get_registry_active_user, get_steam_folder_path, get_build_id
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
 PROCESS_NAME = "cs2.exe"
 STEAM_GAME_ID = 730
+
+STEAM_USER_ID = get_registry_active_user()
+cfg = Path(get_steam_folder_path(), "userdata", str(STEAM_USER_ID), str(STEAM_GAME_ID), "local", "cfg", "cs2_video.txt")
 
 def setup_logging():
     """default logging config"""
@@ -56,12 +60,69 @@ def run_benchmark(keras_service):
     copy_config()
     setup_start_time = time.time()
     start_game()
+    am = ArtifactManager(LOG_DIR)
     time.sleep(20)  # wait for game to load into main menu
 
     result = keras_service.wait_for_word("play", timeout=30, interval=0.1)
     if not result:
         logging.info("Did not find the play menu. Did the game load?")
         sys.exit(1)
+
+    height, width = get_resolution()
+    location = None
+
+    # We check the resolution so we know which screenshot to use for the locate on screen function
+    match width:
+        case "1920":
+            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\settings_1080.png")
+        case "2560":
+            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\settings_1440.png")
+        case "3840":
+            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\settings_2160.png")
+        case _:
+            logging.error("Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?", height, width)
+            sys.exit(1)
+
+    click_me = gui.center(location)
+    gui.moveTo(click_me.x, click_me.y)
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+    time.sleep(0.2)
+
+    if keras_service.wait_for_word(word="brightness", timeout=30, interval=1) is None:
+        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        sys.exit(1)
+
+    am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings")
+
+    result = keras_service.look_for_word(word="advanced", attempts=10, interval=1)
+    if not result:
+        logging.info("Did not find the advanced video menu. Did Keras click correctly?")
+        sys.exit(1)
+
+    gui.moveTo(result["x"], result["y"])
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+    time.sleep(0.2)
+
+    am.take_screenshot("advanced_video_1.png", ArtifactType.CONFIG_IMAGE, "first picture of advanced video settings")
+
+    result = keras_service.look_for_word(word="boost", attempts=10, interval=1)
+    if not result:
+        logging.info("Did not find the keyword 'Boost' in the advanced video menu. Did Keras click correctly?")
+        sys.exit(1)
+
+    gui.moveTo(result["x"], result["y"])
+    time.sleep(1)
+    gui.scroll(-6000000)
+    time.sleep(1)
+
+    if keras_service.wait_for_word(word="particle", timeout=30, interval=1) is None:
+        logging.info("Did not find the keyword 'Particle' in advanced video menu. Did Keras scroll correctly?")
+        sys.exit(1)
+    am.take_screenshot("advanced_video_2.png", ArtifactType.CONFIG_IMAGE, "second picture of advanced video settings")
 
     logging.info('Starting benchmark')
     user.press("`")
@@ -107,8 +168,13 @@ def run_benchmark(keras_service):
         test_end_time = time.time()
         logging.info("The console opened. Marking end time.")
 
-    time.sleep(10)
+    # allow time for result screen to populate
+    time.sleep(8)
+
+    am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    am.copy_file(Path(cfg), ArtifactType.CONFIG_TEXT, "cs2 video config")
     logging.info("Run completed. Closing game.")
+    time.sleep(2)
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
@@ -134,7 +200,8 @@ def main():
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time)
+        "end_time": seconds_to_milliseconds(end_time),
+        "version": get_build_id(STEAM_GAME_ID)
     }
 
     write_report_json(LOG_DIR, "report.json", report)
