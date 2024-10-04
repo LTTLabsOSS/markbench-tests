@@ -149,15 +149,18 @@ def run_benchmark(keras_service, am):
     write_report_json(LOG_DIR, "report.json", report)
 
 
+def main():
+    """entry point"""
+    setup_logging()
+    args = get_args()
+    keras_service = KerasService(args.keras_host, args.keras_port)
+    am = ArtifactManager(LOG_DIR)
+    run_benchmark(keras_service, am)
+
+
 if __name__ == "__main__":
     try:
-        setup_logging()
-
-        args = get_args()
-        keras_service = KerasService(args.keras_host, args.keras_port)
-        am = ArtifactManager(LOG_DIR)
-
-        run_benchmark(keras_service, am)
+        main()
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")
         logging.exception(ex)
