@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 Changes are grouped by the date they are merged to the main branch of the repository and are ordered from newest to oldest. Dates use the ISO 8601 extended calendar date format, i.e. YYYY-MM-DD.
 
 ## 2024-10-03
+
 - Implemented the artifact manager to capture screenshots of in game settings and results for the following games:
   - Cities Skylines 2
   - Counterstrike 2
@@ -14,6 +15,10 @@ Changes are grouped by the date they are merged to the main branch of the reposi
   - Total War Pharaoh
   - Total War Warhammer 3
 - Also implemented steam build ID tracking for the same games
+
+## 2024-09-23
+
+- Add screen splitting to Keras Service.
 
 ## 2024-9-20
 

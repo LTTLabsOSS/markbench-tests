@@ -18,7 +18,7 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT)
 from harness_utils.process import terminate_processes
-from harness_utils.keras_service import KerasService
+from harness_utils.keras_service import KerasService, ScreenShotDivideMethod, ScreenShotQuadrant, ScreenSplitConfig
 from harness_utils.steam import exec_steam_game
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
@@ -46,25 +46,29 @@ def start_game():
     return exec_steam_game(STEAM_GAME_ID, game_params=["-nolauncher"])
 
 
-def run_benchmark():
+def run_benchmark(keras_service, am):
     """Start game via Steam and enter fullscreen mode"""
     setup_start_time = time.time()
     start_game()
+    time.sleep(10)
 
-    args = get_args()
-    keras_service = KerasService(args.keras_host, args.keras_port, LOG_DIR.joinpath("screenshot.jpg"))
-    am = ArtifactManager(LOG_DIR)
+    ss_config = ScreenSplitConfig(
+        divide_method=ScreenShotDivideMethod.HORIZONTAL,
+        quadrant=ScreenShotQuadrant.TOP
+    )
 
-    if keras_service.wait_for_word(word="options", timeout=30, interval=1) is None:
+    if keras_service.wait_for_word(word="options", timeout=30, interval=1, split_config=ss_config) is None:
         logging.info("Did not find the options menu. Did the game launch correctly?")
         sys.exit(1)
 
+    logging.info("found options")
+
     user.press("up")
-    time.sleep(0.2)
+    time.sleep(0.5)
     user.press("up")
-    time.sleep(0.2)
+    time.sleep(0.5)
     user.press("up")
-    time.sleep(0.2)
+    time.sleep(0.5)
     user.press("enter")
     time.sleep(1)
 
@@ -72,12 +76,14 @@ def run_benchmark():
         logging.info("Did not find the graphics menu. Did the menu get stuck?")
         sys.exit(1)
 
+    logging.info("found graphics")
+
     user.press("down")
-    time.sleep(0.2)
+    time.sleep(0.5)
     user.press("down")
-    time.sleep(0.2)
+    time.sleep(0.5)
     user.press("down")
-    time.sleep(0.2)
+    time.sleep(0.5)
     user.press("enter")
     time.sleep(1)
 
@@ -143,10 +149,18 @@ def run_benchmark():
     write_report_json(LOG_DIR, "report.json", report)
 
 
+def main():
+    """entry point"""
+    setup_logging()
+    args = get_args()
+    keras_service = KerasService(args.keras_host, args.keras_port)
+    am = ArtifactManager(LOG_DIR)
+    run_benchmark(keras_service, am)
+
+
 if __name__ == "__main__":
     try:
-        setup_logging()
-        run_benchmark()
+        main()
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")
         logging.exception(ex)
