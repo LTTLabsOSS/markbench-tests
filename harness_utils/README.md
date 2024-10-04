@@ -78,6 +78,66 @@ Given the configuration and artifacts captured in the above code snippets, the r
 
 Contains class for instancing connection to a Keras Service and provides access to its web API.
 
+### Usage:
+
+Import KerasService
+
+```python
+from harness_utils.keras_service import KerasService
+```
+
+Instantiate a Keras
+
+```python
+# usually your host and port will come from the script arguments
+keras_service = KerasService(args.keras_host, args.keras_port)
+```
+
+You can look a word on the screen for a number of attempts, or wait for a word to appear on the screen for an amount of time.
+
+```python
+# this will send a screenshot every 1 second to keras and look for the word "options" in it
+# this function call will block until the word has been found returning True, or None once 30 seconds has passed
+result = keras_service.wait_for_word("options", timeout=30, interval=1)
+
+# this will send a screenshot to keras every 1 second ato keras and look for the word "continue" in it
+# this function call will block until it has tried 20 times
+result = keras_service.look_for_word("continue", attempts=20, interval=1)
+```
+
+You can optionally check only half the screen, or 1/4 of the screen. This shrinks the amount of screenshot that Keras has to search for a word which means a faster result time.
+
+First import ScreenSplitConfig, ScreenShotDivideMethod, and ScreenShotQuadrant
+
+```python
+from harness_utils.keras_service import KerasService, ScreenSplitConfig, ScreenShotDivideMethod, ScreenShotQuadrant
+```
+
+Then create your ScreenSplitConfig object and pass it to the look_for_word or wait_for_word functions.
+
+```python
+# this config will split the screen horizontally and look in the top of the screen
+ss_config = ScreenSplitConfig(
+  divide_method=ScreenShotDivideMethod.HORIZONTAL
+  quadrant=ScreenShotQuadrant.TOP
+)
+
+# this one will split the screen vertically and look in the right of the screen
+ss_config = ScreenSplitConfig(
+  divide_method=ScreenShotDivideMethod.VERTICAL
+  quadrant=ScreenShotQuadrant.RIGHT
+)
+
+# ans this will split the screen into 4 and look in the bottom left of the screen
+ss_config = ScreenSplitConfig(
+  divide_method=ScreenShotDivideMethod.QUADRANT
+  quadrant=ScreenShotQuadrant.BOTTOM_LEFT
+)
+
+# pass the config to the function call
+result = keras_service.wait_for_word("options", timeout=30, interval=1, split_config=ss_config)
+```
+
 ## Output
 
 `output.py`

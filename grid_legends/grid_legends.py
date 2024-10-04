@@ -165,7 +165,7 @@ def run_benchmark(keras_service):
 def main():
     """entry point"""
     args = get_args()
-    keras_service = KerasService(args.keras_host, args.keras_port, LOG_DIR.joinpath("screenshot.jpg"))
+    keras_service = KerasService(args.keras_host, args.keras_port)
     start_time, end_time = run_benchmark(keras_service)
     elapsed_test_time = round((end_time - start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
