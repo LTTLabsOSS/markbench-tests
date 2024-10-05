@@ -35,8 +35,7 @@ console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
 args = get_args()
-kerasService = KerasService(args.keras_host, args.keras_port, os.path.join(
-    LOG_DIRECTORY, "screenshot.jpg"))
+kerasService = KerasService(args.keras_host, args.keras_port)
 
 def get_run_game_id_command(game_id: int) -> str:
     """Build string to launch game"""
