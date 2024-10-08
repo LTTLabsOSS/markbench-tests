@@ -8,6 +8,14 @@ import pydirectinput as user
 import pyautogui as gui
 import requests
 
+def clickme(x: int, y: int):
+    """Pyautogui's click function sucks, this should do the trick"""
+    gui.moveTo(x, y)
+    time.sleep(0.2)
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+
 def mouse_scroll_n_times(n: int, scroll_amount: int, pause: float):
     """
     Pyautogui's mouse scroll function often fails to actually scroll in game menus, this functions solves that problem
