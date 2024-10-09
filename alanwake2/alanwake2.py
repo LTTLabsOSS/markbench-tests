@@ -36,6 +36,7 @@ logging.getLogger('').addHandler(console)
 
 args = get_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
+am = ArtifactManager(LOG_DIRECTORY)
 
 def get_run_game_id_command(game_id: int) -> str:
     """Build string to launch game"""
@@ -49,7 +50,7 @@ def start_game():
 
 def run_benchmark():
     """Run the test!"""
-    am = ArtifactManager(LOG_DIRECTORY)
+    
     copy_save()
     setup_start_time = time.time()
     start_game()
@@ -160,6 +161,7 @@ try:
         "end_time": round((end_time * 1000))
     }
 
+    am.create_manifest()
     write_report_json(LOG_DIRECTORY, "report.json", report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
