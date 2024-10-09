@@ -8,6 +8,7 @@ import sys
 import re
 import pyautogui as gui
 import pydirectinput as user
+import vgamepad as vg
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
@@ -30,17 +31,16 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
 PROCESS_NAME = "b1-Win64-Shipping.exe"
 STEAM_GAME_ID = 3132990
-APPDATA = os.getenv("APPDATA")
-CONFIG_LOCATION = f"{APPDATA}\\The Creative Assembly\\Pharaoh\\scripts"
-CONFIG_FILENAME = "preferences.script.txt"
+CONFIG_LOCATION = f"{get_app_install_location(STEAM_GAME_ID)}\\b1\\Saved\\Config\\Windows"
+CONFIG_FILENAME = "GameUserSettings.ini"
 
 user.FAILSAFE = False
 
 
 def read_current_resolution():
     """Reads resolutions settings from local game file"""
-    height_pattern = re.compile(r"y_res (\d+);")
-    width_pattern = re.compile(r"x_res (\d+);")
+    height_pattern = re.compile(r"LastUserConfirmedResolutionSizeY=(\d+)")
+    width_pattern = re.compile(r"LastUserConfirmedResolutionSizeX=(\d+)")
     cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
     height_value = 0
     width_value = 0
@@ -64,28 +64,262 @@ def start_game():
 def run_benchmark(keras_service):
     """Starts the benchmark"""
     start_game()
+    gamepad = vg.VX360Gamepad()
     setup_start_time = time.time()
     am = ArtifactManager(LOG_DIR)
-    time.sleep(30)
+    time.sleep(20)
 
     if keras_service.wait_for_word(word="black", timeout=30, interval=1) is None:
         logging.info("Did not find the welcome screen. Did the game launch correctly?")
         sys.exit(1)
-
     time.sleep(2)
-    user.press("space")
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
     time.sleep(2)
     # sys.exit(1)
 
-    result = keras_service.look_for_word("benchmark", attempts=10, interval=1)
-    if not result:
+    if keras_service.wait_for_word(word="settings", timeout=30, interval=1) is None:
+        logging.info("Did not find the settings option. Did the game launch correctly?")
+        sys.exit(1)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.1)
+
+    if keras_service.wait_for_word(word="loop", timeout=30, interval=1) is None:
+        logging.info("Did not find the benchmark settings menu. Did the game navigate to the settings correctly?")
+        sys.exit(1)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.5)
+
+    if keras_service.wait_for_word(word="calibration", timeout=30, interval=1) is None:
+        logging.info("Did not find the display settings menu. Did the game navigate the settings correctly?")
+        sys.exit(1)
+    am.take_screenshot("display.png", ArtifactType.CONFIG_IMAGE, "screenshot of display settings")
+
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.5)
+
+    # We do a little toggling here in order to get the settings to update correctly, because wukong has no true full screen option
+    if keras_service.wait_for_word(word="windowed", timeout=30, interval=1) is None:
+        logging.info("Did not find the keyword 'windowed'. Did the game select the display mode setting correctly?")
+        sys.exit(1)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_LEFT)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_LEFT)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_LEFT)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_LEFT)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.5)
+
+    # navigate to graphics menu
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.5)
+
+    if keras_service.wait_for_word(word="super", timeout=30, interval=1) is None:
+        logging.info("Did not find the top of the graphics menu. Did the game navigate the settings menu correctly?")
+        sys.exit(1)
+    am.take_screenshot("graphics_1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of graphics menu")
+
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    gamepad.update()
+    time.sleep(0.5)
+
+    if keras_service.wait_for_word(word="reflection", timeout=30, interval=1) is None:
+        logging.info("Did not find the bottom of the graphics menu. Did the game scroll down the graphics settings menu correctly?")
+        sys.exit(1)
+    am.take_screenshot("graphics_2.png", ArtifactType.CONFIG_IMAGE, "second screenshot of graphics menu")
+
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
+    gamepad.update()
+    time.sleep(0.5)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
+    gamepad.update()
+    time.sleep(2)
+
+    if keras_service.wait_for_word(word="benchmark", timeout=30, interval=1) is None:
         logging.info("Did not find the option to start the benchmark. Did the game exit the settings menu correctly?")
         sys.exit(1)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(2)
 
-    clickme(result["x"], result["y"])
-    time.sleep(2)
-    user.press("enter")
-    time.sleep(2)
+    if keras_service.wait_for_word(word="confirm", timeout=30, interval=1) is None:
+        logging.info("Did not find the confirmation to start the benchmark. Did the game select the start benchmark option correctly?")
+        sys.exit(1)
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.update()
+    time.sleep(0.5)
+
     result = keras_service.wait_for_word("current", interval=0.5, timeout=100)
     if not result:
         logging.info("Could not find current. Unable to mark start time!")
@@ -102,6 +336,7 @@ def run_benchmark(keras_service):
     test_end_time = time.time() - 1
     time.sleep(5)
     am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    am.copy_file(f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}", ArtifactType.CONFIG_TEXT, "GameUserSettings.ini")
     time.sleep(0.5)
 
     # End the run
@@ -110,6 +345,8 @@ def run_benchmark(keras_service):
 
     # Exit
     terminate_processes(PROCESS_NAME)
+    am.create_manifest()
+
     return test_start_time, test_end_time
 
 
