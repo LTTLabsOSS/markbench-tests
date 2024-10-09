@@ -136,15 +136,15 @@ def main():
     args = parser.parse_args()
     keras_service = KerasService(args.keras_host, args.keras_port)
     start_time, endtime = run_benchmark(keras_service)
-    # height, width = read_current_resolution()
-    # report = {
-    #     "resolution": format_resolution(width, height),
-    #     "start_time": seconds_to_milliseconds(start_time),
-    #     "end_time": seconds_to_milliseconds(endtime),
-    #     "version": get_build_id(STEAM_GAME_ID)
-    # }
+    height, width = read_current_resolution()
+    report = {
+        "resolution": format_resolution(width, height),
+        "start_time": seconds_to_milliseconds(start_time),
+        "end_time": seconds_to_milliseconds(endtime),
+        "version": get_build_id(STEAM_GAME_ID)
+    }
 
-    #write_report_json(LOG_DIR, "report.json", report)
+    write_report_json(LOG_DIR, "report.json", report)
 
 
 if __name__ == "__main__":
