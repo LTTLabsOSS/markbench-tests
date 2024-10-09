@@ -7,6 +7,37 @@ import time
 import pydirectinput as user
 import pyautogui as gui
 import requests
+import vgamepad as vg
+
+class LTTGamePad(vg.VX360Gamepad):
+    """
+    Class extension for the virtual game pad library
+
+    Many of the in built functions for this library are super useful but a bit unwieldy to use. 
+    This class extension provides some useful functions to make your code look a little cleaner when 
+    implemented in our harnesses.
+    """
+    def single_press(self, button = vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN, pause = 0.1):
+        """ 
+        Custom function to perform a single press of a specified gamepad button
+
+        button --> must be a XUSB_BUTTON class, defaults to dpad down
+        pause --> the delay between pressing and releasing the button, defaults to 0.1 if not specified
+        """
+
+        self.press_button(button=button)
+        self.update()
+        time.sleep(pause)
+        self.release_button(button=button)
+        self.update()
+
+    def press_n_times(self, button: vg.XUSB_BUTTON, n: int, pause: float):
+        """
+        Sometimes we need to press a certain gamepad button multiple times in a row, this loop does that for you
+        """
+        for _ in range(n):
+            self.single_press(button)
+            time.sleep(pause)
 
 def clickme(x: int, y: int):
     """Pyautogui's click function sucks, this should do the trick"""
