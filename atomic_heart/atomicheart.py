@@ -167,6 +167,8 @@ def run_benchmark():
 
     # Exit
     terminate_processes(PROCESS_NAME)
+    am.create_manifest()
+
     return test_start_time, test_end_time
 
 

@@ -218,6 +218,8 @@ def run_benchmark():
     logging.info("Benchmark took %f seconds", elapsed_test_time)
 
     terminate_processes(PROCESS_NAME)
+    am.create_manifest()
+
     return test_start_time, test_end_time
 
 
