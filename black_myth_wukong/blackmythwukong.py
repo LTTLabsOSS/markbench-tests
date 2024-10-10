@@ -1,4 +1,4 @@
-"""Total War: Warhammer III test script"""
+"""Black Myth Wukong test script"""
 from argparse import ArgumentParser
 import logging
 import os
