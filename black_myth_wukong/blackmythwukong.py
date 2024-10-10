@@ -150,7 +150,7 @@ def run_benchmark(keras_service):
         sys.exit(1)
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(0.5)
-    
+
     # log set up time
     elapsed_setup_time = round(time.time() - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
