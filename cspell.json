@@ -45,7 +45,8 @@
     "vkfurrytorus",
     "GPGPU",
     "Stellaris",
-    "shusaura"
+    "shusaura", 
+    "wukong"
   ],
   "ignoreRegExpList": [
     "import .*"
