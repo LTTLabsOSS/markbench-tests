@@ -19,7 +19,7 @@ from harness_utils.output import (
     DEFAULT_DATE_FORMAT)
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService, ScreenShotDivideMethod, ScreenShotQuadrant, ScreenSplitConfig
-from harness_utils.steam import exec_steam_game
+from harness_utils.steam import exec_steam_game, get_build_id
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 STEAM_GAME_ID = 750920
@@ -142,7 +142,8 @@ def run_benchmark(keras_service, am):
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(test_start_time),
-        "end_time": seconds_to_milliseconds(test_end_time)
+        "end_time": seconds_to_milliseconds(test_end_time),
+        "version": get_build_id(STEAM_GAME_ID)
     }
 
     am.create_manifest()
