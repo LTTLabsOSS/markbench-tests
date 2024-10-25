@@ -83,7 +83,7 @@ def main():
         "end_time": end_time,
         "score": avg_score,
         "unit": "seconds",
-        "test": tunings[0]
+        "test": "y-cruncher"
     }
 
     write_report_json(LOG_DIR, "report.json", report)

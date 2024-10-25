@@ -7,7 +7,7 @@ import sys
 from argparse import ArgumentParser
 import time
 from subprocess import Popen
-from utils import find_latest_log, find_score_in_log, get_photoshop_version, get_premierepro_version
+from utils import find_latest_log, find_score_in_log, get_photoshop_version, get_premierepro_version, get_latest_benchmark_by_version
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 from harness_utils.process import terminate_processes
@@ -35,8 +35,10 @@ EXECUTABLE_NAME = "PugetBench for Creators.exe"
 def run_benchmark(application: str, app_version: str) -> Popen:
     """run benchmark"""
     start_time = time.time()
+    benchmark_version = get_latest_benchmark_by_version(application)
+
     executable_path =  Path(f"C:\\Program Files\\PugetBench for Creators\\{EXECUTABLE_NAME}")
-    command_args = ["--run_count" , "1", "--rerun_count", "1", "--benchmark_version", "1.0.0", "--preset", "Standard", "--app_version", f"{app_version}"]
+    command_args = ["--run_count" , "1", "--rerun_count", "1", "--benchmark_version", benchmark_version, "--preset", "Standard", "--app_version", f"{app_version}"]
     photoshop_args = command_args + ["--app", "photoshop"]
     premiere_args = command_args + ["--app", "premierepro"]
     command = None
@@ -44,6 +46,8 @@ def run_benchmark(application: str, app_version: str) -> Popen:
         command = [executable_path] +  premiere_args
     elif application == "photoshop":
         command =[executable_path] + photoshop_args
+
+    logging.info(command)
 
     with Popen(command) as process:
         exit_code = process.wait()
