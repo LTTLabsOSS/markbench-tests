@@ -50,7 +50,7 @@ def navigate_to_settings():
         time.sleep(0.5)
 
 
-def navigate_settings(am: ArtifactManager) -> None:
+def navigate_settings() -> None:
     """Simulate inputs to navigate the main menu"""
     navigate_to_settings()
     # entered settings
@@ -90,7 +90,6 @@ def navigate_settings(am: ArtifactManager) -> None:
 def run_benchmark():
     """Start the benchmark"""
     copy_no_intro_mod()
-    am = ArtifactManager(LOG_DIRECTORY)
 
     # Start game via Steam and enter fullscreen mode
     setup_start_time = time.time()
@@ -103,7 +102,7 @@ def run_benchmark():
         logging.info("Did not see settings menu option.")
         sys.exit(1)
 
-    navigate_settings(am)
+    navigate_settings()
 
     # Start the benchmark!
     setup_end_time = time.time()
@@ -148,6 +147,7 @@ logging.getLogger('').addHandler(console)
 
 args = get_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
+am = ArtifactManager(LOG_DIRECTORY)
 
 try:
     start_time, end_time = run_benchmark()
@@ -159,6 +159,7 @@ try:
         "version": get_build_id(STEAM_GAME_ID)
     }
 
+    am.create_manifest()
     write_report_json(LOG_DIRECTORY, "report.json", report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")

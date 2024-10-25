@@ -8,6 +8,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 - Update test name in y-cruncher harness to not be the tuning used.
 - Update PugetBench harness to use the latest benchmark version available.
+- Fix to Cyberpunk 2077 harness not creating artifact manifest.
 
 ## 2024-10-18
 
