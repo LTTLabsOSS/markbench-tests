@@ -37,7 +37,7 @@ We recommend you install python from the [official downloads page](https://www.p
 
 <!-- omit in toc -->
 #### Poetry
-This project uses [Poetry](https://python-poetry.org/docs/) for dependency management. 
+This project uses [Poetry](https://python-poetry.org/docs/) for dependency management.
 
 <!-- omit in toc -->
 ##### Installation
@@ -62,10 +62,10 @@ Once you've successfully installed Python and Poetry, it's time to kick off our 
 
 Let's take a look at the folder structure
 
-- msikombuster (dir)
+- msikombustor (dir)
   - run (dir)
   - manifest.yaml
-  - msikombuster.py
+  - msikombustor.py
   - README.md
 
 When we mention "test harness," we are specifically referring to the entire directory and its contents. Within this directory, we anticipate, at the very least, the presence of an executable file that follows the guideline of returning either 1 or 0 to signify the completion status. Additionally, the manifest.yaml serves as metadata that allows MarkBench to identify it; however, for now, we can disregard it.
@@ -78,12 +78,12 @@ The run directory, on the other hand, is the designated location for all outputs
 
 <img src="images/run_your_first_test_image1.png" alt="Logo" width="500" height="180" />
 
-3. From this directory run the command 
+3. From this directory run the command
 ```powershell
-python .\msikombuster.py --test vkfurrytorus --resolution "1080,1920" -b true
+python .\msikombustor.py --test vkfurrytorus --resolution "1080,1920" -b true
 ```
 
-Executing this command initiates MSI Kombustor in benchmark mode, specifically launching the (VK) FurMark-Donut test at a resolution of 1920 x 1080. After the benchmark run concludes, you'll find the log and any captured assets stored within the **msikombuster/run** directory.
+Executing this command initiates MSI Kombustor in benchmark mode, specifically launching the (VK) FurMark-Donut test at a resolution of 1920 x 1080. After the benchmark run concludes, you'll find the log and any captured assets stored within the **msikombustor/run** directory.
 
 It's important to note that the arguments required for each harness may vary. To ensure smooth test execution, consult the README of each harness, which provides detailed instructions on any unique requirements for running that specific test.
 
@@ -112,7 +112,7 @@ output_dir: "run"
 options:
   - name: scene
     type: select
-    values: [all, classroom, junkshop, monster] 
+    values: [all, classroom, junkshop, monster]
   - name: version
     type: select
     values: ["3.6.0", "3.5.0", "3.4.0", "3.3.0"]
@@ -133,17 +133,17 @@ Any test that isn't a game *should* include a report for MarkBench to upload to 
 - **version** string - applicable version of the test or program under test. This property is optional if no version is available.
 - **score** string - a scalar output from the test. This could be a benchmark score, or duration.
 - **unit** string - the unit of measurement of the scalar. If duration, this could be seconds or minutes. If the score is simply a score, than this property can be omitted or left empty.
-- **label** string - optional friendly name for the unit of measurement. For example "fps" vs "Frames Per Second". This property is mainly used to override an axis on a graph downstream. 
+- **label** string - optional friendly name for the unit of measurement. For example "fps" vs "Frames Per Second". This property is mainly used to override an axis on a graph downstream.
 
 The JSON report can be a single object, or array of reports, indicating to MarkBench there is more than one result to record.
 ```json
-{ 
-  "test": "FireStrike", 
+{
+  "test": "FireStrike",
   "version": "4.5.1",
   "score": "16099",
   "unit": "",
   "label": "",
-  "start_time": 1702514174861, 
+  "start_time": 1702514174861,
   "end_time": 1702514209166
 }
 ```
@@ -152,9 +152,9 @@ The JSON report can be a single object, or array of reports, indicating to MarkB
 #### Game Report
 Game reports don't require a report as the score is the FPS which is calculated downstream of MarkBench. It is helpful if the report does include things such as resolution, start time, and end time.
 ```json
-{ 
-  "resolution": "1920x1080",  
-  "start_time": 1702514174861, 
+{
+  "resolution": "1920x1080",
+  "start_time": 1702514174861,
   "end_time": 1702514209166
 }
 ```

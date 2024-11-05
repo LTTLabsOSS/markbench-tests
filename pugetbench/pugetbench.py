@@ -82,7 +82,7 @@ def main():
         if version is None:
             version = get_premierepro_version()
     elif args.app == "photoshop":
-        test = "PugentBench Adobe Photoshop"
+        test = "PugetBench Adobe Photoshop"
         if version is None:
             version = get_photoshop_version()
 

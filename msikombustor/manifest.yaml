@@ -1,5 +1,5 @@
-friendly_name: "MSI Kombuster"
-executable: "msikombuster.py"
+friendly_name: "MSI Kombustor"
+executable: "msikombustor.py"
 process_name: "MSI-Kombustor-x64.exe"
 output_dir: "run"
 options:

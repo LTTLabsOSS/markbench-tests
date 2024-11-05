@@ -37,7 +37,7 @@ def find_latest_log():
 
 
 def find_score_in_log(log_path):
-    """find score in pugentbench log file"""
+    """find score in pugetbench log file"""
     with open(log_path, 'r', encoding="utf-8") as file:
         for line in file:
             score = is_score_line(line)
