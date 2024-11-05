@@ -16,44 +16,50 @@ sys.path.append(PARENT_DIR)
 
 from harness_utils.output import (
     write_report_json,
-    format_resolution
+    format_resolution,
+    DEFAULT_LOGGING_FORMAT,
+    DEFAULT_DATE_FORMAT
 )
 
 INSTALL_DIR = r"C:\Program Files\Geeks3D\MSI Kombustor 4 x64"
 EXECUTABLE = "MSI-Kombustor-x64.exe"
 
-args = parse_args()
+def main():
+    """main"""
+    args = parse_args()
 
-script_dir = os.path.dirname(os.path.realpath(__file__))
-log_dir = os.path.join(script_dir, "run")
-if not os.path.isdir(log_dir):
-    os.mkdir(log_dir)
-LOGGING_FORMAT = '%(asctime)s %(levelname)-s %(message)s'
-logging.basicConfig(filename=f'{log_dir}/harness.log',
-                    format=LOGGING_FORMAT,
-                    datefmt='%m-%d %H:%M',
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+    script_dir = Path(__file__).resolve().parent
+    log_dir = script_dir.joinpath("run")
+    log_dir.mkdir(exist_ok=True)
+    logging.basicConfig(filename=f'{log_dir}/harness.log',
+                        format=DEFAULT_LOGGING_FORMAT,
+                        datefmt=DEFAULT_DATE_FORMAT,
+                        level=logging.DEBUG)
+    console = logging.StreamHandler()
+    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
+    console.setFormatter(formatter)
+    logging.getLogger('').addHandler(console)
 
 
-cmd = f'{INSTALL_DIR}/{EXECUTABLE}'
+    cmd = f'{INSTALL_DIR}/{EXECUTABLE}'
 
-h, w = parse_resolution(args.resolution)
-argstr = create_arg_string(w, h, args.test, args.benchmark)
+    h, w = parse_resolution(args.resolution)
+    argstr = create_arg_string(w, h, args.test, args.benchmark)
 
-with Popen([cmd, argstr]) as process:
-    EXIT_CODE = process.wait()
+    with Popen([cmd, argstr]) as process:
+        process.wait()
 
-log_path = os.path.join(INSTALL_DIR, "_kombustor_log.txt")
-score = parse_score(log_path)
+    log_path = os.path.join(INSTALL_DIR, "_kombustor_log.txt")
+    score = parse_score(log_path)
 
-report = {
-    "resolution": format_resolution(w, h),
-    "test": args.test,
-    "score": score
-}
+    report = {
+        "resolution": format_resolution(w, h),
+        "test": args.test,
+        "score": score
+    }
 
-write_report_json(log_dir, "report.json", report)
+    write_report_json(log_dir, "report.json", report)
+
+
+if __name__ == "__main__":
+    main()
