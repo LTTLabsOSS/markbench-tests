@@ -1,16 +1,16 @@
-# Rocket League
+# Alan Wake 2
 
-This test launches a replay of Rocket League. The replay is from RLCS Season 9 NA Playoffs Series 4 [game of NRG vs G2](https://ballchasing.com/replay/bd63746b-cbe7-4d29-8f84-c8da3c4c1703?g=series-4-g2-esports-4-3-nrg-espo-qe6nf31lzt).
+Launches and loads a particular same game and runs the scene.
 
 ## Prerequisites
 
 - Python 3.10+
-- Rocket league installed
+- Alan Wake 2 installed
 - Keras OCR service
 
 ## Options
 
-- `kerasHost`: string representing the IP address of the Keras service. e.x. `0.0.0.0` 
+- `kerasHost`: string representing the IP address of the Keras service. e.x. `0.0.0.0`
 - `kerasPort`: string representing the port of the Keras service. e.x. `8080`
 
 ## Output
