@@ -13,7 +13,7 @@ CONFIG_PATH = Path(f"{LOCALAPPDATA}\\Remedy\\AlanWake2\\renderer.ini")
 DEFAULT_EXECUTABLE_NAME = "EpicGamesLauncher.exe"
 
 
-def AccountId() -> any:
+def account_id() -> any:
     """get epic account id"""
     reg_path = r'Software\Epic Games\Unreal Engine\Identifiers'
     try:
@@ -48,7 +48,7 @@ def get_resolution():
 
 def copy_save() -> None:
     """copy benchmark save game files to local install"""
-    SAVE_LOCATION = Path(f"{LOCALAPPDATA}\\Remedy\\AlanWake2\\{AccountId()}\\")
+    save_location = Path(f"{LOCALAPPDATA}\\Remedy\\AlanWake2\\{account_id()}\\")
     is_valid_benchmark = os.path.isdir(AW2_SAVE)
 
     if not is_valid_benchmark:
@@ -56,15 +56,15 @@ def copy_save() -> None:
 
     # Validate/create path to directory where we will copy benchmark to
     try:
-        Path(SAVE_LOCATION).mkdir(parents=True, exist_ok=True)
+        Path(save_location).mkdir(parents=True, exist_ok=True)
     except FileExistsError as e:
         logging.error("Could not copy files - likely due to non-directory file existing at path.")
         raise e
 
     # Copy the benchmark over
     logging.info("Copying benchmark to install folder")
-    destination_folder = SAVE_LOCATION.joinpath(os.path.basename(AW2_SAVE))
-    logging.info(F"Copying: {AW2_SAVE} -> {destination_folder}")
+    destination_folder = save_location.joinpath(os.path.basename(AW2_SAVE))
+    logging.info("Copying: %s -> %s", AW2_SAVE, destination_folder)
     shutil.copytree(AW2_SAVE, destination_folder, dirs_exist_ok = True)
 
 
@@ -77,6 +77,5 @@ def find_epic_executable() -> any:
         value, _ = winreg.QueryValueEx(registry_key, "ModSdkCommand")
         winreg.CloseKey(registry_key)
         return value
-    # pylint:disable=undefined-variable
-    except WindowsError:
+    except WindowsError: # pylint: disable=undefined-variable
         return None
