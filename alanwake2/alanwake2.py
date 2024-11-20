@@ -166,7 +166,7 @@ try:
     setup_logging()
     kerasService = KerasService(args.keras_host, args.keras_port)
     am = ArtifactManager(LOG_DIRECTORY)
-    start_time, end_time = run_benchmark(kerasService, am)
+    start_time, end_time = run_benchmark()
     height, width = get_resolution()
     report = {
         "resolution": f"{width}x{height}",
