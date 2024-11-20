@@ -179,6 +179,8 @@ def run_benchmark(keras_service):
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     terminate_processes(PROCESS_NAME)
+    am.create_manifest()
+
     return test_start_time, test_end_time
 
 

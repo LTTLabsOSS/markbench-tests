@@ -199,6 +199,8 @@ def run_benchmark() -> tuple[float]:
     logging.info("Benchmark took %s seconds", elapsed_test_time)
 
     terminate_processes(PROCESS_NAME)
+    am.create_manifest()
+
     return test_start_time, test_end_time
 
 
