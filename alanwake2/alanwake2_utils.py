@@ -77,5 +77,5 @@ def find_epic_executable() -> any:
         value, _ = winreg.QueryValueEx(registry_key, "ModSdkCommand")
         winreg.CloseKey(registry_key)
         return value
-    except WindowsError: # pylint: disable=undefined-variable
+    except WindowsError: #pylint: disable=undefined-variable
         return None
