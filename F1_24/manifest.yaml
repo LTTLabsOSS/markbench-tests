@@ -1,0 +1,10 @@
+friendly_name: "F1_24"
+executable: "f1_24.py"
+process_name: "F1_24.exe"
+hidden: 0
+output_dir: "run"
+options:
+  - name: kerasHost
+    type: input
+  - name: kerasPort
+    type: input
