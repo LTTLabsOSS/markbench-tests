@@ -1,11 +1,11 @@
-# F1 23
+# F1 24
 
 This script navigates through in-game menus to the built in benchmark and runs it with the current settings. It then waits for a results screen, expecting the benchmark to be running 3 laps.
 
 ## Prerequisites
 
 - Python 3.10+
-- F1 23 installed
+- F1 24 installed
 - Keras OCR service
 
 ## Options

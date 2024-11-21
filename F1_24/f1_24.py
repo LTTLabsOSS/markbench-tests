@@ -1,4 +1,4 @@
-"""F1 23 test script"""
+"""F1 24 test script"""
 import logging
 from argparse import ArgumentParser
 import os.path
