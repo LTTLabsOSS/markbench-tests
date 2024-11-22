@@ -23,6 +23,9 @@ from harness_utils.steam import (
   get_registry_active_user,
   exec_steam_run_command,
 )
+from harness_utils.misc import press_n_times
+
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 STEAM_GAME_ID = 1888930
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -31,14 +34,50 @@ PROCESS_NAME = "tlou"
 
 user.FAILSAFE = False
 
+def take_screenshots(am: ArtifactManager) -> None:
+    """Take screenshots of the benchmark settings"""
+    logging.info("Taking screenshots of benchmark settings")
+    press_n_times("s",2,0.2 )
+    user.press("enter")
+    press_n_times("s",4,0.2 )
+    user.press("enter")
+    am.take_screenshot("video1.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings1")
 
-def navigate_main_menu() -> None:
+    press_n_times("s",15,0.2)
+    am.take_screenshot("video2.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings2")
+
+    press_n_times("s",6, 0.2)
+    am.take_screenshot("video3.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings3")
+
+    user.press("backspace")
+    user.press("s")
+    user.press("enter")
+    am.take_screenshot("graphics1.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings1")
+    press_n_times("s", 10, 0.2)
+    am.take_screenshot("graphics2.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings2")
+    press_n_times("s", 7, 0.2)
+    am.take_screenshot("graphics3.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings3")
+    press_n_times("s", 9, 0.2)
+    am.take_screenshot("graphics4.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings4")
+    press_n_times("s", 7, 0.2)
+    am.take_screenshot("graphics5.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings5")
+    press_n_times("s", 6, 0.2)
+    am.take_screenshot("graphics6.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings6")
+    press_n_times("s", 5, 0.2)
+    am.take_screenshot("graphics7.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings7")
+    user.press("backspace")
+    user.press("backspace")
+    press_n_times("w", 2, 0.2)
+
+def navigate_main_menu(am: ArtifactManager) -> None:
     """Input to navigate main menu"""
     logging.info("Navigating main menu")
 
     # Enter TLOU menu
     user.press("space")
     time.sleep(0.5)
+    take_screenshots(am)
+
     user.press("space")
     time.sleep(0.5)
     # Press load game
@@ -61,7 +100,7 @@ def run_benchmark():
     """Starts the benchmark"""
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = time.time()
-
+    am = ArtifactManager(LOG_DIRECTORY)
     time.sleep(10)
 
     result = kerasService.wait_for_word("press", interval=3, timeout=60)
@@ -69,7 +108,7 @@ def run_benchmark():
         logging.info("Did not see start screen")
         sys.exit(1)
 
-    navigate_main_menu()
+    navigate_main_menu(am)
 
     # press load save
     result = kerasService.look_for_word("yes", attempts=10, interval=1)
@@ -111,6 +150,9 @@ def run_benchmark():
     time.sleep(3)
 
     terminate_processes(PROCESS_NAME)
+
+    am.create_manifest()
+
     return test_start_time, test_end_time
 
 
