@@ -7,6 +7,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 ## 2024-11-20
 
 - Add Alan Wake 2 test harness.
+- Add Tiny Tina's Wonderlands harness back with updates.
 
 ## 2024-11-05
 
