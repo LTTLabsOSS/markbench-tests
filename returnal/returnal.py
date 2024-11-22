@@ -52,8 +52,8 @@ def check_vram_alert(attempts: int) -> bool:
     """Look for VRAM alert in menu"""
     logging.info("Checking for VRAM alert prompt")
     for _ in range(attempts):
-        alert_result = kerasService.capture_screenshot_find_word("alert")
-        locate_result = kerasService.capture_screenshot_find_word("locate")
+        alert_result = kerasService.look_for_word("alert")
+        locate_result = kerasService.look_for_word("locate")
         if locate_result is not None:
             return False
         if alert_result is not None:
