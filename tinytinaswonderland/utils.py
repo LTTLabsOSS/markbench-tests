@@ -19,10 +19,10 @@ def find_latest_result_file(base_path):
 
 def get_documents_path() -> str:
     """get my documents path"""
-    SHELL_FOLDER_KEY = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
+    shell_folder_key = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
     try:
         root_handle = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)
-        shell_folders_handle = winreg.OpenKeyEx(root_handle, SHELL_FOLDER_KEY)
+        shell_folders_handle = winreg.OpenKeyEx(root_handle, shell_folder_key)
         personal_path_key = winreg.QueryValueEx(shell_folders_handle, 'Personal')
         return personal_path_key[0]
     finally:
@@ -45,7 +45,7 @@ def read_resolution() -> tuple[int]:
     hpattern = re.compile(r"ResolutionSizeY=(\d*)")
     wpattern = re.compile(r"ResolutionSizeX=(\d*)")
     h = w = 0
-    with open(dest) as fp:
+    with open(dest, encoding="utf-8") as fp:
         lines = fp.readlines()
         for line in lines:
             result = hpattern.match(line)
@@ -57,5 +57,5 @@ def read_resolution() -> tuple[int]:
                 w = result2.group(1)
             if int(h) > 0 and int(w) > 0:
                 break
-    logging.info(f"Current resolution is {w}x{h}")
+    logging.info(f"Current resolution is %dx%d", w, h)
     return (h, w)

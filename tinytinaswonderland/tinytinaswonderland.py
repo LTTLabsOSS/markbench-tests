@@ -1,3 +1,4 @@
+"""tiny tinas wonderlands test script"""
 from pathlib import Path
 import time
 import pydirectinput as user
@@ -95,7 +96,7 @@ def run_benchmark():
 
 
     t2 = time.time()
-    logging.info(f"Harness setup took {round((t2 - t1), 2)} seconds")
+    logging.info(f"Harness setup took %d seconds", round((t2 - t1), 2))
 
     result = kerasService.wait_for_word("fps", interval=0.5, timeout=30)
     if result is None:
@@ -108,7 +109,7 @@ def run_benchmark():
         raise ValueError("did not detect end of benchmark, should have landed back in main menu")
 
     benchmark_end = time.time()
-    logging.info(f"Benchmark took {round((benchmark_end - benchmark_start), 2)} seconds")
+    logging.info(f"Benchmark took %d seconds", round((benchmark_end - benchmark_start), 2))
     terminate_processes("Wonderlands")
     return benchmark_start, benchmark_end
 
@@ -122,7 +123,7 @@ try:
     am = ArtifactManager(LOG_DIRECTORY)
     start_time, end_time = run_benchmark()
     height, width = read_resolution()
-    result = {
+    report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
@@ -130,16 +131,16 @@ try:
     }
 
     my_documents_path = get_documents_path()
-    settings_path = Path(my_documents_path, "My Games\Tiny Tina's Wonderlands\Saved\Config\WindowsNoEditor\GameUserSettings.ini")
+    settings_path = Path(my_documents_path, r"My Games\Tiny Tina's Wonderlands\Saved\Config\WindowsNoEditor\GameUserSettings.ini")
     am.copy_file(settings_path, ArtifactType.CONFIG_TEXT, "settings file")
-    saved_results_dir = Path(my_documents_path, "My Games\Tiny Tina's Wonderlands\Saved\BenchmarkData")
+    saved_results_dir = Path(my_documents_path, r"My Games\Tiny Tina's Wonderlands\Saved\BenchmarkData")
     benchmark_results = find_latest_result_file(str(saved_results_dir))
     am.copy_file(benchmark_results, ArtifactType.RESULTS_TEXT, "results file")
 
     am.create_manifest()
-    write_report_json(LOG_DIRECTORY, "report.json", result)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
     terminate_processes("Wonderlands")
-    exit(1)
+    sys.exit(1)
