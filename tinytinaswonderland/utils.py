@@ -29,16 +29,6 @@ def get_documents_path() -> str:
         root_handle.Close()
 
 
-def valid_filepath(path: str) -> bool:
-    """Validate given path is valid and leads to an existing file. A directory
-    will throw an error, path must be a file"""
-    if path is None or len(path.strip()) <= 0:
-        return False
-    if os.path.isdir(path) is True:
-        return False
-    return os.path.isfile(path)
-
-
 def read_resolution() -> tuple[int]:
     """read current resolution"""
     dest = f"{get_documents_path()}\\My Games\\Tiny Tina's Wonderlands\\Saved\\Config\\WindowsNoEditor\\GameUserSettings.ini"
