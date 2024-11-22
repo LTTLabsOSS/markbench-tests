@@ -96,7 +96,8 @@ def run_benchmark():
 
 
     t2 = time.time()
-    logging.info(f"Harness setup took %d seconds", round((t2 - t1), 2))
+    duration =  round((t2 - t1), 2)
+    logging.info("Harness setup took %d seconds", duration)
 
     result = kerasService.wait_for_word("fps", interval=0.5, timeout=30)
     if result is None:
@@ -109,7 +110,8 @@ def run_benchmark():
         raise ValueError("did not detect end of benchmark, should have landed back in main menu")
 
     benchmark_end = time.time()
-    logging.info(f"Benchmark took %d seconds", round((benchmark_end - benchmark_start), 2))
+    duration =  round((benchmark_end - benchmark_start), 2)
+    logging.info("Benchmark took %d seconds", duration)
     terminate_processes("Wonderlands")
     return benchmark_start, benchmark_end
 
