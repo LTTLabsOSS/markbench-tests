@@ -110,7 +110,6 @@ def run_benchmark():
 
     navigate_main_menu(am)
 
-    am.take_screenshot("benchmark.png", ArtifactType.CONFIG_IMAGE, "screenshot of benchmark settings")
     # press load save
     result = kerasService.look_for_word("yes", attempts=10, interval=1)
     if not result:
@@ -153,7 +152,7 @@ def run_benchmark():
     terminate_processes(PROCESS_NAME)
 
     am.create_manifest()
-    
+
     return test_start_time, test_end_time
 
 
