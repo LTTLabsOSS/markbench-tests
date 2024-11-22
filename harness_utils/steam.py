@@ -57,7 +57,7 @@ def exec_steam_run_command(game_id: int, steam_path=None) -> Popen:
     """Runs a game using the Steam browser protocol. The `steam_path` argument can be used to
     specify a specifc path to the Steam executable instead of relying on finding the current
     installation in the Window's registry.
-    
+
     To launch a game with provided arguments,
     see the function `exec_steam_game`.
     """
@@ -85,12 +85,12 @@ def get_build_id(game_id: int) -> str:
     """Gets the build ID of a game from the Steam installation directory"""
     game_folder = Path(get_steamapps_common_path()) / "../" / f"appmanifest_{game_id}.acf"
     if not game_folder.exists():
-        logging.error("Game folder not found")
+        logging.warning("Game folder not found when looking for game version")
         return None
     with open(game_folder, 'r', encoding='utf-8') as file:
         data = file.read()
     buildid_match = re.search(r'"buildid"\s*"(\d+)"', data)
     if buildid_match is not None:
         return buildid_match.group(1)
-    logging.error("No 'buildid' found in the file")
+    logging.warning("No 'buildid' found in the file when looking for game version")
     return None
