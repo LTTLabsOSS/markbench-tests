@@ -77,7 +77,7 @@ def find_graphics() -> any:
 
 def navigate_startup():
     """press space through the warnings and navigate startup menus"""
-    result = kerasService.wait_for_word("product", timeout=40)
+    result = kerasService.wait_for_word("product", timeout=80)
     if not result:
         logging.info("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
