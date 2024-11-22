@@ -151,6 +151,9 @@ def run_benchmark():
     time.sleep(3)
 
     terminate_processes(PROCESS_NAME)
+
+    am.create_manifest()
+    
     return test_start_time, test_end_time
 
 
