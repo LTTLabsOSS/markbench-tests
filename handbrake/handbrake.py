@@ -30,27 +30,27 @@ logging.basicConfig(
 )
 
 ENCODER_TO_PRESET = {
-    "h264 (cpu)": {
+    "h264_cpu": {
         "file": f"{SCRIPT_DIR}\\presets\\h264_bigbuckbunny_1080p_cpu_test.json",
         "name": "\"CPU 1080p BBB H264\""
     },
-    "h265 (cpu)": {
+    "h265_cpu": {
         "file": f"{SCRIPT_DIR}\\presets\\h265_bigbuckbunny_1080p_cpu_test.json",
         "name": "\"CPU 1080p BBB H265\""
     },
-    "av1 (cpu)": {
+    "av1_cpu": {
         "file": f"{SCRIPT_DIR}\\presets\\av1-svt_bigbuckbunny_1080p_cpu_test.json",
         "name": "\"CPU 1080p BBB AV1\""
     },
-    "h264 (nvenc)": {
+    "h264_nvenc": {
         "file": f"{SCRIPT_DIR}\\presets\\h264_nvenc_bigbuckbunny_1080p_gpu_test.json",
         "name": "\"NVENC 1080p BBB H264\""
     },
-    "h265 (nvenc)": {
+    "h265_nvenc": {
         "file": f"{SCRIPT_DIR}\\presets\\h265_nvenc_bigbuckbunny_1080p_gpu_test.json",
         "name": "\"NVENC 1080p BBB H265\""
     },
-    "av1 (nvenc)": {
+    "av1_nvenc": {
         "file": f"{SCRIPT_DIR}\\presets\\av1-nvenc_bigbuckbunny_1080p_gpu_test.json",
         "name": "\"NVENC 1080p BBB AV1\""
     }
