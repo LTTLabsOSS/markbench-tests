@@ -17,7 +17,6 @@ from harness_utils.output import (
 )
 
 
-
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
 LOG_DIR.mkdir(exist_ok=True)
@@ -31,17 +30,29 @@ logging.basicConfig(
 )
 
 ENCODER_TO_PRESET = {
-    "h264": {
+    "h264 (cpu)": {
         "file": f"{SCRIPT_DIR}\\presets\\h264_bigbuckbunny_1080p_cpu_test.json",
         "name": "\"CPU 1080p BBB H264\""
     },
-    "h265": {
+    "h265 (cpu)": {
         "file": f"{SCRIPT_DIR}\\presets\\h265_bigbuckbunny_1080p_cpu_test.json",
         "name": "\"CPU 1080p BBB H265\""
     },
-    "av1": {
+    "av1 (cpu)": {
         "file": f"{SCRIPT_DIR}\\presets\\av1-svt_bigbuckbunny_1080p_cpu_test.json",
         "name": "\"CPU 1080p BBB AV1\""
+    },
+    "h264 (nvenc)": {
+        "file": f"{SCRIPT_DIR}\\presets\\h264_nvenc_bigbuckbunny_1080p_gpu_test.json",
+        "name": "\"NVENC 1080p BBB H264\""
+    },
+    "h265 (nvenc)": {
+        "file": f"{SCRIPT_DIR}\\presets\\h265_nvenc_bigbuckbunny_1080p_gpu_test.json",
+        "name": "\"NVENC 1080p BBB H265\""
+    },
+    "av1 (nvenc)": {
+        "file": f"{SCRIPT_DIR}\\presets\\av1-nvenc_bigbuckbunny_1080p_gpu_test.json",
+        "name": "\"NVENC 1080p BBB AV1\""
     }
 }
 
