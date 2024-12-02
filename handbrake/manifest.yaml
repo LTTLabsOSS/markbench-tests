@@ -13,4 +13,8 @@ options:
       - h264_nvenc
       - h265_nvenc
       - av1_nvenc
+      - h264_vce
+      - av1_vc
+      - h264_quicksync
+      - av1_quicksync
     tooltip: Select which preset to use
