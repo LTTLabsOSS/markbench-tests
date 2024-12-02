@@ -62,11 +62,11 @@ ENCODER_TO_PRESET = {
         "file": f"{SCRIPT_DIR}\\presets\\av1-vce-bigbuckbunny_1080p_gpu_test.json",
         "name": "\"AMD VCE 1080p BBB AV1\""
     },
-    "h264_vce": {
+    "h264_quicksync": {
         "file": f"{SCRIPT_DIR}\\presets\\h264-quicksync_bigbuckbunny_1080p_gpu_test.json",
         "name": "\"QUICKSYNC 1080p BBB H264\""
     },
-    "av1_vce": {
+    "av1_quicksync": {
         "file": f"{SCRIPT_DIR}\\presets\\av1-quicksync_bigbuckbunny_1080p_gpu_test.json",
         "name": "\"QUICKSYNC 1080p BBB AV1\""
     }
