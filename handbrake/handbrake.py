@@ -53,6 +53,14 @@ ENCODER_TO_PRESET = {
     "av1_nvenc": {
         "file": f"{SCRIPT_DIR}\\presets\\av1-nvenc_bigbuckbunny_1080p_gpu_test.json",
         "name": "\"NVENC 1080p BBB AV1\""
+    },
+    "h264_vce": {
+        "file": f"{SCRIPT_DIR}\\presets\\h264-vce-bigbuckbunny_1080p_gpu_test.json",
+        "name": "\"AMD VCE 1080p BBB H264\""
+    },
+    "av1_vce": {
+        "file": f"{SCRIPT_DIR}\\presets\\av1-vce-bigbuckbunny_1080p_gpu_test.json",
+        "name": "\"AMD VCE 1080p BBB AV1\""
     }
 }
 
