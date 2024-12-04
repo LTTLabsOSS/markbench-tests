@@ -31,10 +31,8 @@ def run_benchmark():
     # Wait for game to load to main menu
     setup_start_time = time.time()
     exec_steam_run_command(STEAM_GAME_ID)
-    time.sleep(65)
+    time.sleep(80)
 
-    user.press("enter")
-    time.sleep(3)
     # Press Z to enter settings
     user.press("z")
     time.sleep(3)
