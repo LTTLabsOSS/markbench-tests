@@ -194,6 +194,7 @@ def run_benchmark():
         logging.info("Couldn't find the video tab. Did the settings menu open?")
         sys.exit(1)
 
+    time.sleep(1)
     gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_RIGHT_SHOULDER, n=4, pause=0.5)
     time.sleep(1)
 
