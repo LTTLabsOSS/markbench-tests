@@ -202,7 +202,7 @@ def run_benchmark():
         logging.info("Couldn't find the video tab. Did the settings menu open?")
         sys.exit(1)
 
-    gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN, n=4, pause=0.5)
+    gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_RIGHT_SHOULDER, n=4, pause=0.5)
     time.sleep(1)
 
     result = kerasService.look_for_word("window", attempts=10, interval=1)
