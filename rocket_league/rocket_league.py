@@ -136,7 +136,7 @@ def run_benchmark():
     user.press("enter")
     time.sleep(1)
 
-    if kerasService.look_for_word(word="captures", attempts=10, interval=1):
+    if kerasService.look_for_word(word="recent", attempts=10, interval=1):
         gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_RIGHT_SHOULDER)
         time.sleep(1)
 
