@@ -136,13 +136,9 @@ def run_benchmark():
     user.press("enter")
     time.sleep(1)
 
-    result = kerasService.look_for_word("saved", attempts=10, interval=1)
-    if not result:
-        logging.info("Couldn't find the saved replays tab. Check settings and try again.")
-        sys.exit(1)
-
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_RIGHT_SHOULDER)
-    time.sleep(1)
+    if kerasService.look_for_word(word="captures", attempts=10, interval=1):
+        gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_RIGHT_SHOULDER)
+        time.sleep(1)
 
     if kerasService.wait_for_word(word="watch", timeout=60, interval=0.5) is None:
         logging.error("Didn't navigate to the saved replays correctly. Check menu options for any anomalies.")
