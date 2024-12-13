@@ -8,6 +8,7 @@ import pydirectinput as user
 import sys
 import getpass
 from pathlib import Path
+import vgamepad as vg
 from rocket_league_utils import get_resolution, copy_replay, find_rocketleague_executable, get_args
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
@@ -23,6 +24,7 @@ from harness_utils.misc import press_n_times
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.misc import LTTGamePad
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
@@ -32,6 +34,7 @@ PROCESS_NAME = "rocketleague.exe"
 EXECUTABLE_PATH = find_rocketleague_executable()
 GAME_ID = "9773aa1aa54f4f7b80e44bef04986cea%3A530145df28a24424923f5828cc9031a1%3ASugar?action=launch&silent=true"
 am = ArtifactManager(LOG_DIRECTORY)
+gamepad = LTTGamePad()
 
 setup_log_directory(LOG_DIRECTORY)
 
@@ -66,6 +69,9 @@ def run_benchmark():
     setup_start_time = time.time()
     start_game()
     time.sleep(30)  # wait for game to load into main menu
+
+    if kerasService.wait_for_word(word="failed", timeout=15, interval=1):
+        user.press("enter")
 
     if kerasService.wait_for_word(word="press", timeout=30, interval=1) is None:
         logging.error("Game didn't start in time. Check settings and try again.")
@@ -139,12 +145,13 @@ def run_benchmark():
         logging.info("Couldn't find the saved replays tab. Check settings and try again.")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-    time.sleep(2)
+    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_RIGHT_SHOULDER)
+    time.sleep(1)
+
+    if kerasService.wait_for_word(word="watch", timeout=60, interval=0.5) is None:
+        logging.error("Didn't navigate to the saved replays correctly. Check menu options for any anomalies.")
+        sys.exit(1)
+    
     user.press("enter")
 
     setup_end_time = time.time()
@@ -195,15 +202,12 @@ def run_benchmark():
         logging.info("Couldn't find the video tab. Did the settings menu open?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN, n=4, pause=0.5)
     time.sleep(1)
-    result = kerasService.look_for_word("basic", attempts=10, interval=1)
+
+    result = kerasService.look_for_word("window", attempts=10, interval=1)
     if not result:
-        logging.info("Couldn't find the basic settings header. Did Keras click correctly?")
+        logging.info("Couldn't find the window settings header. Did Keras see the right menu?")
         sys.exit(1)
     else:
         logging.info("Seen the video settings, capturing the data.")

@@ -6,7 +6,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2024-12-13
 
-- Update to Rocket League harness for artifact management and new menu navigation.
+- Update to Rocket League harness for artifact management and new menu navigation. Fixed navigation for scaling issues. Now requires vgamepad.
 
 ## 2024-12-04
 
