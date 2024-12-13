@@ -69,24 +69,21 @@ def run_benchmark():
     setup_start_time = time.time()
     start_game()
     time.sleep(30)  # wait for game to load into main menu
-
-    if kerasService.wait_for_word(word="failed", timeout=15, interval=1):
+    
+    #Looking for Syncing Failed message
+    if kerasService.wait_for_word(word="failed", timeout=5, interval=1):
         user.press("enter")
 
+    #Looking for press start
     if kerasService.wait_for_word(word="press", timeout=30, interval=1) is None:
         logging.error("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
     user.press("enter")
 
-    is_close_present = kerasService.look_for_word("close", interval=1, attempts=5)
-    if is_close_present:
-        gui.moveTo(is_close_present[0], is_close_present[1])
-        time.sleep(0.2)
-        gui.mouseDown()
-        time.sleep(0.2)
-        gui.mouseUp()
-        time.sleep(1)
+    #Looking for news menu close button
+    if kerasService.wait_for_word(word="close", timeout=5, interval=1): 
+        gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
 
     time.sleep(3)
 
@@ -134,7 +131,6 @@ def run_benchmark():
         logging.error("Didn't navigate to the replays. Check menu options for any anomalies.")
         sys.exit(1)
 
-    #Entering the replay screen and starting the replay:
     user.press("down")
     time.sleep(0.2)
     user.press("enter")
