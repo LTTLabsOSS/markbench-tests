@@ -116,8 +116,8 @@ def run_benchmark():
     user.press("enter")
     time.sleep(1)
 
-    #Entering the replay screen and starting the replay:
-    if kerasService.wait_for_word(word="replays", timeout=60, interval=0.5) is None:
+    #Entering the match history screen and starting the replay:
+    if kerasService.wait_for_word(word="history", timeout=60, interval=0.5) is None:
         logging.error("Didn't navigate to the replays. Check menu options for any anomalies.")
         sys.exit(1)
 
@@ -126,12 +126,19 @@ def run_benchmark():
     time.sleep(0.2)
     user.press("enter")
     time.sleep(1)
-    user.press("down")
+
+    result = kerasService.look_for_word("saved", attempts=10, interval=1)
+    if not result:
+        logging.info("Couldn't find the saved replays tab. Check settings and try again.")
+        sys.exit(1)
+
+    gui.moveTo(result["x"], result["y"])
     time.sleep(0.2)
-    user.press("up")
+    gui.mouseDown()
     time.sleep(0.2)
+    gui.mouseUp()
+    time.sleep(2)
     user.press("enter")
-    time.sleep(1)
 
     setup_end_time = time.time()
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
