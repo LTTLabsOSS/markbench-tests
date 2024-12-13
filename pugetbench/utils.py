@@ -5,6 +5,26 @@ from pathlib import Path
 import win32api
 
 
+def get_latest_benchmark_by_version(benchmark_name: str):
+    """get latest benchmark version for photoshop or premiere"""
+    valid_names = ['photoshop', 'premierepro']
+    if benchmark_name not in valid_names:
+        raise ValueError("invalid benchmark name")
+
+    benchmark_json_dir = Path().home() / "AppData/Local/com.puget.benchmark/benchmarks"
+    if not benchmark_json_dir.exists():
+        raise ValueError("could not find benchmark directory in appdata")
+
+    benchmark_files = [f for f in os.listdir(benchmark_json_dir) if benchmark_name in f]
+    # sort assuming the filename format is still premierepro-benchmark-X.X.X.json
+    # convert version to int and order by size
+    sorted_files = sorted(benchmark_files, key=lambda x: tuple(map(int,x.split("-")[-1].split(".")[:-1])))
+    latest_version = sorted_files[len(sorted_files)-1]
+    latest_version = latest_version.split("-")[2]
+    version, _ = latest_version.rsplit(".", 1)
+    return version
+
+
 def find_latest_log():
     """find latest log from pugetbench"""
     appdata_path = os.getenv('LOCALAPPDATA')
@@ -17,7 +37,7 @@ def find_latest_log():
 
 
 def find_score_in_log(log_path):
-    """find score in pugentbench log file"""
+    """find score in pugetbench log file"""
     with open(log_path, 'r', encoding="utf-8") as file:
         for line in file:
             score = is_score_line(line)

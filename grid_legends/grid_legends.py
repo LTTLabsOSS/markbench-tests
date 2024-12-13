@@ -159,6 +159,8 @@ def run_benchmark(keras_service):
 
     logging.info("Run completed. Closing game.")
     time.sleep(2)
+    am.create_manifest()
+
     return test_start_time, test_end_time
 
 

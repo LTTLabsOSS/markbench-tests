@@ -37,7 +37,6 @@
     "dmdef",
     "firestrikegraphicsscorep",
     "myresults",
-    "msikombuster",
     "msikombustor",
     "isfile",
     "rstrip",
@@ -45,7 +44,8 @@
     "vkfurrytorus",
     "GPGPU",
     "Stellaris",
-    "shusaura"
+    "shusaura",
+    "wukong"
   ],
   "ignoreRegExpList": [
     "import .*"
