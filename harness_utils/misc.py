@@ -127,10 +127,11 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
 
     def dpad_press_n_times(self, direction: vg.DS4_DPAD_DIRECTIONS, n: int):
         """
-        Sometimes we need to press a certain gamepad button multiple times in a row, this loop does that for you
+        Sometimes we need to press a certain dpad direction multiple times in a row, this loop does that for you
         """
         for _ in range(n):
-            self.directional_pad(direction)
+            self.single_dpad_press(direction)
+            time.sleep(0.1)
 
 def clickme(x: int, y: int):
     """Pyautogui's click function sucks, this should do the trick"""
