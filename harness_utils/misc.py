@@ -57,7 +57,7 @@ class LTTGamePad360(vg.VX360Gamepad):
             self.single_press(button)
             time.sleep(pause)
 
-class LTTGamePadDS4(vg.VSD4Gamepad):
+class LTTGamePadDS4(vg.VDS4Gamepad):
     """
     Class extension for the virtual game pad library
 
