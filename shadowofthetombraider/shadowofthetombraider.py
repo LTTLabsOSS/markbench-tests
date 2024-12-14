@@ -119,7 +119,7 @@ def run_benchmark(keras_service, am):
     else:
         test_end_time = time.time()
 
-    if keras_service.wait_for_word(word="results", timeout=20, interval=1) is None:
+    if keras_service.wait_for_word(word="results", timeout=60, interval=1) is None:
         logging.error("Results screen after running benchmark not found, exiting.")
         sys.exit(1)
 
