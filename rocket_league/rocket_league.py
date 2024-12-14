@@ -137,6 +137,7 @@ def run_benchmark():
     time.sleep(1)
 
     if kerasService.look_for_word(word="recent", attempts=10, interval=1):
+        logging.info("In Match History menu, navigating to Saved Replays.")
         gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_RIGHT_SHOULDER)
         time.sleep(1)
 
@@ -195,6 +196,7 @@ def run_benchmark():
         sys.exit(1)
 
     time.sleep(1)
+    logging.info("Navigating to the Video tab.")
     gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_RIGHT_SHOULDER, n=4, pause=0.5)
     time.sleep(1)
 
