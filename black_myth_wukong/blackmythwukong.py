@@ -63,7 +63,7 @@ def start_game():
 def run_benchmark(keras_service):
     """Starts the benchmark"""
     start_game()
-    gamepad = LTTGamePad()
+    gamepad = LTTGamePad360()
     setup_start_time = time.time()
     am = ArtifactManager(LOG_DIR)
     time.sleep(20)

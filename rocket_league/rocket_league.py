@@ -24,7 +24,7 @@ from harness_utils.misc import press_n_times
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.misc import LTTGamePad
+from harness_utils.misc import LTTGamePadDS4
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
@@ -34,7 +34,7 @@ PROCESS_NAME = "rocketleague.exe"
 EXECUTABLE_PATH = find_rocketleague_executable()
 GAME_ID = "9773aa1aa54f4f7b80e44bef04986cea%3A530145df28a24424923f5828cc9031a1%3ASugar?action=launch&silent=true"
 am = ArtifactManager(LOG_DIRECTORY)
-gamepad = LTTGamePad()
+gamepad = LTTGamePadDS4()
 
 setup_log_directory(LOG_DIRECTORY)
 
@@ -72,18 +72,18 @@ def run_benchmark():
     
     #Looking for Syncing Failed message
     if kerasService.wait_for_word(word="failed", timeout=5, interval=1):
-        gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+        gamepad.single_button_press(button=vg.DS4BUTTONS.DS4_BUTTON_CROSS)
 
     #Looking for press start
     if kerasService.wait_for_word(word="press", timeout=30, interval=1) is None:
         logging.error("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.single_button_press(button=vg.DS4BUTTONS.DS4_BUTTON_CROSS)
 
     #Looking for news menu close button
     if kerasService.wait_for_word(word="close", timeout=5, interval=1): 
-        gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
+        gamepad.single_button_press(button=vg.DS4BUTTONS.DS4_BUTTON_CIRCLE)
 
     time.sleep(3)
 
@@ -92,27 +92,27 @@ def run_benchmark():
         logging.error("Main menu didn't show up. Check settings and try again.")
         sys.exit(1)
 
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_LEFT)
+    gamepad.single_dpad_press(button=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_WEST)
     time.sleep(0.2)
-    gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP, n=4, pause=0.5)
+    gamepad.dpad_press_n_times(button=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_NORTH, n=4, pause=0.5)
 
     if kerasService.look_for_word(word="esports", attempts=5, interval=0.2):
         logging.info('Saw esports. Navigating accordingly.')
-        gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+        gamepad.single_dpad_press(button=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH)
         time.sleep(0.2)
 
     if kerasService.look_for_word(word="shop", attempts=10, interval=0.2):
         logging.info('Saw item shop. Navigating accordingly.')
-        gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+        gamepad.single_dpad_press(button=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH)
         time.sleep(0.2)
 
     if kerasService.look_for_word(word="pass", attempts=5, interval=0.2):
         logging.info('Saw rocket pass. Navigating accordingly.')
-        gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+        gamepad.single_dpad_press(button=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH)
         time.sleep(0.2)
 
-    gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN, n=2, pause=0.5)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.dpad_press_n_times(button=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, n=2, pause=0.5)
+    gamepad.single_button_press(button=vg.DS4BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(1)
 
     #Entering the match history screen and starting the replay:
@@ -120,20 +120,20 @@ def run_benchmark():
         logging.error("Didn't navigate to the replays. Check menu options for any anomalies.")
         sys.exit(1)
 
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.single_dpad_press(button=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH)
+    gamepad.single_button_press(button=vg.DS4BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(1)
 
     if kerasService.look_for_word(word="recent", attempts=10, interval=1):
         logging.info("In Match History menu, navigating to Saved Replays.")
-        gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_RIGHT_SHOULDER)
+        gamepad.single_button_press(button=vg.DS4BUTTONS.DS4_BUTTON_SHOULDER_RIGHT)
         time.sleep(1)
 
     if kerasService.wait_for_word(word="watch", timeout=60, interval=0.5) is None:
         logging.error("Didn't navigate to the saved replays correctly. Check menu options for any anomalies.")
         sys.exit(1)
     
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.single_button_press(button=vg.DS4BUTTONS.DS4_BUTTON_CROSS)
 
     setup_end_time = time.time()
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
@@ -144,10 +144,10 @@ def run_benchmark():
         logging.error("Game didn't load map. Check settings and try again.")
         sys.exit(1)
 
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_LEFT)
-    gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_Y, n=5, pause=0.5)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.single_button_press(button=vg.DS4BUTTONS.DS4_BUTTON_CROSS)
+    gamepad.single_dpad_press(button=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_WEST)
+    gamepad.button_press_n_times(button=vg.DS4BUTTONS.DS4_BUTTON_TRIANGLE, n=5, pause=0.5)
+    gamepad.single_button_press(button=vg.DS4BUTTONS.DS4_BUTTON_CROSS)
     logging.info("Benchmark started. Waiting for completion.")
     time.sleep(4)
     test_start_time = time.time()
@@ -160,9 +160,9 @@ def run_benchmark():
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
 
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_START)
-    gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN, n=3, pause=0.5)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.single_button_press(button=vg.DS4BUTTONS.DS4_BUTTON_OPTIONS)
+    gamepad.dpad_press_n_times(button=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, n=3, pause=0.5)
+    gamepad.single_button_press(button=vg.DS4BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(0.4)
 
     result = kerasService.look_for_word("video", attempts=10, interval=1)
@@ -172,7 +172,7 @@ def run_benchmark():
 
     time.sleep(1)
     logging.info("Navigating to the Video tab.")
-    gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_RIGHT_SHOULDER, n=4, pause=0.5)
+    gamepad.button_press_n_times(button=vg.DS4BUTTONS.DS4_BUTTON_SHOULDER_RIGHT, n=4, pause=0.5)
     time.sleep(1)
 
     result = kerasService.look_for_word("window", attempts=10, interval=1)
