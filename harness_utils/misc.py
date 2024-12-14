@@ -122,7 +122,7 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
         pause --> the delay between pressing and releasing the button, defaults to 0.1 if not specified
         """
 
-        self.directional_pad(button=button)
+        self.directional_pad(direction=direction)
         self.update()
         time.sleep(pause)
 
