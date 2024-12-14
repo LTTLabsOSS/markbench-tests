@@ -72,14 +72,14 @@ def run_benchmark():
     
     #Looking for Syncing Failed message
     if kerasService.wait_for_word(word="failed", timeout=5, interval=1):
-        user.press("enter")
+        gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
 
     #Looking for press start
     if kerasService.wait_for_word(word="press", timeout=30, interval=1) is None:
         logging.error("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
-    user.press("enter")
+    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
 
     #Looking for news menu close button
     if kerasService.wait_for_word(word="close", timeout=5, interval=1): 
@@ -92,38 +92,27 @@ def run_benchmark():
         logging.error("Main menu didn't show up. Check settings and try again.")
         sys.exit(1)
 
-    user.press("left")
+    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_LEFT)
     time.sleep(0.2)
-    user.press("up")
-    time.sleep(0.2)
-    user.press("up")
-    time.sleep(0.2)
-    user.press("up")
-    time.sleep(0.2)
-    user.press("up")
-    time.sleep(0.2)
+    gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP, n=4, pause=0.5)
 
     if kerasService.look_for_word(word="esports", attempts=5, interval=0.2):
         logging.info('Saw esports. Navigating accordingly.')
-        user.press("down")
+        gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
         time.sleep(0.2)
 
     if kerasService.look_for_word(word="shop", attempts=10, interval=0.2):
         logging.info('Saw item shop. Navigating accordingly.')
-        user.press("down")
+        gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
         time.sleep(0.2)
 
     if kerasService.look_for_word(word="pass", attempts=5, interval=0.2):
         logging.info('Saw rocket pass. Navigating accordingly.')
-        user.press("down")
+        gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
         time.sleep(0.2)
 
-    user.press("down")
-    time.sleep(0.2)
-    user.press("down")
-    time.sleep(0.2)
-
-    user.press("enter")
+    gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN, n=2, pause=0.5)
+    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(1)
 
     #Entering the match history screen and starting the replay:
@@ -131,9 +120,8 @@ def run_benchmark():
         logging.error("Didn't navigate to the replays. Check menu options for any anomalies.")
         sys.exit(1)
 
-    user.press("down")
-    time.sleep(0.2)
-    user.press("enter")
+    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(1)
 
     if kerasService.look_for_word(word="recent", attempts=10, interval=1):
@@ -145,7 +133,7 @@ def run_benchmark():
         logging.error("Didn't navigate to the saved replays correctly. Check menu options for any anomalies.")
         sys.exit(1)
     
-    user.press("enter")
+    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
 
     setup_end_time = time.time()
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
@@ -156,21 +144,10 @@ def run_benchmark():
         logging.error("Game didn't load map. Check settings and try again.")
         sys.exit(1)
 
-    user.press("shiftleft")
-    time.sleep(0.2)
-    user.press("left")
-    time.sleep(0.2)
-    gui.click(button='right')
-    time.sleep(0.2)
-    gui.click(button='right')
-    time.sleep(0.2)
-    gui.click(button='right')
-    time.sleep(0.2)
-    gui.click(button='right')
-    time.sleep(0.2)
-    gui.click(button='right')
-    time.sleep(0.2)
-    user.press("shiftleft")
+    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_LEFT)
+    gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_Y, n=5, pause=0.5)
+    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     logging.info("Benchmark started. Waiting for completion.")
     time.sleep(4)
     test_start_time = time.time()
@@ -183,11 +160,9 @@ def run_benchmark():
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
 
-    user.press("esc")
-    time.sleep(0.4)
-    press_n_times("down", 3, 0.5)
-    time.sleep(0.2)
-    user.press("enter")
+    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_START)
+    gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN, n=3, pause=0.5)
+    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(0.4)
 
     result = kerasService.look_for_word("video", attempts=10, interval=1)
