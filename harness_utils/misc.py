@@ -124,7 +124,9 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
 
         self.directional_pad(direction=direction)
         self.update()
+        time.sleep(0.1)
         self.reset()
+        self.update()
 
     def dpad_press_n_times(self, direction: vg.DS4_DPAD_DIRECTIONS, n: int):
         """

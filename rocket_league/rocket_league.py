@@ -107,7 +107,7 @@ def run_benchmark():
         time.sleep(0.2)
 
     if kerasService.look_for_word(word="pass", attempts=5, interval=0.2):
-        logging.info('Saw rocket pass. Navigatin g accordingly.')
+        logging.info('Saw rocket pass. Navigating accordingly.')
         gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH)
         time.sleep(0.2)
 
