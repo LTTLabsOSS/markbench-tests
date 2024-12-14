@@ -105,7 +105,9 @@ def run_benchmark(keras_service, am):
     elapsed_setup_time = round(time.time() - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
-    time.sleep(2)
+    if keras_service.wait_for_word(word="FPS", timeout=30, interval=0.5) is None:
+        logging.info("Did not find the benchmark option on the screen. Did the menu get stuck?")
+        sys.exit(1)
     test_start_time = time.time()
 
     # Wait for benchmark to complete
