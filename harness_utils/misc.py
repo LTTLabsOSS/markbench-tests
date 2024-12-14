@@ -122,18 +122,16 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
         pause --> the delay between pressing and releasing the button, defaults to 0.1 if not specified
         """
 
-        self.press_button(button=button)
+        self.directional_pad(button=button)
         self.update()
         time.sleep(pause)
-        self.release_button(button=button)
-        self.update()
 
     def dpad_press_n_times(self, button: vg.DS4_DPAD_DIRECTIONS, n: int, pause: float):
         """
         Sometimes we need to press a certain gamepad button multiple times in a row, this loop does that for you
         """
         for _ in range(n):
-            self.single_press(button)
+            self.directional_pad(button)
             time.sleep(pause)
 
 def clickme(x: int, y: int):
