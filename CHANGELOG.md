@@ -7,9 +7,9 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 ## 2024-12-17
 
 - More updates to the Rocket League harness for navigation via DS4 controller input.
-- Added DS4 input commands to the Vgamepad commands in the harness_utils/misc.
+- Added DS4 input to the Vgamepad commands in the harness_utils/misc.
 - Updated Black Myth Wukong harness to coincide with the changes to the Vgamepad commands.
-- Updated some timing to the Shadow of the Tomb Raider harness for the timeout on the results screen for slower loading devices.
+- Updated timeout to the Shadow of the Tomb Raider harness while checking for the results screen for slower loading devices.
 
 ## 2024-12-13
 
