@@ -41,32 +41,32 @@ BENCHMARK_CONFIG = {
     },
      "Intel_GPU_INT8": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15int8_openvino.def\"",
-        "process_name":  "OpenVino.exe",
+        "process_name":  "openvino.exe",
         "test_name": "Intel OpenVINO Stable Diffusion INT8"
     },
     "Intel_GPU_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15fp16_openvino.def\"",
-        "process_name":  "OpenVino.exe",
+        "process_name":  "openvino.exe",
         "test_name": "Intel OpenVINO Stable Diffusion FP16"
     },
     "Intel_GPU_XL_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sdxlfp16_openvino.def\"",
-        "process_name":  "OpenVino.exe",
+        "process_name":  "openvino.exe",
         "test_name": "Intel OpenVINO Stable Diffusion FP16 XL"
     },
     "NVIDIA_GPU_INT8": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15int8_tensorrt.def\"",
-        "process_name":  "TensorRT.exe",
+        "process_name":  "tensorrt.exe",
         "test_name": "NVIDIA TensorRT Stable Diffusion INT8"
     },
     "NVIDIA_GPU_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15fp16_tensorrt.def\"",
-        "process_name":  "TensorRT.exe",
+        "process_name":  "tensorrt.exe",
         "test_name": "NVIDIA TensorRT Stable Diffusion FP16"
     },
     "NVIDIA_GPU_XL_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sdxlfp16_tensorrt.def\"",
-        "process_name":  "TensorRT.exe",
+        "process_name":  "tensorrt.exe",
         "test_name": "NVIDIA TensorRT Stable Diffusion FP16 XL"
     }
 }
