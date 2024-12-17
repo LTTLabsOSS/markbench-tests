@@ -74,6 +74,7 @@ def run_benchmark():
     if kerasService.wait_for_word(word="failed", timeout=5, interval=1):
         gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
 
+    time.sleep(2)
     #Looking for press start
     if kerasService.wait_for_word(word="press", timeout=30, interval=1) is None:
         logging.error("Game didn't start in time. Check settings and try again.")
