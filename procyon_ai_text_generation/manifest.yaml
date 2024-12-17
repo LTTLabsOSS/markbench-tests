@@ -1,0 +1,15 @@
+friendly_name: "Procyon AI Text Generation"
+executable: "ulprocai_img_gen.py"
+process_name: "ProcyonCmd.exe"
+disable_presentmon: true
+output_dir: "run"
+options:
+  - name: engine
+    type: select
+    values:
+      - "All_Models"
+      - "Llama_2_13B"
+      - "Llama_3_1_8B"
+      - "Mistral_7B"
+      - "Phi_3_5"
+    tooltip: Select which configuration to run for Procyon
