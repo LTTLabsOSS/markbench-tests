@@ -102,7 +102,7 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
             self.single_button_press(button)
             time.sleep(pause)
     
-    def single_dpad_press(self, direction = vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH):
+    def single_dpad_press(self, direction = vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, pause = 0.1):
         """ 
         Custom function to perform a single press of a specified gamepad button
 
@@ -124,17 +124,17 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
 
         self.directional_pad(direction=direction)
         self.update()
-        time.sleep(0.1)
+        time.sleep(pause)
         self.reset()
         self.update()
 
-    def dpad_press_n_times(self, direction: vg.DS4_DPAD_DIRECTIONS, n: int):
+    def dpad_press_n_times(self, direction: vg.DS4_DPAD_DIRECTIONS, n: int, pause: float):
         """
         Sometimes we need to press a certain dpad direction multiple times in a row, this loop does that for you
         """
         for _ in range(n):
             self.single_dpad_press(direction)
-            time.sleep(0.1)
+            time.sleep(pause)
 
 def clickme(x: int, y: int):
     """Pyautogui's click function sucks, this should do the trick"""
