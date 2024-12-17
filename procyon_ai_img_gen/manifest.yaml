@@ -7,11 +7,12 @@ options:
   - name: engine
     type: select
     values:
-      - "AMD_CPU"
-      - "AMD_GPU"
-      - "Intel_CPU"
-      - "Intel_GPU"
-      - "Intel_NPU"
-      - "NVIDIA_GPU"
-      - "Qualcomm_HTP"
+      - "AMD_GPU_FP16"
+      - "AMD_GPU_XL_FP16"
+      - "Intel_GPU_INT8"
+      - "Intel_GPU_FP16"
+      - "Intel_GPU_XL_FP16"
+      - "NVIDIA_GPU_INT8"
+      - "NVIDIA_GPU_FP16"
+      - "NVIDIA_GPU_XL_FP16"
     tooltip: Select which configuration to run for Procyon
