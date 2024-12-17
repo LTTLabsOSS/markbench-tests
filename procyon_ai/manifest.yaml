@@ -1,0 +1,17 @@
+friendly_name: "Procyon AI CV"
+executable: "ulprocai.py"
+process_name: "ProcyonCmd.exe"
+disable_presentmon: true
+output_dir: "run"
+options:
+  - name: engine
+    type: select
+    values:
+      - "AMD_CPU"
+      - "AMD_GPU"
+      - "Intel_CPU"
+      - "Intel_GPU"
+      - "Intel_NPU"
+      - "NVIDIA_GPU"
+      - "Qualcomm_HTP"
+    tooltip: Select which configuration to run for Procyon

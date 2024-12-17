@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<benchmark>
+	<test_info>
+		<benchmark_tests>
+			<benchmark_test name="AIWinMLBenchmark" test_run_type="EXPLICIT" version="1.0"/>
+		</benchmark_tests>
+	</test_info>
+	<application_info>
+		<selected_workloads>
+			<selected_workload name="AIMobileNetV3Default"/>
+			<selected_workload name="AIInceptionV4Default"/>
+			<selected_workload name="AIResNet50Default"/>
+			<selected_workload name="AIDeepLabV3Default"/>
+			<selected_workload name="AIYOLOV3Default"/>
+			<selected_workload name="AIESRGANDefault"/>
+		</selected_workloads>
+	</application_info>
+  <settings>
+    <setting>
+      <name>ai_device_type</name>
+      <value>CPU</value><!--Options: CPU, GPU -->
+    </setting>
+    <setting>
+      <name>ai_inference_precision</name>
+      <value>float32</value><!--Options: float32, float16, integer -->
+    </setting>
+    <setting>
+      <name>ai_device_id</name> <!-- Use our CLI e.g. "ProcyonCmd.exe list-winml-devices" to full options. Check "ProcyonCmd.exe -h" for the parameter syntax. -->
+      <value></value>
+    </setting>
+  </settings>
+</benchmark>
