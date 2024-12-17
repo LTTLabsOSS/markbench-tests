@@ -95,7 +95,7 @@ def run_benchmark():
 
     gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_WEST)
     time.sleep(0.2)
-    gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_NORTH, n=4)
+    gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_NORTH, n=4, pause=0.2)
 
     if kerasService.look_for_word(word="esports", attempts=5, interval=0.2):
         logging.info('Saw esports. Navigating accordingly.')
