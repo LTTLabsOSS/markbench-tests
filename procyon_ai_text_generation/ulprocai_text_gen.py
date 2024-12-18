@@ -38,7 +38,7 @@ BENCHMARK_CONFIG = {
     "Llama_2_13B": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_llama2.def\"",
         "process_name": "Handler.exe",
-        "result_regex": r"<AiTextGenerationLlama2OverallScore>(\d+)",
+        "result_regex": r"<AiTextGenerationLlama2OverallScore >(\d+)",
         "test_name": "LLama 2 Text Generation"
     },
      "Llama_3_1_8B": {
@@ -134,15 +134,38 @@ try:
     logging.info("Benchmark took %.2f seconds", elapsed_test_time)
     logging.info("Score was %s", score)
 
-    report = {
-        "test": BENCHMARK_CONFIG[args.engine]["test_name"],
-        "unit": "score",
-        "score": score,
-        "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time)
-    }
+    if not BENCHMARK_CONFIG[args.engine] == "All_Models":
+        report = {
+            "test": BENCHMARK_CONFIG[args.engine]["test_name"],
+            "unit": "score",
+            "score": score,
+            "start_time": seconds_to_milliseconds(start_time),
+            "end_time": seconds_to_milliseconds(end_time)
+        }
 
-    write_report_json(LOG_DIR, "report.json", report)
+        write_report_json(LOG_DIR, "report.json", report)
+    else:
+        session_report = []
+
+        for test_type in BENCHMARK_CONFIG.items():
+            if test_type[0] == "All_Models":
+                continue
+
+            score = find_score_in_xml(test_type[1]["result_regex"])
+            if score is None:
+                logging.error("Could not find overall score!")
+                sys.exit(1)
+
+            report = {
+                "test": test_type[0],
+                "unit": "score",
+                "score": score,
+                "start_time": seconds_to_milliseconds(start_time),
+                "end_time": seconds_to_milliseconds(end_time)
+            }
+
+        write_report_json(LOG_DIR, "report.json", session_report)
+        
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

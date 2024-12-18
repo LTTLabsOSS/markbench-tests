@@ -1,5 +1,5 @@
 friendly_name: "Procyon AI Text Generation"
-executable: "ulprocai_img_gen.py"
+executable: "ulprocai_text_gen.py"
 process_name: "ProcyonCmd.exe"
 disable_presentmon: true
 output_dir: "run"
