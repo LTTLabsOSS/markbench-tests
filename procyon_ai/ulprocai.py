@@ -6,7 +6,7 @@ import subprocess
 import sys
 import time
 import psutil
-from utils import find_score_in_xml, is_process_running, get_install_path, get_winml_devices
+from utils import find_score_in_xml, is_process_running, get_install_path, get_winml_devices, get_openvino_devices, get_openvino_gpu
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -29,6 +29,7 @@ EXECUTABLE = "ProcyonCmd.exe"
 ABS_EXECUTABLE_PATH = DIR_PROCYON / EXECUTABLE
 
 WINML_DEVICES = get_winml_devices(ABS_EXECUTABLE_PATH)
+OPENVINO_DEVICES = get_openvino_devices(ABS_EXECUTABLE_PATH)
 
 CONFIG_DIR = SCRIPT_DIR / "config"
 BENCHMARK_CONFIG = {
@@ -54,21 +55,29 @@ BENCHMARK_CONFIG = {
     "Intel_CPU": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_openvino_cpu.def\"",
         "process_name":  "OpenVino.exe",
+        "device_id": "CPU",
+        "device_name": OPENVINO_DEVICES["CPU"],
         "test_name": "Intel OpenVINO CPU (FLOAT32)"
     },
     "Intel_GPU0": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_openvino_gpu.def\"",
         "process_name":  "OpenVino.exe",
+        "device_id": "GPU.0",
+        "device_name": get_openvino_gpu(OPENVINO_DEVICES ,"GPU.0"),
         "test_name": "Intel OpenVINO GPU 0 (FLOAT32)"
     },
     "Intel_GPU1": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_openvino_gpu.def\"",
         "process_name":  "OpenVino.exe",
+        "device_id": "GPU.1",
+        "device_name": get_openvino_gpu(OPENVINO_DEVICES ,"GPU.0"),
         "test_name": "Intel OpenVINO GPU 1 (FLOAT32)"
     },
     "Intel_NPU": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_openvino_npu.def\"",
         "process_name":  "OpenVino.exe",
+        "device_id": "NPU",
+        "device_name": OPENVINO_DEVICES["NPU"],
         "test_name": "Intel OpenVINO NPU (FLOAT32)"
     },
     "NVIDIA_GPU": {
