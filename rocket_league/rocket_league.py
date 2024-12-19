@@ -113,6 +113,7 @@ def run_benchmark():
         time.sleep(0.5)
 
     gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, n=2, pause=0.5)
+    time.sleep(0.5)
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(1)
 
@@ -122,6 +123,7 @@ def run_benchmark():
         sys.exit(1)
 
     gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH)
+    time.sleep(0.5)
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(1)
 
@@ -146,8 +148,11 @@ def run_benchmark():
         sys.exit(1)
 
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
+    time.sleep(0.5)
     gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_WEST)
+    time.sleep(0.5)
     gamepad.button_press_n_times(button=vg.DS4_BUTTONS.DS4_BUTTON_TRIANGLE, n=5, pause=0.5)
+    time.sleep(0.5)
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     logging.info("Benchmark started. Waiting for completion.")
     time.sleep(4)
@@ -169,7 +174,9 @@ def run_benchmark():
         sys.exit(1)
     time.sleep(0.5)
     gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_NORTH, n=5, pause=0.8)
+    time.sleep(0.5)
     gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, n=3, pause=0.8)
+    time.sleep(0.5)
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(0.4)
 
