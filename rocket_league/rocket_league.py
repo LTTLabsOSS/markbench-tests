@@ -162,6 +162,12 @@ def run_benchmark():
     logging.info("Benchmark took %f seconds", elapsed_test_time)
 
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_OPTIONS)
+
+    result = kerasService.look_for_word("paused", attempts=10, interval=1)
+    if not result:
+        logging.info("Couldn't find the settings option. Did the pause menu open?")
+        sys.exit(1)
+    time.sleep(0.5)
     gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_NORTH, n=5, pause=0.8)
     gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, n=3, pause=0.8)
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
