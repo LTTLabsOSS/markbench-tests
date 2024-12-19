@@ -6,7 +6,7 @@ import subprocess
 import sys
 import time
 import psutil
-from utils import find_score_in_xml, is_process_running, get_install_path
+from utils import find_score_in_xml, is_process_running, get_install_path, get_winml_devices
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -27,6 +27,9 @@ LOG_DIR = SCRIPT_DIR / "run"
 DIR_PROCYON = Path(get_install_path())
 EXECUTABLE = "ProcyonCmd.exe"
 ABS_EXECUTABLE_PATH = DIR_PROCYON / EXECUTABLE
+
+WINML_DEVICES = get_winml_devices(ABS_EXECUTABLE_PATH)
+
 CONFIG_DIR = SCRIPT_DIR / "config"
 BENCHMARK_CONFIG = {
     "AMD_CPU": {
@@ -34,9 +37,18 @@ BENCHMARK_CONFIG = {
         "process_name":  "WinML.exe",
         "test_name": "WinML CPU (FLOAT32)"
     },
-    "AMD_GPU": {
+    "AMD_GPU0": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_winml_gpu.def\"",
         "process_name":  "WinML.exe",
+        "device_name": list(WINML_DEVICES.keys())[0],
+        "device_id": list(WINML_DEVICES.values())[0],
+        "test_name": "WinML GPU (FLOAT32)"
+    },
+    "AMD_GPU1": {
+        "config": f"\"{CONFIG_DIR}\\ai_computer_vision_winml_gpu.def\"",
+        "process_name":  "WinML.exe",
+        "device_name": list(WINML_DEVICES.keys())[1],
+        "device_id": list(WINML_DEVICES.values())[1],
         "test_name": "WinML GPU (FLOAT32)"
     },
     "Intel_CPU": {
@@ -44,10 +56,15 @@ BENCHMARK_CONFIG = {
         "process_name":  "OpenVino.exe",
         "test_name": "Intel OpenVINO CPU (FLOAT32)"
     },
-    "Intel_GPU": {
+    "Intel_GPU0": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_openvino_gpu.def\"",
         "process_name":  "OpenVino.exe",
-        "test_name": "Intel OpenVINO GPU (FLOAT32)"
+        "test_name": "Intel OpenVINO GPU 0 (FLOAT32)"
+    },
+    "Intel_GPU1": {
+        "config": f"\"{CONFIG_DIR}\\ai_computer_vision_openvino_gpu.def\"",
+        "process_name":  "OpenVino.exe",
+        "test_name": "Intel OpenVINO GPU 1 (FLOAT32)"
     },
     "Intel_NPU": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_openvino_npu.def\"",
@@ -90,9 +107,15 @@ def get_arguments():
     return argies
 
 
-def create_procyon_command(test_option):
+def create_procyon_command(test_option, process_name, device_id):
     """create command string"""
-    command = f'\"{ABS_EXECUTABLE_PATH}\" --definition={test_option} --export=\"{REPORT_PATH}\"'
+    match process_name:
+        case 'WinML.exe':
+            command = f'\"{ABS_EXECUTABLE_PATH}\" --definition={test_option} --export=\"{REPORT_PATH}\" --select-winml-device {device_id}'
+        case 'OpenVino.exe':
+            command = f'\"{ABS_EXECUTABLE_PATH}\" --definition={test_option} --export=\"{REPORT_PATH}\" --select-openvino-device {device_id}'
+        case 'TensorRT.exe':
+            command = f'\"{ABS_EXECUTABLE_PATH}\" --definition={test_option} --export=\"{REPORT_PATH}\" --select-cuda-device {device_id}'
     command = command.rstrip()
     return command
 
@@ -119,7 +142,9 @@ try:
     setup_logging()
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.engine]["config"]
-    cmd = create_procyon_command(option)
+    process_name = BENCHMARK_CONFIG[args.engine]["process_name"]
+    device_id = BENCHMARK_CONFIG[args.engine]["device_id"]
+    cmd = create_procyon_command(option, process_name, device_id)
     logging.info('Starting benchmark!')
     logging.info(cmd)
     start_time = time.time()
@@ -141,6 +166,7 @@ try:
 
     report = {
         "test": BENCHMARK_CONFIG[args.engine]["test_name"],
+        "device_name": BENCHMARK_CONFIG[args.engine]["device_name"],
         "unit": "score",
         "score": score,
         "start_time": seconds_to_milliseconds(start_time),

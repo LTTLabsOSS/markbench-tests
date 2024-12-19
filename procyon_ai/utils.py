@@ -4,6 +4,7 @@ import psutil
 import xml.etree.ElementTree as ET
 import winreg
 import re
+import subprocess
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR / "run"
@@ -34,3 +35,18 @@ def get_install_path() -> str:
     reg_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0, winreg.KEY_READ)
     value, _  = winreg.QueryValueEx(reg_key, "InstallDir")
     return value
+
+def get_winml_devices(procyon_path):
+    """
+    Function which uses the ProcyonCmd.exe to list all available winml devices on the system. Returns a dictionary of device names and IDs
+    """
+
+    # run the command line utility for procyon in order to list available winml devices
+    winml_devices = subprocess.run([f'{procyon_path}', '--list-winml-devices'], shell=True, capture_output=True, text=True, check=True).stdout
+
+    winml_devices_split = winml_devices.split('\n')
+    winml_devices_parsed = [device[9::] for device in winml_devices_split if re.search(r"(amd|nvidia|intel)", device.lower())]
+    unique_winml_devices = list(dict.fromkeys(winml_devices_parsed))
+    winml_dict = {device_split.split(', ')[0]:device_split.split(', ')[1] for device_split in unique_winml_devices}
+
+    return winml_dict
