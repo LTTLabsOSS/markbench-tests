@@ -48,8 +48,8 @@ BENCHMARK_CONFIG = {
     "AMD_GPU1": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_winml_gpu.def\"",
         "process_name":  "WinML.exe",
-        "device_name": list(WINML_DEVICES.keys())[1],
-        "device_id": list(WINML_DEVICES.values())[1],
+        "device_name": list(WINML_DEVICES.keys())[1] if len(list(WINML_DEVICES.keys())) > 1 else list(WINML_DEVICES.keys())[0],
+        "device_id": list(WINML_DEVICES.values())[1] if len(list(WINML_DEVICES.values())) > 1 else list(WINML_DEVICES.values())[0],
         "test_name": "WinML GPU (FLOAT32)"
     },
     "Intel_CPU": {
