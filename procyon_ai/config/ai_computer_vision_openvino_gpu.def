@@ -18,7 +18,7 @@
   <settings>
     <setting>
       <name>ai_device_type</name>
-      <value>GPU</value><!--Options: CPU, GPU, GPU.0, GPU.1, NPU. Run "ProcyonCmd.exe list-openvino-devices" to list the options. Check "ProcyonCmd.exe -h" for the correct parameter syntax. -->
+      <value></value><!--Options: CPU, GPU, GPU.0, GPU.1, NPU. Run "ProcyonCmd.exe list-openvino-devices" to list the options. Check "ProcyonCmd.exe -h" for the correct parameter syntax. -->
     </setting>
     <setting>
       <name>ai_inference_precision</name>

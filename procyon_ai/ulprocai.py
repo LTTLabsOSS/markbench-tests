@@ -62,14 +62,14 @@ BENCHMARK_CONFIG = {
     "Intel_GPU0": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_openvino_gpu.def\"",
         "process_name":  "OpenVino.exe",
-        "device_id": "GPU.0",
+        "device_id": "GPU.0" if "GPU.0" in list(OPENVINO_DEVICES.keys()) else "GPU",
         "device_name": get_openvino_gpu(OPENVINO_DEVICES ,"GPU.0"),
         "test_name": "Intel OpenVINO GPU 0 (FLOAT32)"
     },
     "Intel_GPU1": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_openvino_gpu.def\"",
         "process_name":  "OpenVino.exe",
-        "device_id": "GPU.1",
+        "device_id": "GPU.1" if "GPU.1" in list(OPENVINO_DEVICES.keys()) else "GPU",
         "device_name": get_openvino_gpu(OPENVINO_DEVICES ,"GPU.0"),
         "test_name": "Intel OpenVINO GPU 1 (FLOAT32)"
     },
@@ -77,7 +77,7 @@ BENCHMARK_CONFIG = {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_openvino_npu.def\"",
         "process_name":  "OpenVino.exe",
         "device_id": "NPU",
-        "device_name": OPENVINO_DEVICES["NPU"],
+        "device_name": OPENVINO_DEVICES.get("NPU", "None"),
         "test_name": "Intel OpenVINO NPU (FLOAT32)"
     },
     "NVIDIA_GPU": {
