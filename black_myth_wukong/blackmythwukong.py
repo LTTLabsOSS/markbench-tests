@@ -24,7 +24,7 @@ from harness_utils.output import (
 from harness_utils.steam import get_app_install_location, get_build_id, exec_steam_game
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.misc import LTTGamePad
+from harness_utils.misc import LTTGamePad360
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
