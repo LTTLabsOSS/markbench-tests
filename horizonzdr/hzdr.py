@@ -52,19 +52,6 @@ intro_videos = [
     os.path.join(VIDEO_PATH, "guerilla_logo.bk2")
 ]
 
-def navigate_options_menu() -> None:
-    """Simulate inputs to navigate to options menu"""
-    logging.info("Navigating to options menu")
-    user.press("esc")
-    time.sleep(0.2)
-    user.press("enter")
-    time.sleep(0.2)
-    user.press("q")
-    time.sleep(0.2)
-    user.keyDown("tab")
-    time.sleep(5)
-    user.keyUp("tab")
-
 
 def run_benchmark() -> tuple[float]:
     """Run the benchmark"""
@@ -81,97 +68,90 @@ def run_benchmark() -> tuple[float]:
     process_registry_file()
     sys.exit(1)
     # Make sure the game started correctly
-    result = kerasService.look_for_word("locate", 10, 5)
+    result = kerasService.look_for_word("remastered", 10, 5)
     if not result:
-        logging.info("Could not find prompt to open menu!")
+        logging.info("Could not find the main menu. Did the game load?")
         sys.exit(1)
 
     # Navigate to display menu
-    user.press("esc")
+    user.press("down")
+    time.sleep(1)
+    user.press("down")
     time.sleep(1)
     user.press("enter")
     time.sleep(1)
-    user.press("q")
-    time.sleep(1)
-    user.press("q")
-    time.sleep(1)
 
     # Verify that we have navigated to the video settings menu and take a screenshot
-    if kerasService.wait_for_word(word="aspect", timeout=30, interval=1) is None:
+    if kerasService.wait_for_word(word="language", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
-    am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings")
+
+    user.press("e")
+    time.sleep(1)
+
+    if kerasService.wait_for_word(word="monitor", timeout=30, interval=1) is None:
+        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        sys.exit(1)
+    am.take_screenshot("display1.png", ArtifactType.CONFIG_IMAGE, "1st picture of display settings")
+
+    user.press("up")
+    time.sleep(1)
+
+    if kerasService.wait_for_word(word="upscale", timeout=30, interval=1) is None:
+        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        sys.exit(1)
+    am.take_screenshot("display2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of display settings")
 
     # Navigate to graphics menu
     user.press("e")
     time.sleep(1)
 
-    if kerasService.wait_for_word(word="vsync", timeout=30, interval=1) is None:
-        logging.info("Did not find the graphics settings menu. Did the menu get stuck?")
+    if kerasService.wait_for_word(word="preset", timeout=30, interval=1) is None:
+        logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
-    am.take_screenshot("graphics_1.png", ArtifactType.CONFIG_IMAGE, "first picture of graphics settings")
+    am.take_screenshot("graphics1.png", ArtifactType.CONFIG_IMAGE, "1st picture of graphics settings")
 
-    # We check for a keyword that indicates DLSS is active because this changes how we navigate the menu
-    if kerasService.wait_for_word(word="sharpness", timeout=10, interval=1) is None:
-        logging.info("No DLSS Settings Detected")
-        # Scroll down graphics menu
-        press_n_times("down", 15, 0.2)
-    else:
-        logging.info("DLSS Settings Detected")
-        # Scroll down graphics menu
-        press_n_times("down", 17, 0.2)
+    user.press("up")
+    time.sleep(1)
 
-    if kerasService.wait_for_word(word="volumetric", timeout=30, interval=1) is None:
-        logging.info("Did not find the keyword 'volumetric'. Did the the menu scroll correctly?")
+    if kerasService.wait_for_word(word="sharpness", timeout=30, interval=1) is None:
+        logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
-    am.take_screenshot("graphics_2.png", ArtifactType.CONFIG_IMAGE, "second picture of graphics settings")
-
-    # Scroll down graphics menu
-    press_n_times("down", 15, 0.2)
-
-    if kerasService.wait_for_word(word="hdr", timeout=30, interval=1) is None:
-        logging.info("Did not find the keyword 'hdr'. Did the the menu scroll correctly?")
-        sys.exit(1)
-    am.take_screenshot("graphics_3.png", ArtifactType.CONFIG_IMAGE, "third picture of graphics settings")
-
+    am.take_screenshot("graphics2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of graphics settings")
+    
     # Launch the benchmark
-    user.keyDown("tab")
-    time.sleep(5)
-    user.keyUp("tab")
+    user.press("tab")
+    time.sleep(0.5)
+    user.press("enter")
 
     setup_end_time = time.time()
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
     logging.info("Setup took %s seconds", elapsed_setup_time)
 
-    result = kerasService.wait_for_word("performance", interval=0.2, timeout=30)
+    result = kerasService.wait_for_word("continue", interval=0.2, timeout=30)
     if not result:
         logging.info(
             "Performance graph was not found! Could not mark the start time.")
         sys.exit(1)
 
+    user.press("enter")
+
     test_start_time = time.time()
 
     # Wait for benchmark to complete
-    time.sleep(112)
+    time.sleep(180)
 
     # Wait for results screen to display info
-    result = kerasService.wait_for_word("lost", interval=0.1, timeout=11)
+    result = kerasService.wait_for_word("results", interval=0.1, timeout=11)
     if not result:
         logging.info(
             "Didn't see signal lost. Could not mark the proper end time!")
 
-    test_end_time = round(time.time() - 2)
-
-    result = kerasService.wait_for_word("benchmark", interval=0.5, timeout=15)
-    if not result:
-        logging.info(
-            "Results screen was not found! Did harness not wait long enough? Or test was too long?")
-        sys.exit(1)
-
+    test_end_time = round(time.time())
     # Give results screen time to fill out, then save screenshot and config file
     time.sleep(2)
     am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "screenshot of benchmark result")
-    am.copy_file(LOCAL_USER_SETTINGS, ArtifactType.CONFIG_TEXT, "config file")
+    am.copy_file(config_file, ArtifactType.CONFIG_TEXT, "config file")
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %s seconds", elapsed_test_time)
