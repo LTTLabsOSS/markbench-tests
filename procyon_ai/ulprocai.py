@@ -100,6 +100,8 @@ BENCHMARK_CONFIG = {
     },
     "Qualcomm_HTP": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_snpe.def\"",
+        "device_id": "CPU",
+        "device_name": "CPU",
         "process_name":  "SNPE.exe",
         "test_name": "Qualcomm SNPE (INTEGER)"
     },
@@ -131,13 +133,16 @@ def get_arguments():
 
 def create_procyon_command(test_option, process_name, device_id):
     """create command string"""
-    match process_name:
-        case 'WinML.exe':
-            command = f'\"{ABS_EXECUTABLE_PATH}\" --definition={test_option} --export=\"{REPORT_PATH}\" --select-winml-device {device_id}'
-        case 'OpenVino.exe':
-            command = f'\"{ABS_EXECUTABLE_PATH}\" --definition={test_option} --export=\"{REPORT_PATH}\" --select-openvino-device {device_id}'
-        case 'TensorRT.exe':
-            command = f'\"{ABS_EXECUTABLE_PATH}\" --definition={test_option} --export=\"{REPORT_PATH}\" --select-cuda-device {device_id}'
+    if device_id == 'CPU':
+        command = f'\"{ABS_EXECUTABLE_PATH}\" --definition={test_option} --export=\"{REPORT_PATH}\"'
+    else:
+        match process_name:
+            case 'WinML.exe':
+                command = f'\"{ABS_EXECUTABLE_PATH}\" --definition={test_option} --export=\"{REPORT_PATH}\" --select-winml-device {device_id}'
+            case 'OpenVino.exe':
+                command = f'\"{ABS_EXECUTABLE_PATH}\" --definition={test_option} --export=\"{REPORT_PATH}\" --select-openvino-device {device_id}'
+            case 'TensorRT.exe':
+                command = f'\"{ABS_EXECUTABLE_PATH}\" --definition={test_option} --export=\"{REPORT_PATH}\" --select-cuda-device {device_id}'
     command = command.rstrip()
     return command
 

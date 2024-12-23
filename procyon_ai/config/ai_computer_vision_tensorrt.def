@@ -22,7 +22,7 @@
     </setting>
     <setting>
       <name>ai_device_id</name>
-      <value>cuda:0</value> <!-- Get options from Procyon CLI: "ProcyonCmd.exe list-cuda-devices". Check "ProcyonCmd.exe -h" for correct syntax -->
+      <value></value> <!-- Get options from Procyon CLI: "ProcyonCmd.exe list-cuda-devices". Check "ProcyonCmd.exe -h" for correct syntax -->
     </setting>
   </settings>
 </benchmark>
