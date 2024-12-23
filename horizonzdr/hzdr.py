@@ -4,8 +4,9 @@ import logging
 import sys
 import time
 import pydirectinput as user
+import winreg
 
-from hzdr_utils import get_resolution, get_args
+from hzdr_utils import get_resolution, get_args, process_registry_file
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
@@ -36,6 +37,10 @@ LOCAL_USER_SETTINGS = os.path.join(
   "Saved", "Config", "WindowsNoEditor", "GameUserSettings.ini"
   )
 VIDEO_PATH = os.path.join(get_steamapps_common_path(), "Horizon Zero Dawn Remastered", "Movies", "Mono")
+input_file = 'input.reg'
+config_file = 'config_registry.txt'
+hive = winreg.KEY_CURRENT_USER
+subkey = r"SOFTWARE\Guerilla Games\Horizon Zero Dawn Remastered\Graphics"
 
 user.FAILSAFE = False
 
@@ -73,6 +78,8 @@ def run_benchmark() -> tuple[float]:
 
     time.sleep(10)
 
+    process_registry_file()
+    sys.exit(1)
     # Make sure the game started correctly
     result = kerasService.look_for_word("locate", 10, 5)
     if not result:
