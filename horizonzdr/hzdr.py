@@ -65,7 +65,7 @@ def run_benchmark() -> tuple[float]:
 
     time.sleep(10)
 
-    process_registry_file()
+    process_registry_file(input_file, config_file)
     sys.exit(1)
     # Make sure the game started correctly
     result = kerasService.look_for_word("remastered", 10, 5)
