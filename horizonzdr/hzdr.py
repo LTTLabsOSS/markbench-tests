@@ -60,7 +60,7 @@ def run_benchmark() -> tuple[float]:
     am = ArtifactManager(LOG_DIRECTORY)
 
     time.sleep(10)
-    
+
     # Make sure the game started correctly
     result = kerasService.look_for_word("remastered", 10, 5)
     if not result:
@@ -69,11 +69,11 @@ def run_benchmark() -> tuple[float]:
 
     # Navigate to display menu
     user.press("down")
-    time.sleep(1)
+    time.sleep(0.5)
     user.press("down")
-    time.sleep(1)
+    time.sleep(0.5)
     user.press("enter")
-    time.sleep(1)
+    time.sleep(0.5)
 
     # Verify that we have navigated to the video settings menu and take a screenshot
     if kerasService.wait_for_word(word="language", timeout=30, interval=1) is None:
@@ -81,7 +81,7 @@ def run_benchmark() -> tuple[float]:
         sys.exit(1)
 
     user.press("e")
-    time.sleep(1)
+    time.sleep(0.5)
 
     if kerasService.wait_for_word(word="monitor", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
@@ -89,7 +89,7 @@ def run_benchmark() -> tuple[float]:
     am.take_screenshot("display1.png", ArtifactType.CONFIG_IMAGE, "1st picture of display settings")
 
     user.press("up")
-    time.sleep(1)
+    time.sleep(0.5)
 
     if kerasService.wait_for_word(word="upscale", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
@@ -98,7 +98,7 @@ def run_benchmark() -> tuple[float]:
 
     # Navigate to graphics menu
     user.press("e")
-    time.sleep(1)
+    time.sleep(0.5)
 
     if kerasService.wait_for_word(word="preset", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
@@ -106,7 +106,7 @@ def run_benchmark() -> tuple[float]:
     am.take_screenshot("graphics1.png", ArtifactType.CONFIG_IMAGE, "1st picture of graphics settings")
 
     user.press("up")
-    time.sleep(1)
+    time.sleep(0.5)
 
     if kerasService.wait_for_word(word="sharpness", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
@@ -122,7 +122,7 @@ def run_benchmark() -> tuple[float]:
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
     logging.info("Setup took %s seconds", elapsed_setup_time)
 
-    result = kerasService.wait_for_word("continue", interval=0.2, timeout=30)
+    result = kerasService.wait_for_word("continue", interval=1, timeout=50)
     if not result:
         logging.info(
             "Performance graph was not found! Could not mark the start time.")
