@@ -98,9 +98,3 @@ def get_cuda_devices(procyon_path):
         cuda_dict = {}
 
     return cuda_dict
-
-DIR_PROCYON = Path(get_install_path())
-EXECUTABLE = "ProcyonCmd.exe"
-ABS_EXECUTABLE_PATH = DIR_PROCYON / EXECUTABLE
-
-print(get_cuda_devices(ABS_EXECUTABLE_PATH))
