@@ -32,10 +32,6 @@ STEAM_GAME_ID = 2561580
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 PROCESS_NAME = "HorizonZeroDawnRemastered"
-LOCAL_USER_SETTINGS = os.path.join(
-  os.getenv('LOCALAPPDATA'), "Returnal", "Steam",
-  "Saved", "Config", "WindowsNoEditor", "GameUserSettings.ini"
-  )
 VIDEO_PATH = os.path.join(get_steamapps_common_path(), "Horizon Zero Dawn Remastered", "Movies", "Mono")
 input_file = os.path.join(SCRIPT_DIRECTORY, 'graphics.reg')
 config_file = os.path.join(SCRIPT_DIRECTORY, 'graphics_config.txt')
@@ -65,7 +61,7 @@ def run_benchmark() -> tuple[float]:
 
     time.sleep(10)
 
-    process_registry_file(hive, subkey, input_file, config_file)
+    
     sys.exit(1)
     # Make sure the game started correctly
     result = kerasService.look_for_word("remastered", 10, 5)
@@ -151,6 +147,7 @@ def run_benchmark() -> tuple[float]:
     # Give results screen time to fill out, then save screenshot and config file
     time.sleep(2)
     am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "screenshot of benchmark result")
+    process_registry_file(hive, subkey, input_file, config_file)
     am.copy_file(config_file, ArtifactType.CONFIG_TEXT, "config file")
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
@@ -178,7 +175,7 @@ kerasService = KerasService(args.keras_host, args.keras_port)
 
 try:
     start_time, end_time = run_benchmark()
-    height, width = get_resolution(LOCAL_USER_SETTINGS)
+    height, width = get_resolution(config_file)
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
