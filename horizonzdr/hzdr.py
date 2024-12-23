@@ -39,7 +39,7 @@ LOCAL_USER_SETTINGS = os.path.join(
 VIDEO_PATH = os.path.join(get_steamapps_common_path(), "Horizon Zero Dawn Remastered", "Movies", "Mono")
 input_file = 'input.reg'
 config_file = 'config_registry.txt'
-hive = winreg.KEY_CURRENT_USER
+hive = winreg.HKEY_CURRENT_USER
 subkey = r"SOFTWARE\Guerilla Games\Horizon Zero Dawn Remastered\Graphics"
 
 user.FAILSAFE = False
