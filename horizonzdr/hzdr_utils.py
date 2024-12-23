@@ -1,4 +1,4 @@
-"""Utility functions supporting Returnal test script."""
+"""Utility functions supporting Horizon Zero Dawn Remastered test script."""
 from argparse import ArgumentParser
 import re
 import winreg

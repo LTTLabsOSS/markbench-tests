@@ -1,4 +1,4 @@
-"""Horizon Zero Dawn Remastered test script"""
+"""Forza Motorsport test script"""
 import os
 import logging
 import sys
@@ -19,102 +19,90 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT,
 )
-from harness_utils.misc import remove_files, press_n_times
+from harness_utils.misc import press_n_times
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
   exec_steam_run_command,
-  get_steamapps_common_path,
   get_build_id
 )
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
-STEAM_GAME_ID = 2561580
+STEAM_GAME_ID = 2440510
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
-PROCESS_NAME = "HorizonZeroDawnRemastered"
-VIDEO_PATH = os.path.join(get_steamapps_common_path(), "Horizon Zero Dawn Remastered", "Movies", "Mono")
-input_file = os.path.join(SCRIPT_DIRECTORY, 'graphics.reg')
-config_file = os.path.join(SCRIPT_DIRECTORY, 'graphics_config.txt')
-hive = winreg.HKEY_CURRENT_USER
-subkey = r"SOFTWARE\\Guerrilla Games\\Horizon Zero Dawn Remastered\\Graphics"
+PROCESS_NAME = "forza_steamworks_release_final"
+LOCAL_USER_SETTINGS = os.path.join(
+  os.getenv('LOCALAPPDATA'), "Microsoft.ForzaMotorsport", "User_SteamLocalStorageDirectory",
+  "ConnectedStorage", "ForzaUserConfigSelections", "UserConfigSelections"
+  )
 
 user.FAILSAFE = False
-
-intro_videos = [
-    os.path.join(VIDEO_PATH, "weaseltron_logo.bk2"),
-    os.path.join(VIDEO_PATH, "sony_studios_reel.bk2"),
-    os.path.join(VIDEO_PATH, "nixxes_logo.bk2"),
-    os.path.join(VIDEO_PATH, "Logo.bk2"),
-    os.path.join(VIDEO_PATH, "guerilla_logo.bk2")
-]
 
 
 def run_benchmark() -> tuple[float]:
     """Run the benchmark"""
-    logging.info("Removing intro videos")
-    remove_files(intro_videos)
-
     logging.info("Starting game")
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = time.time()
     am = ArtifactManager(LOG_DIRECTORY)
 
-    time.sleep(10)
+    time.sleep(20)
 
     # Make sure the game started correctly
-    result = kerasService.look_for_word("remastered", 10, 5)
+    result = kerasService.look_for_word("settings", 10, 5)
     if not result:
         logging.info("Could not find the main menu. Did the game load?")
         sys.exit(1)
 
     # Navigate to display menu
-    user.press("down")
+    user.press("f")
+    time.sleep(1)
+
+    if kerasService.wait_for_word(word="contrast", timeout=30, interval=1) is None:
+        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        sys.exit(1)
+
+    user.press("]")
     time.sleep(0.5)
-    user.press("down")
+    user.press("]")
     time.sleep(0.5)
-    user.press("enter")
+    user.press("]")
     time.sleep(0.5)
 
     # Verify that we have navigated to the video settings menu and take a screenshot
-    if kerasService.wait_for_word(word="language", timeout=30, interval=1) is None:
+    if kerasService.wait_for_word(word="resolution", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
-    user.press("e")
+    am.take_screenshot("display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings")
+    user.press("]")
     time.sleep(0.5)
 
-    if kerasService.wait_for_word(word="monitor", timeout=30, interval=1) is None:
-        logging.info("Did not find the video settings menu. Did the menu get stuck?")
-        sys.exit(1)
-    am.take_screenshot("display1.png", ArtifactType.CONFIG_IMAGE, "1st picture of display settings")
-
-    user.press("up")
-    time.sleep(0.5)
-
-    if kerasService.wait_for_word(word="upscale", timeout=30, interval=1) is None:
-        logging.info("Did not find the video settings menu. Did the menu get stuck?")
-        sys.exit(1)
-    am.take_screenshot("display2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of display settings")
-
-    # Navigate to graphics menu
-    user.press("e")
-    time.sleep(0.5)
-
-    if kerasService.wait_for_word(word="preset", timeout=30, interval=1) is None:
+    if kerasService.wait_for_word(word="filtering", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
     am.take_screenshot("graphics1.png", ArtifactType.CONFIG_IMAGE, "1st picture of graphics settings")
 
-    user.press("up")
-    time.sleep(0.5)
+    press_n_times("down",15,0.5)
 
-    if kerasService.wait_for_word(word="sharpness", timeout=30, interval=1) is None:
+    if kerasService.wait_for_word(word="particle", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
     am.take_screenshot("graphics2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of graphics settings")
-    
-    # Launch the benchmark
-    user.press("tab")
+
+    press_n_times("down",3,0.5)
+    user.press("up")
+    time.sleep(0.5)
+    user.press("down")
+    time.sleep(0.5)
+
+    if kerasService.wait_for_word(word="flare", timeout=30, interval=1) is None:
+        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        sys.exit(1)
+    am.take_screenshot("graphics3.png", ArtifactType.CONFIG_IMAGE, "3rd picture of graphics settings")
+
+    # Navigate to graphics menu
+    user.press("[")
     time.sleep(0.5)
     user.press("enter")
 
@@ -122,13 +110,12 @@ def run_benchmark() -> tuple[float]:
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
     logging.info("Setup took %s seconds", elapsed_setup_time)
 
-    result = kerasService.wait_for_word("continue", interval=1, timeout=50)
-    if not result:
-        logging.info(
-            "Performance graph was not found! Could not mark the start time.")
-        sys.exit(1)
+    time.sleep(15)
 
-    user.press("enter")
+    if kerasService.wait_for_word(word="results", timeout=30, interval=1) is None:
+        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        sys.exit(1)
+    am.take_screenshot("results.png", ArtifactType.CONFIG_IMAGE, "picture of results screen")
 
     test_start_time = time.time()
 
@@ -144,9 +131,7 @@ def run_benchmark() -> tuple[float]:
     test_end_time = round(time.time())
     # Give results screen time to fill out, then save screenshot and config file
     time.sleep(2)
-    am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "screenshot of benchmark result")
-    process_registry_file(hive, subkey, input_file, config_file)
-    am.copy_file(config_file, ArtifactType.CONFIG_TEXT, "config file")
+    am.copy_file(LOCAL_USER_SETTINGS, ArtifactType.CONFIG_TEXT, "config file")
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %s seconds", elapsed_test_time)
@@ -173,7 +158,7 @@ kerasService = KerasService(args.keras_host, args.keras_port)
 
 try:
     start_time, end_time = run_benchmark()
-    height, width = get_resolution(config_file)
+    height, width = get_resolution(LOCAL_USER_SETTINGS)
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
