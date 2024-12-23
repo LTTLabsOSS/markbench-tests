@@ -63,8 +63,8 @@ def process_registry_file(input_file, config_file):
 
 def get_resolution(config_file: str) -> tuple[int]:
     """Retrieve the resolution from local configuration files."""
-    width_pattern = re.compile(r"ResolutionSizeX=(\d+)")
-    height_pattern = re.compile(r"ResolutionSizeY=(\d+)")
+    width_pattern = re.compile(r"\"FullscreenWidth\"=(\d+)")
+    height_pattern = re.compile(r"\"FullscreenHeight\"=(\d+)")
     width = 0
     height = 0
 
