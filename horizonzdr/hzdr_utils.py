@@ -2,10 +2,14 @@
 from argparse import ArgumentParser
 import re
 import winreg
+import os
 
 
 def export_registry_key(hive, subkey, input_file):
     try:
+        if not os.path.exists(input_file):
+            with open(input_file, 'w') as file:
+                file.write("")
         with winreg.OpenKey(hive,subkey) as reg_key:
             with open(input_file, 'w') as reg_file:
                 reg_file.write(f"Windows Registry Editor Version 5.00\n\n")
@@ -33,7 +37,7 @@ def convert_dword_to_decimal(dword_hex):
     return int(dword_hex, 16)
 
 def process_registry_file(input_file, config_file):
-    export_registry_key()
+    export_registry_key(hive, subkey, input_file)
     with open(input_file, 'r') as file:
         lines = file.readlines()
     
