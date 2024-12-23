@@ -40,7 +40,7 @@ VIDEO_PATH = os.path.join(get_steamapps_common_path(), "Horizon Zero Dawn Remast
 input_file = os.path.join(SCRIPT_DIRECTORY, 'graphics.reg')
 config_file = os.path.join(SCRIPT_DIRECTORY, 'graphics_config.txt')
 hive = winreg.HKEY_CURRENT_USER
-subkey = r"SOFTWARE\\Guerilla Games\\Horizon Zero Dawn Remastered\\Graphics"
+subkey = r"SOFTWARE\\Guerrilla Games\\Horizon Zero Dawn Remastered\\Graphics"
 
 user.FAILSAFE = False
 
