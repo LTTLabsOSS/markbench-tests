@@ -6,7 +6,7 @@ import time
 import pydirectinput as user
 import winreg
 
-from hzdr_utils import get_resolution, get_args, process_registry_file
+from forzams_utils import get_resolution, get_args, process_registry_file
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
