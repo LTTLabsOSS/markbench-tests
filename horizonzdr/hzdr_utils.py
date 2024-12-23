@@ -36,7 +36,7 @@ def export_registry_key(hive, subkey, input_file):
 def convert_dword_to_decimal(dword_hex):
     return int(dword_hex, 16)
 
-def process_registry_file(input_file, config_file):
+def process_registry_file(hive, subkey, input_file, config_file):
     export_registry_key(hive, subkey, input_file)
     with open(input_file, 'r') as file:
         lines = file.readlines()
