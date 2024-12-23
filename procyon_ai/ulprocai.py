@@ -6,7 +6,15 @@ import subprocess
 import sys
 import time
 import psutil
-from utils import find_score_in_xml, is_process_running, get_install_path, get_winml_devices, get_openvino_devices, get_openvino_gpu
+from utils import (
+    find_score_in_xml,
+    is_process_running,
+    get_install_path,
+    get_winml_devices,
+    get_openvino_devices,
+    get_openvino_gpu,
+    get_cuda_devices
+)
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -30,12 +38,15 @@ ABS_EXECUTABLE_PATH = DIR_PROCYON / EXECUTABLE
 
 WINML_DEVICES = get_winml_devices(ABS_EXECUTABLE_PATH)
 OPENVINO_DEVICES = get_openvino_devices(ABS_EXECUTABLE_PATH)
+CUDA_DEVICES = get_cuda_devices(ABS_EXECUTABLE_PATH)
 
 CONFIG_DIR = SCRIPT_DIR / "config"
 BENCHMARK_CONFIG = {
     "AMD_CPU": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_winml_cpu.def\"",
         "process_name":  "WinML.exe",
+        "device_name": "CPU",
+        "device_id": "CPU", # TODO: Find a good way to report the CPU name here. 
         "test_name": "WinML CPU (FLOAT32)"
     },
     "AMD_GPU0": {
@@ -82,6 +93,8 @@ BENCHMARK_CONFIG = {
     },
     "NVIDIA_GPU": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_tensorrt.def\"",
+        "device_id": "cuda:0",
+        "device_name": CUDA_DEVICES.get("cuda:0"),
         "process_name":  "TensorRT.exe",
         "test_name": "NVIDIA TensorRT (FLOAT32)"
     },

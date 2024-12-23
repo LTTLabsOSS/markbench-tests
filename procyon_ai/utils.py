@@ -61,7 +61,7 @@ def get_openvino_devices(procyon_path):
     openvino_devices_split = openvino_devices.split('\n')
     openvino_devices_parsed = [device[9::] for device in openvino_devices_split if re.search(r"(amd|nvidia|intel)", device.lower())]
     unique_openvino_devices = list(dict.fromkeys(openvino_devices_parsed))
-    openvino_dict = {device_split.split('        , ')[1]:device_split.split('        , ')[0] for device_split in unique_openvino_devices}
+    openvino_dict = {device_split.split(', ')[1]:device_split.split(', ')[0] for device_split in unique_openvino_devices}
 
     return openvino_dict
 
@@ -80,3 +80,27 @@ def get_openvino_gpu(openvino_devices, gpu_id):
         gpu = openvino_devices.get(gpu_id, "No Openvino GPU Detected")
 
     return gpu
+
+def get_cuda_devices(procyon_path):
+    """
+    Function which uses the ProcyonCmd.exe to list all available openvino devices on the system. Returns a dictionary of device type and name
+    """
+
+    cuda_devices = subprocess.run([f'{procyon_path}', '--list-cuda-devices'], shell=True, capture_output=True, text=True, check=True).stdout
+
+    cuda_devices_split = cuda_devices.split('\n')
+    cuda_devices_parsed = [device[9::] for device in cuda_devices_split if re.search(r"(nvidia)", device.lower())]
+    unique_cuda_devices = list(dict.fromkeys(cuda_devices_parsed))
+
+    if len(unique_cuda_devices) > 0:
+        cuda_dict = {device_split.split(', ')[1]:device_split.split(', ')[0] for device_split in unique_cuda_devices}
+    else:
+        cuda_dict = {}
+
+    return cuda_dict
+
+DIR_PROCYON = Path(get_install_path())
+EXECUTABLE = "ProcyonCmd.exe"
+ABS_EXECUTABLE_PATH = DIR_PROCYON / EXECUTABLE
+
+print(get_cuda_devices(ABS_EXECUTABLE_PATH))
