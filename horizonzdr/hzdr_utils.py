@@ -6,7 +6,7 @@ import winreg
 
 input_file = 'input.reg'
 config_file = 'config_registry.txt'
-hive = winreg.KEY_CURRENT_USER
+hive = winreg.HKEY_CURRENT_USER
 subkey = r"SOFTWARE\Guerilla Games\Horizon Zero Dawn Remastered\Graphics"
 
 def export_registry_key(hive, subkey, input_file):
