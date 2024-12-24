@@ -44,7 +44,7 @@ def run_benchmark() -> tuple[float]:
     setup_start_time = time.time()
     am = ArtifactManager(LOG_DIRECTORY)
 
-    time.sleep(40)
+    time.sleep(50)
 
     # Make sure the game started correctly
     if kerasService.wait_for_word(word="play", timeout=30, interval=1) is None:
