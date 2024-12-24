@@ -5,7 +5,7 @@ import re
 
 def get_resolution(config_file: str) -> tuple[int]:
     """Get resolution from local game file"""
-    resolution_pattern = re.compile(r"<option id=\"IDS_ResolutionLabel\" value=\"(\d+x\d+)\"/>")
+    resolution_pattern = re.compile(r"<option id=\"IDS_Resolution_Label\" value=\"(\d+x\d+)\"/>")
     resolution = 0
     with open(config_file, encoding="utf-8") as file:
         lines = file.readlines()

@@ -47,8 +47,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(40)
 
     # Make sure the game started correctly
-    result = kerasService.look_for_word("play", 10, 5)
-    if not result:
+    if kerasService.wait_for_word(word="play", timeout=30, interval=1) is None:
         logging.info("Could not find the main menu. Did the game load?")
         sys.exit(1)
 
@@ -57,7 +56,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(1)
 
     if kerasService.wait_for_word(word="contrast", timeout=30, interval=1) is None:
-        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        logging.info("Did not find the accessibility settings menu. Did the menu get stuck?")
         sys.exit(1)
 
     user.press("]")
@@ -69,7 +68,7 @@ def run_benchmark() -> tuple[float]:
 
     # Verify that we have navigated to the video settings menu and take a screenshot
     if kerasService.wait_for_word(word="resolution", timeout=30, interval=1) is None:
-        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        logging.info("Did not find the display settings menu. Did the menu get stuck?")
         sys.exit(1)
 
     am.take_screenshot("display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings")
@@ -77,14 +76,14 @@ def run_benchmark() -> tuple[float]:
     time.sleep(0.5)
 
     if kerasService.wait_for_word(word="filtering", timeout=30, interval=1) is None:
-        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        logging.info("Did not find the graphics settings menu. Did the menu get stuck?")
         sys.exit(1)
     am.take_screenshot("graphics1.png", ArtifactType.CONFIG_IMAGE, "1st picture of graphics settings")
 
     press_n_times("down",15,0.5)
 
     if kerasService.wait_for_word(word="particle", timeout=30, interval=1) is None:
-        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        logging.info("Did not find the particle effect settings. Did the menu get stuck?")
         sys.exit(1)
     am.take_screenshot("graphics2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of graphics settings")
 
@@ -95,7 +94,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(0.5)
 
     if kerasService.wait_for_word(word="flare", timeout=30, interval=1) is None:
-        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        logging.info("Did not find the lens flare settings. Did the menu get stuck?")
         sys.exit(1)
     am.take_screenshot("graphics3.png", ArtifactType.CONFIG_IMAGE, "3rd picture of graphics settings")
 
@@ -111,7 +110,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(15)
 
     if kerasService.wait_for_word(word="results", timeout=60, interval=0.5) is None:
-        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        logging.info("Did not find the results screen. Did the game load?")
         sys.exit(1)
     am.take_screenshot("results.png", ArtifactType.CONFIG_IMAGE, "picture of results screen")
 
@@ -121,10 +120,9 @@ def run_benchmark() -> tuple[float]:
     time.sleep(180)
 
     # Wait for results screen to display info
-    result = kerasService.wait_for_word("results", interval=0.1, timeout=11)
-    if not result:
-        logging.info(
-            "Didn't see signal lost. Could not mark the proper end time!")
+    if kerasService.wait_for_word(word="results", timeout=15, interval=0.5) is None:
+        logging.info("Did not find the results screen. Did the game crash during the run?")
+        sys.exit(1)
 
     test_end_time = round(time.time())
     # Give results screen time to fill out, then save screenshot and config file

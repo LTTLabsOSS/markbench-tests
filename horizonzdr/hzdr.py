@@ -19,7 +19,7 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT,
 )
-from harness_utils.misc import remove_files, press_n_times
+from harness_utils.misc import remove_files
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
   exec_steam_run_command,
@@ -62,8 +62,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(10)
 
     # Make sure the game started correctly
-    result = kerasService.look_for_word("remastered", 10, 5)
-    if not result:
+    if kerasService.wait_for_word(word="remastered", timeout=30, interval=1) is None:
         logging.info("Could not find the main menu. Did the game load?")
         sys.exit(1)
 
@@ -84,7 +83,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(0.5)
 
     if kerasService.wait_for_word(word="monitor", timeout=30, interval=1) is None:
-        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        logging.info("Did not find the display settings menu. Did the menu get stuck?")
         sys.exit(1)
     am.take_screenshot("display1.png", ArtifactType.CONFIG_IMAGE, "1st picture of display settings")
 
@@ -92,7 +91,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(0.5)
 
     if kerasService.wait_for_word(word="upscale", timeout=30, interval=1) is None:
-        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        logging.info("Did not find the upscale settings. Did the menu not scroll?")
         sys.exit(1)
     am.take_screenshot("display2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of display settings")
 
@@ -101,7 +100,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(0.5)
 
     if kerasService.wait_for_word(word="preset", timeout=30, interval=1) is None:
-        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        logging.info("Did not find the graphics settings menu. Did the menu get stuck?")
         sys.exit(1)
     am.take_screenshot("graphics1.png", ArtifactType.CONFIG_IMAGE, "1st picture of graphics settings")
 
@@ -109,7 +108,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(0.5)
 
     if kerasService.wait_for_word(word="sharpness", timeout=30, interval=1) is None:
-        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        logging.info("Did not find the sharpness settings. Did the menu not scroll?")
         sys.exit(1)
     am.take_screenshot("graphics2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of graphics settings")
     
@@ -122,10 +121,8 @@ def run_benchmark() -> tuple[float]:
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
     logging.info("Setup took %s seconds", elapsed_setup_time)
 
-    result = kerasService.wait_for_word("continue", interval=1, timeout=50)
-    if not result:
-        logging.info(
-            "Performance graph was not found! Could not mark the start time.")
+    if kerasService.wait_for_word(word="continue", timeout=30, interval=1) is None:
+        logging.info("Did not find the continue button. Did the game not finish loading?")
         sys.exit(1)
 
     user.press("enter")
@@ -136,10 +133,9 @@ def run_benchmark() -> tuple[float]:
     time.sleep(180)
 
     # Wait for results screen to display info
-    result = kerasService.wait_for_word("results", interval=0.1, timeout=11)
-    if not result:
-        logging.info(
-            "Didn't see signal lost. Could not mark the proper end time!")
+    if kerasService.wait_for_word(word="results", timeout=20, interval=0.1) is None:
+        logging.info("Did not find the results screen. Did the game not finish the benchmark?")
+        sys.exit(1)
 
     test_end_time = round(time.time())
     # Give results screen time to fill out, then save screenshot and config file
