@@ -17,7 +17,7 @@
     </setting>
     <setting>
         <name>ai_device_id</name>
-        <value>0</value> <!-- Use "0", "1", etc. Use our CLI e.g. "ProcyonCmd.exe list-directml-devices" to full options. Check "ProcyonCmd.exe -h" for the parameter syntax. -->
+        <value></value> <!-- Use "0", "1", etc. Use our CLI e.g. "ProcyonCmd.exe list-directml-devices" to full options. Check "ProcyonCmd.exe -h" for the parameter syntax. -->
     </setting>
   </settings>
 </benchmark>

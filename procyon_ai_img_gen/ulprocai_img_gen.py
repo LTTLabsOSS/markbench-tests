@@ -11,6 +11,12 @@ from utils import find_score_in_xml, is_process_running, get_install_path
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
 
+from harness_utils.procyoncmd import (
+    get_winml_devices,
+    get_openvino_devices,
+    get_openvino_gpu,
+    get_cuda_devices
+)
 from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
     DEFAULT_LOGGING_FORMAT,
@@ -27,46 +33,101 @@ LOG_DIR = SCRIPT_DIR / "run"
 DIR_PROCYON = Path(get_install_path())
 EXECUTABLE = "ProcyonCmd.exe"
 ABS_EXECUTABLE_PATH = DIR_PROCYON / EXECUTABLE
+WINML_DEVICES = get_winml_devices(ABS_EXECUTABLE_PATH)
+OPENVINO_DEVICES = get_openvino_devices(ABS_EXECUTABLE_PATH)
+CUDA_DEVICES = get_cuda_devices(ABS_EXECUTABLE_PATH)
+
 CONFIG_DIR = SCRIPT_DIR / "config"
 BENCHMARK_CONFIG = {
-    "AMD_GPU_FP16": {
+    "AMD_GPU0_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15fp16_onnxruntime.def\"",
         "process_name":  "ort-directml.exe",
+        "device_name": list(WINML_DEVICES.keys())[0],
+        "device_id": "0",
         "test_name": "ONNX Stable Diffusion FP16"
     },
-    "AMD_GPU_XL_FP16": {
+    "AMD_GPU1_FP16": {
+        "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15fp16_onnxruntime.def\"",
+        "process_name":  "ort-directml.exe",
+        "device_name": list(WINML_DEVICES.keys())[1] if len(list(WINML_DEVICES.keys())) > 1 else list(WINML_DEVICES.keys())[0],
+        "device_id": "1" if len(list(WINML_DEVICES.values())) > 1 else "0",
+        "test_name": "ONNX Stable Diffusion FP16"
+    },
+    "AMD_GPU0_XL_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sdxlfp16_onnxruntime.def\"",
         "process_name": "ort-directml.exe",
+        "device_name": list(WINML_DEVICES.keys())[0],
+        "device_id": "0",
         "test_name": "ONNX Stable Diffusion FP16 XL"
     },
-     "Intel_GPU_INT8": {
+    "AMD_GPU1_XL_FP16": {
+        "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sdxlfp16_onnxruntime.def\"",
+        "process_name": "ort-directml.exe",
+        "device_name": list(WINML_DEVICES.keys())[1] if len(list(WINML_DEVICES.keys())) > 1 else list(WINML_DEVICES.keys())[0],
+        "device_id": list(WINML_DEVICES.values())[1] if len(list(WINML_DEVICES.values())) > 1 else list(WINML_DEVICES.values())[0],
+        "test_name": "ONNX Stable Diffusion FP16 XL"
+    },
+    "Intel_GPU0_INT8": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15int8_openvino.def\"",
         "process_name":  "openvino.exe",
+        "device_id": "GPU.0" if "GPU.0" in list(OPENVINO_DEVICES.keys()) else "GPU",
+        "device_name": get_openvino_gpu(OPENVINO_DEVICES ,"GPU.0"),
         "test_name": "Intel OpenVINO Stable Diffusion INT8"
     },
-    "Intel_GPU_FP16": {
+    "Intel_GPU0_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15fp16_openvino.def\"",
         "process_name":  "openvino.exe",
+        "device_id": "GPU.0" if "GPU.0" in list(OPENVINO_DEVICES.keys()) else "GPU",
+        "device_name": get_openvino_gpu(OPENVINO_DEVICES ,"GPU.0"),
         "test_name": "Intel OpenVINO Stable Diffusion FP16"
     },
-    "Intel_GPU_XL_FP16": {
+    "Intel_GPU0_XL_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sdxlfp16_openvino.def\"",
         "process_name":  "openvino.exe",
+        "device_id": "GPU.0" if "GPU.0" in list(OPENVINO_DEVICES.keys()) else "GPU",
+        "device_name": get_openvino_gpu(OPENVINO_DEVICES ,"GPU.0"),
+        "test_name": "Intel OpenVINO Stable Diffusion FP16 XL"
+    },
+    "Intel_GPU1_INT8": {
+        "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15int8_openvino.def\"",
+        "process_name":  "openvino.exe",
+        "device_id": "GPU.1" if "GPU.1" in list(OPENVINO_DEVICES.keys()) else "GPU",
+        "device_name": get_openvino_gpu(OPENVINO_DEVICES ,"GPU.1"),
+        "test_name": "Intel OpenVINO Stable Diffusion INT8"
+    },
+    "Intel_GPU1_FP16": {
+        "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15fp16_openvino.def\"",
+        "process_name":  "openvino.exe",
+        "device_id": "GPU.1" if "GPU.1" in list(OPENVINO_DEVICES.keys()) else "GPU",
+        "device_name": get_openvino_gpu(OPENVINO_DEVICES ,"GPU.1"),
+        "test_name": "Intel OpenVINO Stable Diffusion FP16"
+    },
+    "Intel_GPU1_XL_FP16": {
+        "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sdxlfp16_openvino.def\"",
+        "process_name":  "openvino.exe",
+        "device_id": "GPU.1" if "GPU.1" in list(OPENVINO_DEVICES.keys()) else "GPU",
+        "device_name": get_openvino_gpu(OPENVINO_DEVICES ,"GPU.1"),
         "test_name": "Intel OpenVINO Stable Diffusion FP16 XL"
     },
     "NVIDIA_GPU_INT8": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15int8_tensorrt.def\"",
         "process_name":  "tensorrt.exe",
+        "device_id": "cuda:0",
+        "device_name": CUDA_DEVICES.get("cuda:0"),
         "test_name": "NVIDIA TensorRT Stable Diffusion INT8"
     },
     "NVIDIA_GPU_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15fp16_tensorrt.def\"",
         "process_name":  "tensorrt.exe",
+        "device_id": "cuda:0",
+        "device_name": CUDA_DEVICES.get("cuda:0"),
         "test_name": "NVIDIA TensorRT Stable Diffusion FP16"
     },
     "NVIDIA_GPU_XL_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sdxlfp16_tensorrt.def\"",
         "process_name":  "tensorrt.exe",
+        "device_id": "cuda:0",
+        "device_name": CUDA_DEVICES.get("cuda:0"),
         "test_name": "NVIDIA TensorRT Stable Diffusion FP16 XL"
     }
 }
@@ -95,10 +156,19 @@ def get_arguments():
     return argies
 
 
-def create_procyon_command(test_option):
+def create_procyon_command(test_option, process_name, device_id):
     """create command string"""
     command = f'\"{ABS_EXECUTABLE_PATH}\" --definition={test_option} --export=\"{REPORT_PATH}\"'
+
+    match process_name:
+        case 'ort-directml.exe':
+            command = f'\"{ABS_EXECUTABLE_PATH}\" --definition={test_option} --export=\"{REPORT_PATH}\" --select-winml-device {device_id}'
+        case 'openvino.exe':
+            command = f'\"{ABS_EXECUTABLE_PATH}\" --definition={test_option} --export=\"{REPORT_PATH}\" --select-openvino-device {device_id}'
+        case 'tensorrt.exe':
+            command = f'\"{ABS_EXECUTABLE_PATH}\" --definition={test_option} --export=\"{REPORT_PATH}\" --select-cuda-device {device_id}'
     command = command.rstrip()
+
     return command
 
 
@@ -122,9 +192,13 @@ def run_benchmark(process_name, command_to_run):
 
 try:
     setup_logging()
+    logging.info(f"Detected Windows ML Devices: {WINML_DEVICES}")
+    logging.info(f"Detected OpenVino Devices: {OPENVINO_DEVICES}")
+    logging.info(f"Detected CUDA Devices: {CUDA_DEVICES}")
+
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.engine]["config"]
-    cmd = create_procyon_command(option)
+    cmd = create_procyon_command(option, BENCHMARK_CONFIG[args.engine]["process_name"], BENCHMARK_CONFIG[args.engine]["device_id"])
     logging.info('Starting benchmark!')
     logging.info(cmd)
     start_time = time.time()
@@ -146,6 +220,7 @@ try:
 
     report = {
         "test": BENCHMARK_CONFIG[args.engine]["test_name"],
+        "device_name": BENCHMARK_CONFIG[args.engine]["device_name"],
         "unit": "score",
         "score": score,
         "start_time": seconds_to_milliseconds(start_time),

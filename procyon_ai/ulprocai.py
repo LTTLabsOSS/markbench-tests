@@ -10,10 +10,6 @@ from utils import (
     find_score_in_xml,
     is_process_running,
     get_install_path,
-    get_winml_devices,
-    get_openvino_devices,
-    get_openvino_gpu,
-    get_cuda_devices
 )
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
@@ -24,9 +20,14 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     seconds_to_milliseconds,
     setup_log_directory,
-    write_report_json
+    write_report_json,
 )
-
+from harness_utils.procyoncmd import (
+    get_winml_devices,
+    get_openvino_devices,
+    get_openvino_gpu,
+    get_cuda_devices,
+)
 #####
 ### Globals
 #####
