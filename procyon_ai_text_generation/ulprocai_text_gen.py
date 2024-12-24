@@ -29,32 +29,62 @@ EXECUTABLE = "ProcyonCmd.exe"
 ABS_EXECUTABLE_PATH = DIR_PROCYON / EXECUTABLE
 CONFIG_DIR = SCRIPT_DIR / "config"
 BENCHMARK_CONFIG = {
-    "All_Models": {
+    "All_Models_ONNX": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_all.def\"",
         "process_name":  "Handler.exe",
         "result_regex": r"<AIImageGenerationOverallScore>(\d+)",
         "test_name": "All LLM Model Text Generation"
     },
-    "Llama_2_13B": {
+    "Llama_2_13B_ONNX": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_llama2.def\"",
         "process_name": "Handler.exe",
-        "result_regex": r"<AiTextGenerationLlama2OverallScore >(\d+)",
+        "result_regex": r"<AiTextGenerationLlama2OverallScore>(\d+)",
         "test_name": "LLama 2 Text Generation"
     },
-     "Llama_3_1_8B": {
+     "Llama_3_1_8B_ONNX": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_llama3.1.def\"",
         "process_name":  "Handler.exe",
         "result_regex": r"<AiTextGenerationLlama3OverallScore>(\d+)",
         "test_name": "Llama 3.1 Text Generation"
     },
-    "Mistral_7B": {
+    "Mistral_7B_ONNX": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_mistral.def\"",
         "process_name":  "Handler.exe",
         "result_regex": r"<AiTextGenerationMistralOverallScore>(\d+)",
         "test_name": "Mistral Text Generation"
     },
-    "Phi_3_5": {
+    "Phi_3_5_ONNX": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_phi.def\"",
+        "process_name":  "Handler.exe",
+        "result_regex": r"<AiTextGenerationPhiOverallScore>(\d+)",
+        "test_name": "Phi Text Generation"
+    },
+    "All_Models_OPENVINO": {
+        "config": f"\"{CONFIG_DIR}\\ai_textgeneration_all_openvino.def\"",
+        "process_name":  "Handler.exe",
+        "result_regex": r"<AIImageGenerationOverallScore>(\d+)",
+        "test_name": "All LLM Model Text Generation"
+    },
+    "Llama_2_13B_OPENVINO": {
+        "config": f"\"{CONFIG_DIR}\\ai_textgeneration_llama2_openvino.def\"",
+        "process_name": "Handler.exe",
+        "result_regex": r"<AiTextGenerationLlama2OverallScore>(\d+)",
+        "test_name": "LLama 2 Text Generation"
+    },
+     "Llama_3_1_8B_OPENVINO": {
+        "config": f"\"{CONFIG_DIR}\\ai_textgeneration_llama3.1_openvino.def\"",
+        "process_name":  "Handler.exe",
+        "result_regex": r"<AiTextGenerationLlama3OverallScore>(\d+)",
+        "test_name": "Llama 3.1 Text Generation"
+    },
+    "Mistral_7B_OPENVINO": {
+        "config": f"\"{CONFIG_DIR}\\ai_textgeneration_mistral_openvino.def\"",
+        "process_name":  "Handler.exe",
+        "result_regex": r"<AiTextGenerationMistralOverallScore>(\d+)",
+        "test_name": "Mistral Text Generation"
+    },
+    "Phi_3_5_OPENVINO": {
+        "config": f"\"{CONFIG_DIR}\\ai_textgeneration_phi_openvino.def\"",
         "process_name":  "Handler.exe",
         "result_regex": r"<AiTextGenerationPhiOverallScore>(\d+)",
         "test_name": "Phi Text Generation"
@@ -131,10 +161,8 @@ try:
 
     end_time = time.time()
     elapsed_test_time = round(end_time - start_time, 2)
-    logging.info("Benchmark took %.2f seconds", elapsed_test_time)
-    logging.info("Score was %s", score)
-
-    if not BENCHMARK_CONFIG[args.engine] == "All_Models":
+    
+    if not args.engine == "All_Models_OPENVINO" and not args.engine == "All_Models_ONNX":
         report = {
             "test": BENCHMARK_CONFIG[args.engine]["test_name"],
             "unit": "score",
@@ -143,26 +171,36 @@ try:
             "end_time": seconds_to_milliseconds(end_time)
         }
 
+        logging.info("Benchmark took %.2f seconds", elapsed_test_time)
+        logging.info("Score was %s", score)
+
         write_report_json(LOG_DIR, "report.json", report)
     else:
         session_report = []
 
+        logging.info("Benchmark took %.2f seconds", elapsed_test_time)
+
         for test_type in BENCHMARK_CONFIG.items():
-            if test_type[0] == "All_Models":
+            if test_type[0] == "All_Models_ONNX" or test_type[0] == "All_Models_OPENVINO":
                 continue
 
-            score = find_score_in_xml(test_type[1]["result_regex"])
-            if score is None:
-                logging.error("Could not find overall score!")
-                sys.exit(1)
+            if ("ONNX" in args.engine and "ONNX" in test_type[0]) or ("OPENVINO" in args.engine and "OPENVINO" in test_type[0]):
+                score = find_score_in_xml(test_type[1]["result_regex"])
+                logging.info("%s score was %s", test_type[0], score)
 
-            report = {
-                "test": test_type[0],
-                "unit": "score",
-                "score": score,
-                "start_time": seconds_to_milliseconds(start_time),
-                "end_time": seconds_to_milliseconds(end_time)
-            }
+                if score is None:
+                    logging.error("Could not find overall score!")
+                    sys.exit(1)
+
+                report = {
+                    "test": test_type[0],
+                    "unit": "score",
+                    "score": score,
+                    "start_time": seconds_to_milliseconds(start_time),
+                    "end_time": seconds_to_milliseconds(end_time)
+                }
+
+                session_report.append(report)
 
         write_report_json(LOG_DIR, "report.json", session_report)
         

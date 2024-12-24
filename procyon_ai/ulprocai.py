@@ -167,6 +167,10 @@ def run_benchmark(process_name, command_to_run):
 
 try:
     setup_logging()
+    logging.info(f"Detected Windows ML Devices: {WINML_DEVICES}")
+    logging.info(f"Detected OpenVino Devices: {OPENVINO_DEVICES}")
+    logging.info(f"Detected CUDA Devices: {CUDA_DEVICES}")
+
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.engine]["config"]
     process_name = BENCHMARK_CONFIG[args.engine]["process_name"]
