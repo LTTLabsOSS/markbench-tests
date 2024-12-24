@@ -4,24 +4,17 @@ import re
 
 
 def get_resolution(config_file: str) -> tuple[int]:
-    """Retrieve the resolution from local configuration files."""
-    width_pattern = re.compile(r"\"FullscreenWidth\"=(\d+)")
-    height_pattern = re.compile(r"\"FullscreenHeight\"=(\d+)")
-    width = 0
-    height = 0
-
+    """Get resolution from local game file"""
+    resolution_pattern = re.compile(r"<option id=\"IDS_ResolutionLabel\" value=\"(\d+x\d+)\"/>")
+    resolution = 0
     with open(config_file, encoding="utf-8") as file:
         lines = file.readlines()
         for line in lines:
-            width_match = width_pattern.match(line)
-            height_match = height_pattern.match(line)
+            resolution_match = resolution_pattern.search(line)
+            if resolution_match is not None:
+                resolution = resolution_match.group(1)
+    return resolution
 
-            if width_match:
-                width = width_match.group(1)
-            if height_match:
-                height = height_match.group(1)
-
-    return (height, width)
 
 def get_args() -> any:
     """Get command line arguments"""

@@ -4,7 +4,6 @@ import logging
 import sys
 import time
 import pydirectinput as user
-import winreg
 
 from forzams_utils import get_resolution, get_args
 
@@ -12,7 +11,6 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 from harness_utils.keras_service import KerasService
 from harness_utils.output import (
-    format_resolution,
     seconds_to_milliseconds,
     setup_log_directory,
     write_report_json,
@@ -46,10 +44,10 @@ def run_benchmark() -> tuple[float]:
     setup_start_time = time.time()
     am = ArtifactManager(LOG_DIRECTORY)
 
-    time.sleep(20)
+    time.sleep(40)
 
     # Make sure the game started correctly
-    result = kerasService.look_for_word("settings", 10, 5)
+    result = kerasService.look_for_word("play", 10, 5)
     if not result:
         logging.info("Could not find the main menu. Did the game load?")
         sys.exit(1)
@@ -112,7 +110,7 @@ def run_benchmark() -> tuple[float]:
 
     time.sleep(15)
 
-    if kerasService.wait_for_word(word="results", timeout=30, interval=1) is None:
+    if kerasService.wait_for_word(word="results", timeout=60, interval=0.5) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
     am.take_screenshot("results.png", ArtifactType.CONFIG_IMAGE, "picture of results screen")
@@ -158,9 +156,9 @@ kerasService = KerasService(args.keras_host, args.keras_port)
 
 try:
     start_time, end_time = run_benchmark()
-    height, width = get_resolution(LOCAL_USER_SETTINGS)
+    resolution = get_resolution(LOCAL_USER_SETTINGS)
     report = {
-        "resolution": format_resolution(width, height),
+        "resolution": f"{resolution}",
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
         "version": get_build_id(STEAM_GAME_ID)
