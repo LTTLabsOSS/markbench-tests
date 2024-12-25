@@ -7,9 +7,14 @@ options:
   - name: engine
     type: select
     values:
-      - "All_Models"
-      - "Llama_2_13B"
-      - "Llama_3_1_8B"
-      - "Mistral_7B"
-      - "Phi_3_5"
+      - "All_Models_ONNX"
+      - "Llama_2_13B_ONNX"
+      - "Llama_3_1_8B_ONNX"
+      - "Mistral_7B_ONNX"
+      - "Phi_3_5_ONNX"
+      - "All_Models_OPENVINO"
+      - "Llama_2_13B_OPENVINO"
+      - "Llama_3_1_8B_OPENVINO"
+      - "Mistral_7B_OPENVINO"
+      - "Phi_3_5_OPENVINO"
     tooltip: Select which configuration to run for Procyon
