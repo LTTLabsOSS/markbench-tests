@@ -106,7 +106,10 @@ def navigate_startup():
         user.press("enter")
         time.sleep(2)
 
-
+def offline_menu():
+    result = kerasService.wait_for_word("Failed", timeout=50)
+    if not result:
+        logging.info("Didn't find the keyword 'Failed'")
 def run_benchmark():
     """Runs the actual benchmark."""
     remove_files(intro_videos)
@@ -116,6 +119,8 @@ def run_benchmark():
     setup_start_time = time.time()
     time.sleep(2)
     navigate_startup()
+
+    offline_menu()
 
     # Navigate menus and take screenshots using the artifact manager
     result = kerasService.wait_for_word("theatre", interval=3, timeout=60)
