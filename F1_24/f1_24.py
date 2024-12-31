@@ -111,6 +111,8 @@ def offline_menu():
     result = kerasService.wait_for_word("Failed", timeout=50)
     if not result:
         logging.info("Didn't find the keyword 'Failed'")
+        return
+    user.press("enter")
 def run_benchmark():
     """Runs the actual benchmark."""
     remove_files(intro_videos)
