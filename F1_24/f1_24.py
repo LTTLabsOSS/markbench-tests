@@ -108,9 +108,9 @@ def navigate_startup():
 
 def offline_menu():
     """Navigateout of the offline menu"""
-    result = kerasService.wait_for_word("Failed", timeout=50)
+    result = kerasService.wait_for_word("signed", timeout=50)
     if not result:
-        logging.info("Didn't find the keyword 'Failed'")
+        logging.info("Didn't find the keyword 'signed'")
         return
     user.press("enter")
 def run_benchmark():
