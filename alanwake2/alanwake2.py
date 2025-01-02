@@ -86,7 +86,7 @@ def run_benchmark():
         raise ValueError("Load game option does not exist. Did the save get copied correctly?")
 
     logging.info("Navigating to options to get some screenshots")
-    press_n_times("down", 2, 0.2)
+    press_n_times("down", 4, 0.2)
     user.press("enter")
     time.sleep(0.2)
     if kerasService.wait_for_word(word="graphics", timeout=60, interval=0.5) is None:
