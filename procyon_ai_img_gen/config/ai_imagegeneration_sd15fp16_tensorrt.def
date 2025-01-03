@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<benchmark>
+	<test_info>
+		<benchmark_tests>
+			<benchmark_test name="AIImageGenerationSD15FP16Benchmark" test_run_type="EXPLICIT" version="1.0"/>
+		</benchmark_tests>
+	</test_info>
+	<application_info>
+		<selected_workloads>
+			<selected_workload name="AIImageGenerationSD15FP16Default"/>
+		</selected_workloads>
+	</application_info>
+  <settings>
+    <setting>
+        <name>ai_engine</name>
+        <value>tensorrt</value>
+    </setting>
+    <setting>
+        <name>ai_device_id</name>
+        <value>cuda:0</value> <!-- use: "cuda:0", "cuda:1", etc. Use our CLI e.g. "ProcyonCmd.exe list-cuda-devices" to see full options. Check "ProcyonCmd.exe -h" for the parameter syntax. -->
+    </setting>
+  </settings>
+</benchmark>

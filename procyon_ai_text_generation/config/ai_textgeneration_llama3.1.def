@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<benchmark>
+    <test_info>
+        <benchmark_tests>
+            <benchmark_test name="AITextGenerationBenchmark" test_run_type="EXPLICIT" version="1.0"/>
+        </benchmark_tests>
+    </test_info>
+    <application_info>
+        <selected_workloads>
+            <selected_workload name="AILlama3Default"/>
+        </selected_workloads>
+    </application_info>
+    <settings>
+        <setting>
+            <name>ai_engine</name>
+            <value>ort-directml</value> <!-- use ort-directml, openvino -->
+        </setting>
+        <setting>
+            <name>ai_device_id</name>
+            <value></value> <!-- GPU Device selection is not available on ONNX runtime and is only supported with OpenVINO engine. Check our CLI for available OpenVINO devices using the list-openvino-devices parameter. Run "ProcyonCmd.exe -h" for details. -->
+        </setting>
+    </settings>
+</benchmark>
