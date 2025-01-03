@@ -1,13 +1,12 @@
-# Forza Horizon 5
+# Forza Motorsport
 
-This script runs RTSS with the provided profile config and navigates through in-game menus to the built in benchmark and runs it with the current settings.
+This script navigates through in-game menus to the built in benchmark and runs it with the current settings. The script runs for 3 minutes after the benchmark results come up to get a longer average as the game keeps running after the benchmark.
 
 ## Prerequisites
 
 - Python 3.10+
-- Forza Horizon 5 installed via Steam
+- Forza Motorsport via Steam
 - Keras OCR service
-- RTSS installed - https://rivatuner.net/
 
 ## Output
 
