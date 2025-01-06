@@ -1,0 +1,18 @@
+friendly_name: "Evolve"
+executable: "evolve.py"
+process_name: "evolve.exe"
+disable_presentmon: true
+hidden: 0
+output_dir: "run"
+options:
+  - name: renderer
+    type: select
+    values:
+      - "Hybrid"
+      - "PathTracer"
+  - name: trace-mode
+    type: select
+    values: 
+      - "Pipeline"
+      - "Inline"
+      - "Workgraph"
