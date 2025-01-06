@@ -29,11 +29,11 @@ from harness_utils.artifacts import ArtifactManager, ArtifactType
 STEAM_GAME_ID = 2440510
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
-PROCESS_NAME = "forza_steamworks_release_final"
 LOCAL_USER_SETTINGS = os.path.join(
   os.getenv('LOCALAPPDATA'), "Microsoft.ForzaMotorsport", "User_SteamLocalStorageDirectory",
   "ConnectedStorage", "ForzaUserConfigSelections", "UserConfigSelections"
   )
+PROCESSES = ["forza_steamworks_release_final.exe", "RTSS.exe"]
 
 user.FAILSAFE = False
 
@@ -141,7 +141,7 @@ def run_benchmark() -> tuple[float]:
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %s seconds", elapsed_test_time)
 
-    terminate_processes(PROCESS_NAME)
+    terminate_processes(*PROCESSES)
     am.create_manifest()
 
     return test_start_time, test_end_time
@@ -175,5 +175,5 @@ try:
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
-    terminate_processes(PROCESS_NAME)
+    terminate_processes(*PROCESSES)
     sys.exit(1)
