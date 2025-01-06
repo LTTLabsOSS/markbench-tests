@@ -23,6 +23,7 @@ from harness_utils.steam import (
   exec_steam_run_command,
   get_build_id
 )
+from harness_utils.rtss import  start_rtss_process, copy_rtss_profile
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 STEAM_GAME_ID = 2440510
@@ -36,9 +37,17 @@ LOCAL_USER_SETTINGS = os.path.join(
 
 user.FAILSAFE = False
 
+def start_rtss():
+    """Sets up the RTSS process"""
+    profile_path = os.path.join(SCRIPT_DIRECTORY, "forza_steamworks_release_final.exe.cfg")
+    copy_rtss_profile(profile_path)
+    return start_rtss_process()
 
 def run_benchmark() -> tuple[float]:
     """Run the benchmark"""
+    start_rtss()
+    # Give RTSS time to start
+    time.sleep(10)
     logging.info("Starting game")
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = time.time()
