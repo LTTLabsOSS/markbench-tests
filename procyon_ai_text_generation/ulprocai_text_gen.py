@@ -186,7 +186,9 @@ try:
                 continue
 
             if ("ONNX" in args.engine and "ONNX" in test_type[0]) or ("OPENVINO" in args.engine and "OPENVINO" in test_type[0]):
-                score = find_score_in_xml(test_type[1]["result_regex"])
+                results_regex = test_type[1]["result_regex"]
+                score = find_score_in_xml(results_regex)
+
                 logging.info("%s score was %s", test_type[0], score)
 
                 if score is None:
