@@ -134,6 +134,8 @@ def get_arguments():
 
 def create_procyon_command(test_option, process_name, device_id):
     """create command string"""
+    command = str()
+
     if device_id == 'CPU':
         command = f'\"{ABS_EXECUTABLE_PATH}\" --definition={test_option} --export=\"{REPORT_PATH}\"'
     else:
@@ -152,7 +154,6 @@ def run_benchmark(process_name, command_to_run):
     """run the benchmark"""
     with subprocess.Popen(command_to_run, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as proc:
         logging.info("Procyon AI Computer Vision benchmark has started.")
-        start_time = time.time()
         while True:
             now = time.time()
             elapsed = now - start_time
@@ -168,15 +169,15 @@ def run_benchmark(process_name, command_to_run):
 
 try:
     setup_logging()
-    logging.info(f"Detected Windows ML Devices: {WINML_DEVICES}")
-    logging.info(f"Detected OpenVino Devices: {OPENVINO_DEVICES}")
-    logging.info(f"Detected CUDA Devices: {CUDA_DEVICES}")
+    logging.info("Detected Windows ML Devices: %s", str(WINML_DEVICES))
+    logging.info("Detected OpenVino Devices: %s", str(OPENVINO_DEVICES))
+    logging.info("Detected CUDA Devices: %s", (CUDA_DEVICES))
 
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.engine]["config"]
-    process_name = BENCHMARK_CONFIG[args.engine]["process_name"]
-    device_id = BENCHMARK_CONFIG[args.engine]["device_id"]
-    cmd = create_procyon_command(option, process_name, device_id)
+    proc_name = BENCHMARK_CONFIG[args.engine]["process_name"]
+    dev_id = BENCHMARK_CONFIG[args.engine]["device_id"]
+    cmd = create_procyon_command(option, proc_name, dev_id)
     logging.info('Starting benchmark!')
     logging.info(cmd)
     start_time = time.time()

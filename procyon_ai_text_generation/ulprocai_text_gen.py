@@ -126,7 +126,6 @@ def run_benchmark(process_name, command_to_run):
     """run the benchmark"""
     with subprocess.Popen(command_to_run, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as proc:
         logging.info("Procyon AI Text Generation benchmark has started.")
-        start_time = time.time()
         while True:
             now = time.time()
             elapsed = now - start_time
@@ -161,7 +160,7 @@ try:
 
     end_time = time.time()
     elapsed_test_time = round(end_time - start_time, 2)
-    
+
     if not args.engine == "All_Models_OPENVINO" and not args.engine == "All_Models_ONNX":
         report = {
             "test": BENCHMARK_CONFIG[args.engine]["test_name"],
@@ -203,7 +202,7 @@ try:
                 session_report.append(report)
 
         write_report_json(LOG_DIR, "report.json", session_report)
-        
+
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

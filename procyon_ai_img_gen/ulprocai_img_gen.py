@@ -176,7 +176,6 @@ def run_benchmark(process_name, command_to_run):
     """run the benchmark"""
     with subprocess.Popen(command_to_run, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as proc:
         logging.info("Procyon AI Image Generation benchmark has started.")
-        start_time = time.time()
         while True:
             now = time.time()
             elapsed = now - start_time
@@ -192,9 +191,9 @@ def run_benchmark(process_name, command_to_run):
 
 try:
     setup_logging()
-    logging.info(f"Detected Windows ML Devices: {WINML_DEVICES}")
-    logging.info(f"Detected OpenVino Devices: {OPENVINO_DEVICES}")
-    logging.info(f"Detected CUDA Devices: {CUDA_DEVICES}")
+    logging.info("Detected Windows ML Devices: %s", str(WINML_DEVICES))
+    logging.info("Detected OpenVino Devices: %s", str(OPENVINO_DEVICES))
+    logging.info("Detected CUDA Devices: %s", (CUDA_DEVICES))
 
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.engine]["config"]
@@ -209,6 +208,7 @@ try:
         sys.exit(pr.returncode)
 
     score = find_score_in_xml()
+
     if score is None:
         logging.error("Could not find overall score!")
         sys.exit(1)

@@ -1,7 +1,6 @@
 """3dmark test utils"""
 from pathlib import Path
 import psutil
-import xml.etree.ElementTree as ET
 import winreg
 import re
 
