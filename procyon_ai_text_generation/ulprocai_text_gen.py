@@ -153,7 +153,9 @@ try:
         logging.error("Procyon exited with return code %d", pr.returncode)
         sys.exit(pr.returncode)
 
-    score = find_score_in_xml(BENCHMARK_CONFIG[args.engine]["result_regex"])
+    results_regex = BENCHMARK_CONFIG[args.engine]["result_regex"]
+    score = find_score_in_xml(results_regex)
+
     if score is None:
         logging.error("Could not find overall score!")
         sys.exit(1)
