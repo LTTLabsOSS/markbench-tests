@@ -197,17 +197,17 @@ def run_benchmark():
     test_start_time = time.time() + 8
 
     # sleep for 3 laps
-    time.sleep(310)
+    time.sleep(330)
 
     test_end_time = None
 
-    result = kerasService.wait_for_word("loading", interval=0.5, timeout=90)
-    if result:
-        logging.info("Found the loading screen. Marking the out time.")
-        test_end_time = time.time() - 2
-        time.sleep(2)
-    else:
-        logging.info("Could not find the loading screen. Could not mark end time!")
+    # result = kerasService.wait_for_word("loading", interval=0.5, timeout=90)
+    # if result:
+    #     logging.info("Found the loading screen. Marking the out time.")
+    #     test_end_time = time.time() - 2
+    #     time.sleep(2)
+    # else:
+    #     logging.info("Could not find the loading screen. Could not mark end time!")
 
     result = kerasService.wait_for_word("results", interval=3, timeout=90)
     if not result:

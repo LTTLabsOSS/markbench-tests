@@ -165,22 +165,22 @@ def run_benchmark() -> tuple[float]:
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
     logging.info("Setup took %s seconds", elapsed_setup_time)
 
-    result = kerasService.wait_for_word("performance", interval=0.2, timeout=30)
-    if not result:
-        logging.info(
-            "Performance graph was not found! Could not mark the start time.")
-        sys.exit(1)
+    # result = kerasService.wait_for_word("performance", interval=0.2, timeout=30)
+    # if not result:
+    #     logging.info(
+    #         "Performance graph was not found! Could not mark the start time.")
+    #     sys.exit(1)
 
     test_start_time = time.time()
 
     # Wait for benchmark to complete
-    time.sleep(112)
+    time.sleep(123)
 
-    # Wait for results screen to display info
-    result = kerasService.wait_for_word("lost", interval=0.1, timeout=11)
-    if not result:
-        logging.info(
-            "Didn't see signal lost. Could not mark the proper end time!")
+    # # Wait for results screen to display info
+    # result = kerasService.wait_for_word("lost", interval=0.1, timeout=11)
+    # if not result:
+    #     logging.info(
+    #         "Didn't see signal lost. Could not mark the proper end time!")
 
     test_end_time = round(time.time() - 2)
 

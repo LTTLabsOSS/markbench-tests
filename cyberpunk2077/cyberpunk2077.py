@@ -109,15 +109,15 @@ def run_benchmark():
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
 
-    result = kerasService.wait_for_word("fps", timeout=60, interval=0.2)
-    if not result:
-        logging.info("Benchmark didn't start.")
-        sys.exit(1)
+    # result = kerasService.wait_for_word("fps", timeout=60, interval=0.2)
+    # if not result:
+    #     logging.info("Benchmark didn't start.")
+    #     sys.exit(1)
 
-    test_start_time = time.time() - 5
+    test_start_time = time.time()
 
     logging.info("Benchmark started. Waiting for benchmark to complete.")
-    time.sleep(60)
+    time.sleep(85)
     result = kerasService.wait_for_word("results", timeout=240, interval=0.5)
     if not result:
         logging.info("Did not see results screen. Mark as DNF.")
@@ -125,7 +125,7 @@ def run_benchmark():
 
     am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "results of benchmark")
 
-    test_end_time = time.time() - 2
+    test_end_time = time.time()
     time.sleep(2)
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)

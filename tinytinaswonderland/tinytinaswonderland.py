@@ -104,7 +104,7 @@ def run_benchmark():
         raise ValueError("benchmark didn't start on time or at all")
 
     benchmark_start = time.time()
-    time.sleep(110)
+    time.sleep(120)
     result = kerasService.wait_for_word("options", interval=0.5, timeout=30)
     if result is None:
         raise ValueError("did not detect end of benchmark, should have landed back in main menu")

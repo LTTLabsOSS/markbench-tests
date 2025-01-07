@@ -137,7 +137,7 @@ def run_benchmark():
     test_start_time = time.time()
 
     # wait for benchmark to complete
-    time.sleep(170)
+    time.sleep(210)
 
     if kerasService.wait_for_word(word="insane", timeout=60, interval=0.5) is None:
         logging.error("Didn't see the word insane. Did the game crash?")

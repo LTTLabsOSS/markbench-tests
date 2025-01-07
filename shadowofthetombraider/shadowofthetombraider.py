@@ -109,7 +109,7 @@ def run_benchmark(keras_service, am):
     test_start_time = time.time()
 
     # Wait for benchmark to complete
-    time.sleep(180)
+    time.sleep(188)
 
     test_end_time = time.time()
 

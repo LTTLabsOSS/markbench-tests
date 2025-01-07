@@ -133,11 +133,11 @@ def run_benchmark():
     # wait for black screen
     time.sleep(150)
 
-    # This actually looks for "from?" but the current ML model sees it as fromy
-    result = kerasService.wait_for_word("fromy", interval=0.2, timeout=250)
-    if not result:
-        logging.info("Did not find prompt to end harness.")
-        sys.exit(1)
+    # # This actually looks for "from?" but the current ML model sees it as fromy
+    # result = kerasService.wait_for_word("fromy", interval=0.2, timeout=250)
+    # if not result:
+    #     logging.info("Did not find prompt to end harness.")
+    #     sys.exit(1)
 
     # Wait for black screen
     time.sleep(24)

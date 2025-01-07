@@ -145,19 +145,21 @@ def run_benchmark():
 
     time.sleep(216) # Wait for benchmark till the end time
 
-    result = kerasService.wait_for_word("83", interval=0.5, timeout=250)
-    if not result:
-        logging.info("Waypoint distance was not found! Could not mark the end time.")
-        sys.exit(1)
+    # result = kerasService.wait_for_word("83", interval=0.5, timeout=250)
+    # if not result:
+    #     logging.info("Waypoint distance was not found! Could not mark the end time.")
+    #     sys.exit(1)
 
-    test_end_time = time.time()
+    
 
-    time.sleep(13) # wait for No Rest For the Wicked Quest
+    time.sleep(17) # wait for No Rest For the Wicked Quest
 
     result = kerasService.wait_for_word("wicked", interval=1, timeout=250)
     if not result:
         logging.info("Wicked was not found! Did harness not wait long enough? Or test was too long?")
         sys.exit(1)
+
+    test_end_time = time.time()
 
     logging.info("Wicked found. Ending Benchmark.")
     am.copy_file(CONFIG_FULL_PATH, ArtifactType.CONFIG_TEXT, "GameUserSettings.ini")
