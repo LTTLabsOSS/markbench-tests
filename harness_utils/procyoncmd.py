@@ -1,3 +1,4 @@
+"""Modules for executing shell commands and parsing strings"""
 import subprocess
 import re
 
@@ -39,9 +40,7 @@ def get_openvino_gpu(openvino_devices, gpu_id):
 
     gpu = openvino_devices.get("GPU", None)
 
-    if gpu is not None:
-        return gpu
-    else:
+    if gpu is None:
         gpu = openvino_devices.get(gpu_id, "No Openvino GPU Detected")
 
     return gpu
