@@ -13,7 +13,7 @@ from aotse_utils import read_current_resolution, run_game_benchmark, find_score_
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
 
-from harness_utils.steam import get_build_id
+from harness_utils.steam import get_app_install_location, get_build_id
 from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
     DEFAULT_LOGGING_FORMAT,
@@ -74,10 +74,17 @@ def get_arguments():
     argies = parser.parse_args()
     return argies
 
+# def start_game():
+#     """Launch the game with no launcher or start screen"""
+#     test_option = BENCHMARK_CONFIG[args.benchmark]["config"]
+#     return run_game_benchmark(STEAM_GAME_ID, game_params=["-benchmark", f"{test_option}"])
+
 def start_game():
-    """Launch the game with no launcher or start screen"""
+    """Starts the game process"""
     test_option = BENCHMARK_CONFIG[args.benchmark]["config"]
-    return run_game_benchmark(STEAM_GAME_ID, game_params=["-benchmark", f"{test_option}"])
+    cmd_string = f"start /D \"{get_app_install_location(STEAM_GAME_ID)}\" {EXECUTABLE} -benchmark {test_option}"
+    logging.info(cmd_string)
+    return os.system(cmd_string)
 
 def run_benchmark(process_name, command_to_run):
     """Run the benchmark and wait for the benchmark process to finish."""
@@ -111,7 +118,7 @@ try:
     start_time = time.time()
     result="Output_*_*_*_*.txt"
     delete_old_scores(result)
-    run_benchmark(BENCHMARK_CONFIG[args.benchmark]["process_name"], cmd)
+    run_benchmark(EXECUTABLE, cmd)
     score = find_score_in_log(BENCHMARK_CONFIG[args.benchmark]["score_name"], result)
     
     if score is None:
