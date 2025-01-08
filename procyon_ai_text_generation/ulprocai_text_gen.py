@@ -6,7 +6,7 @@ import subprocess
 import sys
 import time
 import psutil
-from utils import regex_find_score_in_xml, is_process_running, get_install_path
+from utilities import regex_find_score_in_xml, is_process_running, get_install_path
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
