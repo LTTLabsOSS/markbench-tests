@@ -14,7 +14,7 @@ def is_process_running(process_name):
             return process
     return None
 
-def find_score_in_xml(result_regex):
+def regex_find_score_in_xml(result_regex):
     """Reads score from local game log"""
     score_pattern = re.compile(result_regex)
     cfg = f"{LOG_DIR}\\result.xml"
