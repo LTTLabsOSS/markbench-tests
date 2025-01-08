@@ -6,7 +6,7 @@ import subprocess
 import sys
 import time
 import psutil
-from utils import find_score_in_xml, is_process_running, get_install_path
+from utils import regex_find_score_in_xml, is_process_running, get_install_path
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -153,17 +153,17 @@ try:
         logging.error("Procyon exited with return code %d", pr.returncode)
         sys.exit(pr.returncode)
 
-    results_regex = BENCHMARK_CONFIG[args.engine]["result_regex"]
-    score = find_score_in_xml(results_regex)
-
-    if score is None:
-        logging.error("Could not find overall score!")
-        sys.exit(1)
-
     end_time = time.time()
     elapsed_test_time = round(end_time - start_time, 2)
 
     if not args.engine == "All_Models_OPENVINO" and not args.engine == "All_Models_ONNX":
+        results_regex = BENCHMARK_CONFIG[args.engine]["result_regex"]
+        score = regex_find_score_in_xml(results_regex)
+
+        if score is None:
+            logging.error("Could not find overall score!")
+            sys.exit(1)
+
         report = {
             "test": BENCHMARK_CONFIG[args.engine]["test_name"],
             "unit": "score",
@@ -187,7 +187,7 @@ try:
 
             if ("ONNX" in args.engine and "ONNX" in test_type[0]) or ("OPENVINO" in args.engine and "OPENVINO" in test_type[0]):
                 results_regex = test_type[1]["result_regex"]
-                score = find_score_in_xml(results_regex)
+                score = regex_find_score_in_xml(results_regex)
 
                 logging.info("%s score was %s", test_type[0], score)
 
