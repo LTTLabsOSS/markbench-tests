@@ -95,16 +95,3 @@ def wait_for_benchmark_process(test_name, process_name, timeout=60):
 
         # Wait for 1 second before checking again
         time.sleep(1)
-
-def run_game_benchmark(game_id: int, steam_path=None, game_params=None):
-    """Runs a game by providing steam executable with an array of parameters.
-    The `steam_path` argument can be used to specify a specifc path to the Steam executable
-    instead of relying on finding the current installation in the Window's registry.
-    """
-    if steam_path is None:
-        steam_path = get_steam_exe_path()
-    if game_params is None:
-        game_params = []
-    command = [steam_path, "-applaunch", str(game_id)] + game_params
-    logging.info(", ".join(command))
-    return command

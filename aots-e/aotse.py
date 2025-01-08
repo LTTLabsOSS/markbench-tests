@@ -8,7 +8,7 @@ import time
 import getpass
 import glob
 import os
-from aotse_utils import read_current_resolution, run_game_benchmark, find_score_in_log, wait_for_benchmark_process, delete_old_scores
+from aotse_utils import read_current_resolution, find_score_in_log, wait_for_benchmark_process, delete_old_scores
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -39,19 +39,18 @@ BENCHMARK_CONFIG = {
     "GPU_Benchmark": {
         "hardware": "GPU",
         "config": "benchfinal",
-        "process_name":  "AshesEscalation_DX12.exe",
         "score_name": "Avg Framerate:",
         "test_name": "Ashes of the Singularity: Escalation GPU Benchmark"
     },
     "CPU_Benchmark": {
         "hardware": "CPU",
         "config": "CPUbench",
-        "process_name":  "AshesEscalation_DX12.exe",
         "score_name": "CPU frame rate \(estimated if not GPU bound\):",
         "test_name": "Ashes of the Singularity: Escalation CPU Benchmark"
     }
 }
 cfg = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
+GAME_DIR = get_app_install_location(STEAM_GAME_ID)
 
 
 def setup_logging():
@@ -74,22 +73,17 @@ def get_arguments():
     argies = parser.parse_args()
     return argies
 
-# def start_game():
-#     """Launch the game with no launcher or start screen"""
-#     test_option = BENCHMARK_CONFIG[args.benchmark]["config"]
-#     return run_game_benchmark(STEAM_GAME_ID, game_params=["-benchmark", f"{test_option}"])
-
 def start_game():
     """Starts the game process"""
     test_option = BENCHMARK_CONFIG[args.benchmark]["config"]
-    cmd_string = f"start /D \"{get_app_install_location(STEAM_GAME_ID)}\" {EXECUTABLE} -benchmark {test_option}"
+    cmd_string = f"\"{GAME_DIR}\\{EXECUTABLE}\" -benchmark {test_option}"
     logging.info(cmd_string)
-    return os.system(cmd_string)
+    return cmd_string
 
 def run_benchmark(process_name, command_to_run):
     """Run the benchmark and wait for the benchmark process to finish."""
     # Start Steam via subprocess.Popen
-    with subprocess.Popen(command_to_run, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as proc:
+    with subprocess.Popen(command_to_run, cwd=GAME_DIR, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as proc:
         
         # Wait for the actual benchmark process to start and finish
         test_name=BENCHMARK_CONFIG[args.benchmark]["test_name"]
