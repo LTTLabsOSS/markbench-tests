@@ -149,11 +149,43 @@ def run_benchmark():
     if not result:
         logging.info("Didn't find the keyword 'vsync'. Did the program navigate to the video mode menu correctly?")
         sys.exit(1)
-    press_n_times("down", 18, 0.2)
+
+    #do the changing to 4k , vsync off, anti aliassing x16
+    user.press("down")
+    time.sleep(0.2)
+    press_n_times("right", 25, 0.2)
+    user.press("down")
+    time.sleep(0.2)
+    press_n_times("left", 2, 0.2)
+    press_n_times("right", 1, 0.2)
+    press_n_times("down", 2, 0.2)
+    press_n_times("left", 1, 0.2)
+    press_n_times("down", 3, 0.2)
+    press_n_times("left", 1, 0.2)
+    press_n_times("down", 3, 0.2)
+    press_n_times("left", 1, 0.2)
+    press_n_times("down", 3, 0.2)
+    press_n_times("right", 4, 0.2)
+    press_n_times("down", 1, 0.2)
+    press_n_times("left", 5, 3)
+    press_n_times("down", 3, 0.2)
+    press_n_times("left", 4, 0.2)
+    press_n_times("down", 1, 0.2)
+    press_n_times("left", 2, 0.2)
+    press_n_times("down", 3, 0.2)
 
     am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings menu")
+
     user.press("esc")
     time.sleep(0.2)
+    user.press("enter")
+    time.sleep(10)
+    user.press("up")
+    time.sleep(0.2)
+    user.press("enter")
+    time.sleep(0.2)
+    
+
 
     result = kerasService.wait_for_word("steering", interval=3, timeout=60)
     if not result:
@@ -161,8 +193,23 @@ def run_benchmark():
         sys.exit(1)
 
     # Navigate through graphics settings and take screenshots of all settings contained within
+
     am.take_screenshot("graphics_1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of graphics settings")
-    press_n_times("down", 29, 0.2)
+
+    # make the settings ultra with reflex and vrs off
+    press_n_times("down", 4, 0.2)
+    press_n_times("right", 5, 0.2)
+    press_n_times("left", 1, 0.2)
+    press_n_times("down", 2, 0.2)
+    #RT STUFF
+    press_n_times("down", 17, 0.2)
+    press_n_times("left", 4, 0.2)
+    press_n_times("right", 1, 0.2)  
+    press_n_times("down", 3, 0.2)
+    press_n_times("left", 1, 0.2)
+    press_n_times("down", 2, 0.2)
+    press_n_times("left", 1, 0.2)
+    press_n_times("down", 1, 0.2)
 
     result = kerasService.wait_for_word("chromatic", interval=3, timeout=60)
     if not result:
@@ -178,10 +225,16 @@ def run_benchmark():
     if not kerasService.look_for_word("weather", attempts=5, interval=3):
         logging.info("Didn't find weather!")
         sys.exit(1)
+ 
+    #change benchmark settings here to stress settings, 5 laps, loop on 
+    press_n_times("down", 3, 0.2)
+    press_n_times("right", 4, 0.2)
+    press_n_times("down", 2, 0.2)
+    press_n_times("right", 1, 0.2)
+    press_n_times("down", 1, 0.2)
 
     am.take_screenshot("benchmark.png", ArtifactType.CONFIG_IMAGE, "screenshot of benchmark settings")
 
-    press_n_times("down", 6, 0.2)
     user.press("enter")
     time.sleep(2)
 
