@@ -1,0 +1,10 @@
+friendly_name: "F1_24_stress"
+executable: "f1_stress.py"
+process_name: "F1_24.exe"
+hidden: 0
+output_dir: "run"
+options:
+  - name: kerasHost
+    type: input
+  - name: kerasPort
+    type: input
