@@ -6,7 +6,7 @@ import re
 import time
 import sys
 import pydirectinput as user
-from f1_stress.f1_stress_utils import get_resolution
+from f1_stress_utils import get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
@@ -153,25 +153,23 @@ def run_benchmark():
     #do the changing to 4k , vsync off, anti aliassing x16
     user.press("down")
     time.sleep(0.2)
-    press_n_times("right", 25, 0.2)
+    press_n_times("right", 25, 0.2) #res
     user.press("down")
     time.sleep(0.2)
     press_n_times("left", 2, 0.2)
-    press_n_times("right", 1, 0.2)
+    press_n_times("right", 1, 0.2)#fullscreen
     press_n_times("down", 2, 0.2)
-    press_n_times("left", 1, 0.2)
+    press_n_times("left", 1, 0.2)#vsync
     press_n_times("down", 3, 0.2)
-    press_n_times("left", 1, 0.2)
+    press_n_times("left", 1, 0.2)#frame limit
     press_n_times("down", 3, 0.2)
-    press_n_times("left", 1, 0.2)
-    press_n_times("down", 3, 0.2)
-    press_n_times("right", 4, 0.2)
+    press_n_times("right", 4, 0.2)#aniso
     press_n_times("down", 1, 0.2)
-    press_n_times("left", 5, 3)
+    press_n_times("left", 5, 3)#aa mode
     press_n_times("down", 3, 0.2)
-    press_n_times("left", 4, 0.2)
+    press_n_times("left", 4, 0.2)#frame gen
     press_n_times("down", 1, 0.2)
-    press_n_times("left", 2, 0.2)
+    press_n_times("left", 2, 0.2)#dynamic res
     press_n_times("down", 3, 0.2)
 
     am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings menu")
