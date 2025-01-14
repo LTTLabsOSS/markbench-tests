@@ -165,10 +165,10 @@ def run_benchmark():
 
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_OPTIONS)
 
-    result = kerasService.look_for_word("paused", attempts=10, interval=1)
-    if not result:
+    if kerasService.wait_for_word(word="paused", timeout=10, interval=1) is None:
         logging.info("Couldn't find the settings option. Did the pause menu open?")
         sys.exit(1)
+
     time.sleep(0.5)
     gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_NORTH, n=5, pause=0.8)
     time.sleep(0.5)
@@ -177,8 +177,7 @@ def run_benchmark():
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(0.4)
 
-    result = kerasService.look_for_word("video", attempts=10, interval=1)
-    if not result:
+    if kerasService.look_for_word(word="video", attempts=10, interval=1) is None:
         logging.info("Couldn't find the video tab. Did the settings menu open?")
         sys.exit(1)
 
@@ -187,12 +186,11 @@ def run_benchmark():
     gamepad.button_press_n_times(button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT, n=4, pause=0.5)
     time.sleep(1)
 
-    result = kerasService.look_for_word("window", attempts=10, interval=1)
-    if not result:
+    if kerasService.look_for_word(word="window", attempts=10, interval=1) is None:
         logging.info("Couldn't find the window settings header. Did Keras see the right menu?")
         sys.exit(1)
-    else:
-        logging.info("Seen the video settings, capturing the data.")
+
+    logging.info("Seen the video settings, capturing the data.")
     am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "Screenshot of the display settings")
 
     am.copy_file(CONFIG_PATH, ArtifactType.CONFIG_TEXT, "TASystemSettings.ini")
