@@ -3,8 +3,6 @@ import logging
 import os
 import time
 from subprocess import Popen
-import pyautogui as gui
-import pydirectinput as user
 import sys
 import getpass
 from pathlib import Path
@@ -20,7 +18,6 @@ from harness_utils.output import (
     seconds_to_milliseconds,
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT)
-from harness_utils.misc import press_n_times
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
