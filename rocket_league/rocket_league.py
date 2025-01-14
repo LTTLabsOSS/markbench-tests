@@ -61,6 +61,7 @@ def start_game():
 
 
 def run_benchmark():
+    # pylint: disable-msg=too-many-branches
     """Run the test!"""
     copy_replay()
     setup_start_time = time.time()
