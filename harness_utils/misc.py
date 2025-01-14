@@ -101,7 +101,7 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
         for _ in range(n):
             self.single_button_press(button)
             time.sleep(pause)
-    
+
     def single_dpad_press(self, direction = vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, pause = 0.1):
         """ 
         Custom function to perform a single press of a specified gamepad button

@@ -66,7 +66,7 @@ def run_benchmark():
     setup_start_time = time.time()
     start_game()
     time.sleep(30)  # wait for game to load into main menu
-    
+
     #Looking for Syncing Failed message
     if kerasService.wait_for_word(word="failed", timeout=5, interval=1):
         gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
@@ -80,7 +80,7 @@ def run_benchmark():
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
 
     #Looking for news menu close button
-    if kerasService.wait_for_word(word="close", timeout=5, interval=1): 
+    if kerasService.wait_for_word(word="close", timeout=5, interval=1):
         gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CIRCLE)
 
     time.sleep(3)
@@ -132,7 +132,7 @@ def run_benchmark():
     if kerasService.wait_for_word(word="watch", timeout=60, interval=0.5) is None:
         logging.error("Didn't navigate to the saved replays correctly. Check menu options for any anomalies.")
         sys.exit(1)
-    
+
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
 
     setup_end_time = time.time()
