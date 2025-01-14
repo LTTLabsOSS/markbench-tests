@@ -5,8 +5,9 @@ This test launches a replay of Rocket League. The replay is from RLCS Season 9 N
 ## Prerequisites
 
 - Python 3.10+
-- Rocket league installed
+- Rocket League installed
 - Keras OCR service
+- Vgamepad
 
 ## Options
 

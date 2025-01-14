@@ -4,9 +4,17 @@ All notable changes to this project will be documented in this file.
 
 Changes are grouped by the date they are merged to the main branch of the repository and are ordered from newest to oldest. Dates use the ISO 8601 extended calendar date format, i.e. YYYY-MM-DD.
 
+## 2025-01-14
+
+- Updates to the Rocket League harness for navigation via DS4 controller input.
+- Added DS4 input to the Vgamepad commands in the harness_utils/misc.
+- Updated Black Myth Wukong harness to coincide with the changes to the Vgamepad commands.
+- Updated timeout to the Shadow of the Tomb Raider harness while checking for the results screen for slower loading devices.
+
 ## 2024-12-13
 
-- Update to Rocket League harness for artifact management and new menu navigation.
+- Update to Rocket League harness for artifact management and new menu navigation. Fixed navigation for scaling issues. Now requires vgamepad.
+- Updated a couple of readmes to indicate requirement for Vgamepad.
 
 ## 2024-12-04
 
