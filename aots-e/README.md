@@ -5,7 +5,7 @@ This benchmark runs one of the built in benchmarks for the game.
 ## Prerequisites
 
 - Python 3.10+
-- Stellaris installed
+- Ashes of the Singularity installed
 - Keras OCR service
 
 ## Options

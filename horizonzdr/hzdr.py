@@ -66,7 +66,7 @@ def run_benchmark() -> tuple[float]:
         logging.info("Could not find the main menu. Did the game load?")
         sys.exit(1)
 
-    # Navigate to display menu
+    # Navigate to options menu
     user.press("down")
     time.sleep(0.5)
     user.press("down")
@@ -74,7 +74,7 @@ def run_benchmark() -> tuple[float]:
     user.press("enter")
     time.sleep(0.5)
 
-    # Verify that we have navigated to the video settings menu and take a screenshot
+    
     if kerasService.wait_for_word(word="language", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
@@ -82,6 +82,7 @@ def run_benchmark() -> tuple[float]:
     user.press("e")
     time.sleep(0.5)
 
+    # Verify that we have navigated to the display settings menu and take a screenshot
     if kerasService.wait_for_word(word="monitor", timeout=30, interval=1) is None:
         logging.info("Did not find the display settings menu. Did the menu get stuck?")
         sys.exit(1)

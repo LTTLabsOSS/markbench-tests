@@ -82,7 +82,7 @@ def start_game():
 
 def run_benchmark(process_name, command_to_run):
     """Run the benchmark and wait for the benchmark process to finish."""
-    # Start Steam via subprocess.Popen
+    # Start Ashes Exe via subprocess.Popen
     with subprocess.Popen(command_to_run, cwd=GAME_DIR, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as proc:
         
         # Wait for the actual benchmark process to start and finish

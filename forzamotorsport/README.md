@@ -7,6 +7,7 @@ This script navigates through in-game menus to the built in benchmark and runs i
 - Python 3.10+
 - Forza Motorsport via Steam
 - Keras OCR service
+- RTSS installed - https://rivatuner.net/
 
 ## Output
 
