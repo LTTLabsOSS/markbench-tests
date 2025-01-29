@@ -122,7 +122,7 @@ def run_benchmark() -> tuple[float]:
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
     logging.info("Setup took %s seconds", elapsed_setup_time)
 
-    if kerasService.wait_for_word(word="continue", timeout=60, interval=1) is None:
+    if kerasService.wait_for_word(word="continue", timeout=120, interval=1) is None:
         logging.info("Did not find the continue button. Did the game not finish loading?")
         sys.exit(1)
 
