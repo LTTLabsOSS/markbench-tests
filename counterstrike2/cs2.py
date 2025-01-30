@@ -90,6 +90,17 @@ def run_benchmark(keras_service):
     gui.mouseUp()
     time.sleep(0.2)
 
+    result = keras_service.look_for_word(word="video", attempts=10, interval=1)
+    if not result:
+        logging.info("Did not find the video menu button. Did Keras enter settings correctly?")
+        sys.exit(1)
+
+    gui.moveTo(result["x"], result["y"])
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+    time.sleep(0.2)
+
     if keras_service.wait_for_word(word="brightness", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
