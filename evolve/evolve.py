@@ -28,8 +28,7 @@ def is_process_running(process_name):
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR / "run"
-#EVOLVE_DIR = Path(r"C:\\Program Files\\Evolve\\")
-EVOLVE_DIR = Path(r"C:\\Users\\athos\\evolve\\target\\release")
+EVOLVE_DIR = Path(r"C:\\Program Files\\Evolve\\")
 EXECUTABLE = "evolve-professional.exe"
 EXECUTABLE_PATH = EVOLVE_DIR / EXECUTABLE
 RESULTS_FILE = LOG_DIR / "evolve-results.csv"
