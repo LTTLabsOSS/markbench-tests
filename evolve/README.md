@@ -6,7 +6,7 @@ Runs the EVOLVE benchmark scene and reads all the produced scores.
 ## Prerequisites
 
 - Python 3.10+
-- Evolve Advanced, Professional or Enterprise edition installed in default location.
+- EVOLVE Advanced, Professional or Enterprise edition installed in default location.
 
 ## Options
 
@@ -14,6 +14,8 @@ Runs the EVOLVE benchmark scene and reads all the produced scores.
 - `--type` Specifies the method for hardware-accelerated ray-tracing or general rendering to use
 
 ## Output
+
+Note: Some scores will be zero, depending on the selected renderer, tracing type and capabilities of the hardware.
 
 report-raytracing-score.json
 - `test`: The name of the selected rendering options and score specification
