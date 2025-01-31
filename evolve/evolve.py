@@ -29,8 +29,8 @@ def is_process_running(process_name):
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR / "run"
 #EVOLVE_DIR = Path(r"C:\\Program Files\\Evolve\\")
-EVOLVE_DIR = Path(r"C:\\Users\\athos\\evolve\\target\\debug")
-EXECUTABLE = "evolve-advanced.exe"
+EVOLVE_DIR = Path(r"C:\\Users\\athos\\evolve\\target\\release")
+EXECUTABLE = "evolve-professional.exe"
 EXECUTABLE_PATH = EVOLVE_DIR / EXECUTABLE
 RESULTS_FILE = LOG_DIR / "evolve-results.csv"
 
@@ -56,9 +56,10 @@ def get_scores(results_path):
     with open(results_path, mode="r") as results_file:
         # Format is score name in the first row, 
         # score on the second row, which DictReader
-        # will translate to a proper dict
-        results = list(csv.DictReader(results_file))
-        print("Results: " + str(results))
+        # will translate to a proper dict. 
+        # Only a single loop so only return the 
+        # first result
+        results = list(csv.DictReader(results_file))[0]
     return results
 
 def launch_evolve(renderer, trace_mode):
@@ -116,15 +117,18 @@ def main():
     scores = get_scores(RESULTS_FILE)
     logging.info("Benchmark took %.2f seconds", end_time - start_time)
 
-    for score, name in scores:
-        report = {
-            "test": f"Evolve {args.renderer} {args.trace_mode} {name} Score",
-            "unit": "score",
-            "score": score,
-            "start_time": seconds_to_milliseconds(start_time),
-            "end_time": seconds_to_milliseconds(end_time)
-        }
-        write_report_json(LOG_DIR, f"report-{name}-score.json", report)
+    for name, score in scores.items():
+        if name != "Loop":
+            report = {
+                "test": f"Evolve {args.renderer} {args.trace_mode} {name} Score",
+                "unit": "score",
+                "score": score,
+                "start_time": seconds_to_milliseconds(start_time),
+                "end_time": seconds_to_milliseconds(end_time)
+            }
+            
+            report_name = name.lower().replace(" ", "-")
+            write_report_json(LOG_DIR, f"report-{report_name}-score.json", report)
 
 
 if __name__ == "__main__":
