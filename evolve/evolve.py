@@ -17,14 +17,9 @@ from harness_utils.output import (
     write_report_json,
     seconds_to_milliseconds,
 )
-
-
-def is_process_running(process_name):
-    """check if given process is running"""
-    for process in psutil.process_iter(["pid", "name"]):
-        if process.info["name"] == process_name:
-            return process
-    return None
+from harness_utils.process import (
+    is_process_running
+)
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
