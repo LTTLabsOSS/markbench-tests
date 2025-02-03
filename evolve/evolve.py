@@ -18,6 +18,7 @@ from harness_utils.output import (
     seconds_to_milliseconds,
 )
 
+
 def is_process_running(process_name):
     """check if given process is running"""
     for process in psutil.process_iter(["pid", "name"]):
@@ -32,6 +33,7 @@ EVOLVE_DIR = Path(r"C:\\Program Files\\Evolve\\")
 EXECUTABLE = "evolve-professional.exe"
 EXECUTABLE_PATH = EVOLVE_DIR / EXECUTABLE
 RESULTS_FILE = LOG_DIR / "evolve-results.csv"
+
 
 def setup_logging():
     """default logging config"""
@@ -51,24 +53,26 @@ def setup_logging():
 TRACE_MODES = ["pipeline", "inline", "workgraph"]
 RENDERERS = ["ray-tracing", "path-tracing"]
 
+
 def get_scores(results_path):
     with open(results_path, mode="r") as results_file:
-        # Format is score name in the first row, 
+        # Format is score name in the first row,
         # score on the second row, which DictReader
-        # will translate to a proper dict. 
-        # Only a single loop so only return the 
+        # will translate to a proper dict.
+        # Only a single loop so only return the
         # first result
         results = list(csv.DictReader(results_file))[0]
     return results
 
+
 def launch_evolve(renderer, trace_mode):
-    launch_command =f"\"{EXECUTABLE_PATH}\" --export-scores {RESULTS_FILE} run-official --renderer {renderer} --mode {trace_mode}"
+    launch_command = f'"{EXECUTABLE_PATH}" --export-scores {RESULTS_FILE} run-official --renderer {renderer} --mode {trace_mode}'
     with subprocess.Popen(
         launch_command,
-        #stdout=subprocess.PIPE,
-        #stderr=subprocess.STDOUT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
         universal_newlines=True,
-        cwd=(EVOLVE_DIR / "../..")
+        cwd=(EVOLVE_DIR / "../.."),
     ) as proc:
         logging.info("Evolve has started.")
         start_time = time.time()
@@ -85,6 +89,7 @@ def launch_evolve(renderer, trace_mode):
         _, _ = proc.communicate()  # blocks until Evolve exits
         return proc
 
+
 def main():
     setup_logging()
     parser = ArgumentParser()
@@ -93,14 +98,14 @@ def main():
         "--renderer",
         help="Whether to run with the hybrid renderer or path tracer",
         required=True,
-        choices=RENDERERS
+        choices=RENDERERS,
     )
     parser.add_argument(
         "-t",
         "--trace-mode",
         help="Which type of hardware accelerated ray-tracing mode should be used",
         required=True,
-        choices=TRACE_MODES
+        choices=TRACE_MODES,
     )
     args = parser.parse_args()
 
@@ -123,9 +128,9 @@ def main():
                 "unit": "score",
                 "score": score,
                 "start_time": seconds_to_milliseconds(start_time),
-                "end_time": seconds_to_milliseconds(end_time)
+                "end_time": seconds_to_milliseconds(end_time),
             }
-            
+
             report_name = name.lower().replace(" ", "-")
             write_report_json(LOG_DIR, f"report-{report_name}-score.json", report)
 
