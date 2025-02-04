@@ -24,8 +24,8 @@ from harness_utils.process import (
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR / "run"
-EVOLVE_DIR = Path(r"C:\\Program Files\\Evolve\\")
-EXECUTABLE = "evolve-professional.exe"
+EVOLVE_DIR = Path(r"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Evolve")
+EXECUTABLE = "evolve.exe"
 EXECUTABLE_PATH = EVOLVE_DIR / EXECUTABLE
 RESULTS_FILE = LOG_DIR / "evolve-results.csv"
 
@@ -50,6 +50,7 @@ RENDERERS = ["ray-tracing", "path-tracing"]
 
 
 def get_scores(results_path):
+    """obtain and parse the scores from the evolve run"""
     with open(results_path, mode="r") as results_file:
         # Format is score name in the first row,
         # score on the second row, which DictReader
@@ -61,13 +62,14 @@ def get_scores(results_path):
 
 
 def launch_evolve(renderer, trace_mode):
+    """launch evolve with the given render and trace parameters"""
     launch_command = f'"{EXECUTABLE_PATH}" --export-scores {RESULTS_FILE} run-official --renderer {renderer} --mode {trace_mode}'
     with subprocess.Popen(
         launch_command,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         universal_newlines=True,
-        cwd=(EVOLVE_DIR / "../.."),
+        cwd=(EVOLVE_DIR),
     ) as proc:
         logging.info("Evolve has started.")
         start_time = time.time()
@@ -75,7 +77,7 @@ def launch_evolve(renderer, trace_mode):
             now = time.time()
             elapsed = now - start_time
             if elapsed >= 30:  # seconds
-                raise ValueError("Benchmark subprocess did not start in time")
+                raise ValueError("Evolve Benchmark subprocess did not start in time")
             process = is_process_running(EXECUTABLE)
             if process is not None:
                 process.nice(psutil.HIGH_PRIORITY_CLASS)
