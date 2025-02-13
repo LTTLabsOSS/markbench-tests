@@ -51,12 +51,12 @@ def navigate_to_settings():
         time.sleep(0.5)
 
 def check_for_rt():
-    result = kerasService.wait_for_word("reflections", interval=3, timeout=5)
+    result = kerasService.wait_for_word("reflections", interval=1, timeout=2)
     if result:
         press_n_times("down", 3, 0.2)
         am.take_screenshot("graphics_rt.png", ArtifactType.CONFIG_IMAGE, "graphics menu rt")
     if not result:
-        result = kerasService.wait_for_word("path", interval=3, timeout=5)
+        result = kerasService.wait_for_word("path", interval=1, timeout=2)
         if result:
             user.press("down")
             am.take_screenshot("graphics_pt.png", ArtifactType.CONFIG_IMAGE, "graphics menu path tracing")
@@ -83,21 +83,21 @@ def navigate_settings() -> None:
     # now on graphics tab
     am.take_screenshot("graphics_1.png", ArtifactType.CONFIG_IMAGE, "graphics menu 1")
 
-    result = kerasService.wait_for_word("DLSS", interval=3, timeout=5)
+    result = kerasService.wait_for_word("DLSS", interval=1, timeout=2)
     if result:
-        result = kerasService.wait_for_word("multi", interval=3, timeout=5)
+        result = kerasService.wait_for_word("multi", interval=1, timeout=2)
         if result:
             user.press("down")
         press_n_times("down", 3, 0.2)
     
-    result = kerasService.wait_for_word("AMD", interval=3, timeout=5)
+    result = kerasService.wait_for_word("AMD", interval=1, timeout=2)
     if result:
         press_n_times("down", 2, 0.2)
         
-    result = kerasService.wait_for_word("Intel", interval=3, timeout=5)
+    result = kerasService.wait_for_word("Intel", interval=1, timeout=2)
     if result:
         press_n_times("down", 2, 0.2)
-        
+
     check_for_rt()
 
     for _ in range(7):
