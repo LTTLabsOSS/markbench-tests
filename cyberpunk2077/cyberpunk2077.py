@@ -89,17 +89,16 @@ def navigate_settings() -> None:
         if result:
             user.press("down")
         press_n_times("down", 3, 0.2)
-        check_for_rt()
     
     result = kerasService.wait_for_word("AMD", interval=3, timeout=5)
     if result:
         press_n_times("down", 2, 0.2)
-        check_for_rt()
         
     result = kerasService.wait_for_word("Intel", interval=3, timeout=5)
     if result:
         press_n_times("down", 2, 0.2)
-        check_for_rt()
+        
+    check_for_rt()
 
     for _ in range(7):
         user.press("down")
