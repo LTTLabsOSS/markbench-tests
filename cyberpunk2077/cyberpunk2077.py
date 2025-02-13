@@ -83,22 +83,26 @@ def navigate_settings() -> None:
     # now on graphics tab
     am.take_screenshot("graphics_1.png", ArtifactType.CONFIG_IMAGE, "graphics menu 1")
 
-    result = kerasService.wait_for_word("DLSS", interval=1, timeout=2)
-    if result:
+    DLSS = kerasService.wait_for_word("dlss", interval=1, timeout=2)
+    if DLSS:
         result = kerasService.wait_for_word("multi", interval=1, timeout=2)
         if result:
             user.press("down")
-        press_n_times("down", 3, 0.2)
-    
-    result = kerasService.wait_for_word("AMD", interval=1, timeout=2)
-    if result:
-        press_n_times("down", 2, 0.2)
+        press_n_times("down", 3, 0.2) #gets you to film grain usually except for combined with RT
+        result = kerasService.wait_for_word("grain", interval=1, timeout=2)
+        if not result:
+            user.press("down")
         
-    result = kerasService.wait_for_word("Intel", interval=1, timeout=2)
-    if result:
-        press_n_times("down", 2, 0.2)
+    
+    FSR = kerasService.wait_for_word("amd", interval=1, timeout=2)
+    if FSR:
+        press_n_times("down", 2, 0.2) #gets you to film grain
+        
+    XESS = kerasService.wait_for_word("intel", interval=1, timeout=2)
+    if XESS:
+        press_n_times("down", 2, 0.2) #gets you to film grain
 
-    else:
+    if not DLSS or FSR or XESS:
         user.press("down")
 
     check_for_rt()
