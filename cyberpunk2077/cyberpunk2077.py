@@ -98,6 +98,9 @@ def navigate_settings() -> None:
     if result:
         press_n_times("down", 2, 0.2)
 
+    else:
+        user.press("down")
+
     check_for_rt()
 
     for _ in range(7):
