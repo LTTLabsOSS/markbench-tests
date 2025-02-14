@@ -92,17 +92,16 @@ def navigate_settings() -> None:
         result = kerasService.wait_for_word("grain", interval=1, timeout=2)
         if not result:
             user.press("down")
-        
-    
+
     FSR = kerasService.wait_for_word("amd", interval=1, timeout=2)
     if FSR:
         press_n_times("down", 2, 0.2) #gets you to film grain
-        
+
     XESS = kerasService.wait_for_word("intel", interval=1, timeout=2)
     if XESS:
         press_n_times("down", 2, 0.2) #gets you to film grain
 
-    if not DLSS or FSR or XESS:
+    else:
         user.press("down")
 
     check_for_rt()
