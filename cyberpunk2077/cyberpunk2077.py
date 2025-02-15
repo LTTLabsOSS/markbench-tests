@@ -51,6 +51,7 @@ def navigate_to_settings():
         time.sleep(0.5)
 
 def check_for_rt():
+    """Checks for if RT is enabled"""
     result = kerasService.wait_for_word("reflections", interval=1, timeout=2)
     if result:
         press_n_times("down", 3, 0.2)
@@ -85,12 +86,12 @@ def navigate_settings() -> None:
 
     user.press("down")
 
-    RAST = kerasService.wait_for_word("view", interval=1, timeout=2)
-    if RAST:
+    rast = kerasService.wait_for_word("view", interval=1, timeout=2)
+    if rast:
         press_n_times("up", 2, 0.2) #gets you to film grain
 
-    DLSS = kerasService.wait_for_word("dlss", interval=1, timeout=2)
-    if DLSS:
+    dlss = kerasService.wait_for_word("dlss", interval=1, timeout=2)
+    if dlss:
         result = kerasService.wait_for_word("multi", interval=1, timeout=2)
         if result:
             user.press("down")
@@ -99,12 +100,12 @@ def navigate_settings() -> None:
         if not result:
             user.press("down")
 
-    FSR = kerasService.wait_for_word("amd", interval=1, timeout=2)
-    if FSR:
+    fsr = kerasService.wait_for_word("amd", interval=1, timeout=2)
+    if fsr:
         user.press("down") #gets you to film grain
 
-    XESS = kerasService.wait_for_word("intel", interval=1, timeout=2)
-    if XESS:
+    xess = kerasService.wait_for_word("intel", interval=1, timeout=2)
+    if xess:
         user.press("down") #gets you to film grain
 
     check_for_rt()
