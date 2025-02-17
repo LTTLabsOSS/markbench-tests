@@ -36,7 +36,7 @@ VIDEO_PATH = os.path.join(get_steamapps_common_path(), "Horizon Zero Dawn Remast
 input_file = os.path.join(SCRIPT_DIRECTORY, 'graphics.reg')
 config_file = os.path.join(SCRIPT_DIRECTORY, 'graphics_config.txt')
 hive = winreg.HKEY_CURRENT_USER
-subkey = r"SOFTWARE\\Guerrilla Games\\Horizon Zero Dawn Remastered\\Graphics"
+SUBKEY = r"SOFTWARE\\Guerrilla Games\\Horizon Zero Dawn Remastered\\Graphics"
 
 user.FAILSAFE = False
 
@@ -74,7 +74,7 @@ def run_benchmark() -> tuple[float]:
     user.press("enter")
     time.sleep(0.5)
 
-    
+
     if kerasService.wait_for_word(word="language", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
@@ -112,7 +112,7 @@ def run_benchmark() -> tuple[float]:
         logging.info("Did not find the sharpness settings. Did the menu not scroll?")
         sys.exit(1)
     am.take_screenshot("graphics2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of graphics settings")
-    
+
     # Launch the benchmark
     user.press("tab")
     time.sleep(0.5)
@@ -142,7 +142,7 @@ def run_benchmark() -> tuple[float]:
     # Give results screen time to fill out, then save screenshot and config file
     time.sleep(2)
     am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "screenshot of benchmark result")
-    process_registry_file(hive, subkey, input_file, config_file)
+    process_registry_file(hive, SUBKEY, input_file, config_file)
     am.copy_file(config_file, ArtifactType.CONFIG_TEXT, "config file")
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)

@@ -12,8 +12,6 @@ import time
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
 
-from harness_utils.steam import get_steam_exe_path
-
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 USERNAME = getpass.getuser()
@@ -54,7 +52,7 @@ def find_score_in_log(score_name, file):
     files = sorted(glob.glob(os.path.join(CONFIG_PATH, file)), key=os.path.getmtime, reverse=True)
     if not files:
         return None
-    
+
     score_pattern = re.compile(rf"^{score_name}\s*(\d+\.\d+) FPS")
     score_value = 0
     with open(files[0], encoding="ANSI") as file:
@@ -85,13 +83,13 @@ def wait_for_benchmark_process(test_name, process_name, timeout=60):
         if process:
             logging.info(f"{test_name} has started. Waiting for it to finish...")
             process.wait()  # This will block until the process finishes
-            logging.info(f"Benchmark has finished.")
+            logging.info("Benchmark has finished.")
             break
 
         # If we exceed the timeout, break out of the loop and log an error
         if time.time() - start_time > timeout:
-            logging.error(f"Timeout reached while waiting for process '{process_name}'.")
-            raise TimeoutError(f"Process '{process_name}' did not start within the expected time. Is the game configured for DX12?")
+            logging.error(f"Timeout reached while waiting for process '%s'.", process_name)
+            raise TimeoutError(f"Process '%s' did not start within the expected time. Is the game configured for DX12?", process_name)
 
         # Wait for 1 second before checking again
         time.sleep(1)

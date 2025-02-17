@@ -45,11 +45,11 @@ BENCHMARK_CONFIG = {
     "CPU_Benchmark": {
         "hardware": "CPU",
         "config": "CPUbench",
-        "score_name": "CPU frame rate \(estimated if not GPU bound\):",
+        "score_name": r"CPU frame rate \(estimated if not GPU bound\):",
         "test_name": "Ashes of the Singularity: Escalation CPU Benchmark"
     }
 }
-cfg = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
+CFG = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
 GAME_DIR = get_app_install_location(STEAM_GAME_ID)
 
 
@@ -84,20 +84,20 @@ def run_benchmark(process_name, command_to_run):
     """Run the benchmark and wait for the benchmark process to finish."""
     # Start Ashes Exe via subprocess.Popen
     with subprocess.Popen(command_to_run, cwd=GAME_DIR, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as proc:
-        
+
         # Wait for the actual benchmark process to start and finish
         test_name=BENCHMARK_CONFIG[args.benchmark]["test_name"]
         wait_for_benchmark_process(test_name, process_name)
-        
+
         # Now that the process has finished, collect the results
         stdout, stderr = proc.communicate()  # This waits for the Steam subprocess to exit (if any)
 
         # Log any output and error from the Steam process
         if stdout:
-            logging.info(f"Steam Output: {stdout}")
+            logging.info(f"Steam Output: %s", stdout)
         if stderr:
-            logging.error(f"Steam Error: {stderr}")
-        
+            logging.error(f"Steam Error: %s", stderr)
+
         # Now, return the process object
         return proc
 
@@ -106,15 +106,15 @@ am = ArtifactManager(LOG_DIR)
 try:
     setup_logging()
     args = get_arguments()
-    cmd = start_game()
+    CMD = start_game()
     logging.info('Starting benchmark!')
-    logging.info(cmd)
+    logging.info(CMD)
     start_time = time.time()
-    result="Output_*_*_*_*.txt"
-    delete_old_scores(result)
-    run_benchmark(EXECUTABLE, cmd)
-    score = find_score_in_log(BENCHMARK_CONFIG[args.benchmark]["score_name"], result)
-    
+    RESULT="Output_*_*_*_*.txt"
+    delete_old_scores(RESULT)
+    run_benchmark(EXECUTABLE, CMD)
+    score = find_score_in_log(BENCHMARK_CONFIG[args.benchmark]["score_name"], RESULT)
+
     if score is None:
         logging.error("Could not find average FPS output!")
         sys.exit(1)
@@ -124,8 +124,8 @@ try:
     logging.info("Benchmark took %.2f seconds", elapsed_test_time)
     logging.info("Score was %s", score)
 
-    am.copy_file(cfg, ArtifactType.CONFIG_TEXT, "Settings file")
-    result_file = sorted(glob.glob(os.path.join(CONFIG_PATH, result)), key=os.path.getmtime, reverse=True)
+    am.copy_file(CFG, ArtifactType.CONFIG_TEXT, "Settings file")
+    result_file = sorted(glob.glob(os.path.join(CONFIG_PATH, RESULT)), key=os.path.getmtime, reverse=True)
     output_file = result_file[0]
     am.copy_file(output_file, ArtifactType.CONFIG_TEXT, "Results file")
     hardware = BENCHMARK_CONFIG[args.benchmark]["hardware"]

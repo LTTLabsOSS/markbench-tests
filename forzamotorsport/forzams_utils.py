@@ -24,5 +24,3 @@ def get_args() -> any:
     parser.add_argument(
         "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True)
     return parser.parse_args()
-
-
