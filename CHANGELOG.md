@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 Changes are grouped by the date they are merged to the main branch of the repository and are ordered from newest to oldest. Dates use the ISO 8601 extended calendar date format, i.e. YYYY-MM-DD.
 
+## 2025-02-17
+
+- 3 new harnesses for testing: Ashes of the Singularity: Escalation, Forza Motorsport, Horizon Zero Dawn: Remastered
+- Fix for Steam to pull correct version number regardless of where the game is installed.
+
 ## 2025-02-14
 
 - Updates to the Cyberpunk 2077 harness for varied setttings and checkpointing.

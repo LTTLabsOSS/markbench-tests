@@ -1,4 +1,4 @@
-"""Utility functions for Total War: Warhammer III test script"""
+"""Utility functions for Ashes of the Singularity: Escalation test script"""
 import os
 import re
 import sys
