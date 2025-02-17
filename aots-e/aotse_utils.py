@@ -40,12 +40,12 @@ def read_current_resolution():
 def delete_old_scores(file):
     """Deletes old score files based on a given pattern"""
     files = glob.glob(os.path.join(CONFIG_PATH, file))
-    for file in files:
+    for thefile in files:
         try:
-            os.remove(file)
-            logging.info("Deleted old score file: %s", file)
+            os.remove(thefile)
+            logging.info("Deleted old score file: %s", thefile)
         except Exception as e:
-            print(f"Error deleting file {file}: {e}")
+            print(f"Error deleting file {thefile}: {e}")
 
 def find_score_in_log(score_name, file):
     """Reads score from local game log"""
@@ -55,8 +55,8 @@ def find_score_in_log(score_name, file):
 
     score_pattern = re.compile(rf"^{score_name}\s*(\d+\.\d+) FPS")
     score_value = 0
-    with open(files[0], encoding="ANSI") as file:
-        lines = file.readlines()
+    with open(files[0], encoding="ANSI") as thefile:
+        lines = thefile.readlines()
         for line in lines:
             score_match = score_pattern.search(line)
             if score_match is not None:
