@@ -94,9 +94,9 @@ def run_benchmark(process_name, command_to_run):
 
         # Log any output and error from the Steam process
         if stdout:
-            logging.info(f"Steam Output: %s", stdout)
+            logging.info("Steam Output: %s", stdout)
         if stderr:
-            logging.error(f"Steam Error: %s", stderr)
+            logging.error("Steam Error: %s", stderr)
 
         # Now, return the process object
         return proc

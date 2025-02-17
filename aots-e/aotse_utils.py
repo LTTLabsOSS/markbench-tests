@@ -43,7 +43,7 @@ def delete_old_scores(file):
     for file in files:
         try:
             os.remove(file)
-            logging.info(f"Deleted old score file: {file}")
+            logging.info("Deleted old score file: %s", file)
         except Exception as e:
             print(f"Error deleting file {file}: {e}")
 
@@ -73,7 +73,7 @@ def is_process_running(process_name):
 
 def wait_for_benchmark_process(test_name, process_name, timeout=60):
     """Wait for the benchmark game process to start and then finish."""
-    logging.info(f"Waiting for benchmark process '{process_name}' to start...")
+    logging.info("Waiting for benchmark process '%s' to start...", process_name)
 
     start_time = time.time()
 
@@ -81,15 +81,15 @@ def wait_for_benchmark_process(test_name, process_name, timeout=60):
         # Check if the benchmark process is running
         process = is_process_running(process_name)
         if process:
-            logging.info(f"{test_name} has started. Waiting for it to finish...")
+            logging.info("%s has started. Waiting for it to finish...", test_name)
             process.wait()  # This will block until the process finishes
             logging.info("Benchmark has finished.")
             break
 
         # If we exceed the timeout, break out of the loop and log an error
         if time.time() - start_time > timeout:
-            logging.error(f"Timeout reached while waiting for process '%s'.", process_name)
-            raise TimeoutError(f"Process '%s' did not start within the expected time. Is the game configured for DX12?", process_name)
+            logging.error("Timeout reached while waiting for process '%s'.", process_name)
+            raise TimeoutError("Process '%s' did not start within the expected time. Is the game configured for DX12?", process_name)
 
         # Wait for 1 second before checking again
         time.sleep(1)
