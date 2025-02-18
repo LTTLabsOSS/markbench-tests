@@ -89,7 +89,7 @@ def wait_for_benchmark_process(test_name, process_name, timeout=60):
         # If we exceed the timeout, break out of the loop and log an error
         if time.time() - start_time > timeout:
             logging.error("Timeout reached while waiting for process '%s'.", process_name)
-            raise TimeoutError("Process '%s' did not start within the expected time. Is the game configured for DX12?" % process_name)
+            raise TimeoutError(f"Process '{process_name}' did not start within the expected time. Is the game configured for DX12?")
 
         # Wait for 1 second before checking again
         time.sleep(1)
