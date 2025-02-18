@@ -31,7 +31,7 @@ def export_registry_key(hive, subkey, input_file):
                         index += 1
                 except OSError:
                     pass
-    except WindowsError as e:
+    except OSError as e:
         print(f"Failed to open the registry key: {e}")
 
 def convert_dword_to_decimal(dword_hex):
