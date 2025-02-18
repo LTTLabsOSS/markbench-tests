@@ -83,7 +83,7 @@ def exec_steam_game(game_id: int, steam_path=None, game_params=None) -> Popen:
 
 def get_build_id(game_id: int) -> str:
     """Gets the build ID of a game from the Steam installation directory"""
-    game_folder = Path(get_steamapps_common_path()) / "../" / f"appmanifest_{game_id}.acf"
+    game_folder = Path(get_app_install_location(game_id)) / "../" / "../" / f"appmanifest_{game_id}.acf"
     if not game_folder.exists():
         logging.warning("Game folder not found when looking for game version")
         return None
