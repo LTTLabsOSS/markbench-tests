@@ -62,7 +62,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(10)
 
     # Make sure the game started correctly
-    if kerasService.wait_for_word(word="overlay", timeout=30, interval=1) is None:
+    if kerasService.wait_for_word(word="quit", timeout=30, interval=1) is None:
         logging.info("Could not find the main menu. Did the game load?")
         sys.exit(1)
 
