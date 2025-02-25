@@ -1,0 +1,9 @@
+friendly_name: "Forza Motorsport"
+executable: "forzams.py"
+process_name: "forza_steamworks_release_final.exe"
+output_dir: "run"
+options:
+  - name: kerasHost
+    type: input
+  - name: kerasPort
+    type: input

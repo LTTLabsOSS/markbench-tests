@@ -8,6 +8,11 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 - Update to Handbrake harness to version 1.9.1
 
+## 2025-02-17
+
+- 3 new harnesses for testing: Ashes of the Singularity: Escalation, Forza Motorsport, Horizon Zero Dawn: Remastered
+- Fix for Steam to pull correct version number regardless of where the game is installed.
+
 ## 2025-02-14
 
 - Updates to the Cyberpunk 2077 harness for varied setttings and checkpointing.
