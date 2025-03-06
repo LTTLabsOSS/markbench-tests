@@ -98,7 +98,7 @@ def run_benchmark():
         sys.exit(1)
     am.take_screenshot("graphics1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of graphics settings")
     time.sleep(0.2)
-    press_n_times("down", 18, 0.2)
+    press_n_times("down", 19, 0.2)
     if kerasService.wait_for_word(word="terrain", timeout=60, interval=0.5) is None:
         logging.error("Did not see Terrain Quality. Did it navigate to graphics correctly?")
         sys.exit(1)
