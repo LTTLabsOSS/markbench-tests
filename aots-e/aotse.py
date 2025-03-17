@@ -14,7 +14,7 @@ PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
 
 from harness_utils.keras_service import KerasService
-from harness_utils.steam import get_app_install_location, get_build_id
+from harness_utils.steam import get_app_install_location, get_build_id, exec_steam_game
 from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
     DEFAULT_LOGGING_FORMAT,
