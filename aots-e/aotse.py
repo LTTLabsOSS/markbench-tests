@@ -8,11 +8,12 @@ import time
 import getpass
 import glob
 import os
-from aotse_utils import read_current_resolution, find_score_in_log, wait_for_benchmark_process, delete_old_scores
+from aotse_utils import read_current_resolution, find_score_in_log, wait_for_benchmark_process, delete_old_scores, get_args
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
 
+from harness_utils.keras_service import KerasService
 from harness_utils.steam import get_app_install_location, get_build_id
 from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
@@ -52,76 +53,76 @@ BENCHMARK_CONFIG = {
 CFG = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
 GAME_DIR = get_app_install_location(STEAM_GAME_ID)
 
-
-def setup_logging():
-    """setup logging"""
-    setup_log_directory(LOG_DIR)
-    logging.basicConfig(filename=LOG_DIR / "harness.log",
-                        format=DEFAULT_LOGGING_FORMAT,
-                        datefmt=DEFAULT_DATE_FORMAT,
-                        level=logging.DEBUG)
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
-
-def get_arguments():
-    """get arguments"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--benchmark", dest="benchmark", help="Benchmark test type", required=True, choices=BENCHMARK_CONFIG.keys())
-    argies = parser.parse_args()
-    return argies
-
 def start_game():
-    """Starts the game process"""
+    """Launch the game with no launcher or start screen"""
     test_option = BENCHMARK_CONFIG[args.benchmark]["config"]
-    cmd_string = f"\"{GAME_DIR}\\{EXECUTABLE}\" -benchmark {test_option}"
-    logging.info(cmd_string)
-    return cmd_string
+    return exec_steam_game(STEAM_GAME_ID, game_params=["-benchmark", f"{test_option}"])
 
-def run_benchmark(process_name, command_to_run):
-    """Run the benchmark and wait for the benchmark process to finish."""
-    # Start Ashes Exe via subprocess.Popen
-    with subprocess.Popen(command_to_run, cwd=GAME_DIR, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as proc:
+def run_benchmark():
+    """Start the benchmark"""
+     # Start game via Steam and enter fullscreen mode
+    setup_start_time = time.time()
+    start_game()
 
-        # Wait for the actual benchmark process to start and finish
-        test_name=BENCHMARK_CONFIG[args.benchmark]["test_name"]
-        wait_for_benchmark_process(test_name, process_name)
+    time.sleep(10)
 
-        # Now that the process has finished, collect the results
-        stdout, stderr = proc.communicate()  # This waits for the Steam subprocess to exit (if any)
+    result = kerasService.wait_for_word("preparing", interval=3, timeout=60)
+    if not result:
+        logging.info("Did not see the benchmark starting.")
+        sys.exit(1)
 
-        # Log any output and error from the Steam process
-        if stdout:
-            logging.info("Steam Output: %s", stdout)
-        if stderr:
-            logging.error("Steam Error: %s", stderr)
+    # Start the benchmark!
+    setup_end_time = time.time()
+    elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
+    logging.info("Harness setup took %f seconds", elapsed_setup_time)
 
-        # Now, return the process object
-        return proc
+    time.sleep(15)
 
+    result = kerasService.wait_for_word("259", timeout=60, interval=0.2)
+    if not result:
+        logging.info("Benchmark didn't start.")
+        sys.exit(1)
+
+    test_start_time = time.time()
+
+    logging.info("Benchmark started. Waiting for benchmark to complete.")
+    time.sleep(180)
+    # result = kerasService.wait_for_word("complete", timeout=240, interval=0.5)
+    # if not result:
+    #     logging.info("Did not see the Benchmark Complete pop up. Did it run?")
+    #     sys.exit(1)
+
+    test_end_time = time.time() - 2
+    time.sleep(2)
+    elapsed_test_time = round((test_end_time - test_start_time), 2)
+    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    time.sleep(3)
+    return test_start_time, test_end_time
+
+setup_log_directory(LOG_DIR)
+logging.basicConfig(filename=LOG_DIR / "harness.log",
+                    format=DEFAULT_LOGGING_FORMAT,
+                    datefmt=DEFAULT_DATE_FORMAT,
+                    level=logging.DEBUG)
+console = logging.StreamHandler()
+formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
+console.setFormatter(formatter)
+logging.getLogger('').addHandler(console)
+
+args = get_args()
+kerasService = KerasService(args.keras_host, args.keras_port)
 am = ArtifactManager(LOG_DIR)
 
 try:
-    setup_logging()
-    args = get_arguments()
-    CMD = start_game()
     logging.info('Starting benchmark!')
-    logging.info(CMD)
-    start_time = time.time()
     RESULT="Output_*_*_*_*.txt"
     delete_old_scores(RESULT)
-    run_benchmark(EXECUTABLE, CMD)
+    start_time, end_time = run_benchmark()
     score = find_score_in_log(BENCHMARK_CONFIG[args.benchmark]["score_name"], RESULT)
 
     if score is None:
         logging.error("Could not find average FPS output!")
         sys.exit(1)
-
-    end_time = time.time()
-    elapsed_test_time = round(end_time - start_time, 2)
-    logging.info("Benchmark took %.2f seconds", elapsed_test_time)
     logging.info("Score was %s", score)
 
     am.copy_file(CFG, ArtifactType.CONFIG_TEXT, "Settings file")

@@ -8,6 +8,7 @@ from pathlib import Path
 import psutil
 import glob
 import time
+from argparse import ArgumentParser
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -22,6 +23,31 @@ STEAM_GAME_ID = 281990
 CONFIG_FILENAME = "settings.ini"
 USERNAME = getpass.getuser()
 CONFIG_PATH = Path(f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Ashes of the Singularity - Escalation")
+BENCHMARK_CONFIG = {
+    "GPU_Benchmark": {
+        "hardware": "GPU",
+        "config": "benchfinal",
+        "score_name": "Avg Framerate:",
+        "test_name": "Ashes of the Singularity: Escalation GPU Benchmark"
+    },
+    "CPU_Benchmark": {
+        "hardware": "CPU",
+        "config": "CPUbench",
+        "score_name": r"CPU frame rate \(estimated if not GPU bound\):",
+        "test_name": "Ashes of the Singularity: Escalation CPU Benchmark"
+    }
+}
+
+def get_args() -> any:
+    """Returns command line arg values"""
+    parser = ArgumentParser()
+    parser.add_argument("--kerasHost", dest="keras_host",
+                        help="Host for Keras OCR service", required=True)
+    parser.add_argument("--kerasPort", dest="keras_port",
+                        help="Port for Keras OCR service", required=True)
+    parser.add_argument(
+        "--benchmark", dest="benchmark", help="Benchmark test type", required=True, choices=BENCHMARK_CONFIG.keys())
+    return parser.parse_args()
 
 def read_current_resolution():
     """Get resolution from local game file"""

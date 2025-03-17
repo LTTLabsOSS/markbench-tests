@@ -1,9 +1,12 @@
 friendly_name: "Ashes of the Singularity: Escalation"
 executable: "aotse.py"
 process_name: "AshesEscalation_DX12.exe"
-disable_presentmon: true
 output_dir: "run"
 options:
+  - name: kerasHost
+    type: input
+  - name: kerasPort
+    type: input
   - name: benchmark
     type: select
     values:
