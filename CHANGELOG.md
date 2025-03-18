@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 Changes are grouped by the date they are merged to the main branch of the repository and are ordered from newest to oldest. Dates use the ISO 8601 extended calendar date format, i.e. YYYY-MM-DD.
 
+## 2025-03-17
+
+- Update to Ashes of the Singularity Escalation harness to have PresentMon
+
 ## 2025-02-21
 
 - Update to Handbrake harness to version 1.9.1
