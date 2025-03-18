@@ -22,7 +22,7 @@ from harness_utils.output import (
     DEFAULT_DATE_FORMAT
 )
 from harness_utils.steam import get_app_install_location, exec_steam_run_command, get_build_id
-from harness_utils.keras_service import KerasService
+from harness_utils.keras_service import KerasService, ScreenSplitConfig, ScreenShotDivideMethod, ScreenShotQuadrant
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -36,6 +36,11 @@ CONFIG_FILENAME = "GraphicsOptions.ini"
 CONFIG_FULL_PATH = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
 EXE_PATH = os.path.join(get_app_install_location(STEAM_GAME_ID), "bin")
 VIDEO_PATH = os.path.join(get_app_install_location(STEAM_GAME_ID), "FMV")
+
+top_right_quad = ScreenSplitConfig(
+    divide_method=ScreenShotDivideMethod.QUADRANT,  # Choose appropriate split method
+    quadrant=ScreenShotQuadrant.TOP_RIGHT  # Choose the correct quadrant
+)
 
 user.FAILSAFE = False
 
@@ -86,14 +91,14 @@ def run_benchmark():
     elapsed_setup_time = round(time.time() - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
-    result = kerasService.wait_for_word_vulkan("strange", interval=0.5, timeout=100)
+    result = kerasService.wait_for_word_vulkan("strange", interval=0.5, timeout=100, split_config=top_right_quad)
     if not result:
         logging.info("Could not find FPS. Unable to mark start time!")
         sys.exit(1)
 
     test_start_time = time.time()
 
-    time.sleep(65)  # Wait time for battle benchmark
+    time.sleep(55)  # Wait time for battle benchmark
 
     result = kerasService.wait_for_word_vulkan("confirm", interval=0.2, timeout=250)
     if not result:
