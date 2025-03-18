@@ -93,7 +93,7 @@ def run_benchmark():
 
     gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_WEST)
     time.sleep(0.5)
-    gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_NORTH, n=4, pause=0.5)
+    gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_NORTH, n=4, pause=0.8)
 
     if kerasService.look_for_word(word="esports", attempts=5, interval=0.2):
         logging.info('Saw esports. Navigating accordingly.')
@@ -110,7 +110,7 @@ def run_benchmark():
         gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH)
         time.sleep(0.5)
 
-    gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, n=2, pause=0.5)
+    gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, n=2, pause=0.8)
     time.sleep(0.5)
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(1)
@@ -149,7 +149,7 @@ def run_benchmark():
     time.sleep(0.5)
     gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_WEST)
     time.sleep(0.5)
-    gamepad.button_press_n_times(button=vg.DS4_BUTTONS.DS4_BUTTON_TRIANGLE, n=5, pause=0.5)
+    gamepad.button_press_n_times(button=vg.DS4_BUTTONS.DS4_BUTTON_TRIANGLE, n=5, pause=0.8)
     time.sleep(0.5)
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     logging.info("Benchmark started. Waiting for completion.")
@@ -184,7 +184,7 @@ def run_benchmark():
 
     time.sleep(1)
     logging.info("Navigating to the Video tab.")
-    gamepad.button_press_n_times(button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT, n=4, pause=0.5)
+    gamepad.button_press_n_times(button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT, n=4, pause=0.8)
     time.sleep(1)
 
     if kerasService.look_for_word(word="window", attempts=10, interval=1) is None:
