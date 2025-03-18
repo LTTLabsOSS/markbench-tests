@@ -6,8 +6,8 @@ import win32api
 
 
 def get_latest_benchmark_by_version(benchmark_name: str):
-    """get latest benchmark version for photoshop or premiere"""
-    valid_names = ['photoshop', 'premierepro']
+    """get latest benchmark version for the benchmark"""
+    valid_names = ['photoshop', 'premierepro', 'aftereffects', 'resolve']
     if benchmark_name not in valid_names:
         raise ValueError("invalid benchmark name")
 
@@ -57,7 +57,19 @@ def is_score_line(line):
 
 def get_photoshop_version() -> str:
     """get current photoshop version string"""
-    path = "C:\\Program Files\\Adobe\\Adobe Photoshop 2024\\Photoshop.exe"
+    path = "C:\\Program Files\\Adobe\\Adobe Photoshop 2025\\Photoshop.exe"
+    try:
+        lang, codepage = win32api.GetFileVersionInfo(
+            path, "\\VarFileInfo\\Translation")[0]
+        str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
+        return win32api.GetFileVersionInfo(path, str_info_path)
+    except Exception as e:
+        print(e)
+    return None
+
+def get_aftereffects_version() -> str:
+    """get current photoshop version string"""
+    path = "C:\\Program Files\\Adobe\\Adobe Photoshop 2025\\Photoshop.exe"
     try:
         lang, codepage = win32api.GetFileVersionInfo(
             path, "\\VarFileInfo\\Translation")[0]
@@ -70,7 +82,20 @@ def get_photoshop_version() -> str:
 
 def get_premierepro_version() -> str:
     """get current premiere pro version string"""
-    path = "C:\\Program Files\\Adobe\\Adobe Premiere Pro 2024\\Adobe Premiere Pro.exe"
+    path = "C:\\Program Files\\Adobe\\Adobe Premiere Pro 2025\\Adobe Premiere Pro.exe"
+    try:
+        lang, codepage = win32api.GetFileVersionInfo(
+            path, "\\VarFileInfo\\Translation")[0]
+        str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
+        return win32api.GetFileVersionInfo(path, str_info_path)
+    except Exception as e:
+        print(e)
+    return None
+
+
+def get_davinci_version() -> str:
+    """get current photoshop version string"""
+    path = "C:\\Program Files\\Blackmagic Design\\DaVinci Resolve\\Resolve.exe"
     try:
         lang, codepage = win32api.GetFileVersionInfo(
             path, "\\VarFileInfo\\Translation")[0]
