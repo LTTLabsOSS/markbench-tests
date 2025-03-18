@@ -1,14 +1,12 @@
 """Ashes of the Singularity: Escalation test script"""
-from argparse import ArgumentParser
 import logging
 from pathlib import Path
-import subprocess
 import sys
 import time
 import getpass
 import glob
 import os
-from aotse_utils import read_current_resolution, find_score_in_log, wait_for_benchmark_process, delete_old_scores, get_args
+from aotse_utils import read_current_resolution, find_score_in_log, delete_old_scores, get_args
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
