@@ -46,16 +46,16 @@ def find_procyon_version() -> str:
     if not install_path:
         logging.info("Installation path not found.")
         return None
-
-    exe_path = os.path.join(install_path, "ProcyonCmd.exe")
+    exe = "ProcyonCmd.exe"
+    exe_path = os.path.join(install_path, exe)
 
     if not os.path.exists(exe_path):
-        logging.info(f"Executable 'ProcyonCmd.exe' not found at {exe_path}")
+        logging.info(f"Executable {exe} not found at {exe_path}")
         return None
 
     try:
         lang, codepage = win32api.GetFileVersionInfo(exe_path, "\\VarFileInfo\\Translation")[0]
-        str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
+        str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\FileVersion"
         return win32api.GetFileVersionInfo(exe_path, str_info_path)
     except Exception as e:
         logging.info(f"Error retrieving version info from {exe_path}: {e}")
