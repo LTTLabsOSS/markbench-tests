@@ -65,7 +65,7 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
     This class extension provides some useful functions to make your code look a little cleaner when 
     implemented in our harnesses.
     """
-    def single_button_press(self, button = vg.DS4_BUTTONS.DS4_BUTTON_CROSS, pause = 0.1):
+    def single_button_press(self, button = vg.DS4_BUTTONS.DS4_BUTTON_CROSS, fastpause = 0.05):
         """ 
         Custom function to perform a single press of a specified gamepad digital button
 
@@ -85,14 +85,15 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
         DS4_BUTTON_CROSS
         DS4_BUTTON_SQUARE
 
-        pause --> the delay between pressing and releasing the button, defaults to 0.1 if not specified
+        pause --> the delay between pressing and releasing the button, defaults to 0.05 if not specified
         """
 
         self.press_button(button=button)
         self.update()
-        time.sleep(pause)
+        time.sleep(fastpause)
         self.release_button(button=button)
         self.update()
+        
 
     def button_press_n_times(self, button: vg.DS4_BUTTONS, n: int, pause: float):
         """

@@ -52,6 +52,38 @@ def get_run_game_id_command(game_id: int) -> str:
     """Build string to launch game"""
     return "com.epicgames.launcher://apps/" + str(game_id)
 
+def camera_cycle(word="player", max_attempts=10, check_duration=1):
+    """Continuously looks for a word using kerasService. If not found in the given time, presses a button.
+
+    :param kerasService: Object that has the method look_for_word().
+    :param gamepad: The gamepad object to send button presses.
+    :param word: The word to look for.
+    :param max_attempts: Maximum times to check before stopping.
+    :param check_duration: How long (in seconds) to look for the word before pressing a button.
+    :param button: The gamepad button to press if word is not found.
+    """
+    for attempt in range(max_attempts):
+        print(f"Attempt {attempt+1}: Looking for '{word}' for {check_duration} seconds...")
+
+        # Try finding the word within check_duration seconds
+        found = kerasService.look_for_word(word=word, attempts=check_duration, interval=0.2)
+
+        if found:
+            print(f"Word '{word}' detected! Stopping loop.")
+            return True  # Stop checking
+
+        # If not found, press the button once
+        print(f"Word '{word}' not found. Pressing triangle once...")
+        gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_TRIANGLE)
+
+        # Short delay before rechecking
+        time.sleep(1)
+
+    print("Max attempts reached. Stopping.")
+    return False  # Word was not found
+
+
+
 
 def start_game():
     """Start the game"""
@@ -146,10 +178,10 @@ def run_benchmark():
         sys.exit(1)
 
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
-    time.sleep(0.5)
+    time.sleep(0.8)
     gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_WEST)
-    time.sleep(0.5)
-    gamepad.button_press_n_times(button=vg.DS4_BUTTONS.DS4_BUTTON_TRIANGLE, n=3, pause=1)
+    time.sleep(0.8)
+    camera_cycle()
     time.sleep(0.5)
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     logging.info("Benchmark started. Waiting for completion.")
