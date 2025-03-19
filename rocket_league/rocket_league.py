@@ -52,7 +52,7 @@ def get_run_game_id_command(game_id: int) -> str:
     """Build string to launch game"""
     return "com.epicgames.launcher://apps/" + str(game_id)
 
-def camera_cycle(word="player", max_attempts=10, check_duration=1):
+def camera_cycle(max_attempts=10):
     """Continuously looks for a word using kerasService. If not found in the given time, presses a button.
 
     :param kerasService: Object that has the method look_for_word().
@@ -63,27 +63,20 @@ def camera_cycle(word="player", max_attempts=10, check_duration=1):
     :param button: The gamepad button to press if word is not found.
     """
     for attempt in range(max_attempts):
-        print(f"Attempt {attempt+1}: Looking for '{word}' for {check_duration} seconds...")
-
         # Try finding the word within check_duration seconds
-        found = kerasService.look_for_word(word=word, attempts=check_duration, interval=0.2)
+        found = kerasService.look_for_word(word="player", attempts=2, interval=0.2)
 
         if found:
-            print(f"Word '{word}' detected! Stopping loop.")
             return True  # Stop checking
 
         # If not found, press the button once
-        print(f"Word '{word}' not found. Pressing triangle once...")
         gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_TRIANGLE)
 
         # Short delay before rechecking
-        time.sleep(1)
+        time.sleep(0.5)
 
-    print("Max attempts reached. Stopping.")
-    return False  # Word was not found
-
-
-
+    logging.info("Max attempts reached for checking the camera. Did the game load the save?")
+    sys.exit(1)  # Word was not found
 
 def start_game():
     """Start the game"""
@@ -191,6 +184,9 @@ def run_benchmark():
     # wait for benchmark to complete
     time.sleep(359)
 
+    if kerasService.wait_for_word(word="turbopolsa", timeout=10, interval=1) is None:
+        logging.info("Couldn't turbopolsa on the field. Did the benchmark play all the way through?")
+        sys.exit(1)
     test_end_time = time.time()
     time.sleep(2)
     elapsed_test_time = round((test_end_time - test_start_time), 2)
