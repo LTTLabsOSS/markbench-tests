@@ -1,4 +1,4 @@
-"""3DMark test script"""
+"""UL Procyon AI Image Generation test script"""
 from argparse import ArgumentParser
 import logging
 from pathlib import Path
@@ -6,7 +6,7 @@ import subprocess
 import sys
 import time
 import psutil
-from utils import find_score_in_xml, is_process_running, get_install_path
+from utils import find_score_in_xml, is_process_running, get_install_path, find_procyon_version, find_test_version
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -219,12 +219,15 @@ try:
     logging.info("Score was %s", score)
 
     report = {
-        "test": BENCHMARK_CONFIG[args.engine]["test_name"],
-        "device_name": BENCHMARK_CONFIG[args.engine]["device_name"],
-        "unit": "score",
-        "score": score,
         "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time)
+        "end_time": seconds_to_milliseconds(end_time),
+        "test": BENCHMARK_CONFIG[args.engine]["test_name"],
+        "test_version": find_test_version(),
+        "device_name": BENCHMARK_CONFIG[args.engine]["device_name"],
+        "procyon_version": find_procyon_version(),
+        "unit": "score",
+        "score": score
+        
     }
 
     write_report_json(LOG_DIR, "report.json", report)

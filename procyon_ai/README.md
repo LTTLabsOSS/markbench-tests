@@ -1,21 +1,24 @@
-# 3DMark
+# UL Procyon AI Computer Vision
 
-Runs one of the 3DMark benchmark scenes and reads the Performance Graphics Score result from the output.
+Runs the UL Procyon AI Computer Vision benchmark using a specified engine and reads the Performance Score result from the output.
 
 ## Prerequisites
 
 - Python 3.10+
-- 3DMark Professional Edition installed in default location and activated.
-- Desired benchmarks are downloaded,.
+- UL Procyon installed in default location and activated with at least the AI tests
+- AI Computer Vision Benchmark DLC installed
 
 ## Options
 
-- `--benchmark` Specifies the benchmark to run.
+- `--engine` Specifies the hardware to benchmark.
 
 ## Output
 
 report.json
-- `test`: The name of the selected benchmark
-- `score`: 3DMark gpu score
 - `start_time`: number representing a timestamp of the test's start time in milliseconds
 - `end_time`: number representing a timestamp of the test's end time in milliseconds
+- `test`: The name of the selected benchmark
+- `test_version`: The version of the benchmark
+- `device_name`: The name of the device tested
+- `procyon_version`: The version of Procyon used
+- `score`: The text generation scores

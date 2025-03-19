@@ -1,8 +1,10 @@
-"""3dmark test utils"""
+"""UL Procyon AI Text Generation test utils"""
 from pathlib import Path
 import psutil
 import winreg
 import re
+import os
+import win32api
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR / "run"
@@ -33,3 +35,47 @@ def get_install_path() -> str:
     reg_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0, winreg.KEY_READ)
     value, _  = winreg.QueryValueEx(reg_key, "InstallDir")
     return value
+
+def find_procyon_version() -> str:
+    """Gets the version of an executable located in the install path."""
+    install_path = get_install_path()
+    
+    if not install_path:
+        print("Installation path not found.")
+        return None
+
+    exe_path = os.path.join(install_path, "ProcyonCmd.exe")
+
+    if not os.path.exists(exe_path):
+        print(f"Executable 'ProcyonCmd.exe' not found at {exe_path}")
+        return None
+
+    try:
+        lang, codepage = win32api.GetFileVersionInfo(exe_path, "\\VarFileInfo\\Translation")[0]
+        str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
+        return win32api.GetFileVersionInfo(exe_path, str_info_path)
+    except Exception as e:
+        print(f"Error retrieving version info from {exe_path}: {e}")
+        return None  # Return None if version info retrieval fails
+
+def find_test_version() -> str:
+    """Gets the version of an executable located in the chops path."""
+    chops_path = "C:\\ProgramData\\UL\\Procyon\\chops\\dlc\\ai-textgeneration-benchmark\\x64"
+    
+    if not chops_path:
+        print("Installation path not found.")
+        return None
+
+    exe_path = os.path.join(chops_path, "Handler.exe")
+
+    if not os.path.exists(exe_path):
+        print(f"Executable 'Handler.exe' not found at {exe_path}")
+        return None
+
+    try:
+        lang, codepage = win32api.GetFileVersionInfo(exe_path, "\\VarFileInfo\\Translation")[0]
+        str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
+        return win32api.GetFileVersionInfo(exe_path, str_info_path)
+    except Exception as e:
+        print(f"Error retrieving version info from {exe_path}: {e}")
+        return None  # Return None if version info retrieval fails
