@@ -56,46 +56,99 @@ def is_score_line(line):
 
 
 def get_photoshop_version() -> str:
-    """get current photoshop version string"""
-    path = "C:\\Program Files\\Adobe\\Adobe Photoshop 2025\\Photoshop.exe"
-    try:
-        lang, codepage = win32api.GetFileVersionInfo(
-            path, "\\VarFileInfo\\Translation")[0]
-        str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
-        return win32api.GetFileVersionInfo(path, str_info_path)
-    except Exception as e:
-        print(e)
-    return None
+    """Get the current installed Adobe Premiere Pro version string."""
+    base_path = "C:\\Program Files\\Adobe"
+    
+    # Look for Adobe Premiere Pro folders
+    possible_versions = sorted(
+        [d for d in os.listdir(base_path) if "Adobe Photoshop" in d],
+        reverse=True  # Prioritize newer versions
+    )
+    
+    for folder in possible_versions:
+        exe_path = os.path.join(base_path, folder, "Photoshop.exe")
+        if os.path.exists(exe_path):
+            try:
+                lang, codepage = win32api.GetFileVersionInfo(
+                    exe_path, "\\VarFileInfo\\Translation"
+                )[0]
+                str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
+                return win32api.GetFileVersionInfo(exe_path, str_info_path)
+            except Exception as e:
+                print(f"Error reading version from {exe_path}: {e}")
+    
+    return None  # No valid installation found
 
 def get_aftereffects_version() -> str:
-    """get current photoshop version string"""
-    path = "C:\\Program Files\\Adobe\\Adobe Photoshop 2025\\Photoshop.exe"
-    try:
-        lang, codepage = win32api.GetFileVersionInfo(
-            path, "\\VarFileInfo\\Translation")[0]
-        str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
-        return win32api.GetFileVersionInfo(path, str_info_path)
-    except Exception as e:
-        print(e)
-    return None
+    """Get the current installed Adobe After Effects version string, prioritizing Beta versions."""
+    base_path = "C:\\Program Files\\Adobe"
+
+    # Look for Adobe After Effects folders (including Beta versions)
+    possible_versions = sorted(
+        [d for d in os.listdir(base_path) if "Adobe After Effects" in d], 
+        key=lambda x: ("Beta" not in x, x),  # Prioritize Beta first
+    )
+
+    for folder in possible_versions:
+        support_files_path = os.path.join(base_path, folder, "Support Files")
+
+        # Check for both standard and beta executable names
+        exe_candidates = ["AfterFX (Beta).exe", "AfterFX.exe"]  # Beta first
+        for exe_name in exe_candidates:
+            exe_path = os.path.join(support_files_path, exe_name)
+            if os.path.exists(exe_path):
+                try:
+                    lang, codepage = win32api.GetFileVersionInfo(
+                        exe_path, "\\VarFileInfo\\Translation"
+                    )[0]
+                    str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
+                    return win32api.GetFileVersionInfo(exe_path, str_info_path)
+                except Exception as e:
+                    print(f"Error reading version from {exe_path}: {e}")
+
+    return None  # No valid installation found
 
 
 def get_premierepro_version() -> str:
-    """get current premiere pro version string"""
-    path = "C:\\Program Files\\Adobe\\Adobe Premiere Pro 2025\\Adobe Premiere Pro.exe"
-    try:
-        lang, codepage = win32api.GetFileVersionInfo(
-            path, "\\VarFileInfo\\Translation")[0]
-        str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
-        return win32api.GetFileVersionInfo(path, str_info_path)
-    except Exception as e:
-        print(e)
-    return None
+    """Get the current installed Adobe Premiere Pro version string."""
+    base_path = "C:\\Program Files\\Adobe"
+    
+    # Look for Adobe Premiere Pro folders
+    possible_versions = sorted(
+        [d for d in os.listdir(base_path) if "Adobe Premiere Pro" in d],
+        reverse=True  # Prioritize newer versions
+    )
+    
+    for folder in possible_versions:
+        exe_path = os.path.join(base_path, folder, "Adobe Premiere Pro.exe")
+        if os.path.exists(exe_path):
+            try:
+                lang, codepage = win32api.GetFileVersionInfo(
+                    exe_path, "\\VarFileInfo\\Translation"
+                )[0]
+                str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
+                return win32api.GetFileVersionInfo(exe_path, str_info_path)
+            except Exception as e:
+                print(f"Error reading version from {exe_path}: {e}")
+    
+    return None  # No valid installation found
 
 
 def get_davinci_version() -> str:
     """get current photoshop version string"""
     path = "C:\\Program Files\\Blackmagic Design\\DaVinci Resolve\\Resolve.exe"
+    try:
+        lang, codepage = win32api.GetFileVersionInfo(
+            path, "\\VarFileInfo\\Translation")[0]
+        str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
+        return win32api.GetFileVersionInfo(path, str_info_path)
+    except Exception as e:
+        print(e)
+    return None
+
+def get_pugetbench_version() -> str:
+    """get current premiere pro version string"""
+    path = "C:\\Program Files\\PugetBench for Creators\\PugetBench for Creators.exe"
     try:
         lang, codepage = win32api.GetFileVersionInfo(
             path, "\\VarFileInfo\\Translation")[0]

@@ -7,7 +7,7 @@ import sys
 from argparse import ArgumentParser
 import time
 from subprocess import Popen
-from utils import find_latest_log, find_score_in_log, get_photoshop_version, get_premierepro_version, get_aftereffects_version, get_davinci_version, get_latest_benchmark_by_version
+from utils import find_latest_log, find_score_in_log, get_photoshop_version, get_premierepro_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 from harness_utils.process import terminate_processes
@@ -101,12 +101,12 @@ def main():
     elif args.app == "resolve":
         test = "PugetBench Davinci Resolve Studio"
         if version is None:
-            version = get_davinci_version()
-            
+            version = get_davinci_version()+"-studio"
+
     benchmark_version = get_latest_benchmark_by_version(args.app)
 
     try:
-        start_time, end_time, exit_code = run_benchmark(args.app, version, benchmark_version)
+        start_time, end_time, exit_code = run_benchmark(args.app, version)
 
         if exit_code > 0:
             logging.error("Test failed!")
@@ -120,8 +120,9 @@ def main():
             "start_time": seconds_to_milliseconds(start_time),
             "end_time": seconds_to_milliseconds(end_time),
             "test": test,
-            "version": version,
+            "app_version": version,
             "benchmark_version": benchmark_version,
+            "pugetbench_version": get_pugetbench_version(),
             "unit": "Score",
             "score": score
         }
