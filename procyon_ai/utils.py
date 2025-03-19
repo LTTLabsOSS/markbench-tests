@@ -42,15 +42,17 @@ def get_install_path() -> str:
 def find_procyon_version() -> str:
     """Gets the version of an executable located in the install path."""
     install_path = get_install_path()
+
+    logging.info(f"The install path for Procyon is {install_path}")
     
     if not install_path:
-        print("Installation path not found.")
+        logging.info("Installation path not found.")
         return None
 
     exe_path = os.path.join(install_path, "ProcyonCmd.exe")
 
     if not os.path.exists(exe_path):
-        print(f"Executable 'ProcyonCmd.exe' not found at {exe_path}")
+        logging.info(f"Executable 'ProcyonCmd.exe' not found at {exe_path}")
         return None
 
     try:
@@ -58,7 +60,7 @@ def find_procyon_version() -> str:
         str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
         return win32api.GetFileVersionInfo(exe_path, str_info_path)
     except Exception as e:
-        print(f"Error retrieving version info from {exe_path}: {e}")
+        logging.info(f"Error retrieving version info from {exe_path}: {e}")
         return None  # Return None if version info retrieval fails
     
 def find_test_version() -> str:
@@ -114,14 +116,16 @@ def find_test_version() -> str:
 
     chops_path = f"C:\\ProgramData\\UL\\Procyon\\chops\\dlc\\{folder}\\x64"
 
+    logging.info(f"The install path for the test is {chops_path}")
+
     if not chops_path:
-        print("Installation path not found.")
+        logging.info("Installation path not found.")
         return None
 
     exe_path = os.path.join(chops_path, exe)
 
     if not os.path.exists(exe_path):
-        print(f"Executable {exe} not found at {exe_path}")
+        logging.info(f"Executable {exe} not found at {exe_path}")
         return None
 
     try:
@@ -129,6 +133,6 @@ def find_test_version() -> str:
         str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
         return win32api.GetFileVersionInfo(exe_path, str_info_path)
     except Exception as e:
-        print(f"Error retrieving version info from {exe_path}: {e}")
+        logging.info(f"Error retrieving version info from {exe_path}: {e}")
         return None  # Return None if version info retrieval fails
     
