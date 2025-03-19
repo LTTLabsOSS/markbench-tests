@@ -149,7 +149,7 @@ def run_benchmark():
     time.sleep(0.5)
     gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_WEST)
     time.sleep(0.5)
-    gamepad.button_press_n_times(button=vg.DS4_BUTTONS.DS4_BUTTON_TRIANGLE, n=5, pause=0.8)
+    gamepad.button_press_n_times(button=vg.DS4_BUTTONS.DS4_BUTTON_TRIANGLE, n=3, pause=1)
     time.sleep(0.5)
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     logging.info("Benchmark started. Waiting for completion.")
