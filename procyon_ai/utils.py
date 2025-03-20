@@ -42,23 +42,38 @@ def get_install_path() -> str:
 def find_procyon_version() -> str:
     """Gets the version of an executable located in the install path."""
     install_path = get_install_path()
-
-    logging.info(f"The install path for Procyon is {install_path}")
     
     if not install_path:
         logging.info("Installation path not found.")
         return None
-    exe = "ProcyonCmd.exe"
-    exe_path = os.path.join(install_path, exe)
+
+    exe_path = os.path.join(install_path, "ProcyonCmd.exe")
 
     if not os.path.exists(exe_path):
-        logging.info(f"Executable {exe} not found at {exe_path}")
+        logging.info(f"Executable not found at {exe_path}")
         return None
 
     try:
-        lang, codepage = win32api.GetFileVersionInfo(exe_path, "\\VarFileInfo\\Translation")[0]
-        str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\FileVersion"
-        return win32api.GetFileVersionInfo(exe_path, str_info_path)
+        # Get all file version info
+        info = win32api.GetFileVersionInfo(exe_path, "\\")
+
+        # Extract FileVersionMS and FileVersionLS
+        ms = info.get("FileVersionMS")
+        ls = info.get("FileVersionLS")
+
+        if ms is None or ls is None:
+            logging.info("No FileVersionMS or FileVersionLS found.")
+            return None
+
+        # Convert to human-readable version: major.minor.build.revision
+        major = ms >> 16
+        minor = ms & 0xFFFF
+        build = ls >> 16
+        revision = ls & 0xFFFF
+
+        version = f"{major}.{minor}.{build}.{revision}"
+        return version
+
     except Exception as e:
         logging.info(f"Error retrieving version info from {exe_path}: {e}")
         return None  # Return None if version info retrieval fails
@@ -115,8 +130,6 @@ def find_test_version() -> str:
         exe = "SNPE.exe"
 
     chops_path = f"C:\\ProgramData\\UL\\Procyon\\chops\\dlc\\{folder}\\x64"
-
-    logging.info(f"The install path for the test is {chops_path}")
 
     if not chops_path:
         logging.info("Installation path not found.")
