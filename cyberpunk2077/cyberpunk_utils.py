@@ -5,10 +5,11 @@ import logging
 from pathlib import Path
 import re
 import shutil
+from harness_utils.steam import get_app_install_location
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-CYBERPUNK_INSTALL_DIR = Path(
-    os.environ["ProgramFiles(x86)"], "Steam\\steamapps\\common\\Cyberpunk 2077")
+STEAM_GAME_ID = 1091500
+CYBERPUNK_INSTALL_DIR = get_app_install_location(STEAM_GAME_ID)
 
 
 def get_args() -> any:
