@@ -19,6 +19,7 @@ from harness_utils.output import (
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
 from harness_utils.steam import exec_steam_game
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -53,6 +54,7 @@ def console_command(command):
 
 def run_benchmark():
     """Run dota2 benchmark"""
+    am = ArtifactManager(LOG_DIRECTORY)
     copy_replay()
     copy_config()
     setup_start_time = time.time()
@@ -70,6 +72,50 @@ def run_benchmark():
         logging.error("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
+    height, width = get_resolution()
+    location = None
+
+    # We check the resolution so we know which screenshot to use for the locate on screen function
+    match width:
+        case "1280":
+            location = gui.locateOnScreen(f"{SCRIPT_DIRECTORY}\\screenshots\\settings_720.png", confidence=0.9)
+        case "1920":
+            location = gui.locateOnScreen(f"{SCRIPT_DIRECTORY}\\screenshots\\settings_1080.png")
+        case "2560":
+            location = gui.locateOnScreen(f"{SCRIPT_DIRECTORY}\\screenshots\\settings_1440.png")
+        case "3840":
+            location = gui.locateOnScreen(f"{SCRIPT_DIRECTORY}\\screenshots\\settings_2160.png")
+        case _:
+            logging.error("Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?", height, width)
+            sys.exit(1)
+
+    # navigating to the video config section
+    click_me = gui.center(location)
+    gui.moveTo(click_me.x, click_me.y)
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+    time.sleep(0.2)
+
+    result = kerasService.look_for_word(word="video", attempts=10, interval=1)
+    if not result:
+        logging.info("Did not find the video menu button. Did Keras enter settings correctly?")
+        sys.exit(1)
+
+    gui.moveTo(result["x"] + 10, result["y"] + 8)
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+    time.sleep(0.2)
+
+    if kerasService.wait_for_word(word="resolution", timeout=30, interval=1) is None:
+        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        sys.exit(1)
+
+    am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings")
+
+    # starting the benchmark
+    user.press("escape")
     logging.info('Starting benchmark')
     user.press("\\")
     time.sleep(0.2)
@@ -121,6 +167,7 @@ def run_benchmark():
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     terminate_processes(PROCESS_NAME)
+    am.create_manifest()
     return test_start_time, test_end_time
 
 
