@@ -175,12 +175,11 @@ def run_benchmark(keras_service):
     if not result:
         logging.info("Did not find the player Dluo. Did the replay start?")
         sys.exit(1)
-    time.sleep(93)
+    time.sleep(90)
 
     #looking for landmark to mark benchmark start time and then wait for first round to finish
-    result = keras_service.wait_for_word("dluo", timeout=30, interval=1)
-    if not result:
-        logging.info("Did not find the player Dluo. Did the replay start?")
+    if keras_service.wait_for_word(word="0045", timeout=30, interval=1) is None:
+        logging.info("Didn't see the 45 seconds to round start at the top of the screen. Did the game crash?")
         sys.exit(1)
     test_start_time = time.time()
     time.sleep(460)
