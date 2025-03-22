@@ -11,11 +11,12 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 - Added Strange Brigade to the team
 - Updated PugetBench harness to include Davinci and After Effects
 - Updated PugetBench to more consistently find version numbers and include them in the report.json
-- Updated Rocket League harness to check what camera it is on and keep flipping through till it's on the correct one and added version numbering
+- Updated Rocket League harness to check what camera it is on and keep flipping through till it's on the correct one
 - Updated Procyon AI harnesses to have verison numbers in report.json
 - Replaced the hardcoded path for Cyberpunk2077 and instead use the get_app_install_location instead
 - Added DOTA 2 screenshotting for video config
 - Added beta harness of Marvel Rivals
+- Added game version lookup to Epic Games based games and a function in the misc.py
 
 ## 2025-03-17
 

@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import time
 from subprocess import Popen
-from alanwake2_utils import find_epic_executable, copy_save, CONFIG_PATH, get_resolution, find_game_version
+from alanwake2_utils import find_epic_executable, copy_save, CONFIG_PATH, get_resolution
 import pydirectinput as user
 import sys
 
@@ -17,13 +17,14 @@ from harness_utils.output import (
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.misc import press_n_times
+from harness_utils.misc import press_n_times, find_eg_game_version
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY.joinpath("run")
 PROCESS_NAME = "alanwake2.exe"
 EXECUTABLE_PATH = find_epic_executable()
 GAME_ID = "c4763f236d08423eb47b4c3008779c84%3A93f2a8c3547846eda966cb3c152a026e%3Adc9d2e595d0e4650b35d659f90d41059?action=launch&silent=true"
+gamefoldername = "AlanWake2"
 
 
 def setup_logging():
@@ -168,7 +169,7 @@ try:
         "resolution": f"{width}x{height}",
         "start_time": round((start_time * 1000)),
         "end_time": round((end_time * 1000)),
-        "game_version": find_game_version()
+        "game_version": find_eg_game_version(gamefoldername)
     }
 
     am.create_manifest()

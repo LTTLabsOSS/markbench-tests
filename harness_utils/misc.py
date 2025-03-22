@@ -8,6 +8,7 @@ import pydirectinput as user
 import pyautogui as gui
 import requests
 import vgamepad as vg
+import json
 
 class LTTGamePad360(vg.VX360Gamepad):
     """
@@ -192,3 +193,37 @@ def extract_file_from_archive(zip_file: Path, member_path: str, destination_dir:
     """Extract a single file memeber from an archive"""
     with ZipFile(zip_file, 'r') as zip_object:
         zip_object.extract(member_path, path=destination_dir)
+
+
+def find_eg_game_version(gamefoldername: str) -> str:
+    """Find the version of the specific game (e.g., AlanWake2) from the launcher installed data."""
+    installerdat = r"C:\ProgramData\Epic\UnrealEngineLauncher\LauncherInstalled.dat"
+    
+    try:
+        # Open the file and read its entire content
+        with open(installerdat, encoding="utf-8") as file:
+            file_content = file.read()
+
+        # Check if the "InstallationList" section is in the content
+        installation_list_match = re.search(r'"InstallationList":\s*(\[[^\]]*\])', file_content)
+        if not installation_list_match:
+            print("No InstallationList found.")
+            return None
+
+        # Extract the InstallationList part from the file
+        installation_list_json = installation_list_match.group(1)
+        
+        # Load the installation list as JSON
+        installation_list = json.loads(installation_list_json)
+
+        # Loop through each item in the installation list
+        for game in installation_list:
+            # Check if the game's InstallLocation contains the target string (AlanWake2)
+            if gamefoldername in game.get("InstallLocation", ""):
+                # Return the AppVersion for this game
+                return game.get("AppVersion", None)
+
+    except Exception as e:
+        print(f"Error: {e}")
+
+    return None

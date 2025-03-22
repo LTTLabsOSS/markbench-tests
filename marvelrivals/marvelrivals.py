@@ -7,7 +7,7 @@ import time
 import pyautogui as gui
 import sys
 import vgamepad as vg
-from marvelrivals_utils import read_resolution, find_epic_executable, find_game_version
+from marvelrivals_utils import read_resolution, find_epic_executable
 from subprocess import Popen
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
@@ -21,7 +21,7 @@ from harness_utils.output import (
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.misc import LTTGamePadDS4
+from harness_utils.misc import LTTGamePadDS4, find_eg_game_version
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -34,6 +34,7 @@ APPDATA = os.getenv("LOCALAPPDATA")
 CONFIG_LOCATION = f"{APPDATA}\\Marvel\\Saved\\Config\\Windows"
 CONFIG_FILENAME = "GameUserSettings.ini"
 cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
+gamefoldername = "MarvelRivalsjKtnW"
 
 am = ArtifactManager(LOG_DIR)
 gamepad = LTTGamePadDS4()
@@ -222,7 +223,7 @@ def main():
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
-        "game_version": find_game_version()
+        "game_version": find_eg_game_version(gamefoldername)
     }
 
     write_report_json(LOG_DIR, "report.json", report)
