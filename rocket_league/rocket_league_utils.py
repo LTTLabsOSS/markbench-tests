@@ -6,7 +6,7 @@ import logging
 import re
 import shutil
 from pathlib import Path
-import win32api
+import json
 
 USERNAME = getpass.getuser()
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -74,37 +74,35 @@ def find_epic_executable() -> any:
     except OSError:
         return None
 
-def find_game_exe() -> str:
-    installerdat = r"C:\ProgramData\Epic\UnrealEngineLauncher\LauncherInstalled.dat"
-    gamepath = re.compile(r'"InstallLocation":\s*"([^"]*rocketleague[^"]*)"')
-    gamepath_found = None
-    with open(installerdat, encoding="utf-8") as file:
-        lines = file.readlines()
-        for line in lines:
-            gamepath_find = gamepath.search(line)
-            if gamepath_find is not None:
-                gamepath_found = gamepath_find.group(1)
-                break
-    return gamepath_found
-
 def find_game_version() -> str:
-    """get current Rocket League version string"""
-    exe_path = find_game_exe()
-    if not exe_path:
-        print("Rocket League installation not found!")
-        return None  # Exit early if path is not found
-    path = rf"{exe_path}\Binaries\Win64\RocketLeague.exe"
+    """Find the version of the specific game (e.g., AlanWake2) from the launcher installed data."""
+    installerdat = r"C:\ProgramData\Epic\UnrealEngineLauncher\LauncherInstalled.dat"
+    
     try:
-        lang, codepage = win32api.GetFileVersionInfo(path, "\\VarFileInfo\\Translation")[0]
-        str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
-        full_version = win32api.GetFileVersionInfo(path, str_info_path)
+        # Open the file and read its entire content
+        with open(installerdat, encoding="utf-8") as file:
+            file_content = file.read()
 
-        # Convert comma-separated version numbers to a standard format
-        version_parts = full_version.split(", ")
-        if len(version_parts) >= 3:
-            return ".".join(version_parts[:3])  # Keep only first three parts
+        # Check if the "InstallationList" section is in the content
+        installation_list_match = re.search(r'"InstallationList":\s*(\[[^\]]*\])', file_content)
+        if not installation_list_match:
+            print("No InstallationList found.")
+            return None
+
+        # Extract the InstallationList part from the file
+        installation_list_json = installation_list_match.group(1)
         
-        return full_version  # Return as is if it's already correct
+        # Load the installation list as JSON
+        installation_list = json.loads(installation_list_json)
+
+        # Loop through each item in the installation list
+        for game in installation_list:
+            # Check if the game's InstallLocation contains the target string (AlanWake2)
+            if "rocketleague" in game.get("InstallLocation", ""):
+                # Return the AppVersion for this game
+                return game.get("AppVersion", None)
+
     except Exception as e:
-        print(f"Error retrieving game version {e}")
-        return None
+        print(f"Error: {e}")
+
+    return None

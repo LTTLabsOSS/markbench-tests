@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import time
 from subprocess import Popen
-from alanwake2_utils import find_epic_executable, copy_save, CONFIG_PATH, get_resolution
+from alanwake2_utils import find_epic_executable, copy_save, CONFIG_PATH, get_resolution, find_game_version
 import pydirectinput as user
 import sys
 
@@ -167,7 +167,8 @@ try:
     report = {
         "resolution": f"{width}x{height}",
         "start_time": round((start_time * 1000)),
-        "end_time": round((end_time * 1000))
+        "end_time": round((end_time * 1000)),
+        "game_version": find_game_version()
     }
 
     am.create_manifest()
