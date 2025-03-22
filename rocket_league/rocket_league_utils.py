@@ -6,6 +6,7 @@ import logging
 import re
 import shutil
 from pathlib import Path
+import win32api
 
 USERNAME = getpass.getuser()
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -61,8 +62,8 @@ def copy_replay() -> None:
         raise err
 
 
-def find_rocketleague_executable() -> any:
-    """Get path to rocket league executable"""
+def find_epic_executable() -> any:
+    """Get path to Epic Games Executable"""
     reg_path = r'Software\Epic Games\EOS'
     try:
         registry_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0,
@@ -70,6 +71,40 @@ def find_rocketleague_executable() -> any:
         value, _ = winreg.QueryValueEx(registry_key, "ModSdkCommand")
         winreg.CloseKey(registry_key)
         return value
-    except OSError as err:
-        logging.error("Could not find executable path")
-        raise err
+    except OSError:
+        return None
+
+def find_game_exe() -> str:
+    installerdat = r"C:\ProgramData\Epic\UnrealEngineLauncher\LauncherInstalled.dat"
+    gamepath = re.compile(r'"InstallLocation":\s*"([^"]*rocketleague[^"]*)"')
+    gamepath_found = None
+    with open(installerdat, encoding="utf-8") as file:
+        lines = file.readlines()
+        for line in lines:
+            gamepath_find = gamepath.search(line)
+            if gamepath_find is not None:
+                gamepath_found = gamepath_find.group(1)
+                break
+    return gamepath_found
+
+def find_game_version() -> str:
+    """get current Rocket League version string"""
+    exe_path = find_game_exe()
+    if not exe_path:
+        print("Rocket League installation not found!")
+        return None  # Exit early if path is not found
+    path = rf"{exe_path}\Binaries\Win64\RocketLeague.exe"
+    try:
+        lang, codepage = win32api.GetFileVersionInfo(path, "\\VarFileInfo\\Translation")[0]
+        str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
+        full_version = win32api.GetFileVersionInfo(path, str_info_path)
+
+        # Convert comma-separated version numbers to a standard format
+        version_parts = full_version.split(", ")
+        if len(version_parts) >= 3:
+            return ".".join(version_parts[:3])  # Keep only first three parts
+        
+        return full_version  # Return as is if it's already correct
+    except Exception as e:
+        print(f"Error retrieving game version {e}")
+        return None

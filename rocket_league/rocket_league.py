@@ -7,7 +7,7 @@ import sys
 import getpass
 from pathlib import Path
 import vgamepad as vg
-from rocket_league_utils import get_resolution, copy_replay, find_rocketleague_executable, get_args
+from rocket_league_utils import get_resolution, copy_replay, find_epic_executable, get_args, find_game_version
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
@@ -28,7 +28,7 @@ LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 USERNAME = getpass.getuser()
 CONFIG_PATH = Path(f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Rocket League\\TAGame\\Config\\TASystemSettings.ini")
 PROCESS_NAME = "rocketleague.exe"
-EXECUTABLE_PATH = find_rocketleague_executable()
+EXECUTABLE_PATH = find_epic_executable()
 GAME_ID = "9773aa1aa54f4f7b80e44bef04986cea%3A530145df28a24424923f5828cc9031a1%3ASugar?action=launch&silent=true"
 am = ArtifactManager(LOG_DIRECTORY)
 gamepad = LTTGamePadDS4()
@@ -237,7 +237,8 @@ try:
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time)
+        "end_time": seconds_to_milliseconds(end_time),
+        "game_version": find_game_version()
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
