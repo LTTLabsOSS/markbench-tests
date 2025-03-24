@@ -70,7 +70,7 @@ def run_benchmark(keras_service):
     
 
     #wait for launcher to launch then click the launch button to launch the launcher into the launched game
-    time.sleep(10)
+    time.sleep(20)
     location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\launch_button.png", confidence=0.9)
     click_me = gui.center(location)
     gui.moveTo(click_me.x, click_me.y)
