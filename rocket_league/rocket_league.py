@@ -7,7 +7,7 @@ import sys
 import getpass
 from pathlib import Path
 import vgamepad as vg
-from rocket_league_utils import get_resolution, copy_replay, find_epic_executable, get_args, find_game_version
+from rocket_league_utils import get_resolution, copy_replay, find_epic_executable, get_args
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
