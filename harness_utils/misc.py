@@ -9,6 +9,7 @@ import pyautogui as gui
 import requests
 import vgamepad as vg
 import json
+import re
 
 class LTTGamePad360(vg.VX360Gamepad):
     """
