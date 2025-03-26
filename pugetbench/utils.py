@@ -6,23 +6,39 @@ import win32api
 
 
 def get_latest_benchmark_by_version(benchmark_name: str):
-    """get latest benchmark version for the benchmark"""
+    """Get the latest benchmark version, prioritizing beta if it's newer."""
     valid_names = ['photoshop', 'premierepro', 'aftereffects', 'resolve']
     if benchmark_name not in valid_names:
-        raise ValueError("invalid benchmark name")
+        raise ValueError("Invalid benchmark name")
 
     benchmark_json_dir = Path().home() / "AppData/Local/com.puget.benchmark/benchmarks"
     if not benchmark_json_dir.exists():
-        raise ValueError("could not find benchmark directory in appdata")
+        raise ValueError("Could not find benchmark directory in appdata")
 
     benchmark_files = [f for f in os.listdir(benchmark_json_dir) if benchmark_name in f]
-    # sort assuming the filename format is still premierepro-benchmark-X.X.X.json
-    # convert version to int and order by size
-    sorted_files = sorted(benchmark_files, key=lambda x: tuple(map(int,x.split("-")[-1].split(".")[:-1])))
-    latest_version = sorted_files[len(sorted_files)-1]
-    latest_version = latest_version.split("-")[2]
-    version, _ = latest_version.rsplit(".", 1)
-    return version
+
+    version_pattern = re.compile(r'(\d+)\.(\d+)\.(\d+)(-beta)?$')
+
+    def extract_version(filename):
+        """Extracts version and beta flag from filename."""
+        match = version_pattern.search(filename)
+        if match:
+            major, minor, patch, beta_flag = match.groups()
+            return (int(major), int(minor), int(patch), 1 if beta_flag else 0)  # Beta = 1 to sort higher
+        return (0, 0, 0, 0)  # Default low version if no match
+
+    # Sort versions: newest first, beta versions take priority only if they have the highest base version
+    sorted_files = sorted(benchmark_files, key=extract_version, reverse=True)
+
+    if not sorted_files:
+        raise ValueError("No valid benchmark versions found.")
+
+    # Extract the latest version again
+    latest_version = version_pattern.search(sorted_files[0])
+    if latest_version:
+        return latest_version.group(0)  # Return full matched version (e.g., "0.98.0-beta" or "0.98.0")
+
+    raise ValueError("Could not extract valid version.")
 
 
 def find_latest_log():
