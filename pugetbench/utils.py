@@ -80,29 +80,35 @@ def get_photoshop_version() -> str:
     return None  # No valid installation found
 
 def get_aftereffects_version() -> str:
-    """Get the current installed Adobe After Effects version string, prioritizing Beta versions."""
-    base_path = "C:\\Program Files\\Adobe"
+    """Get the installed Adobe After Effects version string, prioritizing Beta versions."""
+    base_path = r"C:\Program Files\Adobe"
 
-    # Look for Adobe After Effects folders (including Beta versions)
+    # Check if Adobe folder exists
+    if not os.path.exists(base_path):
+        print("Adobe directory not found.")
+        return None
+
+    # Look for After Effects folders (including Beta)
     possible_versions = sorted(
-        [d for d in os.listdir(base_path) if "Adobe After Effects" in d], 
-        key=lambda x: ("Beta" not in x, x),  # Prioritize Beta first
+        [d for d in os.listdir(base_path) if "Adobe After Effects" in d],
+        key=lambda x: ("Beta" not in x, x),  # Beta prioritized
+        reverse=True  # Ensures newer versions come first
     )
 
     for folder in possible_versions:
         support_files_path = os.path.join(base_path, folder, "Support Files")
 
-        # Check for both standard and beta executable names
-        exe_candidates = ["AfterFX (Beta).exe", "AfterFX.exe"]  # Beta first
+        # Check both standard and beta executables
+        exe_candidates = ["AfterFX (Beta).exe", "AfterFX.exe"]  # Prioritize Beta
         for exe_name in exe_candidates:
             exe_path = os.path.join(support_files_path, exe_name)
             if os.path.exists(exe_path):
                 try:
-                    lang, codepage = win32api.GetFileVersionInfo(
-                        exe_path, "\\VarFileInfo\\Translation"
-                    )[0]
-                    str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
-                    return win32api.GetFileVersionInfo(exe_path, str_info_path)
+                    info = win32api.GetFileVersionInfo(exe_path, "\\VarFileInfo\\Translation")
+                    if info:
+                        lang, codepage = info[0]
+                        str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
+                        return str(win32api.GetFileVersionInfo(exe_path, str_info_path))
                 except Exception as e:
                     print(f"Error reading version from {exe_path}: {e}")
 

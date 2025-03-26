@@ -3,13 +3,10 @@ import re
 import sys
 from pathlib import Path
 import os
-import winreg
-import json
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
 
-STEAM_GAME_ID = 730
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 APPDATA = os.getenv("LOCALAPPDATA")
 CONFIG_LOCATION = f"{APPDATA}\\Marvel\\Saved\\Config\\Windows"
@@ -33,15 +30,3 @@ def read_resolution():
             if width_match is not None:
                 width = width_match.group(1)
     return (height, width)
-
-def find_epic_executable() -> any:
-    """Get path to Epic Games Executable"""
-    reg_path = r'Software\Epic Games\EOS'
-    try:
-        registry_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0,
-                                      winreg.KEY_READ)
-        value, _ = winreg.QueryValueEx(registry_key, "ModSdkCommand")
-        winreg.CloseKey(registry_key)
-        return value
-    except OSError:
-        return None

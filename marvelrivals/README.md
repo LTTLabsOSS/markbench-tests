@@ -4,7 +4,7 @@ This benchmark runs a replay of a Season 1 tournament Double Elimination round g
 ## Prerequisites
 
 - Python 3.10+
-- Marvel Rivals installed on Epic Games
+- Marvel Rivals installed on Steam
 - Keras OCR service
 - Favoriting replay ID 10518740076
 
