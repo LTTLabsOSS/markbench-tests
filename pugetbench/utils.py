@@ -15,30 +15,37 @@ def get_latest_benchmark_by_version(benchmark_name: str):
     if not benchmark_json_dir.exists():
         raise ValueError("Could not find benchmark directory in appdata")
 
-    benchmark_files = [f for f in os.listdir(benchmark_json_dir) if benchmark_name in f]
+    # Find relevant benchmark files
+    benchmark_files = [f for f in os.listdir(benchmark_json_dir) if f.startswith(f"{benchmark_name}-benchmark-")]
 
-    version_pattern = re.compile(r'(\d+)\.(\d+)\.(\d+)(-beta)?$')
+    if not benchmark_files:
+        raise ValueError("No valid benchmark versions found.")
+
+    version_pattern = re.compile(r'-(\d+)\.(\d+)\.(\d+)(-beta)?\.json$')
 
     def extract_version(filename):
-        """Extracts version and beta flag from filename."""
+        """Extracts numeric version and beta flag from filename."""
         match = version_pattern.search(filename)
         if match:
             major, minor, patch, beta_flag = match.groups()
             return (int(major), int(minor), int(patch), 1 if beta_flag else 0)  # Beta = 1 to sort higher
-        return (0, 0, 0, 0)  # Default low version if no match
+        return None  # Ignore files that don't match
 
-    # Sort versions: newest first, beta versions take priority only if they have the highest base version
-    sorted_files = sorted(benchmark_files, key=extract_version, reverse=True)
+    # Extract valid versions
+    versions = [(f, extract_version(f)) for f in benchmark_files]
+    versions = [v for v in versions if v[1] is not None]  # Filter out invalid matches
 
-    if not sorted_files:
-        raise ValueError("No valid benchmark versions found.")
+    if not versions:
+        raise ValueError("No valid benchmark versions found after parsing.")
 
-    # Extract the latest version again
-    latest_version = version_pattern.search(sorted_files[0])
-    if latest_version:
-        return latest_version.group(0)  # Return full matched version (e.g., "0.98.0-beta" or "0.98.0")
+    # Sort by version number, prioritizing beta when applicable
+    versions.sort(key=lambda x: x[1], reverse=True)
 
-    raise ValueError("Could not extract valid version.")
+    # Debug: Print sorted versions
+    for file, ver_tuple in versions:
+        print(f"Found: {file} -> Parsed version: {ver_tuple}")
+
+    return versions[0][0]  # Return the filename of the latest benchmark
 
 
 def find_latest_log():
