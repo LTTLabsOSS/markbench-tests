@@ -28,24 +28,24 @@ def get_latest_benchmark_by_version(benchmark_name: str):
         match = version_pattern.search(filename)
         if match:
             major, minor, patch, beta_flag = match.groups()
-            return (int(major), int(minor), int(patch), 1 if beta_flag else 0)  # Beta = 1 to sort higher
+            version = f"{major}.{minor}.{patch}"
+            if beta_flag:
+                version += "-beta"
+            return version
         return None  # Ignore files that don't match
 
     # Extract valid versions
-    versions = [(f, extract_version(f)) for f in benchmark_files]
-    versions = [v for v in versions if v[1] is not None]  # Filter out invalid matches
+    versions = [extract_version(f) for f in benchmark_files]
+    versions = [v for v in versions if v is not None]  # Filter out invalid matches
 
     if not versions:
         raise ValueError("No valid benchmark versions found after parsing.")
 
-    # Sort by version number, prioritizing beta when applicable
-    versions.sort(key=lambda x: x[1], reverse=True)
+    # Sort versions (beta will automatically come last if sorted lexicographically)
+    versions.sort(reverse=True)
 
-    # Debug: Print sorted versions
-    for file, ver_tuple in versions:
-        print(f"Found: {file} -> Parsed version: {ver_tuple}")
-
-    return versions[0][0]  # Return the filename of the latest benchmark
+    # Return the latest version
+    return versions[0]
 
 
 def find_latest_log():
