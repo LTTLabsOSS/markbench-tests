@@ -7,7 +7,7 @@ import mss
 import cv2
 import requests
 import numpy as np
-import pyautogui
+import dxcam
 from enum import Enum
 from dataclasses import dataclass
 
@@ -15,7 +15,6 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 DEFAULT_TIMEOUT = 120.0
-
 
 class ScreenShotDivideMethod(Enum):
     """split method"""
@@ -81,26 +80,30 @@ class KerasService():
         _, encoded_image = cv2.imencode('.jpg', screenshot)
         return io.BytesIO(encoded_image)
     
-    def _capture_vulkan_screenshot(self, split_config: ScreenSplitConfig) -> io.BytesIO:
-        """Capture a screenshot from Vulkan frame buffer"""
-         # Capture the full screen using PyAutoGUI
-        screenshot = pyautogui.screenshot()  # Captures the entire screen
-        screenshot = np.array(screenshot)  # Convert to numpy array for further processing
+
+    def _capture_vulkan_screenshot(self, split_config):
+        """Capture a screenshot from Vulkan fullscreen using DXGI Desktop Duplication"""
+        camera = dxcam.create(output_idx=0)  # Select the main display (Change if needed)
+        frame = camera.grab()  # Capture the frame
+
+        if frame is None:
+            print("Failed to capture Vulkan frame.")
+            return None
+
+        screenshot = np.array(frame)  # Convert to numpy array
         screenshot = cv2.cvtColor(screenshot, cv2.COLOR_RGB2GRAY)  # Convert to grayscale
 
         # Apply splitting logic if needed
         if split_config.divide_method == ScreenShotDivideMethod.HORIZONTAL:
-            screenshot = self._divide_horizontal(
-                screenshot, split_config.quadrant)
+            screenshot = self._divide_horizontal(screenshot, split_config.quadrant)
         elif split_config.divide_method == ScreenShotDivideMethod.VERTICAL:
-            screenshot = self._divide_vertical(
-                screenshot, split_config.quadrant)
+            screenshot = self._divide_vertical(screenshot, split_config.quadrant)
         elif split_config.divide_method == ScreenShotDivideMethod.QUADRANT:
-            screenshot = self._divide_in_four(
-                screenshot, split_config.quadrant)
+            screenshot = self._divide_in_four(screenshot, split_config.quadrant)
 
-        _, encoded_image = cv2.imencode('.jpg', screenshot)
-        return io.BytesIO(encoded_image)
+        _, encoded_image = cv2.imencode('.jpg', screenshot)  # Encode image
+        return io.BytesIO(encoded_image)  # Return image bytes
+
 
     def _query_service(self, word: str, image_bytes: io.BytesIO) -> any:
         try:

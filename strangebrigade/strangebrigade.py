@@ -80,7 +80,7 @@ def run_benchmark():
         logging.info("Did not find the customize graphics detail option. Did navigate correctly?")
         sys.exit(1)
 
-    am.take_screenshot("display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings")
+    am.take_screenshot_vulkan("display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings")
 
     time.sleep(0.5)
     user.press("escape")
@@ -111,7 +111,7 @@ def run_benchmark():
     # Wait 5 seconds for benchmark info
     time.sleep(5)
 
-    am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    am.take_screenshot_vulkan("result.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
     am.copy_file(Path(CONFIG_FULL_PATH), ArtifactType.RESULTS_TEXT, "preferences.script.txt")
 
     # End the run
@@ -130,7 +130,7 @@ setup_log_directory(LOG_DIRECTORY)
 logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
                     format=DEFAULT_LOGGING_FORMAT,
                     datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 console = logging.StreamHandler()
 formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)

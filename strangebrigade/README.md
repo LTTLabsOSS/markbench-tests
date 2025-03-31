@@ -5,8 +5,9 @@ This script navigates through in-game menus to the built in benchmark and runs i
 ## Prerequisites
 
 - Python 3.10+
-- Strange Brigade installed
+- Strange Brigade installed via Steam
 - Keras OCR service
+- DXcam
 
 ## Options
 

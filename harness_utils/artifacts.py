@@ -2,12 +2,14 @@
 import os
 import mss
 import yaml
+import dxcam
+import cv2
+import numpy as np
 from dataclasses import dataclass
 from enum import Enum, unique
 from shutil import copy
 from pathlib import Path
 from collections.abc import Callable
-
 
 @unique
 class ArtifactType(Enum):
@@ -116,6 +118,41 @@ class ArtifactManager:
                 sct.shot(output=str(self.output_path / filename))
         else:
             screenshot_override(self.output_path / filename)
+        artifact = Artifact(filename, artifact_type, description)
+        self.artifacts.append(artifact)
+
+    def take_screenshot_vulkan(
+            self,
+            filename: str,
+            artifact_type: ArtifactType,
+            description="",
+            screenshot_override: Callable[[str | os.PathLike], None] | None = None):
+        """
+        Takes a screenshot using dxcam and saves it to the manager's `output_path` with the given `filename`.
+        Adds a new Artifact to the manager's artifact list.
+
+        Raises a `ValueError` if `artifact_type` is not one of the `_IMAGE_ARTIFACT_TYPES` values which represent an image.
+        """
+        if artifact_type not in _IMAGE_ARTIFACT_TYPES:
+            raise ValueError("artifact_type should be a type that represents an image artifact")
+
+        output_filepath = str(self.output_path / filename)
+
+        if screenshot_override is None:
+            camera = dxcam.create(output_idx=0)  # Initialize DXCam
+            frame = camera.grab()  # Capture the screenshot
+
+            if frame is None:
+                raise RuntimeError("Failed to capture screenshot with dxcam.")
+
+            # Convert to BGR format (since dxcam outputs in RGB)
+            frame_bgr = cv2.cvtColor(np.array(frame), cv2.COLOR_RGB2BGR)
+
+            # Save image using OpenCV
+            cv2.imwrite(output_filepath, frame_bgr)
+        else:
+            screenshot_override(output_filepath)
+
         artifact = Artifact(filename, artifact_type, description)
         self.artifacts.append(artifact)
 

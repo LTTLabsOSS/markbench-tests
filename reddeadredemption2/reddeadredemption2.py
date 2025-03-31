@@ -68,28 +68,28 @@ def run_benchmark():
     if not result:
         logging.info("Did not find the resolution setting. Did the game navigate correctly?")
         sys.exit(1)
-    am.take_screenshot("Graphics1.png", ArtifactType.RESULTS_IMAGE, "1st Graphics Screenshot")
+    am.take_screenshot_vulkan("Graphics1.png", ArtifactType.RESULTS_IMAGE, "1st Graphics Screenshot")
     press_n_times("down", 26, 0.2)
 
     result = kerasService.look_for_word_vulkan("msaa", attempts=30, interval=1)
     if not result:
         logging.info("Did not find the MSAA settings. Did Keras navigate correctly?")
         sys.exit(1)
-    am.take_screenshot("Graphics2.png", ArtifactType.RESULTS_IMAGE, "2nd Graphics Screenshot")
+    am.take_screenshot_vulkan("Graphics2.png", ArtifactType.RESULTS_IMAGE, "2nd Graphics Screenshot")
     press_n_times("down", 14, 0.2)
 
     result = kerasService.look_for_word_vulkan("reflection", attempts=30, interval=1)
     if not result:
         logging.info("Did not find the Water Reflection Quality settings. Did Keras navigate correctly?")
         sys.exit(1)
-    am.take_screenshot("Graphics3.png", ArtifactType.RESULTS_IMAGE, "3rd Graphics Screenshot")
+    am.take_screenshot_vulkan("Graphics3.png", ArtifactType.RESULTS_IMAGE, "3rd Graphics Screenshot")
     press_n_times("down", 12, 0.2)
 
     result = kerasService.look_for_word_vulkan("tessellation", attempts=30, interval=1)
     if not result:
         logging.info("Did not find the Tree Tessellation settings. Did Keras navigate correctly?")
         sys.exit(1)
-    am.take_screenshot("Graphics4.png", ArtifactType.RESULTS_IMAGE, "4th Graphics Screenshot")
+    am.take_screenshot_vulkan("Graphics4.png", ArtifactType.RESULTS_IMAGE, "4th Graphics Screenshot")
 
     # Run benchmark by holding X for 2 seconds
     result = kerasService.look_for_word_vulkan("benchmark", attempts=30, interval=1)
@@ -119,7 +119,7 @@ def run_benchmark():
         logging.info("Did not find the end results screen. Did the benchmark crash?")
         sys.exit(1)
     test_end_time = time.time()
-    am.take_screenshot("Results.png", ArtifactType.RESULTS_IMAGE, "Results Screenshot")
+    am.take_screenshot_vulkan("Results.png", ArtifactType.RESULTS_IMAGE, "Results Screenshot")
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     am.copy_file(Path(CONFIG_FULL_PATH), ArtifactType.RESULTS_TEXT, "system.xml")
@@ -135,7 +135,7 @@ setup_log_directory(LOG_DIRECTORY)
 logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
                     format=DEFAULT_LOGGING_FORMAT,
                     datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 console = logging.StreamHandler()
 formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
