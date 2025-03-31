@@ -1,13 +1,14 @@
-"""Counter-Strike 2 test script"""
+"""Marvel Rivals test script"""
 from argparse import ArgumentParser
 import logging
 import os
 from pathlib import Path
 import time
 import pyautogui as gui
+import pydirectinput as user
 import sys
-import vgamepad as vg
 from marvelrivals_utils import read_resolution
+import subprocess
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
@@ -20,22 +21,21 @@ from harness_utils.output import (
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.misc import LTTGamePadDS4
-from harness_utils.steam import get_app_install_location, exec_steam_game, get_build_id
+from harness_utils.misc import mouse_scroll_n_times
+from harness_utils.steam import get_app_install_location, get_build_id
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
 STEAM_GAME_ID = 2767030
 PROCESS_NAME = "Marvel-Win64-Shipping.exe"
-EXE_PATH = get_app_install_location(STEAM_GAME_ID)
+LAUNCHER_NAME = "MarvelRivals_Launcher.exe"
 APPDATA = os.getenv("LOCALAPPDATA")
 CONFIG_LOCATION = f"{APPDATA}\\Marvel\\Saved\\Config\\Windows"
 CONFIG_FILENAME = "GameUserSettings.ini"
 cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
 
 am = ArtifactManager(LOG_DIR)
-gamepad = LTTGamePadDS4()
 
 def setup_logging():
     """default logging config"""
@@ -51,9 +51,11 @@ def setup_logging():
 
 def start_game():
     """Starts the game process"""
-    exec_steam_game(STEAM_GAME_ID)
-    logging.info("Launching Game from Steam")
-
+    game_path = get_app_install_location(STEAM_GAME_ID)
+    process_path = os.path.join(game_path, LAUNCHER_NAME)  # Full path to the executable
+    logging.info(f"Starting game: {process_path}")
+    process = subprocess.Popen([process_path], cwd=game_path)
+    return process
 
 def run_benchmark(keras_service):
     """Run Marvel Rivals benchmark"""
@@ -63,7 +65,7 @@ def run_benchmark(keras_service):
 
     #wait for launcher to launch then click the launch button to launch the launcher into the game that we were launching
     time.sleep(20)
-    location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\launch_button.png", confidence=0.9)
+    location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\launch_button.png", confidence=0.7) #luckily this seems to be a set resolution for the button
     click_me = gui.center(location)
     gui.moveTo(click_me.x, click_me.y)
     gui.mouseDown()
@@ -79,24 +81,30 @@ def run_benchmark(keras_service):
         logging.info("Did not find the title screen. Did the game load?")
         sys.exit(1)
 
-    gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
     time.sleep(0.5)
 
     #navigating to the video settings and taking screenshots
     result = keras_service.wait_for_word("play", timeout=30, interval=1)
     if not result:
-        logging.info("Did not find the play menu. Did it press X on the gamepad?")
+        logging.info("Did not find the play menu. Did it click the mouse to start the game?")
         sys.exit(1)
-
-    gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_OPTIONS)
+    user.press("escape")
     time.sleep(0.5)
 
     result = keras_service.wait_for_word("settings", timeout=30, interval=1)
     if not result:
-        logging.info("Did not find the settings menu. Did it press Options on the gamepad?")
+        logging.info("Did not find the settings menu. Did it open the menu with escape?")
         sys.exit(1)
-    gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
-    time.sleep(0.5)
+
+    gui.moveTo(result["x"], result["y"])
+    time.sleep(0.2)
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+    time.sleep(1)
 
     result = keras_service.wait_for_word("brightness", timeout=30, interval=1)
     if not result:
@@ -104,58 +112,96 @@ def run_benchmark(keras_service):
         sys.exit(1)
 
     am.take_screenshot("video1.png", ArtifactType.CONFIG_IMAGE, "1st picture of video settings")
-    time.sleep(0.5)
-    gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, n=25, pause=0.8)
+    time.sleep(1)
+    mouse_scroll_n_times(10, -800,  0.2)
     time.sleep(0.5)
 
     result = keras_service.wait_for_word("foliage", timeout=30, interval=1)
     if not result:
-        logging.info("Did not find the foliage option. Did the game press down enough times?")
+        logging.info("Did not find the foliage option. Did it scroll down far enough?")
         sys.exit(1)
 
     am.take_screenshot("video2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of video settings")
-    time.sleep(0.5)
+    time.sleep(1)
 
     #navigate to the player profile
-    gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CIRCLE)
+    user.press("escape")
     time.sleep(1)
     result = keras_service.wait_for_word("play", timeout=30, interval=1)
     if not result:
-        logging.info("Did not find the play menu. Did it press O on the gamepad?")
+        logging.info("Did not find the play menu. Did it press escape?")
         sys.exit(1)
 
-    gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_THUMB_RIGHT)
-    time.sleep(0.5)
-    gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_EAST, n=5, pause=0.8)
-    time.sleep(0.5)
-    gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
+    time.sleep(1)
+    height, width = read_resolution()
+    location = None
+
+    # We check the resolution so we know which screenshot to use for the locate on screen function
+    match width:
+        case "1280":
+            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\profile_720.png", confidence=0.9)
+        case "1920":
+            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\profile_1080.png", confidence=0.9)
+        case "2560":
+            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\profile_1440.png", confidence=0.9)
+        case "3840":
+            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\profile_2160.png", confidence=0.9)
+        case _:
+            logging.error("Could not find the profile icon. The game resolution is currently %s, %s. Are you using a standard resolution?", height, width)
+            sys.exit(1)
+    click_me = gui.center(location)
+    gui.moveTo(click_me.x, click_me.y)
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
     time.sleep(0.5)
 
     #navigate to the replays section
-    result = keras_service.wait_for_word("career", timeout=30, interval=1)
+    result = keras_service.wait_for_word("favorites", timeout=30, interval=1)
     if not result:
-        logging.info("Did not find the career menu. Did it navigate properly to it?")
+        logging.info("Did not find the favorites menu. Did it navigate properly to it?")
         sys.exit(1)
-    gamepad.button_press_n_times(button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_LEFT, n=3, pause=0.8)
-    time.sleep(0.5)
+    gui.moveTo(result["x"], result["y"])
+    time.sleep(0.2)
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+    time.sleep(1)
 
-    result = keras_service.wait_for_word("recent", timeout=30, interval=1)
+    result = keras_service.wait_for_word("match", timeout=30, interval=1)
     if not result:
-        logging.info("Did not find the recent replays menu. Did it press left shoulder enough times?")
+        logging.info("Did not find the match replays menu. Did it click correctly?")
         sys.exit(1)
-    gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_TRIGGER_RIGHT)
-    time.sleep(0.5)
+    gui.moveTo(result["x"], result["y"])
+    time.sleep(0.2)
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+    time.sleep(1)
     
     #starting the benchmark replay
     result = keras_service.wait_for_word("shibuya", timeout=30, interval=1)
     if not result:
         logging.info("Did not find the replay we were looking for. Is it not saved in the favorites?")
         sys.exit(1)
-    gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH)
+    match width:
+        case "1280":
+            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\play_720.png", confidence=0.9)
+        case "1920":
+            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\play_1080.png", confidence=0.9)
+        case "2560":
+            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\play_1440.png", confidence=0.9)
+        case "3840":
+            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\play_2160.png", confidence=0.9)
+        case _:
+            logging.error("Could not find the play button. The game resolution is currently %s, %s. Are you using a standard resolution?", height, width)
+            sys.exit(1)
+    click_me = gui.center(location)
+    gui.moveTo(click_me.x, click_me.y)
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
     time.sleep(0.5)
-    gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_EAST)
-    time.sleep(0.5)
-    gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
 
     #marking the in-time
     setup_end_time = time.time()
@@ -174,7 +220,7 @@ def run_benchmark(keras_service):
     if keras_service.wait_for_word(word="defend", timeout=30, interval=1) is None:
         logging.info("Didn't see the defend waypoint. Did the game crash?")
         sys.exit(1)
-    test_start_time = time.time()
+    test_start_time = time.time() + 2
     time.sleep(460)
 
     #checking that first round has finished
