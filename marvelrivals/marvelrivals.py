@@ -7,8 +7,7 @@ import time
 import pyautogui as gui
 import sys
 import vgamepad as vg
-from marvelrivals_utils import read_resolution, find_epic_executable
-from subprocess import Popen
+from marvelrivals_utils import read_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
@@ -21,20 +20,19 @@ from harness_utils.output import (
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.misc import LTTGamePadDS4, find_eg_game_version
+from harness_utils.misc import LTTGamePadDS4
+from harness_utils.steam import get_app_install_location, exec_steam_game, get_build_id
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
+STEAM_GAME_ID = 2767030
 PROCESS_NAME = "Marvel-Win64-Shipping.exe"
-EXECUTABLE_PATH = find_epic_executable()
-GAME_ID = "38e211ced4e448a5a653a8d1e13fef18%3A27556e7cd968479daee8cc7bd77aebdd%3A575efd0b5dd54429b035ffc8fe2d36d0?action=launch&silent=true"
-
+EXE_PATH = get_app_install_location(STEAM_GAME_ID)
 APPDATA = os.getenv("LOCALAPPDATA")
 CONFIG_LOCATION = f"{APPDATA}\\Marvel\\Saved\\Config\\Windows"
 CONFIG_FILENAME = "GameUserSettings.ini"
 cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
-gamefoldername = "MarvelRivalsjKtnW"
 
 am = ArtifactManager(LOG_DIR)
 gamepad = LTTGamePadDS4()
@@ -51,16 +49,10 @@ def setup_logging():
     console.setFormatter(formatter)
     logging.getLogger('').addHandler(console)
 
-
-def get_run_game_id_command(game_id: int) -> str:
-    """Build string to launch game"""
-    return "com.epicgames.launcher://apps/" + str(game_id)
-
 def start_game():
-    """Start the game"""
-    cmd_string = get_run_game_id_command(GAME_ID)
-    logging.info("%s %s", EXECUTABLE_PATH, cmd_string)
-    return Popen([EXECUTABLE_PATH, cmd_string])
+    """Starts the game process"""
+    exec_steam_game(STEAM_GAME_ID)
+    logging.info("Launching Game from Steam")
 
 
 def run_benchmark(keras_service):
@@ -69,7 +61,7 @@ def run_benchmark(keras_service):
     start_game()
     
 
-    #wait for launcher to launch then click the launch button to launch the launcher into the launched game
+    #wait for launcher to launch then click the launch button to launch the launcher into the game that we were launching
     time.sleep(20)
     location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\launch_button.png", confidence=0.9)
     click_me = gui.center(location)
@@ -179,8 +171,8 @@ def run_benchmark(keras_service):
     time.sleep(90)
 
     #looking for landmark to mark benchmark start time and then wait for first round to finish
-    if keras_service.wait_for_word(word="0045", timeout=30, interval=1) is None:
-        logging.info("Didn't see the 45 seconds to round start at the top of the screen. Did the game crash?")
+    if keras_service.wait_for_word(word="defend", timeout=30, interval=1) is None:
+        logging.info("Didn't see the defend waypoint. Did the game crash?")
         sys.exit(1)
     test_start_time = time.time()
     time.sleep(460)
@@ -223,7 +215,7 @@ def main():
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
-        "game_version": find_eg_game_version(gamefoldername)
+        "game_version": get_build_id(STEAM_GAME_ID)
     }
 
     write_report_json(LOG_DIR, "report.json", report)
