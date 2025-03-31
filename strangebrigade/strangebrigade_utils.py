@@ -37,8 +37,7 @@ def read_current_resolution():
     return (height_value, width_value)
 
 def replace_exe():
-    """Removes files specified by provided list of file paths.
-    Does nothing for a path that does not exist.
+    """Replaces the Strange Brigade launcher exe with the Vulkan exe for immediate launching
     """
     check_backup = Path(f"{EXE_PATH}\\StrangeBrigade_launcher.exe")
     launcher_exe = Path(f"{EXE_PATH}\\StrangeBrigade.exe")
@@ -53,3 +52,19 @@ def replace_exe():
             logging.info(f"Replacing launcher file in {EXE_PATH}")
         else:
             logging.info("Launcher already replaced with Vulkan exe.")
+
+def restore_exe():
+    """Restores the launcher exe back to the original exe name to close the loop.
+    """
+    check_backup = Path(f"{EXE_PATH}\\StrangeBrigade_launcher.exe")
+    launcher_exe = Path(f"{EXE_PATH}\\StrangeBrigade.exe")
+    if not os.path.exists(check_backup):
+        logging.info(f"Launcher already restored or file does not exist.")
+    elif os.path.exists(check_backup):
+        if not os.path.exists(launcher_exe):
+            os.rename(check_backup, launcher_exe)
+            logging.info(f"Restoring launcher file in {EXE_PATH}")
+        else:
+            os.remove(launcher_exe)
+            os.rename(check_backup, launcher_exe)
+            logging.info(f"Restoring launcher file in {EXE_PATH}")

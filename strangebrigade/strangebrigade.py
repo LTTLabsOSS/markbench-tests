@@ -7,7 +7,7 @@ import time
 import sys
 import pyautogui as gui
 import pydirectinput as user
-from strangebrigade_utils import read_current_resolution, replace_exe
+from strangebrigade_utils import read_current_resolution, replace_exe, restore_exe
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
@@ -121,6 +121,7 @@ def run_benchmark():
     # Exit
     terminate_processes(PROCESS_NAME)
     am.create_manifest()
+    restore_exe()
 
     return test_start_time, test_end_time
 
