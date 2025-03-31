@@ -40,7 +40,7 @@ def replace_exe():
     """Removes files specified by provided list of file paths.
     Does nothing for a path that does not exist.
     """
-    check_backup = Path(f"{EXE_PATH}\\StrangeBrigade.bak.exe")
+    check_backup = Path(f"{EXE_PATH}\\StrangeBrigade_launcher.exe")
     launcher_exe = Path(f"{EXE_PATH}\\StrangeBrigade.exe")
     vulkan_exe = Path(f"{EXE_PATH}\\StrangeBrigade_Vulkan.exe")
     if not os.path.exists(check_backup):

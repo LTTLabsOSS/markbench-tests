@@ -6,9 +6,9 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2025-03-22
 - Fixed Keras not finding the FPS in Shadow of the Tomb Raider
-- Added a screenshot function for Vulkan games for Keras-OCR
+- Added a screenshot function for Vulkan games for Keras-OCR via DXcam
 - Added Keras functionality to Red Dead Redemption 2
-- Added Strange Brigade to the team
+- Added Strange Brigade (VK) to the team
 - Updated PugetBench harness to include Davinci and After Effects
 - Updated PugetBench to more consistently find version numbers and include them in the report.json
 - Updated Rocket League harness to check what camera it is on and keep flipping through till it's on the correct one
