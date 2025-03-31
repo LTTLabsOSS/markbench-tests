@@ -51,7 +51,7 @@ def run_benchmark():
 
     # Enter graphics menu
     ## ensure we are starting from the top left of the screen
-    result = kerasService.look_for_word_vulkan("graphics", attempts=30, interval=1)
+    result = kerasService.look_for_word_vulkan("graphics", attempts=5, interval=1)
     if not result:
         logging.info("Did not find the graphics menu. Did keras get stuck?")
         sys.exit(1)
@@ -64,32 +64,32 @@ def run_benchmark():
     time.sleep(3)
 
     # Take pictures of the graphics settings
-    result = kerasService.look_for_word_vulkan("resolution", attempts=30, interval=1)
+    result = kerasService.look_for_word_vulkan("resolution", attempts=5, interval=1)
     if not result:
         logging.info("Did not find the resolution setting. Did the game navigate correctly?")
         sys.exit(1)
     am.take_screenshot_vulkan("Graphics1.png", ArtifactType.RESULTS_IMAGE, "1st Graphics Screenshot")
 
-    result = kerasService.look_for_word_vulkan("nvidia", attempts=30, interval=1)
+    result = kerasService.look_for_word_vulkan("nvidia", attempts=5, interval=1)
     if result:
         logging.info("NVIDIA card is installed, navigating accordingly.")
         press_n_times("down", 26, 0.2)
 
-        result = kerasService.look_for_word_vulkan("mode", attempts=30, interval=1)
+        result = kerasService.look_for_word_vulkan("mode", attempts=5, interval=1)
         if not result:
             logging.info("Did not find the FSR mode description. Did it navigate correctly?")
             sys.exit(1)
         am.take_screenshot_vulkan("Graphics2.png", ArtifactType.RESULTS_IMAGE, "2nd Graphics Screenshot")
         press_n_times("down", 14, 0.2)
 
-        result = kerasService.look_for_word_vulkan("long", attempts=30, interval=1)
+        result = kerasService.look_for_word_vulkan("long", attempts=5, interval=1)
         if not result:
             logging.info("Did not find the Long Shadows settings. Did it navigate correctly?")
             sys.exit(1)
         am.take_screenshot_vulkan("Graphics3.png", ArtifactType.RESULTS_IMAGE, "3rd Graphics Screenshot")
         press_n_times("down", 15, 0.2)
 
-        result = kerasService.look_for_word_vulkan("tessellation", attempts=30, interval=1)
+        result = kerasService.look_for_word_vulkan("tessellation", attempts=5, interval=1)
         if not result:
             logging.info("Did not find the Tree Tessellation settings. Did Keras navigate correctly?")
             sys.exit(1)
@@ -99,28 +99,28 @@ def run_benchmark():
         logging.info("NVIDIA card not detected on screen, navigating accordingly.")
         press_n_times("down", 26, 0.2)
 
-        result = kerasService.look_for_word_vulkan("msaa", attempts=30, interval=1)
+        result = kerasService.look_for_word_vulkan("msaa", attempts=5, interval=1)
         if not result:
             logging.info("Did not find the MSAA settings. Did Keras navigate correctly?")
             sys.exit(1)
         am.take_screenshot_vulkan("Graphics2.png", ArtifactType.RESULTS_IMAGE, "2nd Graphics Screenshot")
         press_n_times("down", 14, 0.2)
 
-        result = kerasService.look_for_word_vulkan("reflection", attempts=30, interval=1)
+        result = kerasService.look_for_word_vulkan("reflection", attempts=5, interval=1)
         if not result:
             logging.info("Did not find the Water Reflection Quality settings. Did Keras navigate correctly?")
             sys.exit(1)
         am.take_screenshot_vulkan("Graphics3.png", ArtifactType.RESULTS_IMAGE, "3rd Graphics Screenshot")
         press_n_times("down", 12, 0.2)
 
-        result = kerasService.look_for_word_vulkan("tessellation", attempts=30, interval=1)
+        result = kerasService.look_for_word_vulkan("tessellation", attempts=5, interval=1)
         if not result:
             logging.info("Did not find the Tree Tessellation settings. Did Keras navigate correctly?")
             sys.exit(1)
         am.take_screenshot_vulkan("Graphics4.png", ArtifactType.RESULTS_IMAGE, "4th Graphics Screenshot")
 
     # Run benchmark by holding X for 2 seconds
-    result = kerasService.look_for_word_vulkan("benchmark", attempts=30, interval=1)
+    result = kerasService.look_for_word_vulkan("benchmark", attempts=5, interval=1)
     if not result:
         logging.info("Did not see the Run Benchmark Test at the bottom of the screen. Did navigation mess up?")
         sys.exit(1)
