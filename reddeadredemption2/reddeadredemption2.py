@@ -127,7 +127,7 @@ def run_benchmark():
     # Exit
     terminate_processes(PROCESS_NAME)
     am.create_manifest()
-    time.sleep(30) #sleeping to let the rockstar processes finish closing
+    time.sleep(50) #sleeping to let the rockstar processes finish closing
     return test_start_time, test_end_time
 
 
