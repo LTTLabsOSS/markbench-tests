@@ -106,6 +106,8 @@ def run_benchmark():
     test_end_time = time.time() - 1
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
+    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    time.sleep(1)
 
     for proc in psutil.process_iter():
         try:

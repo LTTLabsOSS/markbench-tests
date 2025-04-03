@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 Changes are grouped by the date they are merged to the main branch of the repository and are ordered from newest to oldest. Dates use the ISO 8601 extended calendar date format, i.e. YYYY-MM-DD.
 
-## 2025-03-22
+## 2025-04-02
 - Fixed Keras not finding the FPS in Shadow of the Tomb Raider
 - Added a screenshot function for Vulkan games for Keras-OCR via DXcam
 - Added Keras functionality to Red Dead Redemption 2
@@ -17,6 +17,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 - Added DOTA 2 screenshotting for video config
 - Added beta harness of Marvel Rivals
 - Added game version lookup to Epic Games based games and a function in the misc.py
+- Reintroducing Hitman World of Assassination and Far Cry 6 with updated keras and artifact manager functions
 
 ## 2025-03-17
 
