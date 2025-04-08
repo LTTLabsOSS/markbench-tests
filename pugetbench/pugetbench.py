@@ -57,6 +57,20 @@ def run_benchmark(application: str, app_version: str) -> Popen:
 
     process = Popen(command, stdout=PIPE, stderr=PIPE, text=True)
     stdout, stderr = process.communicate()  # this waits for process to complete
+
+    # Capture output from stdout and stderr and log them in real time
+    stdout_lines = []
+    stderr_lines = []
+    
+    # Process the stdout and stderr lines in real time
+    for line in process.stdout:
+        stdout_lines.append(line)
+        logging.info(line.strip())  # Log each stdout line
+
+    for line in process.stderr:
+        stderr_lines.append(line)
+        logging.error(line.strip())  # Log each stderr line as errors
+
     end_time = time.time()
 
     # Catch-all for any line starting with 'Error!:'
