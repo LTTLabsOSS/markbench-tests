@@ -7,7 +7,7 @@ import sys
 from argparse import ArgumentParser
 import time
 from subprocess import Popen, PIPE
-import select
+import threading
 from utils import find_latest_log, find_score_in_log, get_photoshop_version, get_premierepro_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
@@ -32,6 +32,15 @@ console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
 EXECUTABLE_NAME = "PugetBench for Creators.exe"
+
+def read_output(stream, log_func):
+    """Read and log output in real-time from a stream (stdout or stderr)."""
+    while True:
+        line = stream.readline()
+        if not line:
+            break
+        log_func(line.strip())
+        sys.stdout.flush()  # or sys.stderr.flush()
 
 def run_benchmark(application: str, app_version: str) -> Popen:
     """run benchmark"""
@@ -58,36 +67,19 @@ def run_benchmark(application: str, app_version: str) -> Popen:
 
     process = Popen(command, stdout=PIPE, stderr=PIPE, text=True)
 
-    # Use select to monitor stdout and stderr
-    while True:
-        # Wait until there's output available to read
-        reads, _, _ = select.select([process.stdout, process.stderr], [], [], 1.0)
+    # Start threads to read the stdout and stderr in real-time
+    stdout_thread = threading.Thread(target=read_output, args=(process.stdout, logging.info))
+    stderr_thread = threading.Thread(target=read_output, args=(process.stderr, logging.error))
 
-        for read in reads:
-            if read == process.stdout:
-                stdout_line = process.stdout.readline()
-                if stdout_line:
-                    logging.info(stdout_line.strip())
-                    sys.stdout.flush()  # Flush immediately to console
+    stdout_thread.start()
+    stderr_thread.start()
 
-                    # Check for error condition in stdout
-                    if "Error!:" in stdout_line:
-                        raise RuntimeError(f"Benchmark failed with error: {stdout_line.strip()}")
+    # Wait for the process to complete
+    process.wait()
 
-            if read == process.stderr:
-                stderr_line = process.stderr.readline()
-                if stderr_line:
-                    logging.error(stderr_line.strip())
-                    sys.stderr.flush()  # Flush immediately to console
-
-                    # Check for error condition in stderr
-                    if "Error!:" in stderr_line:
-                        raise RuntimeError(f"Benchmark failed with error: {stderr_line.strip()}")
-
-        # Exit when both stdout and stderr are empty and process is done
-        if process.poll() is not None and not any(select.select([process.stdout, process.stderr], [], [], 0.1)[0]):
-            break
-
+    # Wait for threads to finish reading output
+    stdout_thread.join()
+    stderr_thread.join()
     end_time = time.time()
 
     return start_time, end_time
