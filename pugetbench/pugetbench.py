@@ -76,21 +76,29 @@ def run_benchmark(application: str, app_version: str) -> Popen:
 
     logging.info(command)
 
-    process = Popen(command, stdout=PIPE, stderr=PIPE, text=True)
+    try:
+        # Run the command and wait for completion
+        process = Popen(command, stdout=PIPE, stderr=PIPE, text=True)
 
-    # Start threads to read the stdout and stderr in real-time
-    stdout_thread = threading.Thread(target=read_output, args=(process.stdout, logging.info, logging.error))
-    stderr_thread = threading.Thread(target=read_output, args=(process.stderr, logging.error, logging.error))
+        # Start threads to read the stdout and stderr in real-time
+        stdout_thread = threading.Thread(target=read_output, args=(process.stdout, logging.info, logging.error))
+        stderr_thread = threading.Thread(target=read_output, args=(process.stderr, logging.error, logging.error))
 
-    stdout_thread.start()
-    stderr_thread.start()
+        stdout_thread.start()
+        stderr_thread.start()
 
-    # Wait for the process to complete
-    process.wait()
+        # Wait for the process to complete
+        process.wait()
 
-    # Wait for threads to finish reading output
-    stdout_thread.join()
-    stderr_thread.join()
+        # Wait for threads to finish reading output
+        stdout_thread.join()
+        stderr_thread.join()
+
+    except RuntimeError as e:
+        # Catch the RuntimeError raised from read_output if "Error!:" is detected
+        logging.error(f"Benchmark failed with error: {e}")
+        return None, None  # Or handle it in whatever way you want
+    
     end_time = time.time()
 
     return start_time, end_time
