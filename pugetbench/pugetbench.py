@@ -46,10 +46,12 @@ def read_output(stream, log_func, error_func, error_in_output):
         if line.startswith("Error!:"):
             error_func(line)
             error_in_output["exception"] = RuntimeError(f"Benchmark failed with error: {line}")
+            break
         
         # If line contains "Benchmark failed:", store RuntimeError
         if line.startswith("Benchmark failed:"):
             error_in_output["exception"] = RuntimeError(f"Benchmark had an unknown failure.")
+            break
 
         sys.stdout.flush()  # optional here, but fine to keep
 
