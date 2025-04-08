@@ -57,35 +57,33 @@ def run_benchmark(application: str, app_version: str) -> Popen:
     logging.info(command)
 
     process = Popen(command, stdout=PIPE, stderr=PIPE, text=True)
-    stdout, stderr = process.communicate()  # this waits for process to complete
 
-    # Process stdout in real-time
+    # Read and print stdout and stderr in real time
     while True:
-        # Read stdout line-by-line as it is available
         stdout_line = process.stdout.readline()
         stderr_line = process.stderr.readline()
 
-        # If there's stdout to log, print it immediately
         if stdout_line:
             logging.info(stdout_line.strip())
-            sys.stdout.flush()  # Flush to console immediately
+            sys.stdout.flush()  # Flush immediately to console
 
-        # If there's stderr to log, print it immediately as an error
+            # Check for error condition in stdout
+            if "Error!:" in stdout_line:
+                raise RuntimeError(f"Benchmark failed with error: {stdout_line.strip()}")
+
         if stderr_line:
             logging.error(stderr_line.strip())
-            sys.stderr.flush()  # Flush to console immediately
+            sys.stderr.flush()  # Flush immediately to console
 
-        # Break the loop when both stdout and stderr have no more data to read
+            # Check for error condition in stderr
+            if "Error!:" in stderr_line:
+                raise RuntimeError(f"Benchmark failed with error: {stderr_line.strip()}")
+
+        # Exit when both stdout and stderr are empty and process is done
         if stdout_line == '' and stderr_line == '' and process.poll() is not None:
             break
 
     end_time = time.time()
-
-    # Catch-all for any line starting with 'Error!:'
-    combined_output = stdout + "\n" + stderr
-    for line in combined_output.splitlines():
-        if line.strip().startswith("Error!:"):
-            raise RuntimeError(f"Benchmark failed with error: {line}")
 
     return start_time, end_time
 
