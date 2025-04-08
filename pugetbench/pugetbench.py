@@ -6,7 +6,7 @@ import shutil
 import sys
 from argparse import ArgumentParser
 import time
-from subprocess import Popen
+from subprocess import Popen, PIPE
 from utils import find_latest_log, find_score_in_log, get_photoshop_version, get_premierepro_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
@@ -55,10 +55,17 @@ def run_benchmark(application: str, app_version: str) -> Popen:
 
     logging.info(command)
 
-    with Popen(command) as process:
-        exit_code = process.wait()
-        end_time = time.time()
-        return start_time, end_time, exit_code
+    process = Popen(command, stdout=PIPE, stderr=PIPE, text=True)
+    stdout, stderr = process.communicate()  # this waits for process to complete
+    end_time = time.time()
+
+    # Catch-all for any line starting with 'Error!:'
+    combined_output = stdout + "\n" + stderr
+    for line in combined_output.splitlines():
+        if line.strip().startswith("Error!:"):
+            raise RuntimeError(f"Benchmark failed with error: {line}")
+
+    return start_time, end_time
 
 def main():
     """main"""
@@ -106,11 +113,7 @@ def main():
     benchmark_version = get_latest_benchmark_by_version(args.app)
 
     try:
-        start_time, end_time, exit_code = run_benchmark(args.app, version)
-
-        if exit_code > 0:
-            logging.error("Test failed!")
-            sys.exit(exit_code)
+        start_time, end_time = run_benchmark(args.app, version)
         log_file = find_latest_log()
         score = find_score_in_log(log_file)
         destination = Path(script_dir) / "run" / os.path.split(log_file)[1]
