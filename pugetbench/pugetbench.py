@@ -7,6 +7,7 @@ import sys
 from argparse import ArgumentParser
 import time
 from subprocess import Popen, PIPE
+import select
 from utils import find_latest_log, find_score_in_log, get_photoshop_version, get_premierepro_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
@@ -62,19 +63,26 @@ def run_benchmark(application: str, app_version: str) -> Popen:
     stdout_lines = []
     stderr_lines = []
 
-    # Process the stdout in real-time
-    for line in iter(process.stdout.readline, ''):
-        stdout_lines.append(line)
-        logging.info(line.strip())  # Log each stdout line
-        # Flush stdout to console in real-time
-        sys.stdout.flush()
+    # Use select to check if there's data ready to be read on either stdout or stderr
+    while True:
+        # Wait for data on stdout or stderr
+        readable, _, _ = select.select([process.stdout, process.stderr], [], [], 1)
 
-    # Process the stderr in real-time
-    for line in iter(process.stderr.readline, ''):
-        stderr_lines.append(line)
-        logging.error(line.strip())  # Log each stderr line as errors
-        # Flush stderr to console in real-time
-        sys.stderr.flush()
+        for stream in readable:
+            line = stream.readline()
+            if line:
+                if stream == process.stdout:
+                    stdout_lines.append(line)
+                    logging.info(line.strip())  # Log stdout line in real time
+                    sys.stdout.flush()  # Flush immediately to console
+                elif stream == process.stderr:
+                    stderr_lines.append(line)
+                    logging.error(line.strip())  # Log stderr line in real time
+                    sys.stderr.flush()  # Flush immediately to console
+
+        # Check if the process has finished
+        if process.poll() is not None and not readable:
+            break
 
     end_time = time.time()
 
