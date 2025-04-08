@@ -75,8 +75,8 @@ def run_benchmark(application: str, app_version: str) -> Popen:
     process = Popen(command, stdout=PIPE, stderr=PIPE, text=True)
 
     # Start threads to read the stdout and stderr in real-time
-    stdout_thread = threading.Thread(target=read_output, args=(process.stdout, logging.info))
-    stderr_thread = threading.Thread(target=read_output, args=(process.stderr, logging.error))
+    stdout_thread = threading.Thread(target=read_output, args=(process.stdout, logging.info, logging.error))
+    stderr_thread = threading.Thread(target=read_output, args=(process.stderr, logging.error, logging.error))
 
     stdout_thread.start()
     stderr_thread.start()
