@@ -33,7 +33,7 @@ logging.getLogger('').addHandler(console)
 
 EXECUTABLE_NAME = "PugetBench for Creators.exe"
 
-def read_output(stream, log_func, error_func):
+def read_output(stream, log_func, error_func, error_in_output):
     """Read and log output in real-time from a stream (stdout or stderr)."""
     while True:
         line = stream.readline()
@@ -42,18 +42,18 @@ def read_output(stream, log_func, error_func):
         line = line.strip()
         log_func(line)  # Log the output
 
-        # If line contains "Error!:", raise RuntimeError
+        # If line contains "Error!:", store RuntimeError to be raised later
         if line.startswith("Error!:"):
             error_func(line)
-            raise RuntimeError(f"Benchmark failed with error: {line}")
+            error_in_output["exception"] = RuntimeError(f"Benchmark failed with error: {line}")
         
-        # If line contains "Error!:", raise RuntimeError
+        # If line contains "Benchmark failed:", store RuntimeError
         if line.startswith("Benchmark failed:"):
-            raise RuntimeError(f"Benchmark had an unknown failure.")
+            error_in_output["exception"] = RuntimeError(f"Benchmark had an unknown failure.")
 
-        sys.stdout.flush()  # or sys.stderr.flush()
+        sys.stdout.flush()  # optional here, but fine to keep
 
-def run_benchmark(application: str, app_version: str) -> Popen:
+def run_benchmark(application: str, app_version: str):
     """run benchmark"""
     start_time = time.time()
     benchmark_version = get_latest_benchmark_by_version(application)
@@ -76,30 +76,25 @@ def run_benchmark(application: str, app_version: str) -> Popen:
 
     logging.info(command)
 
-    try:
-        # Run the command and wait for completion
-        process = Popen(command, stdout=PIPE, stderr=PIPE, text=True)
+    process = Popen(command, stdout=PIPE, stderr=PIPE, text=True)
+    error_in_output = {"exception": None}  # Shared state for error reporting
 
-        # Start threads to read the stdout and stderr in real-time
-        stdout_thread = threading.Thread(target=read_output, args=(process.stdout, logging.info, logging.error))
-        stderr_thread = threading.Thread(target=read_output, args=(process.stderr, logging.error, logging.error))
+    stdout_thread = threading.Thread(target=read_output, args=(process.stdout, logging.info, logging.error, error_in_output))
+    stderr_thread = threading.Thread(target=read_output, args=(process.stderr, logging.error, logging.error, error_in_output))
 
-        stdout_thread.start()
-        stderr_thread.start()
+    stdout_thread.start()
+    stderr_thread.start()
 
-        # Wait for the process to complete
-        process.wait()
+    process.wait()
 
-        # Wait for threads to finish reading output
-        stdout_thread.join()
-        stderr_thread.join()
+    stdout_thread.join()
+    stderr_thread.join()
 
-    except RuntimeError as e:
-        # Catch the RuntimeError raised from read_output if "Error!:" is detected
-        logging.error(f"Benchmark failed with error: {e}")
-        return None, None  # Or handle it in whatever way you want
-    
     end_time = time.time()
+
+    # Raise the error if detected
+    if error_in_output["exception"]:
+        raise error_in_output["exception"]
 
     return start_time, end_time
 
@@ -108,12 +103,8 @@ def main():
     
     start_time = time.time()
     parser = ArgumentParser()
-    parser.add_argument(
-        "--app", dest="app", help="Application name to test", required=True
-    )
-    parser.add_argument(
-        "--app_version", dest="app_version", help="Application version to test", required=False
-    )
+    parser.add_argument("--app", dest="app", help="Application name to test", required=True)
+    parser.add_argument("--app_version", dest="app_version", help="Application version to test", required=False)
     args = parser.parse_args()
     apps = [
         "premierepro",
