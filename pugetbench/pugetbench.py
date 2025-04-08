@@ -59,29 +59,24 @@ def run_benchmark(application: str, app_version: str) -> Popen:
     process = Popen(command, stdout=PIPE, stderr=PIPE, text=True)
     stdout, stderr = process.communicate()  # this waits for process to complete
 
-    # Initialize empty lists to store output
-    stdout_lines = []
-    stderr_lines = []
-
-    # Use select to check if there's data ready to be read on either stdout or stderr
+    # Process stdout in real-time
     while True:
-        # Wait for data on stdout or stderr
-        readable, _, _ = select.select([process.stdout, process.stderr], [], [], 1)
+        # Read stdout line-by-line as it is available
+        stdout_line = process.stdout.readline()
+        stderr_line = process.stderr.readline()
 
-        for stream in readable:
-            line = stream.readline()
-            if line:
-                if stream == process.stdout:
-                    stdout_lines.append(line)
-                    logging.info(line.strip())  # Log stdout line in real time
-                    sys.stdout.flush()  # Flush immediately to console
-                elif stream == process.stderr:
-                    stderr_lines.append(line)
-                    logging.error(line.strip())  # Log stderr line in real time
-                    sys.stderr.flush()  # Flush immediately to console
+        # If there's stdout to log, print it immediately
+        if stdout_line:
+            logging.info(stdout_line.strip())
+            sys.stdout.flush()  # Flush to console immediately
 
-        # Check if the process has finished
-        if process.poll() is not None and not readable:
+        # If there's stderr to log, print it immediately as an error
+        if stderr_line:
+            logging.error(stderr_line.strip())
+            sys.stderr.flush()  # Flush to console immediately
+
+        # Break the loop when both stdout and stderr have no more data to read
+        if stdout_line == '' and stderr_line == '' and process.poll() is not None:
             break
 
     end_time = time.time()
