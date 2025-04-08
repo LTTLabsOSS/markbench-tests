@@ -33,13 +33,20 @@ logging.getLogger('').addHandler(console)
 
 EXECUTABLE_NAME = "PugetBench for Creators.exe"
 
-def read_output(stream, log_func):
+def read_output(stream, log_func, error_func):
     """Read and log output in real-time from a stream (stdout or stderr)."""
     while True:
         line = stream.readline()
         if not line:
             break
-        log_func(line.strip())
+        line = line.strip()
+        log_func(line)  # Log the output
+
+        # If line contains "Error!:", raise RuntimeError
+        if line.startswith("Error!:"):
+            error_func(line)
+            raise RuntimeError(f"Benchmark failed with error: {line}")
+
         sys.stdout.flush()  # or sys.stderr.flush()
 
 def run_benchmark(application: str, app_version: str) -> Popen:
