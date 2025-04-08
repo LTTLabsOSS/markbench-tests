@@ -58,29 +58,34 @@ def run_benchmark(application: str, app_version: str) -> Popen:
 
     process = Popen(command, stdout=PIPE, stderr=PIPE, text=True)
 
-    # Read and print stdout and stderr in real time
+    # Use select to monitor stdout and stderr
     while True:
-        stdout_line = process.stdout.readline()
-        stderr_line = process.stderr.readline()
+        # Wait until there's output available to read
+        reads, _, _ = select.select([process.stdout, process.stderr], [], [], 1.0)
 
-        if stdout_line:
-            logging.info(stdout_line.strip())
-            sys.stdout.flush()  # Flush immediately to console
+        for read in reads:
+            if read == process.stdout:
+                stdout_line = process.stdout.readline()
+                if stdout_line:
+                    logging.info(stdout_line.strip())
+                    sys.stdout.flush()  # Flush immediately to console
 
-            # Check for error condition in stdout
-            if "Error!:" in stdout_line:
-                raise RuntimeError(f"Benchmark failed with error: {stdout_line.strip()}")
+                    # Check for error condition in stdout
+                    if "Error!:" in stdout_line:
+                        raise RuntimeError(f"Benchmark failed with error: {stdout_line.strip()}")
 
-        if stderr_line:
-            logging.error(stderr_line.strip())
-            sys.stderr.flush()  # Flush immediately to console
+            if read == process.stderr:
+                stderr_line = process.stderr.readline()
+                if stderr_line:
+                    logging.error(stderr_line.strip())
+                    sys.stderr.flush()  # Flush immediately to console
 
-            # Check for error condition in stderr
-            if "Error!:" in stderr_line:
-                raise RuntimeError(f"Benchmark failed with error: {stderr_line.strip()}")
+                    # Check for error condition in stderr
+                    if "Error!:" in stderr_line:
+                        raise RuntimeError(f"Benchmark failed with error: {stderr_line.strip()}")
 
         # Exit when both stdout and stderr are empty and process is done
-        if stdout_line == '' and stderr_line == '' and process.poll() is not None:
+        if process.poll() is not None and not any(select.select([process.stdout, process.stderr], [], [], 0.1)[0]):
             break
 
     end_time = time.time()
