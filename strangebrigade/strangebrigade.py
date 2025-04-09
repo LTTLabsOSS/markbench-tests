@@ -54,7 +54,7 @@ def run_benchmark():
     remove_files(intro_videos)
     replace_exe()
     exec_steam_run_command(STEAM_GAME_ID)
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     time.sleep(30)
     am = ArtifactManager(LOG_DIRECTORY)
 
@@ -88,7 +88,7 @@ def run_benchmark():
     press_n_times("down", 5, 0.2)
     user.press("enter")
 
-    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
     result = kerasService.wait_for_word_vulkan("strange", interval=0.5, timeout=100, split_config=top_right_quad)
@@ -96,7 +96,7 @@ def run_benchmark():
         logging.info("Could not find FPS. Unable to mark start time!")
         sys.exit(1)
 
-    test_start_time = time.time()
+    test_start_time = int(time.time())
 
     time.sleep(55)  # Wait time for battle benchmark
 
@@ -106,7 +106,7 @@ def run_benchmark():
             "Results screen was not found! Did harness not wait long enough? Or test was too long?")
         sys.exit(1)
 
-    test_end_time = time.time() - 1
+    test_end_time = int(time.time()) - 1
 
     # Wait 5 seconds for benchmark info
     time.sleep(5)

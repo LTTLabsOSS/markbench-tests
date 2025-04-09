@@ -65,7 +65,7 @@ def run_benchmark(keras_host, keras_port):
     copy_benchmarkfiles()
     copy_benchmarksave()
     start_game()
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     time.sleep(5)
 
     result = keras_service.wait_for_word("credits", interval=0.5, timeout=100)
@@ -116,10 +116,10 @@ def run_benchmark(keras_host, keras_port):
     console_command("run benchmark.ini")
     time.sleep(1)
 
-    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
-    test_start_time = time.time()
+    test_start_time = int(time.time())
     time.sleep(30)
 
     result = keras_service.wait_for_word("finished", interval=0.2, timeout=250)
@@ -128,7 +128,7 @@ def run_benchmark(keras_host, keras_port):
             "Results screen was not found! Did harness not wait long enough? Or test was too long?")
         sys.exit(1)
 
-    test_end_time = time.time()
+    test_end_time = int(time.time())
 
     # Wait 5 seconds for benchmark info
     time.sleep(10)

@@ -45,7 +45,7 @@ def skip_logo_screens() -> None:
 def run_benchmark():
     am = ArtifactManager(LOG_DIRECTORY)
     start_game()
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     time.sleep(25)
 
     #skipping game intros
@@ -139,14 +139,14 @@ def run_benchmark():
     #starting the benchmark
     time.sleep(2)
     user.press("f5")
-    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
     result = kerasService.look_for_word("toggle", attempts=10, interval=1)
     if not result:
         logging.info("Did not find the toggle ui button in the lower right. Did the benchmark crash?")
         sys.exit(1)
-    test_start_time = time.time()
+    test_start_time = int(time.time())
 
     time.sleep(60) # wait for benchmark to complete
 
@@ -155,7 +155,7 @@ def run_benchmark():
         logging.info("Didn't find the results screen. Did the benchmark crash?")
         sys.exit(1)
 
-    test_end_time = time.time() - 1
+    test_end_time = int(time.time()) - 1
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)

@@ -59,7 +59,7 @@ def start_game():
 
 def run_benchmark(keras_service):
     """Run Marvel Rivals benchmark"""
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     start_game()
     
 
@@ -204,7 +204,7 @@ def run_benchmark(keras_service):
     time.sleep(0.5)
 
     #marking the in-time
-    setup_end_time = time.time()
+    setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
     time.sleep(2)
@@ -220,7 +220,7 @@ def run_benchmark(keras_service):
     if keras_service.wait_for_word(word="defend", timeout=30, interval=1) is None:
         logging.info("Didn't see the defend waypoint. Did the game crash?")
         sys.exit(1)
-    test_start_time = time.time() + 2
+    test_start_time = int(time.time()) + 2
     time.sleep(460)
 
     #checking that first round has finished
@@ -228,7 +228,7 @@ def run_benchmark(keras_service):
     if not result:
         logging.info("First round doesn't appear to have finished. Did the replay start?")
         sys.exit(1)
-    test_end_time = time.time()
+    test_end_time = int(time.time())
     
     am.copy_file(Path(cfg), ArtifactType.CONFIG_TEXT, "Marvel Rivals Video Config")
     logging.info("Run completed. Closing game.")

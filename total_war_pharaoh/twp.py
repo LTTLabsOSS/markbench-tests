@@ -82,7 +82,7 @@ def run_benchmark(keras_service):
     """Starts the benchmark"""
     cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
     start_game()
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     am = ArtifactManager(LOG_DIR)
     time.sleep(5)
 
@@ -166,7 +166,7 @@ def run_benchmark(keras_service):
     time.sleep(2)
     user.press("enter")
 
-    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
     result = keras_service.wait_for_word("fps", interval=0.5, timeout=100)
@@ -174,7 +174,7 @@ def run_benchmark(keras_service):
         logging.info("Could not find FPS. Unable to mark start time!")
         sys.exit(1)
 
-    test_start_time = time.time() - 2
+    test_start_time = int(time.time()) - 2
 
     time.sleep(90)  # Wait time for battle benchmark
 
@@ -185,7 +185,7 @@ def run_benchmark(keras_service):
         sys.exit(1)
 
     # Wait 5 seconds for benchmark info
-    test_end_time = time.time() - 1
+    test_end_time = int(time.time()) - 1
     time.sleep(5)
     am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
     time.sleep(0.5)

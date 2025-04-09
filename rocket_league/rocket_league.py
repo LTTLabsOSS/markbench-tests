@@ -90,7 +90,7 @@ def run_benchmark():
     # pylint: disable-msg=too-many-branches
     """Run the test!"""
     copy_replay()
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     start_game()
     time.sleep(30)  # wait for game to load into main menu
 
@@ -162,7 +162,7 @@ def run_benchmark():
 
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
 
-    setup_end_time = time.time()
+    setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
 
@@ -180,7 +180,7 @@ def run_benchmark():
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     logging.info("Benchmark started. Waiting for completion.")
     time.sleep(4)
-    test_start_time = time.time()
+    test_start_time = int(time.time())
 
     # wait for benchmark to complete
     time.sleep(359)
@@ -188,7 +188,7 @@ def run_benchmark():
     if kerasService.wait_for_word(word="turbopolsa", timeout=10, interval=1) is None:
         logging.info("Couldn't turbopolsa on the field. Did the benchmark play all the way through?")
         sys.exit(1)
-    test_end_time = time.time()
+    test_end_time = int(time.time())
     time.sleep(2)
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)

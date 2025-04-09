@@ -75,7 +75,7 @@ def run_benchmark():
     remove_files(intro_videos)
     exec_steam_run_command(STEAM_GAME_ID)
     am = ArtifactManager(LOG_DIRECTORY)
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
 
     time.sleep(10)
 
@@ -133,7 +133,7 @@ def run_benchmark():
     logging.info("Continue found. Starting opening scene benchmark.")
     user.press("space")
 
-    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
     result = kerasService.wait_for_word("vibes", interval=0.5, timeout=250)
@@ -141,7 +141,7 @@ def run_benchmark():
         logging.info("Good vibes were not found! Could not mark the start time.")
         sys.exit(1)
 
-    test_start_time = time.time()
+    test_start_time = int(time.time())
 
     time.sleep(216) # Wait for benchmark till the end time
 
@@ -150,7 +150,7 @@ def run_benchmark():
         logging.info("Waypoint distance was not found! Could not mark the end time.")
         sys.exit(1)
 
-    test_end_time = time.time()
+    test_end_time = int(time.time())
 
     time.sleep(13) # wait for No Rest For the Wicked Quest
 

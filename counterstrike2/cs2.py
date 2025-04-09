@@ -58,7 +58,7 @@ def console_command(command):
 def run_benchmark(keras_service):
     """Run cs2 benchmark"""
     copy_config()
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     start_game()
     am = ArtifactManager(LOG_DIR)
     time.sleep(20)  # wait for game to load into main menu
@@ -151,32 +151,32 @@ def run_benchmark(keras_service):
         logging.error("Didn't see the title of the benchmark. Did the map load?")
         sys.exit(1)
 
-    setup_end_time = time.time()
+    setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
     time.sleep(1)
 
     # Default fallback start time
-    test_start_time = time.time()
+    test_start_time = int(time.time())
 
     result = keras_service.wait_for_word(word="roll", timeout=30, interval=0.1)
     if result is None:
         logging.error("Didn't see \'lets roll\'. Did the map load?")
     else:
-        test_start_time = time.time()
+        test_start_time = int(time.time())
         logging.info("Saw \'lets roll\'! Marking the time.")
 
     time.sleep(112) # sleep duration during gameplay
 
     # Default fallback end time
-    test_end_time = time.time()
+    test_end_time = int(time.time())
 
     result = keras_service.wait_for_word(word="console", timeout=30, interval=0.1)
     if result is None:
         logging.error("The console didn't open. Please check settings and try again.")
         sys.exit(1)
     else:
-        test_end_time = time.time()
+        test_end_time = int(time.time())
         logging.info("The console opened. Marking end time.")
 
     # allow time for result screen to populate

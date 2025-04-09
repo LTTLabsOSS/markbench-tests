@@ -52,7 +52,7 @@ def benchmark_check():
 
 
 def run_benchmark():
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     am = ArtifactManager(log_dir)
     process_registry_file(hive, SUBKEY, input_file, config_file)
     am.copy_file(config_file, ArtifactType.CONFIG_TEXT, "config file")
@@ -84,7 +84,7 @@ def run_benchmark():
     gui.mouseUp()
     time.sleep(0.2)
 
-    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
     time.sleep(5)
@@ -94,7 +94,7 @@ def run_benchmark():
         logging.info("Did not find the statistics in the corner. Did the benchmark launch?")
         raise RuntimeError("Benchmark failed.")
 
-    test_start_time = time.time()
+    test_start_time = int(time.time())
   
     time.sleep(benchmark_time) # sleep during the benchmark which is indicated based on the benchmark detected.
     
@@ -103,7 +103,7 @@ def run_benchmark():
         logging.info("Did not find the overall FPS score. Did the benchmark crash?")
         raise RuntimeError("Benchmark failed.")
 
-    test_end_time = time.time() - 1
+    test_end_time = int(time.time()) - 1
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")

@@ -57,7 +57,7 @@ def run_benchmark():
     am = ArtifactManager(LOG_DIRECTORY)
     copy_replay()
     copy_config()
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     start_game()
     time.sleep(10)  # wait for game to load into main menu
 
@@ -128,31 +128,31 @@ def run_benchmark():
         logging.error("Didn't see directed camera. Did the replay load?")
         sys.exit(1)
 
-    setup_end_time = time.time()
+    setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
     time.sleep(23)
 
     # Default fallback start time
-    test_start_time = time.time()
+    test_start_time = int(time.time())
 
     result = kerasService.wait_for_word(word="2560", timeout=30, interval=0.1)
     if result is None:
         logging.error("Unable to find Leshrac's HP. Using default start time value.")
     else:
-        test_start_time = time.time()
+        test_start_time = int(time.time())
         logging.info("Found Leshrac's HP! Marking the start time accordingly.")
 
     time.sleep(73) # sleep duration during gameplay
 
     # Default fallback end time
-    test_end_time = time.time()
+    test_end_time = int(time.time())
 
     result = kerasService.wait_for_word(word="1195", timeout=30, interval=0.1)
     if result is None:
         logging.error("Unable to find gold count of 1195. Using default end time value.")
     else:
-        test_end_time = time.time()
+        test_end_time = int(time.time())
         logging.info("Found the gold. Marking end time.")
 
     time.sleep(2)

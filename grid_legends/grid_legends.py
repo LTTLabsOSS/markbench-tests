@@ -80,7 +80,7 @@ def start_game():
 
 def run_benchmark(keras_service):
     """Run Grid Legends benchmark"""
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     start_game()
     am = ArtifactManager(LOG_DIR)
 
@@ -136,14 +136,14 @@ def run_benchmark(keras_service):
     user.press("enter")
     time.sleep(0.2)
 
-    setup_end_time = time.time()
+    setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
 
     if keras_service.wait_for_word(word="manzi", timeout=30, interval=0.1) is None:
         logging.error("Didn't see Valentino Manzi. Did the benchmark load?")
         sys.exit(1)
-    test_start_time = time.time()
+    test_start_time = int(time.time())
 
     time.sleep(136)
     # TODO -> Mark benchmark start time using video OCR by looking for a players name
@@ -151,7 +151,7 @@ def run_benchmark(keras_service):
         logging.error("Didn't see results screen for the bnechmark. Could not mark start time! Did the benchmark crash?")
         sys.exit(1)
 
-    test_end_time = time.time() - 2
+    test_end_time = int(time.time()) - 2
     time.sleep(2)
 
     am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")

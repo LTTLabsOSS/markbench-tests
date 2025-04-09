@@ -36,7 +36,7 @@ CONFIG_FULL_PATH = Path("C:/Users/", getpass.getuser(), "Documents", "Rockstar G
 def run_benchmark():
     """Starts the benchmark"""
     # Wait for game to load to main menu
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     exec_steam_run_command(STEAM_GAME_ID)
     am = ArtifactManager(LOG_DIRECTORY)
     time.sleep(80)
@@ -129,7 +129,7 @@ def run_benchmark():
     user.keyUp("x")
 
     # Press enter to confirm benchmark
-    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
     user.press("enter")
 
@@ -138,7 +138,7 @@ def run_benchmark():
     if not result:
         logging.info("Did not find the stop benchmarking in the corner. Did the benchmark crash?")
         sys.exit(1)
-    test_start_time = time.time()
+    test_start_time = int(time.time())
 
     # Wait for the benchmark to complete
     time.sleep(270)  # 4 min, 30 seconds.
@@ -146,7 +146,7 @@ def run_benchmark():
     if not result:
         logging.info("Did not find the end results screen. Did the benchmark crash?")
         sys.exit(1)
-    test_end_time = time.time()
+    test_end_time = int(time.time())
     am.take_screenshot_vulkan("Results.png", ArtifactType.RESULTS_IMAGE, "Results Screenshot")
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)

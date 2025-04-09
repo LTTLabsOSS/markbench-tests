@@ -56,7 +56,7 @@ def run_benchmark():
     """Run the test!"""
 
     copy_save()
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     start_game()
     time.sleep(10)  # wait for game to load into main menu
 
@@ -126,7 +126,7 @@ def run_benchmark():
     press_n_times("right", 3, 0.2)
     user.press("enter")
     time.sleep(0.2)
-    setup_end_time = time.time()
+    setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
 
@@ -135,7 +135,7 @@ def run_benchmark():
         logging.error("Didn't see the word recap. Did the save game load?")
         sys.exit(1)
 
-    test_start_time = time.time()
+    test_start_time = int(time.time())
 
     # wait for benchmark to complete
     time.sleep(170)
@@ -143,7 +143,7 @@ def run_benchmark():
     if kerasService.wait_for_word(word="insane", timeout=60, interval=0.5) is None:
         logging.error("Didn't see the word insane. Did the game crash?")
         sys.exit(1)
-    test_end_time = time.time()
+    test_end_time = int(time.time())
     time.sleep(2)
     logging.info("Run completed. Closing game.")
     am.copy_file(CONFIG_PATH, ArtifactType.CONFIG_TEXT, "renderer.ini")

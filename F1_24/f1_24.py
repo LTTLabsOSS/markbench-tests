@@ -119,7 +119,7 @@ def run_benchmark():
     exec_steam_run_command(STEAM_GAME_ID)
     am = ArtifactManager(LOG_DIRECTORY)
 
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     time.sleep(2)
     navigate_startup()
 
@@ -185,7 +185,7 @@ def run_benchmark():
     user.press("enter")
     time.sleep(2)
 
-    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
     result = kerasService.wait_for_word("lap", interval=0.5, timeout=90)
@@ -194,7 +194,7 @@ def run_benchmark():
         sys.exit(1)
 
     logging.info("Benchmark started. Waiting for benchmark to complete.")
-    test_start_time = time.time() + 8
+    test_start_time = int(time.time()) + 8
 
     # sleep for 3 laps
     time.sleep(310)
@@ -204,7 +204,7 @@ def run_benchmark():
     result = kerasService.wait_for_word("loading", interval=0.5, timeout=90)
     if result:
         logging.info("Found the loading screen. Marking the out time.")
-        test_end_time = time.time() - 2
+        test_end_time = int(time.time()) - 2
         time.sleep(2)
     else:
         logging.info("Could not find the loading screen. Could not mark end time!")
@@ -222,7 +222,7 @@ def run_benchmark():
 
     if test_end_time is None:
         logging.info("Loading screen end time not found. Using results screen fallback time.")
-        test_end_time = time.time()
+        test_end_time = int(time.time())
 
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
