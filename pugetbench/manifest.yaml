@@ -12,4 +12,6 @@ options:
     values:
       - premierepro
       - photoshop
+      - aftereffects
+      - resolve
     tooltip: Select which test to run

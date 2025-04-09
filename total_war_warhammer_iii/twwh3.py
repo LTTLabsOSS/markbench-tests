@@ -68,7 +68,7 @@ def skip_logo_screens() -> None:
 def run_benchmark():
     """Starts the benchmark"""
     start_game()
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     time.sleep(5)
     am = ArtifactManager(LOG_DIRECTORY)
 
@@ -130,7 +130,7 @@ def run_benchmark():
         time.sleep(2)
         user.press("enter")
 
-    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
     result = kerasService.wait_for_word("fps", interval=0.5, timeout=100)
@@ -138,7 +138,7 @@ def run_benchmark():
         logging.info("Could not find FPS. Unable to mark start time!")
         sys.exit(1)
 
-    test_start_time = time.time()
+    test_start_time = int(time.time())
 
     if args.benchmark != "battle":
         time.sleep(65) # Wait time for MOM benchmark
@@ -151,7 +151,7 @@ def run_benchmark():
             "Results screen was not found! Did harness not wait long enough? Or test was too long?")
         sys.exit(1)
 
-    test_end_time = time.time() - 1
+    test_end_time = int(time.time()) - 1
 
     # Wait 5 seconds for benchmark info
     time.sleep(5)

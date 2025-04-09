@@ -91,7 +91,7 @@ def run_benchmark() -> tuple[float]:
 
     logging.info("Starting game")
     exec_steam_run_command(STEAM_GAME_ID)
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     am = ArtifactManager(LOG_DIRECTORY)
 
     time.sleep(10)
@@ -161,7 +161,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(5)
     user.keyUp("tab")
 
-    setup_end_time = time.time()
+    setup_end_time = int(time.time())
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
     logging.info("Setup took %s seconds", elapsed_setup_time)
 
@@ -171,7 +171,7 @@ def run_benchmark() -> tuple[float]:
             "Performance graph was not found! Could not mark the start time.")
         sys.exit(1)
 
-    test_start_time = time.time()
+    test_start_time = int(time.time())
 
     # Wait for benchmark to complete
     time.sleep(112)
@@ -182,7 +182,7 @@ def run_benchmark() -> tuple[float]:
         logging.info(
             "Didn't see signal lost. Could not mark the proper end time!")
 
-    test_end_time = round(time.time() - 2)
+    test_end_time = round(int(time.time()) - 2)
 
     result = kerasService.wait_for_word("benchmark", interval=0.5, timeout=15)
     if not result:

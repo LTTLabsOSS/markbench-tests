@@ -1,4 +1,4 @@
-"""3DMark test script"""
+"""UL Procyon AI Text Generation test script"""
 from argparse import ArgumentParser
 import logging
 from pathlib import Path
@@ -6,7 +6,7 @@ import subprocess
 import sys
 import time
 import psutil
-from utilities import regex_find_score_in_xml, is_process_running, get_install_path
+from utils import regex_find_score_in_xml, is_process_running, get_install_path, find_procyon_version, find_test_version
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -196,12 +196,17 @@ try:
                     sys.exit(1)
 
                 report = {
-                    "test": test_type[0],
-                    "unit": "score",
-                    "score": score,
                     "start_time": seconds_to_milliseconds(start_time),
-                    "end_time": seconds_to_milliseconds(end_time)
+                    "end_time": seconds_to_milliseconds(end_time),
+                    "test": test_type[0],
+                    "test_version": find_test_version(),
+                    "procyon_version": find_procyon_version(),
+                    "unit": "score",
+                    "score": score
+                    
                 }
+
+                
 
                 session_report.append(report)
 

@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 Changes are grouped by the date they are merged to the main branch of the repository and are ordered from newest to oldest. Dates use the ISO 8601 extended calendar date format, i.e. YYYY-MM-DD.
 
+## 2025-04-02
+- Fixed Keras not finding the FPS in Shadow of the Tomb Raider
+- Added a screenshot function for Vulkan games for Keras-OCR via DXcam
+- Added Keras functionality to Red Dead Redemption 2
+- Added Strange Brigade (VK) to the team
+- Updated PugetBench harness to include Davinci and After Effects
+- Updated PugetBench to more consistently find version numbers and include them in the report.json
+- Updated Rocket League harness to check what camera it is on and keep flipping through till it's on the correct one
+- Updated Procyon AI harnesses to have verison numbers in report.json
+- Replaced the hardcoded path for Cyberpunk2077 and instead use the get_app_install_location instead
+- Added DOTA 2 screenshotting for video config
+- Added beta harness of Marvel Rivals
+- Added game version lookup to Epic Games based games and a function in the misc.py
+- Reintroducing Hitman World of Assassination and Far Cry 6 with updated keras and artifact manager functions
+
 ## 2025-03-17
 
 - Update to Ashes of the Singularity Escalation harness to have PresentMon

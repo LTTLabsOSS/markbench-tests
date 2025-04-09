@@ -160,7 +160,7 @@ def run_benchmark():
     copy_no_intro_mod()
 
     # Start game via Steam and enter fullscreen mode
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     start_game()
 
     time.sleep(20)
@@ -173,7 +173,7 @@ def run_benchmark():
     navigate_settings()
 
     # Start the benchmark!
-    setup_end_time = time.time()
+    setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
 
@@ -182,7 +182,7 @@ def run_benchmark():
         logging.info("Benchmark didn't start.")
         sys.exit(1)
 
-    test_start_time = time.time() - 5
+    test_start_time = int(time.time()) - 5
 
     logging.info("Benchmark started. Waiting for benchmark to complete.")
     time.sleep(60)
@@ -193,7 +193,7 @@ def run_benchmark():
 
     am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "results of benchmark")
 
-    test_end_time = time.time() - 2
+    test_end_time = int(time.time()) - 2
     time.sleep(2)
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)

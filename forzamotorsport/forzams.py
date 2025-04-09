@@ -50,7 +50,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(10)
     logging.info("Starting game")
     exec_steam_run_command(STEAM_GAME_ID)
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     am = ArtifactManager(LOG_DIRECTORY)
 
     time.sleep(50)
@@ -112,7 +112,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(0.5)
     user.press("enter")
 
-    setup_end_time = time.time()
+    setup_end_time = int(time.time())
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
     logging.info("Setup took %s seconds", elapsed_setup_time)
 
@@ -123,7 +123,7 @@ def run_benchmark() -> tuple[float]:
         sys.exit(1)
     am.take_screenshot("results.png", ArtifactType.CONFIG_IMAGE, "picture of results screen")
 
-    test_start_time = time.time()
+    test_start_time = int(time.time())
 
     # Wait for benchmark to complete
     time.sleep(180)
@@ -133,7 +133,7 @@ def run_benchmark() -> tuple[float]:
         logging.info("Did not find the results screen. Did the game crash during the run?")
         sys.exit(1)
 
-    test_end_time = round(time.time())
+    test_end_time = round(int(time.time()))
     # Give results screen time to fill out, then save screenshot and config file
     time.sleep(2)
     am.copy_file(LOCAL_USER_SETTINGS, ArtifactType.CONFIG_TEXT, "config file")
