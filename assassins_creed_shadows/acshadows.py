@@ -27,10 +27,28 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
 PROCESS_NAME = "ACShadows.exe" #-----------------------------------------------------------------------
 STEAM_GAME_ID = 3159330
-CONFIG_LOCATION = f"%USERPROFILE%\Documents\Assassin's Creed Shadows" #-----------------------------------------------------------------------
+CONFIG_LOCATION = f"C:\\Users\\Administrator\\Documents\\Assassin's Creed Shadows" #-----------------------------------------------------------------------
 CONFIG_FILENAME = "ACShadows.ini"#-----------------------------------------------------------------------
 
 user.FAILSAFE = False
+
+def read_current_resolution():
+    """Reads resolutions settings from local game file"""
+    height_pattern = re.compile(r"FullscreenWidth=(\d+)")
+    width_pattern = re.compile(r"FullscreenHeight=(\d+)")
+    cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
+    height_value = 0
+    width_value = 0
+    with open(cfg, encoding="utf-8") as file:
+        lines = file.readlines()
+        for line in lines:
+            height_match = height_pattern.search(line)
+            width_match = width_pattern.search(line)
+            if height_match is not None:
+                height_value = height_match.group(1)
+            if width_match is not None:
+                width_value = width_match.group(1)
+    return (height_value, width_value)
 
 def find_word(keras_service, word, msg, timeout = 30, interval = 1):
     if keras_service.wait_for_word(word = word, timeout = timeout, interval = interval) is None:
@@ -130,7 +148,7 @@ def main():
     args = parser.parse_args()
     keras_service = KerasService(args.keras_host, args.keras_port)
     start_time, endtime = run_benchmark(keras_service)
-    height, width = 0,0
+    height, width = read_current_resolution()
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
