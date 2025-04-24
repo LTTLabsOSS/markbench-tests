@@ -1,3 +1,4 @@
+#pylint: disable=missing-module-docstring
 from argparse import ArgumentParser
 import logging
 import os
@@ -19,7 +20,7 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT
 )
-from harness_utils.steam import get_app_install_location, get_build_id, exec_steam_game
+from harness_utils.steam import get_build_id, exec_steam_game
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.misc import press_n_times
@@ -28,7 +29,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
 PROCESS_NAME = "ACShadows.exe"
 STEAM_GAME_ID = 3159330
-CONFIG_LOCATION = f"C:\\Users\\Administrator\\Documents\\Assassin's Creed Shadows" 
+CONFIG_LOCATION = "C:\\Users\\Administrator\\Documents\\Assassin's Creed Shadows"
 CONFIG_FILENAME = "ACShadows.ini"
 
 user.FAILSAFE = False
@@ -52,16 +53,18 @@ def read_current_resolution():
     return (height_value, width_value)
 
 def find_word(keras_service, word, msg, timeout = 30, interval = 1):
+    """function to call keras """
     if keras_service.wait_for_word(word = word, timeout = timeout, interval = interval) is None:
         logging.info(msg)
         sys.exit(1)
 
 
 def int_time():
+    """rounds time to int"""
     return int(time.time())
 
-#function to delete intro videos
 def delete_videos():
+    """deletes intro videos"""
     base_dir = r"C:\Program Files (x86)\Steam\steamapps\common\Assassin's Creed Shadows"
     videos_dir = os.path.join(base_dir, "videos")
     videos_en_dir = os.path.join(videos_dir, "en")
@@ -81,11 +84,12 @@ def delete_videos():
         if os.path.exists(file_path):
             try:
                 os.remove(file_path)
-                logging.info(f"Deleted: {file_path}")
+                logging.info("Deleted: %f", file_path)
             except Exception as e:
-                logging.error(f"Error deleting {file_path}: {e}")
+                logging.error("Error deleting %f: %e", file_path, e)
 
 def move_benchmark_file():
+    """moves html benchmark results to log folder"""
     src_dir = r"C:\Users\Administrator\Documents\Assassin's Creed Shadows\benchmark_reports"
 
     for filename in os.listdir(src_dir):
@@ -97,11 +101,10 @@ def move_benchmark_file():
                 os.rename(src_path, dest_path)
                 logging.info("Benchmark HTML moved")
             except Exception as e:
-                logging.error(f"Failed to move {src_path}: {e}")
+                logging.error("Failed to move %s: %e", src_path, e)
         else:
             logging.error("Benchmark HTML not found.")
 
-        
 def start_game():
     """Starts the game process"""
     exec_steam_game(STEAM_GAME_ID)
@@ -144,7 +147,7 @@ def navi_settings(am):
     user.press("esc")
 
 def run_benchmark(keras_service):
-
+    """runs the benchmark"""
     delete_videos()
     start_game()
     setup_start_time = int_time()
@@ -177,6 +180,7 @@ def run_benchmark(keras_service):
 
     setup_end_time = int_time()
     elapsed_setup_time = setup_end_time - setup_start_time
+    logging.info("Setup took %f seconds", elapsed_setup_time)
 
     if keras_service.wait_for_word(word = "benchmark", timeout = 30, interval = 1) is None:
         logging.info("did not find benchmark")
@@ -198,13 +202,13 @@ def run_benchmark(keras_service):
     am.take_screenshot("benchmark_results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
 
     user.press("x")
-    
+
     time.sleep(5)
 
     user.press("esc")
 
     move_benchmark_file()
-    
+
     time.sleep(5)
 
     terminate_processes(PROCESS_NAME)
