@@ -199,10 +199,13 @@ def run_benchmark(keras_service):
 
     user.press("x")
     
-    time.sleep(1)
+    time.sleep(5)
 
     user.press("esc")
-    time.sleep(10)
+
+    move_benchmark_file()
+    
+    time.sleep(5)
 
     terminate_processes(PROCESS_NAME)
 
