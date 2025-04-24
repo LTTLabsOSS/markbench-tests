@@ -26,10 +26,10 @@ from harness_utils.misc import press_n_times
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
-PROCESS_NAME = "ACShadows.exe" #-----------------------------------------------------------------------
+PROCESS_NAME = "ACShadows.exe"
 STEAM_GAME_ID = 3159330
-CONFIG_LOCATION = f"C:\\Users\\Administrator\\Documents\\Assassin's Creed Shadows" #-----------------------------------------------------------------------
-CONFIG_FILENAME = "ACShadows.ini"#-----------------------------------------------------------------------
+CONFIG_LOCATION = f"C:\\Users\\Administrator\\Documents\\Assassin's Creed Shadows" 
+CONFIG_FILENAME = "ACShadows.ini"
 
 user.FAILSAFE = False
 
@@ -91,31 +91,8 @@ def start_game():
     exec_steam_game(STEAM_GAME_ID)
     logging.info("Launching Game from Steam")
 
-def run_benchmark(keras_service):
-
-    delete_videos()
-    start_game()
-    setup_start_time = int_time()
-    am = ArtifactManager(LOG_DIR)
-    time.sleep(20)
-
-    if keras_service.wait_for_word(word="animus", timeout=30, interval = 1) is None:
-        logging.info("did not find main menu")
-        sys.exit(1)
-
-    user.press("f1")
-
-    find_word(keras_service, "system", "couldn't find system")
-
-    user.press("down")
-
-    time.sleep(1)
-
-    user.press("space")
-
-    find_word(keras_service, "benchmark", "couldn't find benchmark")
-
-    #take pictures of settings here
+def navi_settings(am):
+    """navigates and takes pictures of settings"""
     user.press("space")
 
     time.sleep(1)
@@ -150,7 +127,31 @@ def run_benchmark(keras_service):
 
     user.press("esc")
 
-    #exit settings
+def run_benchmark(keras_service):
+
+    delete_videos()
+    start_game()
+    setup_start_time = int_time()
+    am = ArtifactManager(LOG_DIR)
+    time.sleep(20)
+
+    if keras_service.wait_for_word(word="animus", timeout=30, interval = 1) is None:
+        logging.info("did not find main menu")
+        sys.exit(1)
+
+    user.press("f1")
+
+    find_word(keras_service, "system", "couldn't find system")
+
+    user.press("down")
+
+    time.sleep(1)
+
+    user.press("space")
+
+    find_word(keras_service, "benchmark", "couldn't find benchmark")
+
+    navi_settings(am)
 
     user.press("down")
 
@@ -174,6 +175,7 @@ def run_benchmark(keras_service):
         sys.exit(1)
 
     test_end_time = int_time()
+    
     elapsed_test_time = test_end_time - test_start_time
     logging.info("Benchmark took %f seconds", elapsed_test_time)
 
@@ -187,6 +189,7 @@ def run_benchmark(keras_service):
     time.sleep(10)
 
     terminate_processes(PROCESS_NAME)
+
     am.create_manifest()
 
     return test_start_time, test_end_time
@@ -205,7 +208,6 @@ def setup_logging():
 
 
 def main():
-    logging.info("main function")
     """entry point"""
     parser = ArgumentParser()
     parser.add_argument("--kerasHost", dest="keras_host",
@@ -222,9 +224,7 @@ def main():
         "end_time": seconds_to_milliseconds(endtime),
         "version": get_build_id(STEAM_GAME_ID)
     }
-    logging.info("right before write report")
     write_report_json(LOG_DIR, "report.json", report)
-
 
 if __name__ == "__main__":
     try:
