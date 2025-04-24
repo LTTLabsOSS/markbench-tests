@@ -62,7 +62,29 @@ def int_time():
 
 #function to delete intro videos
 def delete_videos():
-    return
+    base_dir = r"C:\Program Files (x86)\Steam\steamapps\common\Assassin's Creed Shadows"
+    videos_dir = os.path.join(base_dir, "videos")
+    videos_en_dir = os.path.join(videos_dir, "en")
+
+    # List of video files to delete
+    videos_to_delete = [
+        os.path.join(videos_dir, "ANVIL_Logo.webm"),
+        os.path.join(videos_dir, "INTEL_Logo.webm"),
+        os.path.join(videos_dir, "HUB_Bootflow_FranchiseIntro.webm"),
+        os.path.join(videos_dir, "UbisoftLogo.webm"),
+        os.path.join(videos_en_dir, "Epilepsy.webm"),
+        os.path.join(videos_en_dir, "warning_disclaimer.webm"),
+        os.path.join(videos_en_dir, "WarningSaving.webm")
+    ]
+
+    for file_path in videos_to_delete:
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+                logging.info(f"Deleted: {file_path}")
+            except Exception as e:
+                logging.error(f"Error deleting {file_path}: {e}")
+
 
 def start_game():
     """Starts the game process"""
@@ -70,6 +92,8 @@ def start_game():
     logging.info("Launching Game from Steam")
 
 def run_benchmark(keras_service):
+
+    delete_videos()
     start_game()
     setup_start_time = int_time()
     am = ArtifactManager(LOG_DIR)
