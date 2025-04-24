@@ -85,7 +85,23 @@ def delete_videos():
             except Exception as e:
                 logging.error(f"Error deleting {file_path}: {e}")
 
+def move_benchmark_file():
+    src_dir = r"C:\Users\Administrator\Documents\Assassin's Creed Shadows\benchmark_reports"
 
+    for filename in os.listdir(src_dir):
+        src_path = os.path.join(src_dir, filename)
+        dest_path = os.path.join(LOG_DIR, filename)
+
+        if os.path.isfile(src_path):
+            try:
+                os.rename(src_path, dest_path)
+                logging.info("Benchmark HTML moved")
+            except Exception as e:
+                logging.error(f"Failed to move {src_path}: {e}")
+        else:
+            logging.error("Benchmark HTML not found.")
+
+        
 def start_game():
     """Starts the game process"""
     exec_steam_game(STEAM_GAME_ID)
@@ -175,7 +191,7 @@ def run_benchmark(keras_service):
         sys.exit(1)
 
     test_end_time = int_time()
-    
+
     elapsed_test_time = test_end_time - test_start_time
     logging.info("Benchmark took %f seconds", elapsed_test_time)
 
