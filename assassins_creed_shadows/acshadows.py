@@ -152,9 +152,9 @@ def run_benchmark(keras_service):
     start_game()
     setup_start_time = int_time()
     am = ArtifactManager(LOG_DIR)
-    time.sleep(20)
+    time.sleep(30)
 
-    if keras_service.wait_for_word(word="animus", timeout=30, interval = 1) is None:
+    if keras_service.wait_for_word(word="animus", timeout=130, interval = 1) is None:
         logging.info("did not find main menu")
         sys.exit(1)
 
@@ -182,7 +182,7 @@ def run_benchmark(keras_service):
     elapsed_setup_time = setup_end_time - setup_start_time
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
-    if keras_service.wait_for_word(word = "benchmark", timeout = 30, interval = 1) is None:
+    if keras_service.wait_for_word(word = "benchmark", timeout = 50, interval = 1) is None:
         logging.info("did not find benchmark")
         sys.exit(1)
 
@@ -194,7 +194,7 @@ def run_benchmark(keras_service):
         logging.info("did not find end screen")
         sys.exit(1)
 
-    test_end_time = int_time()
+    test_end_time = int_time()-2
 
     elapsed_test_time = test_end_time - test_start_time
     logging.info("Benchmark took %f seconds", elapsed_test_time)
