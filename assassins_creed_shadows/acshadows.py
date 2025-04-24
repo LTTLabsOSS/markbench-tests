@@ -22,6 +22,7 @@ from harness_utils.output import (
 from harness_utils.steam import get_app_install_location, get_build_id, exec_steam_game
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.misc import press_n_times
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
@@ -90,6 +91,43 @@ def run_benchmark(keras_service):
 
     find_word(keras_service, "benchmark", "couldn't find benchmark")
 
+    #take pictures of settings here
+    user.press("space")
+
+    time.sleep(1)
+
+    am.take_screenshot("display1.png", ArtifactType.CONFIG_IMAGE, "display settings 1")
+
+    press_n_times("down", 13, 0.3)
+
+    am.take_screenshot("display2.png", ArtifactType.CONFIG_IMAGE, "display settings 2")
+
+    press_n_times("down", 4, 0.3)
+
+    am.take_screenshot("display3.png", ArtifactType.CONFIG_IMAGE, "display settings 3")
+
+    user.press("c")
+
+    time.sleep(1)
+
+    am.take_screenshot("scalability1.png", ArtifactType.CONFIG_IMAGE, "scalability settings 1")
+
+    press_n_times("down", 10, 0.3)
+
+    am.take_screenshot("scalability2.png", ArtifactType.CONFIG_IMAGE, "scalability settings 2")
+
+    press_n_times("down", 6, 0.3)
+
+    am.take_screenshot("scalability3.png", ArtifactType.CONFIG_IMAGE, "scalability settings 3")
+
+    press_n_times("down", 5, 0.3)
+
+    am.take_screenshot("scalability4.png", ArtifactType.CONFIG_IMAGE, "scalability settings 4")
+
+    user.press("esc")
+
+    #exit settings
+
     user.press("down")
 
     time.sleep(1)
@@ -116,7 +154,12 @@ def run_benchmark(keras_service):
     logging.info("Benchmark took %f seconds", elapsed_test_time)
 
     am.take_screenshot("benchmark_results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+
+    user.press("x")
     
+    time.sleep(1)
+
+    user.press("esc")
     time.sleep(10)
 
     terminate_processes(PROCESS_NAME)
