@@ -8,6 +8,8 @@ import sys
 import re
 import pydirectinput as user
 
+import winreg
+
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 from harness_utils.keras_service import KerasService
@@ -46,23 +48,28 @@ def setup_logging():
     console.setFormatter(formatter)
     logging.getLogger('').addHandler(console)
 
-def read_current_resolution():
-    """Reads resolutions settings from local game file"""
-    height_pattern = re.compile(r"FullscreenWidth=(\d+)")
-    width_pattern = re.compile(r"FullscreenHeight=(\d+)")
-    cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
-    height_value = 0
-    width_value = 0
-    with open(cfg, encoding="utf-8") as file:
-        lines = file.readlines()
-        for line in lines:
-            height_match = height_pattern.search(line)
-            width_match = width_pattern.search(line)
-            if height_match is not None:
-                height_value = height_match.group(1)
-            if width_match is not None:
-                width_value = width_match.group(1)
-    return (height_value, width_value)
+def get_current_resolution():
+    """Reads resolutions settings from registry"""
+    key_path = r"SOFTWARE\NaughtyDog\The Last of Us Part II\Graphics"
+    fullscreen_width = read_registry_value(key_path, "FullscreenWidth")
+    fullscreen_height = read_registry_value(key_path, "FullscreenHeight")
+
+    return (fullscreen_height, fullscreen_width)    
+    
+
+def read_registry_value(key_path, value_name):
+    """Reads resolutions settings from registry"""
+    try:
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path) as key:
+            value, _ = winreg.QueryValueEx(key, "WindowedResolution")
+            return value
+    except FileNotFoundError:
+        logging.error("Registry key not found: %s", value_name)
+        return None
+    except OSError as e:
+        logging.error("Error reading registry value: %s", e)
+        return None
+    
 
 def run_benchmark(keras_service: KerasService) -> tuple:
     return (0,0)
@@ -76,4 +83,5 @@ def main():
                         help="Port for Keras OCR service", required=True)
     args = parser.parse_args()
     keras_service = KerasService(args.keras_host, args.keras_port)
+    print(get_current_resolution())
     start_time, endtime = run_benchmark(keras_service)
