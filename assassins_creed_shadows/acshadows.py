@@ -14,7 +14,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
     format_resolution,
-    setup_log_directory,
+    setup_logging,
     write_report_json,
     seconds_to_milliseconds,
     DEFAULT_LOGGING_FORMAT,
@@ -23,7 +23,7 @@ from harness_utils.output import (
 from harness_utils.steam import get_build_id, exec_steam_game
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.misc import press_n_times
+from harness_utils.misc import press_n_times, int_time, find_word
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
@@ -52,18 +52,6 @@ def read_current_resolution():
             if width_match is not None:
                 width_value = width_match.group(1)
     return (height_value, width_value)
-
-
-def find_word(keras_service, word, msg, timeout=30, interval=1):
-    """function to call keras """
-    if keras_service.wait_for_word(word=word, timeout=timeout, interval=interval) is None:
-        logging.info(msg)
-        sys.exit(1)
-
-
-def int_time():
-    """rounds time to int"""
-    return int(time.time())
 
 
 def delete_videos():
@@ -162,13 +150,11 @@ def run_benchmark(keras_service):
     am = ArtifactManager(LOG_DIR)
     time.sleep(20)
 
-    if keras_service.wait_for_word(word="animus", timeout=30, interval=1) is None:
-        logging.info("did not find main menu")
-        sys.exit(1)
+    find_word(keras_service, "animus", "Couldn't find Main Menu: 'Animus'")
 
     user.press("f1")
 
-    find_word(keras_service, "system", "couldn't find system")
+    find_word(keras_service, "system", "Couldn't find 'System' button")
 
     user.press("down")
 
@@ -176,9 +162,11 @@ def run_benchmark(keras_service):
 
     user.press("space")
 
-    find_word(keras_service, "benchmark", "couldn't find benchmark")
+    find_word(keras_service, "benchmark", "couldn't find 'benchmark' on screen before settings")
 
     navi_settings(am)
+
+    find_word(keras_service, "benchmark", "couldn't find 'benchmark' on screen after settings")
 
     user.press("down")
 
@@ -190,17 +178,13 @@ def run_benchmark(keras_service):
     elapsed_setup_time = setup_end_time - setup_start_time
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
-    if keras_service.wait_for_word(word="benchmark", timeout=30, interval=1) is None:
-        logging.info("did not find benchmark")
-        sys.exit(1)
+    find_word(keras_service, "benchmark", "did not find 'benchmark'")
 
     test_start_time = int_time()
 
     time.sleep(100)
 
-    if keras_service.wait_for_word(word="results", timeout=60, interval=1) is None:
-        logging.info("did not find end screen")
-        sys.exit(1)
+    find_word(keras_service, "results", "did not find results screen", 60)
 
     test_end_time = int_time()
 
@@ -226,19 +210,6 @@ def run_benchmark(keras_service):
     return test_start_time, test_end_time
 
 
-def setup_logging():
-    """setup logging"""
-    setup_log_directory(LOG_DIR)
-    logging.basicConfig(filename=f'{LOG_DIR}/harness.log',
-                        format=DEFAULT_LOGGING_FORMAT,
-                        datefmt=DEFAULT_DATE_FORMAT,
-                        level=logging.DEBUG)
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
-
-
 def main():
     """entry point"""
     parser = ArgumentParser()
@@ -261,7 +232,7 @@ def main():
 
 if __name__ == "__main__":
     try:
-        setup_logging()
+        setup_logging(LOG_DIR)
         main()
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")
