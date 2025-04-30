@@ -10,6 +10,8 @@ import requests
 import vgamepad as vg
 import json
 import re
+import sys
+from harness_utils.output import setup_log_directory
 
 class LTTGamePad360(vg.VX360Gamepad):
     """
@@ -19,7 +21,8 @@ class LTTGamePad360(vg.VX360Gamepad):
     This class extension provides some useful functions to make your code look a little cleaner when 
     implemented in our harnesses.
     """
-    def single_press(self, button = vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN, pause = 0.1):
+
+    def single_press(self, button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN, pause=0.1):
         """ 
         Custom function to perform a single press of a specified gamepad button
 
@@ -59,6 +62,7 @@ class LTTGamePad360(vg.VX360Gamepad):
             self.single_press(button)
             time.sleep(pause)
 
+
 class LTTGamePadDS4(vg.VDS4Gamepad):
     """
     Class extension for the virtual game pad library
@@ -67,7 +71,8 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
     This class extension provides some useful functions to make your code look a little cleaner when 
     implemented in our harnesses.
     """
-    def single_button_press(self, button = vg.DS4_BUTTONS.DS4_BUTTON_CROSS, fastpause = 0.05):
+
+    def single_button_press(self, button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS, fastpause=0.05):
         """ 
         Custom function to perform a single press of a specified gamepad digital button
 
@@ -95,7 +100,6 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
         time.sleep(fastpause)
         self.release_button(button=button)
         self.update()
-        
 
     def button_press_n_times(self, button: vg.DS4_BUTTONS, n: int, pause: float):
         """
@@ -105,7 +109,7 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
             self.single_button_press(button)
             time.sleep(pause)
 
-    def single_dpad_press(self, direction = vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, pause = 0.1):
+    def single_dpad_press(self, direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, pause=0.1):
         """ 
         Custom function to perform a single press of a specified gamepad button
 
@@ -139,6 +143,7 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
             self.single_dpad_press(direction)
             time.sleep(pause)
 
+
 def clickme(x: int, y: int):
     """Pyautogui's click function sucks, this should do the trick"""
     gui.moveTo(x, y)
@@ -147,10 +152,11 @@ def clickme(x: int, y: int):
     time.sleep(0.2)
     gui.mouseUp()
 
+
 def mouse_scroll_n_times(n: int, scroll_amount: int, pause: float):
     """
     Pyautogui's mouse scroll function often fails to actually scroll in game menus, this functions solves that problem
-    
+
     n --> the number of times you want to scroll, should be a positive integer
     scroll_amount --> positive is scroll up, negative is scroll down
     pause --> the amount of time to pause betwee subsequent scrolls
@@ -159,11 +165,18 @@ def mouse_scroll_n_times(n: int, scroll_amount: int, pause: float):
         gui.vscroll(scroll_amount)
         time.sleep(pause)
 
+
+def int_time() -> int:
+    """Returns the current time in seconds since epoch as an integer"""
+    return int(time.time())
+
+
 def press_n_times(key: str, n: int, pause: float):
     """A helper function press the same button multiple times"""
     for _ in range(n):
         user.press(key)
         time.sleep(pause)
+
 
 def remove_files(paths: list[str]) -> None:
     """Removes files specified by provided list of file paths.
@@ -199,7 +212,7 @@ def extract_file_from_archive(zip_file: Path, member_path: str, destination_dir:
 def find_eg_game_version(gamefoldername: str) -> str:
     """Find the version of the specific game (e.g., AlanWake2) from the launcher installed data."""
     installerdat = r"C:\ProgramData\Epic\UnrealEngineLauncher\LauncherInstalled.dat"
-    
+
     try:
         # Open the file and read its entire content
         with open(installerdat, encoding="utf-8") as file:
@@ -213,7 +226,7 @@ def find_eg_game_version(gamefoldername: str) -> str:
 
         # Extract the InstallationList part from the file
         installation_list_json = installation_list_match.group(1)
-        
+
         # Load the installation list as JSON
         installation_list = json.loads(installation_list_json)
 
@@ -228,3 +241,9 @@ def find_eg_game_version(gamefoldername: str) -> str:
         print(f"Error: {e}")
 
     return None
+
+def find_word(keras_service, word, msg, timeout=30, interval=1):
+    """Function to call Keras service to find a word in the screen"""
+    if keras_service.wait_for_word(word=word, timeout=timeout, interval=interval) is None:
+        logging.info(msg)
+        sys.exit(1)
