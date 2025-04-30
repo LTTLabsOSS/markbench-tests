@@ -76,9 +76,9 @@ def delete_videos():
         if os.path.exists(file_path):
             try:
                 os.remove(file_path)
-                logging.info("Deleted: %f", file_path)
+                logging.info("Deleted: %s", file_path)
             except Exception as e:
-                logging.error("Error deleting %f: %e", file_path, e)
+                logging.error("Error deleting %s: %e", file_path, e)
 
 
 def move_benchmark_file():
