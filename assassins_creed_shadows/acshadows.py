@@ -1,4 +1,4 @@
-#pylint: disable=missing-module-docstring
+# pylint: disable=missing-module-docstring
 from argparse import ArgumentParser
 import logging
 import os
@@ -10,7 +10,7 @@ import pydirectinput as user
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-#pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
     format_resolution,
@@ -34,6 +34,7 @@ CONFIG_FILENAME = "ACShadows.ini"
 
 user.FAILSAFE = False
 
+
 def read_current_resolution():
     """Reads resolutions settings from local game file"""
     height_pattern = re.compile(r"FullscreenWidth=(\d+)")
@@ -52,9 +53,10 @@ def read_current_resolution():
                 width_value = width_match.group(1)
     return (height_value, width_value)
 
-def find_word(keras_service, word, msg, timeout = 30, interval = 1):
+
+def find_word(keras_service, word, msg, timeout=30, interval=1):
     """function to call keras """
-    if keras_service.wait_for_word(word = word, timeout = timeout, interval = interval) is None:
+    if keras_service.wait_for_word(word=word, timeout=timeout, interval=interval) is None:
         logging.info(msg)
         sys.exit(1)
 
@@ -62,6 +64,7 @@ def find_word(keras_service, word, msg, timeout = 30, interval = 1):
 def int_time():
     """rounds time to int"""
     return int(time.time())
+
 
 def delete_videos():
     """deletes intro videos"""
@@ -74,6 +77,7 @@ def delete_videos():
         os.path.join(videos_dir, "ANVIL_Logo.webm"),
         os.path.join(videos_dir, "INTEL_Logo.webm"),
         os.path.join(videos_dir, "HUB_Bootflow_FranchiseIntro.webm"),
+        os.path.join(videos_dir, "HUB_Bootflow_AbstergoIntro.webm"),
         os.path.join(videos_dir, "UbisoftLogo.webm"),
         os.path.join(videos_en_dir, "Epilepsy.webm"),
         os.path.join(videos_en_dir, "warning_disclaimer.webm"),
@@ -87,6 +91,7 @@ def delete_videos():
                 logging.info("Deleted: %f", file_path)
             except Exception as e:
                 logging.error("Error deleting %f: %e", file_path, e)
+
 
 def move_benchmark_file():
     """moves html benchmark results to log folder"""
@@ -105,10 +110,12 @@ def move_benchmark_file():
         else:
             logging.error("Benchmark HTML not found.")
 
+
 def start_game():
     """Starts the game process"""
     exec_steam_game(STEAM_GAME_ID)
     logging.info("Launching Game from Steam")
+
 
 def navi_settings(am):
     """navigates and takes pictures of settings"""
@@ -146,6 +153,7 @@ def navi_settings(am):
 
     user.press("esc")
 
+
 def run_benchmark(keras_service):
     """runs the benchmark"""
     delete_videos()
@@ -154,7 +162,7 @@ def run_benchmark(keras_service):
     am = ArtifactManager(LOG_DIR)
     time.sleep(20)
 
-    if keras_service.wait_for_word(word="animus", timeout=30, interval = 1) is None:
+    if keras_service.wait_for_word(word="animus", timeout=30, interval=1) is None:
         logging.info("did not find main menu")
         sys.exit(1)
 
@@ -182,7 +190,7 @@ def run_benchmark(keras_service):
     elapsed_setup_time = setup_end_time - setup_start_time
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
-    if keras_service.wait_for_word(word = "benchmark", timeout = 30, interval = 1) is None:
+    if keras_service.wait_for_word(word="benchmark", timeout=30, interval=1) is None:
         logging.info("did not find benchmark")
         sys.exit(1)
 
@@ -190,7 +198,7 @@ def run_benchmark(keras_service):
 
     time.sleep(100)
 
-    if keras_service.wait_for_word(word = "results", timeout = 30, interval = 1) is None:
+    if keras_service.wait_for_word(word="results", timeout=30, interval=1) is None:
         logging.info("did not find end screen")
         sys.exit(1)
 
@@ -216,6 +224,7 @@ def run_benchmark(keras_service):
     am.create_manifest()
 
     return test_start_time, test_end_time
+
 
 def setup_logging():
     """setup logging"""
@@ -248,6 +257,7 @@ def main():
         "version": get_build_id(STEAM_GAME_ID)
     }
     write_report_json(LOG_DIR, "report.json", report)
+
 
 if __name__ == "__main__":
     try:
