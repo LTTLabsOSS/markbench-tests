@@ -29,7 +29,7 @@ from harness_utils.steam import (
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
-from harness_utils.misc import int_time
+from harness_utils.misc import int_time, find_word, press_n_times
 
 STEAM_GAME_ID = 2531310
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
