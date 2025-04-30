@@ -13,6 +13,7 @@ import re
 import sys
 from harness_utils.output import setup_log_directory
 
+
 class LTTGamePad360(vg.VX360Gamepad):
     """
     Class extension for the virtual game pad library
@@ -171,7 +172,7 @@ def int_time() -> int:
     return int(time.time())
 
 
-def press_n_times(key: str, n: int, pause: float):
+def press_n_times(key: str, n: int, pause: float = 0.2):
     """A helper function press the same button multiple times"""
     for _ in range(n):
         user.press(key)
@@ -242,8 +243,9 @@ def find_eg_game_version(gamefoldername: str) -> str:
 
     return None
 
+
 def find_word(keras_service, word, msg, timeout=30, interval=1):
     """Function to call Keras service to find a word in the screen"""
     if keras_service.wait_for_word(word=word, timeout=timeout, interval=interval) is None:
-        logging.info(msg)
+        logging.error(msg)
         sys.exit(1)
