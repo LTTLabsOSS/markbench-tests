@@ -198,7 +198,7 @@ def run_benchmark(keras_service):
 
     time.sleep(100)
 
-    if keras_service.wait_for_word(word="results", timeout=30, interval=1) is None:
+    if keras_service.wait_for_word(word="results", timeout=60, interval=1) is None:
         logging.info("did not find end screen")
         sys.exit(1)
 
