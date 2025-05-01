@@ -165,6 +165,7 @@ def navigate_settings(am: ArtifactManager) -> None:
 
 
 def main():
+    """Main function to run the benchmark"""
     try:
         logging.info("Starting The Last of Us Part II benchmark")
         parser = ArgumentParser()
@@ -179,16 +180,17 @@ def main():
         resolution_tuple = get_current_resolution()
         report = {
             "resolution": format_resolution(resolution_tuple[0], resolution_tuple[1]),
-            "start_time": start_time,
-            "end_time": end_time,
+            "start_time": seconds_to_milliseconds(start_time),  # secconds to miliseconds
+            "end_time": seconds_to_milliseconds(end_time),
         }
         write_report_json(LOG_DIRECTORY, "report.json", report)
-        
+
     except Exception as e:
         logging.error("An error occurred: %s", e)
         logging.exception(e)
         terminate_processes(PROCESS_NAME)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     setup_logging(LOG_DIRECTORY)
