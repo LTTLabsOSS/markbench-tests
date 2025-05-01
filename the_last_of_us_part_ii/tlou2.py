@@ -8,6 +8,8 @@ import pydirectinput as user
 
 import winreg  # for accessing settings, including resolution, in the registry
 
+import shutil
+
 sys.path.insert(1, str(Path(sys.path[0]).parent))
 
 from harness_utils.keras_service import KerasService
@@ -26,12 +28,33 @@ from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 from harness_utils.misc import int_time, find_word, press_n_times
 
+
 STEAM_GAME_ID = 2531310
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "tlou-ii.exe"
 
 user.FAILSAFE = False
+
+
+def reset_savedata():
+    """
+    Deletes the savegame folder from the local directory and replaces it with a new one from the network drive.
+    """
+    local_savegame_path = Path(r"C:\Users\Administrator\Documents\The Last of Us Part II\76561199405246658\savedata")
+    network_savegame_path = Path(r"L:\03_ProcessingFiles\The Last of Us Part II\savedata")
+
+    # Delete the local savedata folder if it exists
+    if local_savegame_path.exists() and local_savegame_path.is_dir():
+        shutil.rmtree(local_savegame_path)
+        logging.info("Deleted local savedata folder: %s", local_savegame_path)
+
+    # Copy the savedata folder from the network drive
+    try:
+        shutil.copytree(network_savegame_path, local_savegame_path)
+        logging.info("Copied savedata folder from %s to %s", network_savegame_path, local_savegame_path)
+    except Exception as e:
+        logging.error("Failed to copy savedata folder: %s", e)
 
 
 def get_current_resolution():
@@ -48,7 +71,10 @@ def get_current_resolution():
 
 
 def read_registry_value(key_path, value_name):
-    """Reads resolutions settings from registry"""
+    """
+    Reads value from registry
+        A helper function for get_current_resolution
+    """
     try:
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path) as key:
             value, _ = winreg.QueryValueEx(key, value_name)
@@ -171,6 +197,8 @@ def main():
                             help="Port for Keras OCR service", required=True)
         args = parser.parse_args()
         keras_service = KerasService(args.keras_host, args.keras_port)
+
+        reset_savedata()
 
         start_time, end_time = run_benchmark(keras_service)
         resolution_tuple = get_current_resolution()
