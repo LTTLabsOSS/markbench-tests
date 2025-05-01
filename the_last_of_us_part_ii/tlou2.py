@@ -60,10 +60,11 @@ def reset_savedata():
         logging.error("Failed to copy savedata folder: %s", e)
 
     # Check if the newly copied directory contains a folder called SAVEFILE0A
-    savefile_path = local_savegame_path / "SAVEFILE0A" # check for autosaved file, delete if exists
-    if savefile_path.exists() and savefile_path.is_dir():
-        shutil.rmtree(savefile_path)
-        logging.info("Deleted folder: %s", savefile_path)
+    def delete_autosave():
+        savefile_path = local_savegame_path / "SAVEFILE0A"  # check for autosaved file, delete if exists
+        if savefile_path.exists() and savefile_path.is_dir():
+            shutil.rmtree(savefile_path)
+            logging.info("Deleted folder: %s", savefile_path)
 
 
 def get_current_resolution():
@@ -114,13 +115,20 @@ def run_benchmark(keras_service: KerasService) -> tuple:
     # navigate settings
     navigate_settings(am, keras_service)
 
+    find_word(keras_service, "story", "Couldn't find main menu the second time : 'story'")
+
     press_n_times("up", 2)
 
     user.press("space")
 
     time.sleep(0.3)
 
-    user.press("down")
+    if keras_service.wait_for_word(word="continue", timeout=5, interval=0.2) is None:
+        user.press("down")
+    else:
+        press_n_times("down", 2)
+
+    reset_savedata().delete_autosave()
 
     time.sleep(0.3)
 
@@ -128,7 +136,16 @@ def run_benchmark(keras_service: KerasService) -> tuple:
 
     time.sleep(0.3)
 
-    user.press("space")
+    if keras_service.wait_for_word(word="autosave", timeout=5, interval=0.2) is None:
+
+        user.press("space")
+
+    else:
+        user.press("up")
+
+        time.sleep(0.3)
+
+        user.press("space")
 
     time.sleep(0.3)
 
@@ -138,24 +155,31 @@ def run_benchmark(keras_service: KerasService) -> tuple:
 
     user.press("space")
 
-    setup_end_time = int_time()
+    setup_end_time = test_start_time = test_end_time = int_time()
+
     elapsed_setup_time = setup_end_time - setup_start_time
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
-    test_start_time = int_time()
+    # time of benchmark usually is 4:23 = 263 seconds
 
-    if keras_service.wait_for_word(word="man", timeout=60, interval=0.2) is None:
+    if keras_service.wait_for_word(word="man", timeout=100, interval=0.2) is not None:
+
+        test_start_time = int_time() - 14
+        time.sleep(240)
+
+    else:
+
         logging.error("couldn't find 'man'")
-    else:
-        test_start_time = int_time() - 60
+        time.sleep(150)
 
-    time.sleep(240)
+    if keras_service.wait_for_word(word="rush", timeout=100, interval=0.2) is not None:
 
-    if keras_service.wait_for_word(word="rush", timeout=100, interval=0.2) is None:
-        logging.error("couldn't find 'rush', marks end of benchmark")
-        test_end_time = int_time()
-    else:
         time.sleep(3)
+        test_end_time = int_time()
+
+    else:
+
+        logging.error("couldn't find 'rush', marks end of benchmark")
         test_end_time = int_time()
 
     elapsed_test_time = test_end_time - test_start_time
