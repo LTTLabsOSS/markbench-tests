@@ -93,7 +93,7 @@ def run_benchmark(keras_service: KerasService) -> tuple:
     setup_start_time = int_time()
     am = ArtifactManager(LOG_DIRECTORY)
 
-    if keras_service.wait_for_word(word="sony", timeout=60, interval=0.5) is None:
+    if keras_service.wait_for_word(word="sony", timeout=60, interval=0.2) is None:
         logging.error("Couldn't find 'sony'")
     else:
         user.press("escape")
@@ -128,15 +128,15 @@ def run_benchmark(keras_service: KerasService) -> tuple:
     if keras_service.wait_for_word(word="man", timeout=60, interval=0.2) is None:
         logging.error("couldn't find 'man'")
     else:
-        test_start_time = int_time() - 15
+        test_start_time = int_time() - 60
 
-    time.sleep(260)
+    time.sleep(240)
 
-    if keras_service.wait_for_word(word="ellie", timeout=60, interval=0.2) is None:
-        logging.error("couldn't find 'ellie'")
-        test_end_time = int_time()
+    if keras_service.wait_for_word(word="rush", timeout=100, interval=0.2) is None:
+        logging.error("couldn't find 'rush', marks end of benchmark")
+        test_end_time = int_time() + 3
     else:
-        test_end_time = int_time() - 10
+        test_end_time = int_time()
 
     elapsed_test_time = test_end_time - test_start_time
     logging.info("Test took %f seconds", elapsed_test_time)
