@@ -1,5 +1,4 @@
 """The Last of Us Part I test script"""
-from argparse import ArgumentParser
 import logging
 from pathlib import Path
 import time
@@ -26,7 +25,11 @@ from harness_utils.steam import (
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
-from harness_utils.misc import int_time, find_word, press_n_times
+from harness_utils.misc import (
+    int_time,
+    find_word,
+    press_n_times,
+    keras_args)
 
 
 STEAM_GAME_ID = 2531310
@@ -103,7 +106,7 @@ def run_benchmark(keras_service: KerasService) -> tuple:
     press_n_times("down", 2)
 
     # navigate settings
-    navigate_settings(am)
+    navigate_settings(am, keras_service)
 
     press_n_times("up", 2)
 
@@ -148,12 +151,14 @@ def run_benchmark(keras_service: KerasService) -> tuple:
     return test_start_time, test_end_time
 
 
-def navigate_settings(am: ArtifactManager) -> None:
+def navigate_settings(am: ArtifactManager, keras: KerasService) -> None:
     """Navigate through settings and take screenshots. 
     Exits to main menu after taking screenshots.
     """
 
     user.press("space")
+
+    find_word(keras, "display", "Couldn't find display")
 
     press_n_times("down", 4)
 
@@ -161,9 +166,13 @@ def navigate_settings(am: ArtifactManager) -> None:
 
     time.sleep(0.5)
 
+    find_word(keras, "resolution", "Couldn't find resolution")
+
     am.take_screenshot("display1.png", ArtifactType.CONFIG_IMAGE, "display settings 1")
 
     user.press("up")
+
+    find_word(keras, "brightness", "Couldn't find brightness")
 
     am.take_screenshot("display2.png", ArtifactType.CONFIG_IMAGE, "display settings 2")
 
@@ -171,14 +180,20 @@ def navigate_settings(am: ArtifactManager) -> None:
 
     time.sleep(0.5)
 
+    find_word(keras, "preset", "Couldn't find preset")
+
     am.take_screenshot("graphics1.png", ArtifactType.CONFIG_IMAGE, "graphics settings 1")
 
     user.press("up")
+
+    find_word(keras, "dirt", "Couldn't find dirt")
 
     am.take_screenshot("graphics3.png", ArtifactType.CONFIG_IMAGE,
                        "graphics settings 3")  # is at the bottom of the menu
 
     press_n_times("up", 12)
+
+    find_word(keras, "scattering", "Couldn't find scattering")
 
     am.take_screenshot("graphics2.png", ArtifactType.CONFIG_IMAGE, "graphics settings 2")
 
@@ -189,13 +204,8 @@ def main():
     """Main function to run the benchmark"""
     try:
         logging.info("Starting The Last of Us Part II benchmark")
-        parser = ArgumentParser()
-        parser.add_argument("--kerasHost", dest="keras_host",
-                            help="Host for Keras OCR service", required=True)
-        parser.add_argument("--kerasPort", dest="keras_port",
-                            help="Port for Keras OCR service", required=True)
-        args = parser.parse_args()
-        keras_service = KerasService(args.keras_host, args.keras_port)
+
+        keras_service = KerasService(keras_args().keras_host, keras_args().keras_port)
 
         reset_savedata()
 

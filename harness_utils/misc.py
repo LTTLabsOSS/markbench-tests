@@ -1,4 +1,5 @@
 """Misc utility functions"""
+from argparse import ArgumentParser
 import logging
 import os
 from pathlib import Path
@@ -171,7 +172,7 @@ def int_time() -> int:
     return int(time.time())
 
 
-def press_n_times(key: str, n: int, pause: float = 0.2):
+def press_n_times(key: str, n: int, pause: float = 0.5):
     """A helper function press the same button multiple times"""
     for _ in range(n):
         user.press(key)
@@ -248,3 +249,13 @@ def find_word(keras_service, word, msg, timeout=30, interval=1):
     if keras_service.wait_for_word(word=word, timeout=timeout, interval=interval) is None:
         logging.error(msg)
         sys.exit(1)
+
+
+def keras_args():
+    """helper function to get args for keras"""
+    parser = ArgumentParser()
+    parser.add_argument("--kerasHost", dest="keras_host",
+                        help="Host for Keras OCR service", required=True)
+    parser.add_argument("--kerasPort", dest="keras_port",
+                        help="Port for Keras OCR service", required=True)
+    return parser.parse_args()
