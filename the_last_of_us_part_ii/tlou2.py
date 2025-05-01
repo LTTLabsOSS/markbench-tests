@@ -1,16 +1,14 @@
 """The Last of Us Part I test script"""
 from argparse import ArgumentParser
 import logging
-import os
 from pathlib import Path
 import time
 import sys
-import re
 import pydirectinput as user
 
 import winreg
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, str(Path(sys.path[0]).parent))
 
 from harness_utils.keras_service import KerasService
 from harness_utils.output import (
@@ -18,12 +16,9 @@ from harness_utils.output import (
     seconds_to_milliseconds,
     write_report_json,
     setup_logging,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT,
 )
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
-    get_registry_active_user,
     exec_steam_run_command,
 )
 
@@ -32,8 +27,8 @@ from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.misc import int_time, find_word, press_n_times
 
 STEAM_GAME_ID = 2531310
-SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "tlou-ii.exe"
 
 user.FAILSAFE = False
