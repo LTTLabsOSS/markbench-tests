@@ -112,13 +112,23 @@ def run_benchmark(keras_service: KerasService) -> tuple:
 
     user.press("space")
 
+    time.sleep(0.3)
+
     user.press("down")
 
-    user.press("space")
+    time.sleep(0.3)
 
     user.press("space")
+
+    time.sleep(0.3)
+
+    user.press("space")
+
+    time.sleep(0.3)
 
     user.press("left")
+
+    time.sleep(0.3)
 
     user.press("space")
 
