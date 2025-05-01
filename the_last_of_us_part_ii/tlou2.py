@@ -44,7 +44,8 @@ def reset_savedata():
     """
     Deletes the savegame folder from the local directory and replaces it with a new one from the network drive.
     """
-    local_savegame_path = Path(r"C:\Users\Administrator\Documents\The Last of Us Part II\76561199405246658\savedata")
+    local_savegame_path = Path(
+        r"C:\Users\Administrator\Documents\The Last of Us Part II\76561199405246658\savedata")  # make this global
     network_savegame_path = Path(r"\\Labs\Labs\03_ProcessingFiles\The Last of Us Part II\savedata")
 
     # Delete the local savedata folder if it exists
@@ -60,11 +61,14 @@ def reset_savedata():
         logging.error("Failed to copy savedata folder: %s", e)
 
     # Check if the newly copied directory contains a folder called SAVEFILE0A
-    def delete_autosave():
-        savefile_path = local_savegame_path / "SAVEFILE0A"  # check for autosaved file, delete if exists
-        if savefile_path.exists() and savefile_path.is_dir():
-            shutil.rmtree(savefile_path)
-            logging.info("Deleted folder: %s", savefile_path)
+
+
+def delete_autosave():
+    local_savegame_path = Path(r"C:\Users\Administrator\Documents\The Last of Us Part II\76561199405246658\savedata")
+    savefile_path = local_savegame_path / "SAVEFILE0A"  # check for autosaved file, delete if exists
+    if savefile_path.exists() and savefile_path.is_dir():
+        shutil.rmtree(savefile_path)
+        logging.info("Deleted folder: %s", savefile_path)
 
 
 def get_current_resolution():
@@ -128,7 +132,7 @@ def run_benchmark(keras_service: KerasService) -> tuple:
     else:
         press_n_times("down", 2)
 
-    reset_savedata().delete_autosave()
+    delete_autosave()
 
     time.sleep(0.3)
 
