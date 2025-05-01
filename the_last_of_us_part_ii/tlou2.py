@@ -6,7 +6,7 @@ import time
 import sys
 import pydirectinput as user
 
-import winreg # for accessing settings, including resolution, in the registry
+import winreg  # for accessing settings, including resolution, in the registry
 
 sys.path.insert(1, str(Path(sys.path[0]).parent))
 
