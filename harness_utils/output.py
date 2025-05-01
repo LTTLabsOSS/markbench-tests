@@ -6,6 +6,7 @@ import logging
 DEFAULT_LOGGING_FORMAT = '%(asctime)s %(levelname)-s %(message)s'
 DEFAULT_DATE_FORMAT = '%m-%d %H:%M'
 
+
 def setup_log_directory(log_dir: str) -> None:
     """Creates the log directory for a harness if it does not already exist"""
     if not os.path.isdir(log_dir):
@@ -27,11 +28,12 @@ def seconds_to_milliseconds(seconds: float | int) -> int:
     """Convert seconds to milliseconds"""
     return round((seconds * 1000))
 
-def setup_logging(LOG_DIRECTORY: str) -> None:
-    """Sets up logging for the harness"""
-    setup_log_directory(LOG_DIRECTORY)
 
-    logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
+def setup_logging(log_directory: str) -> None:
+    """Sets up logging for the harness"""
+    setup_log_directory(log_directory)
+
+    logging.basicConfig(filename=f'{log_directory}/harness.log',
                         format=DEFAULT_LOGGING_FORMAT,
                         datefmt=DEFAULT_DATE_FORMAT,
                         level=logging.DEBUG)
@@ -39,4 +41,3 @@ def setup_logging(LOG_DIRECTORY: str) -> None:
     formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
     console.setFormatter(formatter)
     logging.getLogger('').addHandler(console)
-
