@@ -205,6 +205,8 @@ def navigate_settings(am: ArtifactManager, keras: KerasService) -> None:
 
     find_word(keras, "display", "Couldn't find display")
 
+    time.sleep(5)  # slow cards may miss the first down
+
     press_n_times("down", 4)
 
     user.press("space")
