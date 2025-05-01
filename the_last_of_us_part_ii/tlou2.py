@@ -42,7 +42,7 @@ def reset_savedata():
     Deletes the savegame folder from the local directory and replaces it with a new one from the network drive.
     """
     local_savegame_path = Path(r"C:\Users\Administrator\Documents\The Last of Us Part II\76561199405246658\savedata")
-    network_savegame_path = Path(r"L:\03_ProcessingFiles\The Last of Us Part II\savedata")
+    network_savegame_path = Path(r"\\Labs\Labs\03_ProcessingFiles\The Last of Us Part II\savedata")
 
     # Delete the local savedata folder if it exists
     if local_savegame_path.exists() and local_savegame_path.is_dir():
@@ -92,9 +92,8 @@ def run_benchmark(keras_service: KerasService) -> tuple:
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int_time()
     am = ArtifactManager(LOG_DIRECTORY)
-    time.sleep(20)
 
-    if keras_service.wait_for_word(word="sony", timeout=30, interval=0.5) is None:
+    if keras_service.wait_for_word(word="sony", timeout=60, interval=0.5) is None:
         logging.error("Couldn't find 'sony'")
     else:
         user.press("escape")
