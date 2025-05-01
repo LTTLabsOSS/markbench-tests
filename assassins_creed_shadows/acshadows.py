@@ -8,7 +8,7 @@ import sys
 import re
 import pydirectinput as user
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, str(Path(sys.path[0]).parent))
 
 # pylint: disable=wrong-import-position
 from harness_utils.process import terminate_processes
@@ -17,18 +17,18 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
     seconds_to_milliseconds,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT
 )
 from harness_utils.steam import get_build_id, exec_steam_game
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.misc import press_n_times, int_time, find_word
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
-PROCESS_NAME = "ACShadows.exe"
+
 STEAM_GAME_ID = 3159330
+SCRIPT_DIR = Path(__file__).resolve().parent
+LOG_DIR = SCRIPT_DIR / "run"
+PROCESS_NAME = "ACShadows.exe"
+
 CONFIG_LOCATION = "C:\\Users\\Administrator\\Documents\\Assassin's Creed Shadows"
 CONFIG_FILENAME = "ACShadows.ini"
 
