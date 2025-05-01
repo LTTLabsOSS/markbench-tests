@@ -11,7 +11,6 @@ import vgamepad as vg
 import json
 import re
 import sys
-from harness_utils.output import setup_log_directory
 
 
 class LTTGamePad360(vg.VX360Gamepad):
