@@ -62,13 +62,14 @@ def read_registry_value(key_path, value_name):
 
 
 def run_benchmark(keras_service: KerasService) -> tuple:
+    """Starts Game, Sets Settings, and Runs Benchmark"""
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int_time()
     am = ArtifactManager(LOG_DIRECTORY)
     time.sleep(20)
 
     if keras_service.wait_for_word(word="sony", timeout=30, interval=0.5) is None:
-        logging.error("couldn't find 'sony'")
+        logging.error("Couldn't find 'sony'")
     else:
         user.press("escape")
 
