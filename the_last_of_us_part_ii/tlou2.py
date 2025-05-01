@@ -59,6 +59,12 @@ def reset_savedata():
     except Exception as e:
         logging.error("Failed to copy savedata folder: %s", e)
 
+    # Check if the newly copied directory contains a folder called SAVEFILE0A
+    savefile_path = local_savegame_path / "SAVEFILE0A" # check for autosaved file, delete if exists
+    if savefile_path.exists() and savefile_path.is_dir():
+        shutil.rmtree(savefile_path)
+        logging.info("Deleted folder: %s", savefile_path)
+
 
 def get_current_resolution():
     """
@@ -147,8 +153,9 @@ def run_benchmark(keras_service: KerasService) -> tuple:
 
     if keras_service.wait_for_word(word="rush", timeout=100, interval=0.2) is None:
         logging.error("couldn't find 'rush', marks end of benchmark")
-        test_end_time = int_time() + 3
+        test_end_time = int_time()
     else:
+        time.sleep(3)
         test_end_time = int_time()
 
     elapsed_test_time = test_end_time - test_start_time
