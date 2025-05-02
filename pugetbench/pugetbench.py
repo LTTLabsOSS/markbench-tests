@@ -33,6 +33,7 @@ logging.getLogger('').addHandler(console)
 
 EXECUTABLE_NAME = "PugetBench for Creators.exe"
 
+
 def read_output(stream, log_func, error_func, error_in_output):
     """Read and log output in real-time from a stream (stdout or stderr)."""
     while True:
@@ -45,44 +46,51 @@ def read_output(stream, log_func, error_func, error_in_output):
         # If line contains "Error!:", store RuntimeError to be raised later
         if line.startswith("Error!:"):
             error_func(line)
-            error_in_output["exception"] = RuntimeError(f"Benchmark failed with error: {line}")
+            error_in_output["exception"] = RuntimeError(
+                f"Benchmark failed with error: {line}")
             break
-        
+
         # If line contains "Benchmark failed:", store RuntimeError
         if line.startswith("Benchmark failed:"):
-            error_in_output["exception"] = RuntimeError(f"Benchmark had an unknown failure.")
+            error_in_output["exception"] = RuntimeError(
+                f"Benchmark had an unknown failure.")
             break
 
         sys.stdout.flush()  # optional here, but fine to keep
 
-def run_benchmark(application: str, app_version: str):
+
+def run_benchmark(application: str, app_version: str, benchmark_version: str):
     """run benchmark"""
     start_time = time.time()
-    benchmark_version = get_latest_benchmark_by_version(application)
 
-    executable_path =  Path(f"C:\\Program Files\\PugetBench for Creators\\{EXECUTABLE_NAME}")
-    command_args = ["--run_count" , "1", "--rerun_count", "1", "--benchmark_version", benchmark_version, "--preset", "Standard", "--app_version", f"{app_version}"]
+    executable_path = Path(
+        f"C:\\Program Files\\PugetBench for Creators\\{EXECUTABLE_NAME}")
+    command_args = ["--run_count", "1", "--rerun_count", "1",
+                    "--benchmark_version", f"{benchmark_version}", "--preset",
+                    "Standard", "--app_version", f"{app_version}"]
     photoshop_args = command_args + ["--app", "photoshop"]
     premiere_args = command_args + ["--app", "premierepro"]
     aftereffects_args = command_args + ["--app", "aftereffects"]
     davinci_args = command_args + ["--app", "resolve"]
     command = None
     if application == "premierepro":
-        command = [executable_path] +  premiere_args
+        command = [executable_path] + premiere_args
     elif application == "photoshop":
-        command =[executable_path] + photoshop_args
+        command = [executable_path] + photoshop_args
     elif application == "aftereffects":
-        command =[executable_path] + aftereffects_args
+        command = [executable_path] + aftereffects_args
     elif application == "resolve":
-        command =[executable_path] + davinci_args
+        command = [executable_path] + davinci_args
 
     logging.info(command)
 
     process = Popen(command, stdout=PIPE, stderr=PIPE, text=True)
     error_in_output = {"exception": None}  # Shared state for error reporting
 
-    stdout_thread = threading.Thread(target=read_output, args=(process.stdout, logging.info, logging.error, error_in_output))
-    stderr_thread = threading.Thread(target=read_output, args=(process.stderr, logging.error, logging.error, error_in_output))
+    stdout_thread = threading.Thread(target=read_output, args=(
+        process.stdout, logging.info, logging.error, error_in_output))
+    stderr_thread = threading.Thread(target=read_output, args=(
+        process.stderr, logging.error, logging.error, error_in_output))
 
     stdout_thread.start()
     stderr_thread.start()
@@ -100,13 +108,20 @@ def run_benchmark(application: str, app_version: str):
 
     return start_time, end_time
 
+
 def main():
     """main"""
-    
+
     start_time = time.time()
     parser = ArgumentParser()
-    parser.add_argument("--app", dest="app", help="Application name to test", required=True)
-    parser.add_argument("--app_version", dest="app_version", help="Application version to test", required=False)
+    parser.add_argument("--app", dest="app",
+                        help="Application name to test", required=True)
+    parser.add_argument(
+        "--app_version", dest="app_version",
+        help="Application version to test", required=False)
+    parser.add_argument(
+        "--benchmark_version", dest="benchmark_version",
+        help="Puget Bench Benchmark version to use", required=False)
     args = parser.parse_args()
     apps = [
         "premierepro",
@@ -118,6 +133,9 @@ def main():
     if args.app is None or args.app not in apps:
         logging.info("unrecognized option for program")
         sys.exit(1)
+
+    if args.benchmark_version is None:
+        args.benchmark_version = get_latest_benchmark_by_version(args.app)
 
     version = args.app_version
     score = 0
@@ -137,12 +155,11 @@ def main():
     elif args.app == "resolve":
         test = "PugetBench Davinci Resolve Studio"
         if version is None:
-            version = get_davinci_version()+"-studio"
-
-    benchmark_version = get_latest_benchmark_by_version(args.app)
+            version = get_davinci_version() + "-studio"
 
     try:
-        start_time, end_time = run_benchmark(args.app, version)
+        start_time, end_time = run_benchmark(
+            args.app, version, args.benchmark_version)
         log_file = find_latest_log()
         score = find_score_in_log(log_file)
         destination = Path(script_dir) / "run" / os.path.split(log_file)[1]
@@ -153,7 +170,7 @@ def main():
             "end_time": seconds_to_milliseconds(end_time),
             "test": test,
             "app_version": version,
-            "benchmark_version": benchmark_version,
+            "benchmark_version": args.benchmark_version,
             "pugetbench_version": get_pugetbench_version(),
             "unit": "Score",
             "score": score
