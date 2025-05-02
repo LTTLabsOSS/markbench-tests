@@ -53,7 +53,7 @@ def read_output(stream, log_func, error_func, error_in_output):
         # If line contains "Benchmark failed:", store RuntimeError
         if line.startswith("Benchmark failed:"):
             error_in_output["exception"] = RuntimeError(
-                f"Benchmark had an unknown failure.")
+                "Benchmark had an unknown failure.")
             break
 
         sys.stdout.flush()  # optional here, but fine to keep
@@ -62,49 +62,44 @@ def read_output(stream, log_func, error_func, error_in_output):
 def run_benchmark(application: str, app_version: str, benchmark_version: str):
     """run benchmark"""
     start_time = time.time()
-
     executable_path = Path(
         f"C:\\Program Files\\PugetBench for Creators\\{EXECUTABLE_NAME}")
     command_args = ["--run_count", "1", "--rerun_count", "1",
                     "--benchmark_version", f"{benchmark_version}", "--preset",
                     "Standard", "--app_version", f"{app_version}"]
-    photoshop_args = command_args + ["--app", "photoshop"]
-    premiere_args = command_args + ["--app", "premierepro"]
-    aftereffects_args = command_args + ["--app", "aftereffects"]
-    davinci_args = command_args + ["--app", "resolve"]
     command = None
     if application == "premierepro":
-        command = [executable_path] + premiere_args
+        command = [executable_path] + command_args + ["--app", "photoshop"]
     elif application == "photoshop":
-        command = [executable_path] + photoshop_args
+        command = [executable_path] + command_args + ["--app", "premierepro"]
     elif application == "aftereffects":
-        command = [executable_path] + aftereffects_args
+        command = [executable_path] + command_args + ["--app", "aftereffects"]
     elif application == "resolve":
-        command = [executable_path] + davinci_args
+        command = [executable_path] + command_args + ["--app", "resolve"]
 
     logging.info(command)
 
-    process = Popen(command, stdout=PIPE, stderr=PIPE, text=True)
     error_in_output = {"exception": None}  # Shared state for error reporting
 
-    stdout_thread = threading.Thread(target=read_output, args=(
-        process.stdout, logging.info, logging.error, error_in_output))
-    stderr_thread = threading.Thread(target=read_output, args=(
-        process.stderr, logging.error, logging.error, error_in_output))
+    with Popen(command, stdout=PIPE, stderr=PIPE, text=True) as process:
+        stdout_thread = threading.Thread(target=read_output, args=(
+            process.stdout, logging.info, logging.error, error_in_output))
+        stderr_thread = threading.Thread(target=read_output, args=(
+            process.stderr, logging.error, logging.error, error_in_output))
 
-    stdout_thread.start()
-    stderr_thread.start()
+        stdout_thread.start()
+        stderr_thread.start()
 
-    process.wait()
+        process.wait()
 
-    stdout_thread.join()
-    stderr_thread.join()
+        stdout_thread.join()
+        stderr_thread.join()
+
+        # Raise the error if detected before exiting the block
+        if error_in_output["exception"]:
+            raise RuntimeError(error_in_output["exception"])
 
     end_time = time.time()
-
-    # Raise the error if detected
-    if error_in_output["exception"]:
-        raise error_in_output["exception"]
 
     return start_time, end_time
 
