@@ -42,9 +42,6 @@ kerasService = KerasService(args.keras_host, args.keras_port)
 
 
 def start_game():
-    logging.info("Starting Dota 2")
-    res = user.size()
-    logging.info("Screen resolution before game: %s", res)
     """Launch the game with console enabled and FPS unlocked"""
     return exec_steam_game(
         STEAM_GAME_ID, game_params=["-console", "+fps_max 0"])
@@ -58,7 +55,6 @@ def console_command(command):
 
 def run_benchmark():
     """Run dota2 benchmark"""
-    logging.info("Running Dota 2 benchmark")
     am = ArtifactManager(LOG_DIRECTORY)
     copy_replay()
     copy_config()
@@ -81,27 +77,26 @@ def run_benchmark():
 
     height, width = get_resolution()
     location = None
-
-    res = user.size()
-    logging.info(
-        "Screen resolution within game: %s -------------------------------------------------",
-        res)
-
+    click_multiple = 0
     # We check the resolution so we know which screenshot to use for the locate on screen function
     match width:
         case "1280":
             location = gui.locateOnScreen(
                 f"{SCRIPT_DIRECTORY}\\screenshots\\settings_720.png",
                 confidence=0.9)
+            click_multiple = 0.8
         case "1920":
             location = gui.locateOnScreen(
                 f"{SCRIPT_DIRECTORY}\\screenshots\\settings_1080.png")
+            click_multiple = 1
         case "2560":
             location = gui.locateOnScreen(
                 f"{SCRIPT_DIRECTORY}\\screenshots\\settings_1440.png")
+            click_multiple = 1.5
         case "3840":
             location = gui.locateOnScreen(
                 f"{SCRIPT_DIRECTORY}\\screenshots\\settings_2160.png")
+            click_multiple = 2
         case _:
             logging.error(
                 "Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?",
@@ -122,7 +117,8 @@ def run_benchmark():
             "Did not find the video menu button. Did Keras enter settings correctly?")
         sys.exit(1)
 
-    gui.moveTo(result["x"] + 5, result["y"] + 5)
+    gui.moveTo(result["x"] + int(50 * click_multiple),
+               result["y"] + int(20 * click_multiple))
     gui.mouseDown()
     time.sleep(0.2)
     gui.mouseUp()
@@ -199,7 +195,6 @@ def run_benchmark():
 
 
 try:
-    logging.info("try")
     start_time, end_time = run_benchmark()
     height, width = get_resolution()
     report = {
