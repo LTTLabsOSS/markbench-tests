@@ -58,6 +58,7 @@ def console_command(command):
 
 def run_benchmark():
     """Run dota2 benchmark"""
+    logging.info("Running Dota 2 benchmark")
     am = ArtifactManager(LOG_DIRECTORY)
     copy_replay()
     copy_config()
@@ -198,6 +199,7 @@ def run_benchmark():
 
 
 try:
+    logging.info("try")
     start_time, end_time = run_benchmark()
     height, width = get_resolution()
     report = {
