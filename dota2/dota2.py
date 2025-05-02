@@ -122,7 +122,7 @@ def run_benchmark():
             "Did not find the video menu button. Did Keras enter settings correctly?")
         sys.exit(1)
 
-    gui.moveTo(result["x"] + 10, result["y"] + 8)
+    gui.moveTo(result["x"] + 5, result["y"] + 5)
     gui.mouseDown()
     time.sleep(0.2)
     gui.mouseUp()
