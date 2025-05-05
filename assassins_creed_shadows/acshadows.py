@@ -84,15 +84,14 @@ def delete_videos():
 
 def move_benchmark_file():
     """moves html benchmark results to log folder"""
-    src_dir = r"C:\Users\Administrator\Documents\Assassin's Creed Shadows\benchmark_reports"
+    src_dir = Path(r"C:\Users\Administrator\Documents\Assassin's Creed Shadows\benchmark_reports")
 
-    for filename in os.listdir(src_dir):
-        src_path = os.path.join(src_dir, filename)
-        dest_path = os.path.join(LOG_DIR, filename)
+    for src_path in src_dir.iterdir():
+        dest_path = LOG_DIR / src_path.name
 
-        if os.path.isfile(src_path):
+        if src_path.is_file():
             try:
-                os.rename(src_path, dest_path)
+                src_path.rename(dest_path)
                 logging.info("Benchmark HTML moved")
             except Exception as e:
                 logging.error("Failed to move %s: %s", src_path, e)
