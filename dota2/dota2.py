@@ -1,6 +1,6 @@
 """Dota 2 test script"""
 import logging
-import os
+from pathlib import Path
 import time
 import pyautogui as gui
 import pydirectinput as user
@@ -22,8 +22,8 @@ from harness_utils.steam import exec_steam_game
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 
-SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "dota2.exe"
 STEAM_GAME_ID = 570
 
