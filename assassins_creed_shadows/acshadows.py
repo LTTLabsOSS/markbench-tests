@@ -84,9 +84,9 @@ def delete_videos():
         if os.path.exists(file_path):
             try:
                 os.remove(file_path)
-                logging.info("Deleted: %f", file_path)
+                logging.info("Deleted: %s", file_path)
             except Exception as e:
-                logging.error("Error deleting %f: %e", file_path, e)
+                logging.error("Error deleting %s: %s", file_path, e)
 
 def move_benchmark_file():
     """moves html benchmark results to log folder"""
@@ -101,7 +101,7 @@ def move_benchmark_file():
                 os.rename(src_path, dest_path)
                 logging.info("Benchmark HTML moved")
             except Exception as e:
-                logging.error("Failed to move %s: %e", src_path, e)
+                logging.error("Failed to move %s: %s", src_path, e)
         else:
             logging.error("Benchmark HTML not found.")
 
@@ -152,9 +152,9 @@ def run_benchmark(keras_service):
     start_game()
     setup_start_time = int_time()
     am = ArtifactManager(LOG_DIR)
-    time.sleep(20)
+    time.sleep(30)
 
-    if keras_service.wait_for_word(word="animus", timeout=30, interval = 1) is None:
+    if keras_service.wait_for_word(word="animus", timeout=130, interval = 1) is None:
         logging.info("did not find main menu")
         sys.exit(1)
 
@@ -180,9 +180,9 @@ def run_benchmark(keras_service):
 
     setup_end_time = int_time()
     elapsed_setup_time = setup_end_time - setup_start_time
-    logging.info("Setup took %f seconds", elapsed_setup_time)
+    logging.info("Setup took %d seconds", elapsed_setup_time)
 
-    if keras_service.wait_for_word(word = "benchmark", timeout = 30, interval = 1) is None:
+    if keras_service.wait_for_word(word = "benchmark", timeout = 50, interval = 1) is None:
         logging.info("did not find benchmark")
         sys.exit(1)
 
@@ -194,10 +194,10 @@ def run_benchmark(keras_service):
         logging.info("did not find end screen")
         sys.exit(1)
 
-    test_end_time = int_time()
+    test_end_time = int_time()-2
 
     elapsed_test_time = test_end_time - test_start_time
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logging.info("Benchmark took %d seconds", elapsed_test_time)
 
     am.take_screenshot("benchmark_results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
 
