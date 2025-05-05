@@ -75,7 +75,7 @@ def run_benchmark():
             "Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
-    screen_height, screen_width = get_resolution()
+    height, width = get_resolution()
     location = None
     click_multiple = 0
     # We check the resolution so we know which screenshot to use for the locate on screen function
