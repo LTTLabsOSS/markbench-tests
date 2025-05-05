@@ -7,7 +7,7 @@ import pydirectinput as user
 import sys
 from dota2_utils import get_resolution, copy_replay, copy_config, get_args
 
-sys.path.insert(1, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(1, str(Path(sys.path[0]).parent))
 
 from harness_utils.output import (
     setup_log_directory,

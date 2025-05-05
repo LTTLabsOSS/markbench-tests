@@ -1,6 +1,5 @@
 # pylint: disable=missing-module-docstring
 import logging
-import os
 from pathlib import Path
 import time
 import sys
@@ -56,29 +55,28 @@ def read_current_resolution():
                 width_value = width_match.group(1)
     return (height_value, width_value)
 
-
 def delete_videos():
     """deletes intro videos"""
-    base_dir = r"C:\Program Files (x86)\Steam\steamapps\common\Assassin's Creed Shadows"
-    videos_dir = os.path.join(base_dir, "videos")
-    videos_en_dir = os.path.join(videos_dir, "en")
+    base_dir = Path(r"C:\Program Files (x86)\Steam\steamapps\common\Assassin's Creed Shadows")
+    videos_dir = base_dir / "videos"
+    videos_en_dir = videos_dir / "en"
 
     # List of video files to delete
     videos_to_delete = [
-        os.path.join(videos_dir, "ANVIL_Logo.webm"),
-        os.path.join(videos_dir, "INTEL_Logo.webm"),
-        os.path.join(videos_dir, "HUB_Bootflow_FranchiseIntro.webm"),
-        os.path.join(videos_dir, "HUB_Bootflow_AbstergoIntro.webm"),
-        os.path.join(videos_dir, "UbisoftLogo.webm"),
-        os.path.join(videos_en_dir, "Epilepsy.webm"),
-        os.path.join(videos_en_dir, "warning_disclaimer.webm"),
-        os.path.join(videos_en_dir, "WarningSaving.webm")
+        videos_dir / "ANVIL_Logo.webm",
+        videos_dir / "INTEL_Logo.webm",
+        videos_dir / "HUB_Bootflow_FranchiseIntro.webm",
+        videos_dir / "HUB_Bootflow_AbstergoIntro.webm",
+        videos_dir / "UbisoftLogo.webm",
+        videos_en_dir / "Epilepsy.webm",
+        videos_en_dir / "warning_disclaimer.webm",
+        videos_en_dir / "WarningSaving.webm"
     ]
 
     for file_path in videos_to_delete:
-        if os.path.exists(file_path):
+        if file_path.exists():
             try:
-                os.remove(file_path)
+                file_path.unlink()
                 logging.info("Deleted: %s", file_path)
             except Exception as e:
                 logging.error("Error deleting %s: %s", file_path, e)
