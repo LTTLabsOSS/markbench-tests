@@ -178,6 +178,8 @@ def run_benchmark(keras_service):
     if keras_service.wait_for_word(
             word="hardware", timeout=30, interval=1) is None:
         logging.info("did not find hardware")
+    else:
+        user.press("space")
 
     if keras_service.wait_for_word(
             word="animus", timeout=130, interval=1) is None:
