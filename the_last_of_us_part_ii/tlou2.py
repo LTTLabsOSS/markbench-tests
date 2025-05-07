@@ -4,6 +4,7 @@ from pathlib import Path
 import time
 import sys
 import pydirectinput as user
+import getpass
 
 import winreg  # for accessing settings, including resolution, in the registry
 
@@ -31,7 +32,7 @@ from harness_utils.misc import (
     press_n_times,
     keras_args)
 
-
+USERNAME = getpass.getuser()
 STEAM_GAME_ID = 2531310
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
@@ -45,7 +46,7 @@ def reset_savedata():
     Deletes the savegame folder from the local directory and replaces it with a new one from the network drive.
     """
     local_savegame_path = Path(
-        r"C:\Users\Administrator\Documents\The Last of Us Part II\76561199405246658\savedata")  # make this global
+        f"C:\\Users\\{USERNAME}\\Documents\\The Last of Us Part II\\76561199405246658\\savedata")  # make this global
     network_savegame_path = Path(r"\\Labs\Labs\03_ProcessingFiles\The Last of Us Part II\savedata")
 
     # Delete the local savedata folder if it exists
@@ -67,7 +68,7 @@ def delete_autosave():
     """
     Deletes the autosave folder from the local directory if it exists.
     """
-    local_savegame_path = Path(r"C:\Users\Administrator\Documents\The Last of Us Part II\76561199405246658\savedata")
+    local_savegame_path = Path(f"C:\\Users\\{USERNAME}\\Documents\\The Last of Us Part II\\76561199405246658\\savedata")
     savefile_path = local_savegame_path / "SAVEFILE0A"  # check for autosaved file, delete if exists
     if savefile_path.exists() and savefile_path.is_dir():
         shutil.rmtree(savefile_path)
