@@ -87,7 +87,7 @@ def delete_videos():
 def move_benchmark_file():
     """moves html benchmark results to log folder"""
     src_dir = Path(
-        r"C:\Users\Administrator\Documents\Assassin's Creed Shadows\benchmark_reports")
+        f"C:\\Users\\{USERNAME}\\Documents\\Assassin's Creed Shadows\\benchmark_reports")
 
     for src_path in src_dir.iterdir():
         dest_path = LOG_DIR / src_path.name
