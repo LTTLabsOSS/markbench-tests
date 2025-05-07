@@ -5,7 +5,7 @@ import time
 import sys
 import re
 import pydirectinput as user
-
+import getpass
 sys.path.insert(1, str(Path(sys.path[0]).parent))
 
 # pylint: disable=wrong-import-position
@@ -25,13 +25,13 @@ from harness_utils.misc import (
     find_word,
     keras_args)
 
-
+USERNAME = getpass.getuser()
 STEAM_GAME_ID = 3159330
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR / "run"
 PROCESS_NAME = "ACShadows.exe"
 
-CONFIG_LOCATION = "C:\\Users\\Administrator\\Documents\\Assassin's Creed Shadows"
+CONFIG_LOCATION = f"C:\\Users\\{USERNAME}\\Documents\\Assassin's Creed Shadows"
 CONFIG_FILENAME = "ACShadows.ini"
 
 user.FAILSAFE = False
@@ -55,9 +55,11 @@ def read_current_resolution():
                 width_value = width_match.group(1)
     return (height_value, width_value)
 
+
 def delete_videos():
     """deletes intro videos"""
-    base_dir = Path(r"C:\Program Files (x86)\Steam\steamapps\common\Assassin's Creed Shadows")
+    base_dir = Path(
+        r"C:\Program Files (x86)\Steam\steamapps\common\Assassin's Creed Shadows")
     videos_dir = base_dir / "videos"
     videos_en_dir = videos_dir / "en"
 
@@ -84,7 +86,8 @@ def delete_videos():
 
 def move_benchmark_file():
     """moves html benchmark results to log folder"""
-    src_dir = Path(r"C:\Users\Administrator\Documents\Assassin's Creed Shadows\benchmark_reports")
+    src_dir = Path(
+        r"C:\Users\Administrator\Documents\Assassin's Creed Shadows\benchmark_reports")
 
     for src_path in src_dir.iterdir():
         dest_path = LOG_DIR / src_path.name
@@ -111,33 +114,44 @@ def navi_settings(am):
 
     time.sleep(1)
 
-    am.take_screenshot("display1.png", ArtifactType.CONFIG_IMAGE, "display settings 1")
+    am.take_screenshot(
+        "display1.png", ArtifactType.CONFIG_IMAGE, "display settings 1")
 
     press_n_times("down", 13, 0.3)
 
-    am.take_screenshot("display2.png", ArtifactType.CONFIG_IMAGE, "display settings 2")
+    am.take_screenshot(
+        "display2.png", ArtifactType.CONFIG_IMAGE, "display settings 2")
 
     press_n_times("down", 4, 0.3)
 
-    am.take_screenshot("display3.png", ArtifactType.CONFIG_IMAGE, "display settings 3")
+    am.take_screenshot(
+        "display3.png", ArtifactType.CONFIG_IMAGE, "display settings 3")
 
     user.press("c")
 
     time.sleep(1)
 
-    am.take_screenshot("scalability1.png", ArtifactType.CONFIG_IMAGE, "scalability settings 1")
+    am.take_screenshot(
+        "scalability1.png", ArtifactType.CONFIG_IMAGE,
+        "scalability settings 1")
 
     press_n_times("down", 10, 0.3)
 
-    am.take_screenshot("scalability2.png", ArtifactType.CONFIG_IMAGE, "scalability settings 2")
+    am.take_screenshot(
+        "scalability2.png", ArtifactType.CONFIG_IMAGE,
+        "scalability settings 2")
 
     press_n_times("down", 6, 0.3)
 
-    am.take_screenshot("scalability3.png", ArtifactType.CONFIG_IMAGE, "scalability settings 3")
+    am.take_screenshot(
+        "scalability3.png", ArtifactType.CONFIG_IMAGE,
+        "scalability settings 3")
 
     press_n_times("down", 5, 0.3)
 
-    am.take_screenshot("scalability4.png", ArtifactType.CONFIG_IMAGE, "scalability settings 4")
+    am.take_screenshot(
+        "scalability4.png", ArtifactType.CONFIG_IMAGE,
+        "scalability settings 4")
 
     user.press("esc")
 
@@ -150,7 +164,8 @@ def run_benchmark(keras_service):
     am = ArtifactManager(LOG_DIR)
     time.sleep(30)
 
-    if keras_service.wait_for_word(word="animus", timeout=130, interval = 1) is None:
+    if keras_service.wait_for_word(
+            word="animus", timeout=130, interval=1) is None:
         logging.info("did not find main menu")
         sys.exit(1)
 
@@ -164,11 +179,15 @@ def run_benchmark(keras_service):
 
     user.press("space")
 
-    find_word(keras_service, "benchmark", "couldn't find 'benchmark' on screen before settings")
+    find_word(
+        keras_service, "benchmark",
+        "couldn't find 'benchmark' on screen before settings")
 
     navi_settings(am)
 
-    find_word(keras_service, "benchmark", "couldn't find 'benchmark' on screen after settings")
+    find_word(
+        keras_service, "benchmark",
+        "couldn't find 'benchmark' on screen after settings")
 
     user.press("down")
 
@@ -180,7 +199,8 @@ def run_benchmark(keras_service):
     elapsed_setup_time = setup_end_time - setup_start_time
     logging.info("Setup took %d seconds", elapsed_setup_time)
 
-    if keras_service.wait_for_word(word = "benchmark", timeout = 50, interval = 1) is None:
+    if keras_service.wait_for_word(
+            word="benchmark", timeout=50, interval=1) is None:
         logging.info("did not find benchmark")
         sys.exit(1)
 
@@ -190,12 +210,14 @@ def run_benchmark(keras_service):
 
     find_word(keras_service, "results", "did not find results screen", 60)
 
-    test_end_time = int_time()-2
+    test_end_time = int_time() - 2
 
     elapsed_test_time = test_end_time - test_start_time
     logging.info("Benchmark took %d seconds", elapsed_test_time)
 
-    am.take_screenshot("benchmark_results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    am.take_screenshot(
+        "benchmark_results.png", ArtifactType.RESULTS_IMAGE,
+        "benchmark results")
 
     user.press("x")
 
@@ -216,7 +238,8 @@ def run_benchmark(keras_service):
 
 def main():
     """entry point"""
-    keras_service = KerasService(keras_args().keras_host, keras_args().keras_port)
+    keras_service = KerasService(
+        keras_args().keras_host, keras_args().keras_port)
     start_time, endtime = run_benchmark(keras_service)
     height, width = read_current_resolution()
     report = {
