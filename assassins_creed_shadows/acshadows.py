@@ -26,6 +26,8 @@ from harness_utils.misc import (
     keras_args)
 
 USERNAME = getpass.getuser()
+
+USERNAME = getpass.getuser()
 STEAM_GAME_ID = 3159330
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR / "run"
@@ -54,6 +56,7 @@ def read_current_resolution():
             if width_match is not None:
                 width_value = width_match.group(1)
     return (height_value, width_value)
+
 
 
 def delete_videos():
@@ -162,7 +165,15 @@ def run_benchmark(keras_service):
     start_game()
     setup_start_time = int_time()
     am = ArtifactManager(LOG_DIR)
-    time.sleep(30)
+    time.sleep(15)
+
+    if keras_service.wait_for_word(
+            word="hardware", timeout=30, interval=1) is None:
+        logging.info("did not find hardware")
+    else:
+        user.mouseDown()
+        time.sleep(0.2)
+        user.press("space")
 
     if keras_service.wait_for_word(
             word="animus", timeout=130, interval=1) is None:
