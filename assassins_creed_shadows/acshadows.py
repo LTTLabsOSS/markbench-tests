@@ -1,4 +1,4 @@
-#pylint: disable=missing-module-docstring
+# pylint: disable=missing-module-docstring
 from argparse import ArgumentParser
 import logging
 import os
@@ -11,7 +11,7 @@ import getpass
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-#pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
     format_resolution,
@@ -36,6 +36,7 @@ CONFIG_FILENAME = "ACShadows.ini"
 
 user.FAILSAFE = False
 
+
 def read_current_resolution():
     """Reads resolutions settings from local game file"""
     height_pattern = re.compile(r"FullscreenWidth=(\d+)")
@@ -54,9 +55,11 @@ def read_current_resolution():
                 width_value = width_match.group(1)
     return (height_value, width_value)
 
-def find_word(keras_service, word, msg, timeout = 30, interval = 1):
+
+def find_word(keras_service, word, msg, timeout=30, interval=1):
     """function to call keras """
-    if keras_service.wait_for_word(word = word, timeout = timeout, interval = interval) is None:
+    if keras_service.wait_for_word(
+            word=word, timeout=timeout, interval=interval) is None:
         logging.info(msg)
         sys.exit(1)
 
@@ -64,6 +67,7 @@ def find_word(keras_service, word, msg, timeout = 30, interval = 1):
 def int_time():
     """rounds time to int"""
     return int(time.time())
+
 
 def delete_videos():
     """deletes intro videos"""
@@ -90,6 +94,7 @@ def delete_videos():
             except Exception as e:
                 logging.error("Error deleting %s: %s", file_path, e)
 
+
 def move_benchmark_file():
     """moves html benchmark results to log folder"""
     src_dir = f"C:\\Users\\{USERNAME}\\Documents\\Assassin's Creed Shadows\\benchmark_reports"
@@ -107,10 +112,12 @@ def move_benchmark_file():
         else:
             logging.error("Benchmark HTML not found.")
 
+
 def start_game():
     """Starts the game process"""
     exec_steam_game(STEAM_GAME_ID)
     logging.info("Launching Game from Steam")
+
 
 def navi_settings(am):
     """navigates and takes pictures of settings"""
@@ -118,35 +125,47 @@ def navi_settings(am):
 
     time.sleep(1)
 
-    am.take_screenshot("display1.png", ArtifactType.CONFIG_IMAGE, "display settings 1")
+    am.take_screenshot(
+        "display1.png", ArtifactType.CONFIG_IMAGE, "display settings 1")
 
     press_n_times("down", 13, 0.3)
 
-    am.take_screenshot("display2.png", ArtifactType.CONFIG_IMAGE, "display settings 2")
+    am.take_screenshot(
+        "display2.png", ArtifactType.CONFIG_IMAGE, "display settings 2")
 
     press_n_times("down", 4, 0.3)
 
-    am.take_screenshot("display3.png", ArtifactType.CONFIG_IMAGE, "display settings 3")
+    am.take_screenshot(
+        "display3.png", ArtifactType.CONFIG_IMAGE, "display settings 3")
 
     user.press("c")
 
     time.sleep(1)
 
-    am.take_screenshot("scalability1.png", ArtifactType.CONFIG_IMAGE, "scalability settings 1")
+    am.take_screenshot(
+        "scalability1.png", ArtifactType.CONFIG_IMAGE,
+        "scalability settings 1")
 
     press_n_times("down", 10, 0.3)
 
-    am.take_screenshot("scalability2.png", ArtifactType.CONFIG_IMAGE, "scalability settings 2")
+    am.take_screenshot(
+        "scalability2.png", ArtifactType.CONFIG_IMAGE,
+        "scalability settings 2")
 
     press_n_times("down", 6, 0.3)
 
-    am.take_screenshot("scalability3.png", ArtifactType.CONFIG_IMAGE, "scalability settings 3")
+    am.take_screenshot(
+        "scalability3.png", ArtifactType.CONFIG_IMAGE,
+        "scalability settings 3")
 
     press_n_times("down", 5, 0.3)
 
-    am.take_screenshot("scalability4.png", ArtifactType.CONFIG_IMAGE, "scalability settings 4")
+    am.take_screenshot(
+        "scalability4.png", ArtifactType.CONFIG_IMAGE,
+        "scalability settings 4")
 
     user.press("esc")
+
 
 def run_benchmark(keras_service):
     """runs the benchmark"""
@@ -154,9 +173,16 @@ def run_benchmark(keras_service):
     start_game()
     setup_start_time = int_time()
     am = ArtifactManager(LOG_DIR)
-    time.sleep(30)
+    time.sleep(15)
 
-    if keras_service.wait_for_word(word="animus", timeout=130, interval = 1) is None:
+    if keras_service.wait_for_word(
+            word="hardware", timeout=30, interval=1) is None:
+        logging.info("did not find hardware")
+    else:
+        user.press("space")
+
+    if keras_service.wait_for_word(
+            word="animus", timeout=130, interval=1) is None:
         logging.info("did not find main menu")
         sys.exit(1)
 
@@ -184,7 +210,8 @@ def run_benchmark(keras_service):
     elapsed_setup_time = setup_end_time - setup_start_time
     logging.info("Setup took %d seconds", elapsed_setup_time)
 
-    if keras_service.wait_for_word(word = "benchmark", timeout = 50, interval = 1) is None:
+    if keras_service.wait_for_word(
+            word="benchmark", timeout=50, interval=1) is None:
         logging.info("did not find benchmark")
         sys.exit(1)
 
@@ -192,16 +219,19 @@ def run_benchmark(keras_service):
 
     time.sleep(100)
 
-    if keras_service.wait_for_word(word = "results", timeout = 30, interval = 1) is None:
+    if keras_service.wait_for_word(
+            word="results", timeout=30, interval=1) is None:
         logging.info("did not find end screen")
         sys.exit(1)
 
-    test_end_time = int_time()-2
+    test_end_time = int_time() - 2
 
     elapsed_test_time = test_end_time - test_start_time
     logging.info("Benchmark took %d seconds", elapsed_test_time)
 
-    am.take_screenshot("benchmark_results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    am.take_screenshot(
+        "benchmark_results.png", ArtifactType.RESULTS_IMAGE,
+        "benchmark results")
 
     user.press("x")
 
@@ -218,6 +248,7 @@ def run_benchmark(keras_service):
     am.create_manifest()
 
     return test_start_time, test_end_time
+
 
 def setup_logging():
     """setup logging"""
@@ -250,6 +281,7 @@ def main():
         "version": get_build_id(STEAM_GAME_ID)
     }
     write_report_json(LOG_DIR, "report.json", report)
+
 
 if __name__ == "__main__":
     try:
