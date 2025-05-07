@@ -64,6 +64,9 @@ def reset_savedata():
 
 
 def delete_autosave():
+    """
+    Deletes the autosave folder from the local directory if it exists.
+    """
     local_savegame_path = Path(r"C:\Users\Administrator\Documents\The Last of Us Part II\76561199405246658\savedata")
     savefile_path = local_savegame_path / "SAVEFILE0A"  # check for autosaved file, delete if exists
     if savefile_path.exists() and savefile_path.is_dir():
