@@ -26,8 +26,6 @@ from harness_utils.misc import (
     keras_args)
 
 USERNAME = getpass.getuser()
-
-USERNAME = getpass.getuser()
 STEAM_GAME_ID = 3159330
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR / "run"
