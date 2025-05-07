@@ -179,6 +179,8 @@ def run_benchmark(keras_service):
             word="hardware", timeout=30, interval=1) is None:
         logging.info("did not find hardware")
     else:
+        user.mouseDown()
+        time.sleep(0.2)
         user.press("space")
 
     if keras_service.wait_for_word(
