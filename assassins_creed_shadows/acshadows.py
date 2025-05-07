@@ -7,6 +7,7 @@ import time
 import sys
 import re
 import pydirectinput as user
+import getpass
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
@@ -24,12 +25,13 @@ from harness_utils.steam import get_build_id, exec_steam_game
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.misc import press_n_times
+USERNAME = getpass.getuser()
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
 PROCESS_NAME = "ACShadows.exe"
 STEAM_GAME_ID = 3159330
-CONFIG_LOCATION = "C:\\Users\\Administrator\\Documents\\Assassin's Creed Shadows"
+CONFIG_LOCATION = f"C:\\Users\\{USERNAME}\\Documents\\Assassin's Creed Shadows"
 CONFIG_FILENAME = "ACShadows.ini"
 
 user.FAILSAFE = False
@@ -90,7 +92,7 @@ def delete_videos():
 
 def move_benchmark_file():
     """moves html benchmark results to log folder"""
-    src_dir = r"C:\Users\Administrator\Documents\Assassin's Creed Shadows\benchmark_reports"
+    src_dir = f"C:\\Users\\{USERNAME}\\Documents\\Assassin's Creed Shadows\\benchmark_reports"
 
     for filename in os.listdir(src_dir):
         src_path = os.path.join(src_dir, filename)
