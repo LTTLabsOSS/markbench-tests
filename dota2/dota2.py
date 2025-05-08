@@ -79,7 +79,7 @@ def run_benchmark():
     location = None
     click_multiple = 0
     # We check the resolution so we know which screenshot to use for the locate on screen function
-    match width:
+    match screen_width:
         case "1280":
             location = gui.locateOnScreen(
                 f"{SCRIPT_DIRECTORY}\\screenshots\\settings_720.png",
