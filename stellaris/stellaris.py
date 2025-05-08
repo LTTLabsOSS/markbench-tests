@@ -7,7 +7,6 @@ import time
 import sys
 import pyautogui as gui
 import pydirectinput as user
-from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 from stellaris_utils import read_current_resolution, copy_benchmarkfiles, copy_benchmarksave, find_score_in_log
 
@@ -24,6 +23,7 @@ from harness_utils.output import (
 )
 from harness_utils.steam import get_app_install_location
 from harness_utils.keras_service import KerasService
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -160,7 +160,7 @@ def run_benchmark(keras_host, keras_port):
     terminate_processes(PROCESS_NAME)
 
     am.create_manifest()
-    
+
     return test_start_time, test_end_time, score
 
 
