@@ -14,9 +14,12 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
 PROCESS_NAME = "stellaris.exe"
 STEAM_GAME_ID = 281990
-CONFIG_LOCATION = Path(f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris")
-LOG_LOCATION = Path(f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris\\logs")
-BENCHMARK_LOCATION = Path(f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris\\save games\\BENCHMARK")
+CONFIG_LOCATION = Path(
+    f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris")
+LOG_LOCATION = Path(
+    f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris\\logs")
+BENCHMARK_LOCATION = Path(
+    f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris\\save games\\BENCHMARK")
 CONFIG_FILENAME = "settings.txt"
 LOG_FILE = "game.log"
 
@@ -24,7 +27,7 @@ LOG_FILE = "game.log"
 benchmark_files = [
     "benchmark.ini",
     "pdx_settings.txt",
-    "standard_settings.txt"
+    "settings.txt"
 ]
 
 
@@ -71,7 +74,8 @@ def copy_benchmarkfiles() -> None:
             logging.info("copying: %s -> %s", src_path, dest_path)
             shutil.copy(src_path, dest_path)
         except OSError as ex:
-            raise Exception("could not copy benchmark config files", cause=ex) from ex
+            raise Exception(
+                "could not copy benchmark config files", cause=ex) from ex
 
 
 def copy_save_from_network_drive(file_name, destination):
@@ -92,7 +96,9 @@ def delete_existing_saves():
                 file_path = BENCHMARK_LOCATION.joinpath(file)
                 if file_path.exists():
                     os.remove(file_path)
-            logging.info("Removing any additional save files from %s", BENCHMARK_LOCATION)
+            logging.info(
+                "Removing any additional save files from %s",
+                BENCHMARK_LOCATION)
         except OSError as ex:
             logging.error("Error occurred while deleting files: %s", ex)
 
