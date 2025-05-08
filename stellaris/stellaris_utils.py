@@ -17,7 +17,7 @@ STEAM_GAME_ID = 281990
 CONFIG_LOCATION = Path(f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris")
 LOG_LOCATION = Path(f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris\\logs")
 BENCHMARK_LOCATION = Path(f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris\\save games\\BENCHMARK")
-CONFIG_FILENAME = "standard_settings.txt"
+CONFIG_FILENAME = "settings.txt"
 LOG_FILE = "game.log"
 
 

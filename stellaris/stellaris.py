@@ -102,7 +102,7 @@ def run_benchmark(keras_host, keras_port):
         logging.info("Could not find the paused notification. Unable to mark start time!")
         sys.exit(1)
 
-    result = keras_service.look_for_word("government", attempts=10, interval=1)
+    result = keras_service.look_for_word("overview", attempts=10, interval=1)
     if not result:
         logging.info("Did not find the load latest save button. Did keras click correctly?")
         sys.exit(1)
