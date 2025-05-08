@@ -85,6 +85,8 @@ def run_benchmark(keras_host, keras_port):
     time.sleep(0.2)
     gui.mouseDown()
     time.sleep(0.2)
+    gui.mouseUp()
+    time.sleep(0.5)
     am.take_screenshot("settings.png", ArtifactType.CONFIG_IMAGE, "settings")
 
     time.sleep(0.2)
