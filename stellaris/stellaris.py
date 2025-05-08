@@ -7,6 +7,7 @@ import time
 import sys
 import pyautogui as gui
 import pydirectinput as user
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 from stellaris_utils import read_current_resolution, copy_benchmarkfiles, copy_benchmarksave, find_score_in_log
 
@@ -68,10 +69,26 @@ def run_benchmark(keras_host, keras_port):
     setup_start_time = int(time.time())
     time.sleep(5)
 
+    am = ArtifactManager(LOG_DIR)
+
     result = keras_service.wait_for_word("credits", interval=0.5, timeout=100)
     if not result:
         logging.info("Could not find the paused notification. Unable to mark start time!")
         sys.exit(1)
+
+    result = keras_service.look_for_word("settings", attempts=10, interval=1)
+    if not result:
+        logging.info("Did not find the settings button. Is there something wrong on the screen?")
+        sys.exit(1)
+    
+    gui.moveTo(result["x"], result["y"])
+    time.sleep(0.2)
+    gui.mouseDown()
+    time.sleep(0.2)
+    am.take_screenshot("settings.png", ArtifactType.CONFIG_IMAGE, "settings")
+
+    time.sleep(0.2)
+    user.press("esc")
 
     result = keras_service.look_for_word("load", attempts=10, interval=1)
     if not result:
@@ -141,6 +158,9 @@ def run_benchmark(keras_host, keras_port):
     score = find_score_in_log()
     logging.info("The one year passed in %s seconds", score)
     terminate_processes(PROCESS_NAME)
+
+    am.create_manifest()
+    
     return test_start_time, test_end_time, score
 
 
