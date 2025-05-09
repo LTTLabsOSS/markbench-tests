@@ -75,7 +75,7 @@ def run_benchmark():
             "Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
-    height, width = get_resolution()
+    screen_height, screen_width = get_resolution()
     location = None
     click_multiple = 0
     # We check the resolution so we know which screenshot to use for the locate on screen function
@@ -100,7 +100,7 @@ def run_benchmark():
         case _:
             logging.error(
                 "Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?",
-                height, width)
+                screen_height, screen_width)
             sys.exit(1)
 
     # navigating to the video config section
