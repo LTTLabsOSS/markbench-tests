@@ -6,6 +6,7 @@ import logging
 import re
 import shutil
 from pathlib import Path
+import json
 
 USERNAME = getpass.getuser()
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -61,8 +62,8 @@ def copy_replay() -> None:
         raise err
 
 
-def find_rocketleague_executable() -> any:
-    """Get path to rocket league executable"""
+def find_epic_executable() -> any:
+    """Get path to Epic Games Executable"""
     reg_path = r'Software\Epic Games\EOS'
     try:
         registry_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0,
@@ -70,6 +71,5 @@ def find_rocketleague_executable() -> any:
         value, _ = winreg.QueryValueEx(registry_key, "ModSdkCommand")
         winreg.CloseKey(registry_key)
         return value
-    except OSError as err:
-        logging.error("Could not find executable path")
-        raise err
+    except OSError:
+        return None

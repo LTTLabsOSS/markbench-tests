@@ -1,3 +1,7 @@
+[DESIGN]
+# Maximum number of branch for function / method body
+max-branches = 15
+
 [MESSAGES CONTROL]
 disable=
     import-error,

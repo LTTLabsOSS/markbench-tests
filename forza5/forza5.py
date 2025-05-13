@@ -49,7 +49,7 @@ def run_benchmark():
     time.sleep(10)
 
     exec_steam_run_command(STEAM_GAME_ID)
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
 
     # Wait for menu to load
     time.sleep(30)
@@ -96,10 +96,10 @@ def run_benchmark():
         logging.info("Benchmark didn't start.")
         sys.exit(1)
 
-    elapsed_setup_time = round((time.time() - setup_start_time), 2)
+    elapsed_setup_time = round((int(time.time()) - setup_start_time), 2)
     logging.info("Harness setup took %.2f seconds", elapsed_setup_time)
 
-    test_start_time = time.time()
+    test_start_time = int(time.time())
 
     time.sleep(95) # wait for benchmark to finish 95 seconds
 
@@ -108,7 +108,7 @@ def run_benchmark():
         logging.info("Results screen was not found!")
         sys.exit(1)
 
-    test_end_time = time.time()
+    test_end_time = int(time.time())
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %.2f seconds", elapsed_test_time)
 

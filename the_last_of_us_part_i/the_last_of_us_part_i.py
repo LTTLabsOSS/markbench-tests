@@ -99,7 +99,7 @@ def navigate_main_menu(am: ArtifactManager) -> None:
 def run_benchmark():
     """Starts the benchmark"""
     exec_steam_run_command(STEAM_GAME_ID)
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     am = ArtifactManager(LOG_DIRECTORY)
     time.sleep(10)
 
@@ -120,14 +120,14 @@ def run_benchmark():
     time.sleep(0.5)
     user.press("space")
 
-    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
     result = kerasService.wait_for_word("tommy", interval=0.2, timeout=250)
     if not result:
         logging.info("Did not see Tommy's first subtitle. Did the game load?")
         sys.exit(1)
-    test_start_time = time.time()
+    test_start_time = int(time.time())
     logging.info("Saw Tommy's first line. Benchmark has started.")
 
     # wait for black screen
@@ -142,7 +142,7 @@ def run_benchmark():
     # Wait for black screen
     time.sleep(24)
 
-    test_end_time = time.time()
+    test_end_time = int(time.time())
 
     time.sleep(2)
     elapsed_test_time = round(test_end_time - test_start_time, 2)

@@ -84,7 +84,7 @@ def run_benchmark(keras_service):
     am = ArtifactManager(LOG_DIR)
 
     start_game()
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     time.sleep(14)
 
     result = keras_service.wait_for_word("paradox", interval=0.5, timeout=100)
@@ -100,7 +100,7 @@ def run_benchmark(keras_service):
     if not result:
         logging.info("Could not find the paused notification. Unable to mark start time!")
         sys.exit(1)
-    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
     time.sleep(2)
     logging.info('Starting benchmark')
@@ -108,10 +108,10 @@ def run_benchmark(keras_service):
     time.sleep(2)
 
     # TODO: switch back to 180 after testing
-    test_start_time = time.time()
+    test_start_time = int(time.time())
     time.sleep(180)
 
-    test_end_time = time.time()
+    test_end_time = int(time.time())
     time.sleep(2)
     user.press("1")
 
@@ -160,7 +160,7 @@ def run_benchmark(keras_service):
     gui.moveTo(result["x"], result["y"])
     time.sleep(0.2)
 
-    mouse_scroll_n_times(8, -400,  0.2)
+    mouse_scroll_n_times(8, -800,  0.2)
 
     if keras_service.wait_for_word(word="water", timeout=30, interval=1) is None:
         logging.info("Did not find the keyword 'water' in menu. Did the game scroll correctly?")

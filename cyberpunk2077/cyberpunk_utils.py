@@ -5,10 +5,14 @@ import logging
 from pathlib import Path
 import re
 import shutil
+import sys
+
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+from harness_utils.steam import get_app_install_location
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-CYBERPUNK_INSTALL_DIR = Path(
-    os.environ["ProgramFiles(x86)"], "Steam\\steamapps\\common\\Cyberpunk 2077")
+STEAM_GAME_ID = 1091500
+CYBERPUNK_INSTALL_DIR = get_app_install_location(STEAM_GAME_ID)
 
 
 def get_args() -> any:
@@ -31,7 +35,7 @@ def copy_from_network_drive():
 def copy_no_intro_mod() -> None:
     """Copies no intro mod file"""
     try:
-        mod_path = CYBERPUNK_INSTALL_DIR / "archive" / "pc" / "mod"
+        mod_path = Path(f"{CYBERPUNK_INSTALL_DIR}\\archive\\pc\\mod")
         mod_path.mkdir(parents=True, exist_ok=True)
 
         src_path = SCRIPT_DIRECTORY / "basegame_no_intro_videos.archive"

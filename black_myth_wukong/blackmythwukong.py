@@ -24,7 +24,7 @@ from harness_utils.output import (
 from harness_utils.steam import get_app_install_location, get_build_id, exec_steam_game
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.misc import LTTGamePad
+from harness_utils.misc import LTTGamePad360
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
@@ -63,8 +63,8 @@ def start_game():
 def run_benchmark(keras_service):
     """Starts the benchmark"""
     start_game()
-    gamepad = LTTGamePad()
-    setup_start_time = time.time()
+    gamepad = LTTGamePad360()
+    setup_start_time = int(time.time())
     am = ArtifactManager(LOG_DIR)
     time.sleep(20)
 
@@ -152,7 +152,7 @@ def run_benchmark(keras_service):
     time.sleep(0.5)
 
     # log set up time
-    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
     result = keras_service.wait_for_word("current", interval=0.5, timeout=100)
@@ -160,7 +160,7 @@ def run_benchmark(keras_service):
         logging.info("Could not find current. Unable to mark start time!")
         sys.exit(1)
 
-    test_start_time = time.time() - 2
+    test_start_time = int(time.time()) - 2
 
     time.sleep(142)
 
@@ -168,7 +168,7 @@ def run_benchmark(keras_service):
         logging.info("Did not find result screen. Did the benchmark run?")
         sys.exit(1)
 
-    test_end_time = time.time() - 1
+    test_end_time = int(time.time()) - 1
     time.sleep(5)
     am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
     am.copy_file(f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}", ArtifactType.CONFIG_TEXT, "GameUserSettings.ini")

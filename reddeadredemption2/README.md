@@ -6,6 +6,8 @@ This script navigates through in-game menus to the built in benchmark and runs i
 
 - Python 3.10+
 - Red Dead Redemption 2 installed via Steam.
+- Keras OCR service
+- DXcam
 
 ## Output
 

@@ -48,7 +48,7 @@ def start_game():
 
 def run_benchmark(keras_service, am):
     """Start game via Steam and enter fullscreen mode"""
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     start_game()
     time.sleep(10)
 
@@ -102,24 +102,26 @@ def run_benchmark(keras_service, am):
     am.take_screenshot("graphics.png", ArtifactType.CONFIG_IMAGE, "picture of graphics settings")
 
     user.press("r")
-    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
-    time.sleep(2)
-    test_start_time = time.time()
+    if keras_service.wait_for_word(word="fps", timeout=30, interval=0.5) is None:
+        logging.info("Did not find the benchmark option on the screen. Did the menu get stuck?")
+        sys.exit(1)
+    test_start_time = int(time.time())
 
     # Wait for benchmark to complete
     time.sleep(180)
 
-    test_end_time = time.time()
+    test_end_time = int(time.time())
 
     result = keras_service.wait_for_word(word="tomb", timeout=10, interval=0.1)
     if result is None:
         logging.error("Unable to find the loading screen. Using default end time value.")
     else:
-        test_end_time = time.time()
+        test_end_time = int(time.time())
 
-    if keras_service.wait_for_word(word="results", timeout=20, interval=1) is None:
+    if keras_service.wait_for_word(word="results", timeout=60, interval=1) is None:
         logging.error("Results screen after running benchmark not found, exiting.")
         sys.exit(1)
 

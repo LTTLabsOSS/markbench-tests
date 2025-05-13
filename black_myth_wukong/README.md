@@ -7,6 +7,7 @@ This script navigates the menus of the Black Myth Wukong Benchmark tool and runs
 - Python 3.10+
 - Black Myth Wukong Benchmark Tool installed
 - Keras OCR service
+- Vgamepad
 
 ## Options
 

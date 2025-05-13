@@ -136,7 +136,7 @@ def main():
             "test": f"HandBrake Encoding BBB {args.encoder.upper()}",
             "score": score,
             "unit": "frames per second",
-            "version": "1.8.1",
+            "version": "1.9.1",
             "start_time": start_time,
             "end_time": end_time
         }

@@ -17,13 +17,14 @@ from harness_utils.output import (
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.misc import press_n_times
+from harness_utils.misc import press_n_times, find_eg_game_version
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY.joinpath("run")
 PROCESS_NAME = "alanwake2.exe"
 EXECUTABLE_PATH = find_epic_executable()
 GAME_ID = "c4763f236d08423eb47b4c3008779c84%3A93f2a8c3547846eda966cb3c152a026e%3Adc9d2e595d0e4650b35d659f90d41059?action=launch&silent=true"
+gamefoldername = "AlanWake2"
 
 
 def setup_logging():
@@ -55,7 +56,7 @@ def run_benchmark():
     """Run the test!"""
 
     copy_save()
-    setup_start_time = time.time()
+    setup_start_time = int(time.time())
     start_game()
     time.sleep(10)  # wait for game to load into main menu
 
@@ -98,7 +99,7 @@ def run_benchmark():
         sys.exit(1)
     am.take_screenshot("graphics1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of graphics settings")
     time.sleep(0.2)
-    press_n_times("down", 18, 0.2)
+    press_n_times("down", 19, 0.2)
     if kerasService.wait_for_word(word="terrain", timeout=60, interval=0.5) is None:
         logging.error("Did not see Terrain Quality. Did it navigate to graphics correctly?")
         sys.exit(1)
@@ -125,7 +126,7 @@ def run_benchmark():
     press_n_times("right", 3, 0.2)
     user.press("enter")
     time.sleep(0.2)
-    setup_end_time = time.time()
+    setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
 
@@ -134,7 +135,7 @@ def run_benchmark():
         logging.error("Didn't see the word recap. Did the save game load?")
         sys.exit(1)
 
-    test_start_time = time.time()
+    test_start_time = int(time.time())
 
     # wait for benchmark to complete
     time.sleep(170)
@@ -142,7 +143,7 @@ def run_benchmark():
     if kerasService.wait_for_word(word="insane", timeout=60, interval=0.5) is None:
         logging.error("Didn't see the word insane. Did the game crash?")
         sys.exit(1)
-    test_end_time = time.time()
+    test_end_time = int(time.time())
     time.sleep(2)
     logging.info("Run completed. Closing game.")
     am.copy_file(CONFIG_PATH, ArtifactType.CONFIG_TEXT, "renderer.ini")
@@ -167,7 +168,8 @@ try:
     report = {
         "resolution": f"{width}x{height}",
         "start_time": round((start_time * 1000)),
-        "end_time": round((end_time * 1000))
+        "end_time": round((end_time * 1000)),
+        "game_version": find_eg_game_version(gamefoldername)
     }
 
     am.create_manifest()

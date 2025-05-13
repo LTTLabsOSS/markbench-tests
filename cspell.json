@@ -45,7 +45,8 @@
     "GPGPU",
     "Stellaris",
     "shusaura",
-    "wukong"
+    "wukong",
+    "vgamepad"
   ],
   "ignoreRegExpList": [
     "import .*"

@@ -1,0 +1,9 @@
+friendly_name: "Far Cry 6"
+executable: "farcry6.py"
+process_name: "FarCry6.exe"
+output_dir: "run"
+options:
+  - name: kerasHost
+    type: input
+  - name: kerasPort
+    type: input

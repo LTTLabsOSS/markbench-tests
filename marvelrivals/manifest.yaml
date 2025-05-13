@@ -1,0 +1,9 @@
+friendly_name: "Marvel Rivals"
+executable: "marvelrivals.py"
+process_name: "Marvel-Win64-Shipping.exe"
+output_dir: "run"
+options:
+  - name: kerasHost
+    type: input
+  - name: kerasPort
+    type: input

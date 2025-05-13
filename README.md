@@ -207,6 +207,9 @@ If Keras is taking images on the wrong monitor, the primary display can be modif
 
 For keyboard and mouse input, we employ two distinct methods. The first method involves using Virtual Key Codes (VKs) with the deprecated Win32 functions mouse_event() and keybd_event(). The second method utilizes Send Input. Specifically, [PyAutoGui](https://pyautogui.readthedocs.io/en/latest/) implements the first approach, while [PyDirectInput](https://pypi.org/project/PyDirectInput/) implements the second.
 
+### Gamepad Input
+
+For gamepad input, we utilize [Vgamepad](https://pypi.org/project/vgamepad/) in order to navigate some stubborn menus or games with scaling issues.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

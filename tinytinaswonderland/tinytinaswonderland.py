@@ -44,7 +44,7 @@ def run_benchmark():
     """run benchmark"""
     start_game()
 
-    t1 = time.time()
+    t1 = int(time.time())
     optimizing_shaders = kerasService.look_for_word("optimize", interval=1, attempts=10)
     if optimizing_shaders:
         time.sleep(40)
@@ -95,7 +95,7 @@ def run_benchmark():
     time.sleep(1)
 
 
-    t2 = time.time()
+    t2 = int(time.time())
     duration =  round((t2 - t1), 2)
     logging.info("Harness setup took %d seconds", duration)
 
@@ -103,13 +103,13 @@ def run_benchmark():
     if result is None:
         raise ValueError("benchmark didn't start on time or at all")
 
-    benchmark_start = time.time()
+    benchmark_start = int(time.time())
     time.sleep(110)
     result = kerasService.wait_for_word("options", interval=0.5, timeout=30)
     if result is None:
         raise ValueError("did not detect end of benchmark, should have landed back in main menu")
 
-    benchmark_end = time.time()
+    benchmark_end = int(time.time())
     duration =  round((benchmark_end - benchmark_start), 2)
     logging.info("Benchmark took %d seconds", duration)
     terminate_processes("Wonderlands")

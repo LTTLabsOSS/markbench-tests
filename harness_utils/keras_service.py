@@ -7,6 +7,7 @@ import mss
 import cv2
 import requests
 import numpy as np
+import dxcam
 from enum import Enum
 from dataclasses import dataclass
 
@@ -14,7 +15,6 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 DEFAULT_TIMEOUT = 120.0
-
 
 class ScreenShotDivideMethod(Enum):
     """split method"""
@@ -79,6 +79,31 @@ class KerasService():
 
         _, encoded_image = cv2.imencode('.jpg', screenshot)
         return io.BytesIO(encoded_image)
+    
+
+    def _capture_vulkan_screenshot(self, split_config):
+        """Capture a screenshot from Vulkan fullscreen using DXGI Desktop Duplication"""
+        camera = dxcam.create(output_idx=0)  # Select the main display (Change if needed)
+        frame = camera.grab()  # Capture the frame
+
+        if frame is None:
+            print("Failed to capture Vulkan frame.")
+            return None
+
+        screenshot = np.array(frame)  # Convert to numpy array
+        screenshot = cv2.cvtColor(screenshot, cv2.COLOR_RGB2GRAY)  # Convert to grayscale
+
+        # Apply splitting logic if needed
+        if split_config.divide_method == ScreenShotDivideMethod.HORIZONTAL:
+            screenshot = self._divide_horizontal(screenshot, split_config.quadrant)
+        elif split_config.divide_method == ScreenShotDivideMethod.VERTICAL:
+            screenshot = self._divide_vertical(screenshot, split_config.quadrant)
+        elif split_config.divide_method == ScreenShotDivideMethod.QUADRANT:
+            screenshot = self._divide_in_four(screenshot, split_config.quadrant)
+
+        _, encoded_image = cv2.imencode('.jpg', screenshot)  # Encode image
+        return io.BytesIO(encoded_image)  # Return image bytes
+
 
     def _query_service(self, word: str, image_bytes: io.BytesIO) -> any:
         try:
@@ -147,6 +172,19 @@ class KerasService():
                 return result
             time.sleep(interval)
         return None
+    
+    def look_for_word_vulkan(self, word: str, attempts: int = 1, interval: float = 0.0, split_config: ScreenSplitConfig = None) -> bool:
+        """Overload for look_for_word but captures Vulkan frames"""
+        if split_config is None:
+            split_config = ScreenSplitConfig(
+                divide_method=ScreenShotDivideMethod.NONE, quadrant=ScreenShotQuadrant.TOP)
+        for _ in range(attempts):
+            image_bytes = self._capture_vulkan_screenshot(split_config)
+            result = self._query_service(word, image_bytes)
+            if result is not None:
+                return result
+            time.sleep(interval)
+        return None
 
     def wait_for_word(self, word: str, interval: float = 0.0, timeout: float = 0.0, split_config: ScreenSplitConfig = None) -> bool:
         """Takes a screenshot of the monitor and searches for a given word.
@@ -160,6 +198,20 @@ class KerasService():
         search_start_time = time.time()
         while time.time() - search_start_time < timeout:
             image_bytes = self._capture_screenshot(split_config)
+            result = self._query_service(word, image_bytes)
+            if result is not None:
+                return result
+            time.sleep(interval)
+        return None
+    
+    def wait_for_word_vulkan(self, word: str, interval: float = 0.0, timeout: float = 0.0, split_config: ScreenSplitConfig = None) -> bool:
+        """Overload for look_for_word but captures Vulkan frames"""
+        if split_config is None:
+            split_config = ScreenSplitConfig(
+                divide_method=ScreenShotDivideMethod.NONE, quadrant=ScreenShotQuadrant.TOP)
+        search_start_time = time.time()
+        while time.time() - search_start_time < timeout:
+            image_bytes = self._capture_vulkan_screenshot(split_config)
             result = self._query_service(word, image_bytes)
             if result is not None:
                 return result
