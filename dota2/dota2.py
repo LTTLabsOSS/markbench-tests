@@ -75,6 +75,8 @@ def run_benchmark():
             "Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
+    time.sleep(15)  # wait for main menu
+
     screen_height, screen_width = get_resolution()
     location = None
     click_multiple = 0
