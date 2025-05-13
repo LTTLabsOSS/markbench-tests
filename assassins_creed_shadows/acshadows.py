@@ -1,36 +1,36 @@
 # pylint: disable=missing-module-docstring
-from argparse import ArgumentParser
 import logging
-import os
 from pathlib import Path
 import time
 import sys
 import re
 import pydirectinput as user
 import getpass
-
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, str(Path(sys.path[0]).parent))
 
 # pylint: disable=wrong-import-position
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
     format_resolution,
-    setup_log_directory,
+    setup_logging,
     write_report_json,
     seconds_to_milliseconds,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT
 )
 from harness_utils.steam import get_build_id, exec_steam_game
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.misc import press_n_times
-USERNAME = getpass.getuser()
+from harness_utils.misc import (
+    press_n_times,
+    int_time,
+    find_word,
+    keras_args)
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
-PROCESS_NAME = "ACShadows.exe"
+USERNAME = getpass.getuser()
 STEAM_GAME_ID = 3159330
+SCRIPT_DIR = Path(__file__).resolve().parent
+LOG_DIR = SCRIPT_DIR / "run"
+PROCESS_NAME = "ACShadows.exe"
+
 CONFIG_LOCATION = f"C:\\Users\\{USERNAME}\\Documents\\Assassin's Creed Shadows"
 CONFIG_FILENAME = "ACShadows.ini"
 
@@ -56,40 +56,30 @@ def read_current_resolution():
     return (height_value, width_value)
 
 
-def find_word(keras_service, word, msg, timeout=30, interval=1):
-    """function to call keras """
-    if keras_service.wait_for_word(
-            word=word, timeout=timeout, interval=interval) is None:
-        logging.info(msg)
-        sys.exit(1)
-
-
-def int_time():
-    """rounds time to int"""
-    return int(time.time())
-
 
 def delete_videos():
     """deletes intro videos"""
-    base_dir = r"C:\Program Files (x86)\Steam\steamapps\common\Assassin's Creed Shadows"
-    videos_dir = os.path.join(base_dir, "videos")
-    videos_en_dir = os.path.join(videos_dir, "en")
+    base_dir = Path(
+        r"C:\Program Files (x86)\Steam\steamapps\common\Assassin's Creed Shadows")
+    videos_dir = base_dir / "videos"
+    videos_en_dir = videos_dir / "en"
 
     # List of video files to delete
     videos_to_delete = [
-        os.path.join(videos_dir, "ANVIL_Logo.webm"),
-        os.path.join(videos_dir, "INTEL_Logo.webm"),
-        os.path.join(videos_dir, "HUB_Bootflow_FranchiseIntro.webm"),
-        os.path.join(videos_dir, "UbisoftLogo.webm"),
-        os.path.join(videos_en_dir, "Epilepsy.webm"),
-        os.path.join(videos_en_dir, "warning_disclaimer.webm"),
-        os.path.join(videos_en_dir, "WarningSaving.webm")
+        videos_dir / "ANVIL_Logo.webm",
+        videos_dir / "INTEL_Logo.webm",
+        videos_dir / "HUB_Bootflow_FranchiseIntro.webm",
+        videos_dir / "HUB_Bootflow_AbstergoIntro.webm",
+        videos_dir / "UbisoftLogo.webm",
+        videos_en_dir / "Epilepsy.webm",
+        videos_en_dir / "warning_disclaimer.webm",
+        videos_en_dir / "WarningSaving.webm"
     ]
 
     for file_path in videos_to_delete:
-        if os.path.exists(file_path):
+        if file_path.exists():
             try:
-                os.remove(file_path)
+                file_path.unlink()
                 logging.info("Deleted: %s", file_path)
             except Exception as e:
                 logging.error("Error deleting %s: %s", file_path, e)
@@ -97,15 +87,15 @@ def delete_videos():
 
 def move_benchmark_file():
     """moves html benchmark results to log folder"""
-    src_dir = f"C:\\Users\\{USERNAME}\\Documents\\Assassin's Creed Shadows\\benchmark_reports"
+    src_dir = Path(
+        f"C:\\Users\\{USERNAME}\\Documents\\Assassin's Creed Shadows\\benchmark_reports")
 
-    for filename in os.listdir(src_dir):
-        src_path = os.path.join(src_dir, filename)
-        dest_path = os.path.join(LOG_DIR, filename)
+    for src_path in src_dir.iterdir():
+        dest_path = LOG_DIR / src_path.name
 
-        if os.path.isfile(src_path):
+        if src_path.is_file():
             try:
-                os.rename(src_path, dest_path)
+                src_path.rename(dest_path)
                 logging.info("Benchmark HTML moved")
             except Exception as e:
                 logging.error("Failed to move %s: %s", src_path, e)
@@ -190,7 +180,7 @@ def run_benchmark(keras_service):
 
     user.press("f1")
 
-    find_word(keras_service, "system", "couldn't find system")
+    find_word(keras_service, "system", "Couldn't find 'System' button")
 
     user.press("down")
 
@@ -198,9 +188,15 @@ def run_benchmark(keras_service):
 
     user.press("space")
 
-    find_word(keras_service, "benchmark", "couldn't find benchmark")
+    find_word(
+        keras_service, "benchmark",
+        "couldn't find 'benchmark' on screen before settings")
 
     navi_settings(am)
+
+    find_word(
+        keras_service, "benchmark",
+        "couldn't find 'benchmark' on screen after settings")
 
     user.press("down")
 
@@ -221,10 +217,7 @@ def run_benchmark(keras_service):
 
     time.sleep(100)
 
-    if keras_service.wait_for_word(
-            word="results", timeout=30, interval=1) is None:
-        logging.info("did not find end screen")
-        sys.exit(1)
+    find_word(keras_service, "results", "did not find results screen", 60)
 
     test_end_time = int_time() - 2
 
@@ -252,28 +245,10 @@ def run_benchmark(keras_service):
     return test_start_time, test_end_time
 
 
-def setup_logging():
-    """setup logging"""
-    setup_log_directory(LOG_DIR)
-    logging.basicConfig(filename=f'{LOG_DIR}/harness.log',
-                        format=DEFAULT_LOGGING_FORMAT,
-                        datefmt=DEFAULT_DATE_FORMAT,
-                        level=logging.DEBUG)
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
-
-
 def main():
     """entry point"""
-    parser = ArgumentParser()
-    parser.add_argument("--kerasHost", dest="keras_host",
-                        help="Host for Keras OCR service", required=True)
-    parser.add_argument("--kerasPort", dest="keras_port",
-                        help="Port for Keras OCR service", required=True)
-    args = parser.parse_args()
-    keras_service = KerasService(args.keras_host, args.keras_port)
+    keras_service = KerasService(
+        keras_args().keras_host, keras_args().keras_port)
     start_time, endtime = run_benchmark(keras_service)
     height, width = read_current_resolution()
     report = {
@@ -287,7 +262,7 @@ def main():
 
 if __name__ == "__main__":
     try:
-        setup_logging()
+        setup_logging(LOG_DIR)
         main()
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")

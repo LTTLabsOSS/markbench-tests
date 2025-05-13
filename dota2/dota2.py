@@ -1,13 +1,13 @@
 """Dota 2 test script"""
 import logging
-import os
+from pathlib import Path
 import time
 import pyautogui as gui
 import pydirectinput as user
 import sys
 from dota2_utils import get_resolution, copy_replay, copy_config, get_args
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, str(Path(sys.path[0]).parent))
 
 from harness_utils.output import (
     setup_log_directory,
@@ -22,8 +22,8 @@ from harness_utils.steam import exec_steam_game
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 
-SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "dota2.exe"
 STEAM_GAME_ID = 570
 
@@ -198,9 +198,9 @@ def run_benchmark():
 
 try:
     start_time, end_time = run_benchmark()
-    height, width = get_resolution()
+    res_height, res_width = get_resolution()
     report = {
-        "resolution": format_resolution(width, height),
+        "resolution": format_resolution(res_width, res_height),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time)
     }
