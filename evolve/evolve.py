@@ -77,7 +77,8 @@ def launch_evolve(renderer, trace_mode):
             now = time.time()
             elapsed = now - start_time
             if elapsed >= 30:  # seconds
-                raise ValueError("Evolve Benchmark subprocess did not start in time")
+                raise ValueError(
+                    "Evolve Benchmark subprocess did not start in time")
             process = is_process_running(EXECUTABLE)
             if process is not None:
                 process.nice(psutil.HIGH_PRIORITY_CLASS)
@@ -98,12 +99,9 @@ def main():
         choices=RENDERERS,
     )
     parser.add_argument(
-        "-t",
-        "--trace-mode",
+        "-t", "--trace-mode",
         help="Which type of hardware accelerated ray-tracing mode should be used",
-        required=True,
-        choices=TRACE_MODES,
-    )
+        required=True, choices=TRACE_MODES,)
     args = parser.parse_args()
 
     logging.info(
@@ -118,18 +116,34 @@ def main():
     scores = get_scores(RESULTS_FILE)
     logging.info("Benchmark took %.2f seconds", end_time - start_time)
 
-    for name, score in scores.items():
-        if name != "Loop":
-            report = {
-                "test": f"Evolve {args.renderer} {args.trace_mode} {name} Score",
-                "unit": "score",
-                "score": score,
-                "start_time": seconds_to_milliseconds(start_time),
-                "end_time": seconds_to_milliseconds(end_time),
-            }
+    report = {
+        "test": f"Evolve {args.renderer} {args.trace_mode} Benchmark",
+        "start_time": seconds_to_milliseconds(start_time),
+        "end_time": seconds_to_milliseconds(end_time),
+        "unit": "Score",
+        "Raytracing": scores['Raytracing'],
+        "Acceleration Structure Build": scores['Acceleration Structure Build'],
+        "Rasterization": scores['Rasterization'],
+        "Compute": scores['Compute'],
+        "Workgraphs": scores['Workgraphs'],
+        "Driver": scores['Driver'],
+        "Energy": scores['Energy'],
+    }
 
-            report_name = name.lower().replace(" ", "-")
-            write_report_json(LOG_DIR, f"report-{report_name}-score.json", report)
+    write_report_json(LOG_DIR, "report.json", report)
+
+    # for name, score in scores.items():
+    #     if name != "Loop":
+    #         report = {
+    #             "test": f"Evolve {args.renderer} {args.trace_mode} {name} Score",
+    #             "unit": "score",
+    #             "score": score,
+    #             "start_time": seconds_to_milliseconds(start_time),
+    #             "end_time": seconds_to_milliseconds(end_time),
+    #         }
+
+    #         report_name = name.lower().replace(" ", "-")
+    #         write_report_json(LOG_DIR, f"report-{report_name}-score.json", report)
 
 
 if __name__ == "__main__":
