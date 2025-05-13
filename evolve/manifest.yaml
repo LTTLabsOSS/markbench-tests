@@ -8,11 +8,11 @@ options:
   - name: renderer
     type: select
     values:
-      - "Hybrid"
-      - "PathTracer"
+      - "ray-tracing"
+      - "path-tracing"
   - name: trace-mode
     type: select
-    values: 
-      - "Pipeline"
-      - "Inline"
-      - "Workgraph"
+    values:
+      - "pipeline"
+      - "inline"
+      - "workgraph"

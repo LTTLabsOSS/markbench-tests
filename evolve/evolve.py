@@ -11,6 +11,7 @@ import psutil
 import csv
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
+
 from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
     DEFAULT_LOGGING_FORMAT,
@@ -63,7 +64,7 @@ def get_scores(results_path):
 
 def launch_evolve(renderer, trace_mode):
     """launch evolve with the given render and trace parameters"""
-    launch_command = f'"{EXECUTABLE_PATH}" --export-scores {RESULTS_FILE} run-official --renderer {renderer} --mode {trace_mode}'
+    launch_command = f'"{EXECUTABLE_PATH}"  run-official --renderer {renderer} --mode {trace_mode} --export-scores {RESULTS_FILE}'
     with subprocess.Popen(
         launch_command,
         stdout=subprocess.PIPE,
