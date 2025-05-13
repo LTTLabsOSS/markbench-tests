@@ -3,14 +3,13 @@
 from pathlib import Path
 from argparse import ArgumentParser
 import logging
-import os.path
 import sys
 import time
 import subprocess
 import psutil
 import csv
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+sys.path.insert(1, str((Path(sys.path[0]) / "..").resolve()))
 
 from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
