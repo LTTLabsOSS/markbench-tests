@@ -132,19 +132,6 @@ def main():
 
     write_report_json(LOG_DIR, "report.json", report)
 
-    # for name, score in scores.items():
-    #     if name != "Loop":
-    #         report = {
-    #             "test": f"Evolve {args.renderer} {args.trace_mode} {name} Score",
-    #             "unit": "score",
-    #             "score": score,
-    #             "start_time": seconds_to_milliseconds(start_time),
-    #             "end_time": seconds_to_milliseconds(end_time),
-    #         }
-
-    #         report_name = name.lower().replace(" ", "-")
-    #         write_report_json(LOG_DIR, f"report-{report_name}-score.json", report)
-
 
 if __name__ == "__main__":
     try:
