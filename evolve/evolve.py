@@ -63,7 +63,7 @@ def get_scores(results_path):
 
 def launch_evolve(renderer, trace_mode):
     """launch evolve with the given render and trace parameters"""
-    launch_command = f'"{EXECUTABLE_PATH}"  run-official --renderer {renderer} --mode {trace_mode} --export-scores {RESULTS_FILE}'
+    launch_command = f'"{EXECUTABLE_PATH}"  run-custom --renderer {renderer} --mode {trace_mode} --export-scores {RESULTS_FILE}'
     with subprocess.Popen(
         launch_command,
         stdout=subprocess.PIPE,
