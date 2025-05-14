@@ -6,7 +6,7 @@ import subprocess
 import sys
 import time
 import psutil
-from utils import get_score, is_process_running
+from utils import get_score
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -17,6 +17,9 @@ from harness_utils.output import (
     seconds_to_milliseconds,
     setup_log_directory,
     write_report_json
+)
+from harness_utils.process import (
+    is_process_running
 )
 
 #####
