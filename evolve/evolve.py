@@ -25,7 +25,7 @@ from harness_utils.process import (
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR / "run"
 EVOLVE_DIR = Path(r"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Evolve")
-EXECUTABLE = "evolve.exe"
+EXECUTABLE = "evolve-professional.exe"
 EXECUTABLE_PATH = EVOLVE_DIR / EXECUTABLE
 RESULTS_FILE = LOG_DIR / "evolve-results.csv"
 
