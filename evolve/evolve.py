@@ -139,3 +139,9 @@ if __name__ == "__main__":
         logging.error("something went wrong running the benchmark!")
         logging.exception(ex)
         sys.exit(1)
+    finally:
+        # Evolve checks if the file already exists before
+        # trying to overwrite, so make sure this cleans up
+        # its score output as we only used it for generating
+        # report files
+        os.remove(RESULTS_FILE)
