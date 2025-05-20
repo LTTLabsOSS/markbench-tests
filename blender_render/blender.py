@@ -3,16 +3,16 @@ from pathlib import Path
 from blender_utils import BENCHMARK_CONFIG, find_blender, run_blender_render, download_scene
 from argparse import ArgumentParser
 import logging
-import os.path
 import sys
 import time
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, str(Path(sys.path[0]).parent))
 from harness_utils.output import DEFAULT_DATE_FORMAT, DEFAULT_LOGGING_FORMAT, write_report_json, seconds_to_milliseconds
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
+
 
 def setup_logging():
     """default logging config"""
@@ -26,7 +26,9 @@ def setup_logging():
     console.setFormatter(formatter)
     logging.getLogger('').addHandler(console)
 
+
 VALID_DEVICES = ["CPU", "CUDA", "OPTIX", "HIP", "ONEAPI", "METAL"]
+
 
 def main():
     """entry point for test script"""
@@ -34,7 +36,8 @@ def main():
     parser.add_argument("-d", "--device", dest="device",
                         help="device", metavar="device", required=True)
     parser.add_argument(
-            "--benchmark", dest="benchmark", help="Benchmark test type", metavar="benchmark", required=True)
+        "--benchmark", dest="benchmark", help="Benchmark test type",
+        metavar="benchmark", required=True)
     args = parser.parse_args()
     if args.device not in VALID_DEVICES:
         raise Exception(f"invalid device selection: {args.device}")
@@ -49,7 +52,9 @@ def main():
     score = run_blender_render(
         executable_path, LOG_DIR, args.device.upper(), benchmark)
     end_time = time.time()
-    logging.info(f'Finished rendering {args.benchmark} in %d seconds', (end_time - start_time))
+    logging.info(
+        f'Finished rendering {args.benchmark} in %d seconds',
+        (end_time - start_time))
 
     if score is None:
         raise Exception("no duration was found in the log to use as the score")
