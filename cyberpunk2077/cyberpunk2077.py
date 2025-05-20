@@ -131,7 +131,8 @@ def navigate_settings() -> None:
         time.sleep(0.5)
 
         # extra check for lower resolutions, doenst reach anisotropy
-        result = kerasService.wait_for_word("anisotropy", interval=3, timeout=20)
+        result = kerasService.wait_for_word(
+            "anisotropy", interval=3, timeout=20)
         if not result:
             logging.info(
                 "Did not see anisotropic options. Did the game navigate the graphics menu correctly?")
@@ -144,7 +145,7 @@ def navigate_settings() -> None:
         user.press("down")
         time.sleep(0.5)
 
-    result = kerasService.wait_for_word("occlusion", interval=3, timeout=20)
+    result = kerasService.wait_for_word("ambient", interval=3, timeout=20)
     if not result:
         logging.info(
             "Did not see ambient occlusion options. Did the game navigate to the graphics menu correctly?")
