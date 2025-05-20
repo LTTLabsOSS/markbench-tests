@@ -147,9 +147,12 @@ def navigate_settings() -> None:
 
     result = kerasService.wait_for_word("ambient", interval=3, timeout=20)
     if not result:
-        logging.info(
-            "Did not see ambient occlusion options. Did the game navigate to the graphics menu correctly?")
-        sys.exit(1)
+        result = kerasService.wait_for_word("amblent", interval=3, timeout=20)
+        if not result:
+            logging.info(
+                "Did not see ambient occlusion options. Did the game navigate to the graphics menu correctly?")
+            sys.exit(1)
+
     am.take_screenshot(
         "graphics_3.png", ArtifactType.CONFIG_IMAGE, "graphics menu 3")
 
