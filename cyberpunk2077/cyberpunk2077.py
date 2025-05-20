@@ -126,18 +126,16 @@ def navigate_settings() -> None:
 
     result = kerasService.wait_for_word("anisotropy", interval=3, timeout=20)
     if not result:
-        logging.info(
-            "Did not see anisotropic options. Did the game navigate the graphics menu correctly?")
 
-    user.press("down")
-    time.sleep(0.5)
+        user.press("down")
+        time.sleep(0.5)
 
-    # extra check for lower resolutions, doenst reach anisotropy
-    result = kerasService.wait_for_word("anisotropy", interval=3, timeout=20)
-    if not result:
-        logging.info(
-            "Did not see anisotropic options. Did the game navigate the graphics menu correctly?")
-        sys.exit(1)
+        # extra check for lower resolutions, doenst reach anisotropy
+        result = kerasService.wait_for_word("anisotropy", interval=3, timeout=20)
+        if not result:
+            logging.info(
+                "Did not see anisotropic options. Did the game navigate the graphics menu correctly?")
+            sys.exit(1)
 
     am.take_screenshot(
         "graphics_2.png", ArtifactType.CONFIG_IMAGE, "graphics menu 2")
