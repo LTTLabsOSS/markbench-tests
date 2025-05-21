@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import time
 import pydirectinput as user
+import pyautogui as gui
 import sys
 from shadow_of_the_tomb_raider_utils import get_latest_file_report, get_resolution, get_args
 
@@ -52,6 +53,8 @@ def run_benchmark(keras_service, am):
     """Start game via Steam and enter fullscreen mode"""
     setup_start_time = int(time.time())
     start_game()
+    gui.moveTo(0, 0)
+
     time.sleep(20)
 
     ss_config = ScreenSplitConfig(
@@ -60,14 +63,7 @@ def run_benchmark(keras_service, am):
     )
 
     if keras_service.wait_for_word(word="options", timeout=60, interval=1,
-                                   split_config=ss_config) is not None:
-        if keras_service.wait_for_word(word="store", timeout=10, interval=1,
-                                       split_config=ss_config) is not None:
-            user.press("up")
-            time.sleep(0.5)
-            user.press("up")
-            time.sleep(0.5)
-    else:
+                                   split_config=ss_config) is None:
         logging.info(
             "Did not find the options menu. Did the game launch correctly?")
         sys.exit(1)
