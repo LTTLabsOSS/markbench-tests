@@ -21,6 +21,7 @@ SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY.joinpath("run")
 STEAM_GAME_ID = 1286680
 EXECUTABLE = "Wonderlands.exe"
+user.FAILSAFE = False
 
 def setup_logging():
     """default logging config"""

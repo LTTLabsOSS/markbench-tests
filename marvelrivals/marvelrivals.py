@@ -36,6 +36,7 @@ CONFIG_FILENAME = "GameUserSettings.ini"
 cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
 
 am = ArtifactManager(LOG_DIR)
+user.FAILSAFE = False
 
 def setup_logging():
     """default logging config"""

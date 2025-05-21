@@ -34,6 +34,7 @@ CONFIG_LOCATION = (
 CONFIG_FILENAME = "UserConfigSelections"
 PROCESSES = ["ForzaHorizon5.exe", "RTSS.exe"]
 
+user.FAILSAFE = False
 
 def start_rtss():
     """Sets up the RTSS process"""

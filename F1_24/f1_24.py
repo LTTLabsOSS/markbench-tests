@@ -40,6 +40,7 @@ intro_videos = [
     os.path.join(VIDEO_PATH, "attract.bk2"),
     os.path.join(VIDEO_PATH, "cm_f1_sting.bk2")
 ]
+user.FAILSAFE = False
 
 
 def find_latest_result_file(base_path):

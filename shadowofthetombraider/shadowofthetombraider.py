@@ -27,6 +27,8 @@ PROCESS_NAME = "SOTTR.exe"
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
 
+user.FAILSAFE = False
+
 
 def setup_logging():
     """default logging config"""

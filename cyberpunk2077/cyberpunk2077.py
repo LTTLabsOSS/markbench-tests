@@ -26,6 +26,8 @@ SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 PROCESS_NAME = "cyberpunk2077.exe"
 
+user.FAILSAFE = False
+
 
 def start_game():
     """Launch the game with no launcher or start screen"""

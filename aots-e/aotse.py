@@ -51,6 +51,9 @@ BENCHMARK_CONFIG = {
 CFG = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
 GAME_DIR = get_app_install_location(STEAM_GAME_ID)
 
+user.FAILSAFE = False
+
+
 def start_game():
     """Launch the game with no launcher or start screen"""
     test_option = BENCHMARK_CONFIG[args.benchmark]["config"]

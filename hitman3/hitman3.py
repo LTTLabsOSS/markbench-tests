@@ -36,6 +36,7 @@ input_file = os.path.join(script_dir, 'graphics.reg')
 config_file = os.path.join(script_dir, 'graphics_config.txt')
 hive = winreg.HKEY_CURRENT_USER
 SUBKEY = r"SOFTWARE\\IO Interactive\\HITMAN3"
+user.FAILSAFE = False
 
 def benchmark_check():
     benchmark_id = get_benchmark_name(config_file)

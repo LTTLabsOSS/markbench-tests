@@ -41,6 +41,7 @@ intro_videos = [
     os.path.join(VIDEO_PATH, "cm_f1_sting.bk2")
 ]
 
+user.FAILSAFE = False
 
 def find_latest_result_file(base_path):
     """Look for files in the benchmark results path that match the pattern in the regular expression"""

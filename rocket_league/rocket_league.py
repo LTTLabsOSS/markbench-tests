@@ -48,6 +48,7 @@ logging.getLogger('').addHandler(console)
 args = get_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
 
+user.FAILSAFE = False
 
 def get_run_game_id_command(game_id: int) -> str:
     """Build string to launch game"""
