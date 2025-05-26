@@ -61,6 +61,7 @@ def main():
 
     report = {
         "test": f"Blender {args.benchmark} Render {args.device.upper()}",
+        "test_parameter": args.benchmark,
         "score": score,
         "unit": "seconds",
         "version": version,
