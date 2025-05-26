@@ -66,7 +66,6 @@ def main():
         "unit": "seconds",
         "version": version,
         "device": args.device,
-        "benchmark": args.benchmark,
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time)
     }
