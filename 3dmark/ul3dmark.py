@@ -130,6 +130,7 @@ try:
 
     report = {
         "test": BENCHMARK_CONFIG[args.benchmark]["test_name"],
+        "test_parameter": args.benchmark,
         "unit": "score",
         "score": score,
         "start_time": seconds_to_milliseconds(strt),
