@@ -58,6 +58,7 @@ if EXIT_CODE > 0:
     logging.error("Test failed!")
     sys.exit(EXIT_CODE)
 
+SCORE = ""
 pattern = re.compile(r"Score: (\d+)")
 log_path = os.path.join(log_dir, "log.txt")
 with open(log_path, encoding="utf-8") as log:
@@ -65,12 +66,12 @@ with open(log_path, encoding="utf-8") as log:
     for line in lines:
         match = pattern.search(line)
         if match:
-            score = match.group(1)
+            SCORE = match.group(1)
 
 report = {
     "test": "Unigine Superposition",
     "test_parameter": f"{args.api} {args.preset}",
-    "score": score,
+    "score": SCORE,
     "unit": "score"
 }
 
