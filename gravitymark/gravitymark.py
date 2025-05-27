@@ -4,7 +4,7 @@ import getpass
 import subprocess
 import sys
 from pathlib import Path
-from gravitymark_utils import friendly_test_name, get_args, get_score, create_gravitymark_command
+from gravitymark_utils import friendly_test_param, get_args, get_score, create_gravitymark_command
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -36,7 +36,9 @@ formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
-gravitymark_log_path = Path("C:/Users", getpass.getuser(), ".GravityMark", "GravityMark.log")
+gravitymark_log_path = Path(
+    "C:/Users", getpass.getuser(),
+    ".GravityMark", "GravityMark.log")
 image_path = log_dir / "result.png"
 command = create_gravitymark_command(GRAVITYMARK_EXE, api, image_path)
 
@@ -47,7 +49,8 @@ try:
     result = subprocess.run(command, check=True, cwd=GRAVITYMARK_PATH)
 
     if result.returncode > 0:
-        logging.error("GravityMark exited with return code %d", result.returncode)
+        logging.error("GravityMark exited with return code %d",
+                      result.returncode)
         sys.exit(1)
 
     score = get_score(gravitymark_log_path)
@@ -57,7 +60,8 @@ try:
         sys.exit(1)
 
     report = {
-        "test": friendly_test_name(args.api),
+        "test": "GravityMark",
+        "test_name": friendly_test_param(args.api),
         "score": score,
         "unit": "score"
     }
