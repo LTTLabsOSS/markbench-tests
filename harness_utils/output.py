@@ -13,7 +13,9 @@ def setup_log_directory(log_dir: str) -> None:
         os.mkdir(log_dir)
 
 
-def write_report_json(log_dir: str, report_name: str, report_json: any) -> None:
+# change in future, this any bothers me, should be dict
+def write_report_json(
+        log_dir: str, report_name: str, report_json: any) -> None:
     """Writes the json output of a harness to the log directory"""
     with open(os.path.join(log_dir, report_name), "w", encoding="utf-8") as file:
         file.write(json.dumps(report_json))

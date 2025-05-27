@@ -66,7 +66,7 @@ try:
         "unit": "score"
     }
 
-    write_report_json(log_dir, "report.json", report)
+    write_report_json(str(log_dir), "report.json", report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

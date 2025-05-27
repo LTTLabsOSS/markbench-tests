@@ -60,7 +60,7 @@ REPORT_PATH = LOG_DIR / RESULTS_FILENAME
 
 def setup_logging():
     """setup logging"""
-    setup_log_directory(LOG_DIR)
+    setup_log_directory(str(LOG_DIR))
     logging.basicConfig(filename=LOG_DIR / "harness.log",
                         format=DEFAULT_LOGGING_FORMAT,
                         datefmt=DEFAULT_DATE_FORMAT,

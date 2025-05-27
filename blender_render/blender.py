@@ -70,7 +70,7 @@ def main():
         "end_time": seconds_to_milliseconds(end_time)
     }
 
-    write_report_json(LOG_DIR, "report.json", report)
+    write_report_json(str(LOG_DIR), "report.json", report)
 
 
 if __name__ == "__main__":
