@@ -136,19 +136,19 @@ def main():
     score = 0
     test = ""
     if args.app == "premierepro":
-        test = "PugetBench Adobe Premiere Pro"
+        test = "Adobe Premiere Pro"
         if version is None:
             version = get_premierepro_version()
     elif args.app == "photoshop":
-        test = "PugetBench Adobe Photoshop"
+        test = "Adobe Photoshop"
         if version is None:
             version = get_photoshop_version()
     elif args.app == "aftereffects":
-        test = "PugetBench Adobe After Effects"
+        test = "Adobe After Effects"
         if version is None:
             version = get_aftereffects_version()
     elif args.app == "resolve":
-        test = "PugetBench Davinci Resolve Studio"
+        test = "Davinci Resolve Studio"
         if version is None:
             version = get_davinci_version() + "-studio"
 
@@ -163,7 +163,8 @@ def main():
         report = {
             "start_time": seconds_to_milliseconds(start_time),
             "end_time": seconds_to_milliseconds(end_time),
-            "test": test,
+            "test": "PugetBench",
+            "test_parameter": test,
             "app_version": version,
             "benchmark_version": args.benchmark_version,
             "pugetbench_version": get_pugetbench_version(),

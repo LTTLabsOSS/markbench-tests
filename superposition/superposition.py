@@ -68,7 +68,8 @@ with open(log_path, encoding="utf-8") as log:
             score = match.group(1)
 
 report = {
-    "test": f"Unigine Superposition 2017 {args.preset} ${args.api}",
+    "test": "Unigine Superposition",
+    "test_parameter": f"{args.api} {args.preset}",
     "score": score,
     "unit": "score"
 }
