@@ -23,8 +23,8 @@ logging.getLogger('').addHandler(console)
 
 executable = os.path.join(INSTALL_DIR, EXECUTABLE)
 report_dest = os.path.join(log_dir, "report.xml")
-argstr = f"/GGBENCH {report_dest}"
-result = subprocess.run([executable, "/GGBENCH", report_dest], check=False)
+ARGSTR = f"/GGBENCH {report_dest}"
+result = subprocess.run([executable, ARGSTR], check=False)
 
 if result.returncode > 0:
     logging.error("Aida failed with exit code {result.returncode}")

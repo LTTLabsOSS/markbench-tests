@@ -19,7 +19,7 @@ GRAVITYMARK_PATH = Path("C:/", "Program Files", "GravityMark", "bin")
 GRAVITYMARK_EXE = GRAVITYMARK_PATH / "GravityMark.exe"
 
 args = get_args()
-api = f"-{args.api}"
+API = f"-{args.api}"
 
 script_dir = Path(__file__).resolve().parent
 log_dir = script_dir / "run"
@@ -40,7 +40,7 @@ gravitymark_log_path = Path(
     "C:/Users", getpass.getuser(),
     ".GravityMark", "GravityMark.log")
 image_path = log_dir / "result.png"
-command = create_gravitymark_command(GRAVITYMARK_EXE, api, image_path)
+command = create_gravitymark_command(GRAVITYMARK_EXE, API, image_path)
 
 try:
     logging.info('Starting benchmark!')
