@@ -43,15 +43,15 @@ formatter = logging.Formatter(LOGGING_FORMAT)
 console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
-cmd = f'{INSTALL_DIR}\\{EXECUTABLE}'
-argstr = f"-fullscreen 1 -mode default -api {args.api} -quality {args.preset} -iterations 1"
-argstr += f" -log_txt {log_dir}\\log.txt"
+CMD = f'{INSTALL_DIR}\\{EXECUTABLE}'
+ARGSTR = f"-fullscreen 1 -mode default -api {args.api} -quality {args.preset} -iterations 1"
+ARGSTR += f" -log_txt {log_dir}\\log.txt"
 
-logging.info(cmd)
-logging.info(argstr)
-argies = argstr.split(" ")
-cmd = cmd.rstrip()
-with Popen([cmd, *argies]) as process:
+logging.info(CMD)
+logging.info(ARGSTR)
+argies = ARGSTR.split(" ")
+CMD = CMD.rstrip()
+with Popen([CMD, *argies]) as process:
     EXIT_CODE = process.wait()
 
 if EXIT_CODE > 0:
