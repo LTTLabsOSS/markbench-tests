@@ -60,7 +60,7 @@ def main():
         raise Exception("no duration was found in the log to use as the score")
 
     report = {
-        "test": f"Blender {args.benchmark} Render {args.device.upper()}",
+        "test": "Blender Render",
         "test_parameter": args.benchmark,
         "score": score,
         "unit": "seconds",
