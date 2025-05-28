@@ -77,6 +77,7 @@ formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
+
 def main():
     """entrypoint"""
     parser = ArgumentParser()
@@ -133,7 +134,8 @@ def main():
         end_time = current_time_ms()
 
         report = {
-            "test": f"HandBrake Encoding BBB {args.encoder.upper()}",
+            "test": "HandBrake Encoding",
+            "test_parameter": f"{ENCODER_TO_PRESET[args.encoder]['name']}",
             "score": score,
             "unit": "frames per second",
             "version": "1.9.1",
@@ -146,6 +148,7 @@ def main():
         logging.error("Something went wrong running the benchmark!")
         logging.exception(e)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

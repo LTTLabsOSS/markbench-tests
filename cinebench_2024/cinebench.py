@@ -89,7 +89,8 @@ try:
             logging.info("Benchmark took %.2f seconds", elapsed_test_time)
 
             report = {
-                "test": friendly_test_name(test_type),
+                "test": "Cinebench 2024",
+                "test_parameter": friendly_test_name(test_type),
                 "score": score,
                 "unit": "score",
                 "start_time": seconds_to_milliseconds(start_time),
