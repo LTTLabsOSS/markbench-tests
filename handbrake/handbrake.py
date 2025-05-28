@@ -143,7 +143,7 @@ def main():
             "end_time": end_time
         }
 
-        write_report_json(LOG_DIR, "report.json", report)
+        write_report_json(str(LOG_DIR), "report.json", report)
     except Exception as e:
         logging.error("Something went wrong running the benchmark!")
         logging.exception(e)
