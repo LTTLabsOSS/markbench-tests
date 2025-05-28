@@ -70,7 +70,8 @@ with open(log_path, encoding="utf-8") as log:
 
 report = {
     "test": "Unigine Superposition",
-    "test_parameter": f"{args.api} {args.preset}",
+    "test_parameter": f"{args.api}",
+    "test_preset": args.preset,
     "score": SCORE,
     "unit": "score"
 }
