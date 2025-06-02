@@ -1,4 +1,5 @@
 """UL Procyon Computer Vision test script"""
+# pylint: disable=no-name-in-module
 from argparse import ArgumentParser
 import logging
 from pathlib import Path
