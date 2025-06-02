@@ -34,63 +34,74 @@ BENCHMARK_CONFIG = {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_all.def\"",
         "process_name": "Handler.exe",
         "result_regex": r"<AIImageGenerationOverallScore>(\d+)",
-        "test_name": "All LLM Model Text Generation ONNX"
+        "test_name": "all_models",
+        "api": "onnx"
     },
     "Llama_2_13B_ONNX": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_llama2.def\"",
         "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationLlama2OverallScore>(\d+)",
-        "test_name": "LLama 2 Text Generation ONNX"
+        "test_name": "llama_2_13b",
+        "api": "onnx"
     },
     "Llama_3_1_8B_ONNX": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_llama3.1.def\"",
         "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationLlama3OverallScore>(\d+)",
-        "test_name": "Llama 3.1 Text Generation ONNX"
+        "test_name": "llama_3_1_8b",
+        "api": "onnx"
     },
     "Mistral_7B_ONNX": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_mistral.def\"",
         "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationMistralOverallScore>(\d+)",
-        "test_name": "Mistral Text Generation ONNX"
+        "test_name": "mistral_7b",
+        "api": "onnx"
     },
     "Phi_3_5_ONNX": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_phi.def\"",
         "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationPhiOverallScore>(\d+)",
-        "test_name": "Phi Text Generation ONNX"
+        "test_name": "phi_3_5",
+        "api": "onnx"
     },
     "All_Models_OPENVINO": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_all_openvino.def\"",
         "process_name": "Handler.exe",
         "result_regex": r"<AIImageGenerationOverallScore>(\d+)",
-        "test_name": "All LLM Model Text Generation OPENVINO"
+        "test_name": "all_models",
+        "api": "openvino"
     },
     "Llama_2_13B_OPENVINO": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_llama2_openvino.def\"",
         "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationLlama2OverallScore>(\d+)",
-        "test_name": "LLama 2 Text Generation OPENVINO"
+        "test_name": "llama_2_13b",
+        "api": "openvino"
     },
     "Llama_3_1_8B_OPENVINO": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_llama3.1_openvino.def\"",
         "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationLlama3OverallScore>(\d+)",
-        "test_name": "Llama 3.1 Text Generation OPENVINO"
+        "test_name": "llama_3_1_8b",
+        "api": "openvino"
     },
     "Mistral_7B_OPENVINO": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_mistral_openvino.def\"",
         "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationMistralOverallScore>(\d+)",
-        "test_name": "Mistral Text Generation OPENVINO"
+        "test_name": "mistral_7b",
+        "api": "openvino"
     },
     "Phi_3_5_OPENVINO": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_phi_openvino.def\"",
         "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationPhiOverallScore>(\d+)",
-        "test_name": "Phi Text Generation OPENVINO"
+        "test_name": "phi_3_5",
+        "api": "openvino"
     }
 }
+
 RESULTS_FILENAME = "result.xml"
 REPORT_PATH = LOG_DIR / RESULTS_FILENAME
 
@@ -203,7 +214,9 @@ try:
                 report = {
                     "start_time": seconds_to_milliseconds(start_time),
                     "end_time": seconds_to_milliseconds(end_time),
-                    "test": test_type[0],
+                    "test": "Procyon AI Text Generation",
+                    "test_parameter": test_type[1]["test_name"],
+                    "api": test_type[1]["api"],
                     "test_version": find_test_version(),
                     "procyon_version": find_procyon_version(),
                     "unit": "score",
