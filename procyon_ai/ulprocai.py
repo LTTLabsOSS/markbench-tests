@@ -52,72 +52,83 @@ BENCHMARK_CONFIG = {
         "device_name": "CPU",
         # TODO: Find a good way to report the CPU name here.
         "device_id": "CPU",
-        "test_name": "WinML CPU (FLOAT32)"
+        "test_name": "cpu_float32",
+        "api": "winml"
     },
     "AMD_GPU0": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_winml_gpu.def\"",
         "process_name": "WinML.exe",
         "device_name": list(WINML_DEVICES.keys())[0],
         "device_id": list(WINML_DEVICES.values())[0],
-        "test_name": "WinML GPU (FLOAT32)"
+        "test_name": "gpu_float32",
+        "api": "winml"
     },
     "AMD_GPU1": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_winml_gpu.def\"",
         "process_name": "WinML.exe",
         "device_name": list(WINML_DEVICES.keys())[1] if len(list(WINML_DEVICES.keys())) > 1 else list(WINML_DEVICES.keys())[0],
         "device_id": list(WINML_DEVICES.values())[1] if len(list(WINML_DEVICES.values())) > 1 else list(WINML_DEVICES.values())[0],
-        "test_name": "WinML GPU (FLOAT32)"
+        "test_name": "gpu_float32",
+        "api": "winml"
     },
     "Intel_CPU": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_openvino_cpu.def\"",
         "process_name": "OpenVino.exe",
         "device_id": "CPU",
         "device_name": OPENVINO_DEVICES["CPU"],
-        "test_name": "Intel OpenVINO CPU (FLOAT32)"
+        "test_name": "cpu_float32",
+        "api": "openvino"
     },
     "Intel_GPU0": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_openvino_gpu.def\"",
         "process_name": "OpenVino.exe",
         "device_id": "GPU.0" if "GPU.0" in list(OPENVINO_DEVICES.keys()) else "GPU",
         "device_name": get_openvino_gpu(OPENVINO_DEVICES, "GPU.0"),
-        "test_name": "Intel OpenVINO GPU 0 (FLOAT32)"
+        "test_name": "gpu_float32",
+        "api": "openvino"
     },
     "Intel_GPU1": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_openvino_gpu.def\"",
         "process_name": "OpenVino.exe",
         "device_id": "GPU.1" if "GPU.1" in list(OPENVINO_DEVICES.keys()) else "GPU",
         "device_name": get_openvino_gpu(OPENVINO_DEVICES, "GPU.0"),
-        "test_name": "Intel OpenVINO GPU 1 (FLOAT32)"
+        "test_name": "gpu_float32",
+        "api": "openvino"
     },
     "Intel_NPU": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_openvino_npu.def\"",
         "process_name": "OpenVino.exe",
         "device_id": "NPU",
         "device_name": OPENVINO_DEVICES.get("NPU", "None"),
-        "test_name": "Intel OpenVINO NPU (FLOAT32)"
+        "test_name": "npu_float32",
+        "api": "openvino"
     },
     "NVIDIA_GPU": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_tensorrt.def\"",
         "device_id": "cuda:0",
         "device_name": CUDA_DEVICES.get("cuda:0"),
         "process_name": "TensorRT.exe",
-        "test_name": "NVIDIA TensorRT (FLOAT32)"
+        "test_name": "gpu_float32",
+        "api": "tensorrt"
     },
     "Qualcomm_HTP": {
         "config": f"\"{CONFIG_DIR}\\ai_computer_vision_snpe.def\"",
         "device_id": "CPU",
         "device_name": "CPU",
         "process_name": "SNPE.exe",
-        "test_name": "Qualcomm SNPE (INTEGER)"
+        "test_name": "htp_integer",
+        "api": "snpe"
     },
 }
+
+
 RESULTS_FILENAME = "result.xml"
 REPORT_PATH = LOG_DIR / RESULTS_FILENAME
 
 
 def setup_logging():
     """setup logging"""
-    setup_log_directory(LOG_DIR)
+    setup_log_directory(str(LOG_DIR))
     logging.basicConfig(filename=LOG_DIR / "harness.log",
                         format=DEFAULT_LOGGING_FORMAT,
                         datefmt=DEFAULT_DATE_FORMAT,
@@ -209,6 +220,7 @@ try:
         "end_time": seconds_to_milliseconds(end_time),
         "test": "Procyon AI CV",
         "test_parameter": BENCHMARK_CONFIG[args.engine]["test_name"],
+        "api": BENCHMARK_CONFIG[args.engine]["api"],
         "test_version": find_test_version(),
         "device_name": BENCHMARK_CONFIG[args.engine]["device_name"],
         "procyon_version": find_procyon_version(),
@@ -216,7 +228,7 @@ try:
         "score": score
     }
 
-    write_report_json(LOG_DIR, "report.json", report)
+    write_report_json(str(LOG_DIR), "report.json", report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
