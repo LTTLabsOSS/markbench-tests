@@ -27,7 +27,7 @@ LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "dota2.exe"
 STEAM_GAME_ID = 570
 
-setup_log_directory(LOG_DIRECTORY)
+setup_log_directory(str(LOG_DIRECTORY))
 logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
                     format=DEFAULT_LOGGING_FORMAT,
                     datefmt=DEFAULT_DATE_FORMAT,
@@ -132,9 +132,30 @@ def run_benchmark():
             "Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
-    am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE,
+    am.take_screenshot("video1.png", ArtifactType.CONFIG_IMAGE,
                        "picture of video settings")
 
+    user.press("down")
+
+    if kerasService.wait_for_word(
+            word="api", timeout=30, interval=1) is None:
+        logging.info(
+            "Did not find the video settings menu. Did the menu get stuck?")
+        sys.exit(1)
+
+    am.take_screenshot("video2.png", ArtifactType.CONFIG_IMAGE,
+                       "picture of video settings")
+
+    user.press("down")
+
+    if kerasService.wait_for_word(
+            word="direct", timeout=30, interval=1) is None:
+        logging.info(
+            "Did not find the video settings menu. Did the menu get stuck?")
+        sys.exit(1)
+
+    am.take_screenshot("video3.png", ArtifactType.CONFIG_IMAGE,
+                       "picture of video settings")
     # starting the benchmark
     user.press("escape")
     logging.info('Starting benchmark')
@@ -200,12 +221,12 @@ try:
     start_time, end_time = run_benchmark()
     res_height, res_width = get_resolution()
     report = {
-        "resolution": format_resolution(res_width, res_height),
+        "resolution": format_resolution(int(res_width), int(res_height)),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time)
     }
 
-    write_report_json(LOG_DIRECTORY, "report.json", report)
+    write_report_json(str(LOG_DIRECTORY), "report.json", report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
