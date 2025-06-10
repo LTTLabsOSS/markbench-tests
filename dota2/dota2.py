@@ -89,15 +89,18 @@ def run_benchmark():
             click_multiple = 0.8
         case "1920":
             location = gui.locateOnScreen(
-                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_1080.png")
+                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_1080.png",
+                confidence=0.9)
             click_multiple = 1
         case "2560":
             location = gui.locateOnScreen(
-                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_1440.png")
+                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_1440.png",
+                confidence=0.9)
             click_multiple = 1.5
         case "3840":
             location = gui.locateOnScreen(
-                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_2160.png")
+                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_2160.png",
+                confidence=0.9)
             click_multiple = 2
         case _:
             logging.error(
