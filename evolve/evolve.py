@@ -45,7 +45,7 @@ def setup_logging():
     logging.getLogger("").addHandler(console)
 
 
-TRACE_MODES = ["pipeline", "inline", "workgraph"]
+TRACE_MODES = ["pipeline", "inline", "work-graph"]
 RENDERERS = ["ray-tracing", "path-tracing"]
 
 
