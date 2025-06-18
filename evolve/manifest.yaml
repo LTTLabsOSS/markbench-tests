@@ -15,4 +15,4 @@ options:
     values:
       - "pipeline"
       - "inline"
-      - "workgraph"
+      - "work-graph"
