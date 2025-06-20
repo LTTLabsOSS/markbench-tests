@@ -63,7 +63,7 @@ def get_scores(results_path):
 
 def launch_evolve(renderer, trace_mode):
     """launch evolve with the given render and trace parameters"""
-    launch_command = f'"{EXECUTABLE_PATH}"  --offline run-custom --renderer {renderer} --mode {trace_mode} --export-scores {RESULTS_FILE}'
+    launch_command = f'"{EXECUTABLE_PATH}"  --offline run-custom --renderer {renderer} --mode {trace_mode} --fullscreen --export-scores {RESULTS_FILE}'
     with subprocess.Popen(
         launch_command,
         stdout=subprocess.PIPE,
@@ -101,7 +101,9 @@ def main():
     parser.add_argument(
         "-t", "--trace-mode",
         help="Which type of hardware accelerated ray-tracing mode should be used",
-        required=True, choices=TRACE_MODES,)
+        required=True,
+        choices=TRACE_MODES,
+    )
     args = parser.parse_args()
 
     logging.info(
