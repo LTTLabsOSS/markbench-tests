@@ -47,7 +47,7 @@ def setup_logging():
 
 TRACE_MODES = ["pipeline", "inline", "work-graph"]
 RENDERERS = ["ray-tracing", "path-tracing"]
-
+PRESETS = ["ultra", "high", "medium"]
 
 def get_scores(results_path):
     """obtain and parse the scores from the evolve run"""
@@ -61,9 +61,9 @@ def get_scores(results_path):
     return results
 
 
-def launch_evolve(renderer, trace_mode):
+def launch_evolve(renderer, trace_mode, preset):
     """launch evolve with the given render and trace parameters"""
-    launch_command = f'"{EXECUTABLE_PATH}"  --offline run-custom --renderer {renderer} --mode {trace_mode} --fullscreen --export-scores {RESULTS_FILE}'
+    launch_command = f'"{EXECUTABLE_PATH}"  --offline run-custom --renderer {renderer} --mode {trace_mode} --preset {preset} --fullscreen --export-scores {RESULTS_FILE}'
     with subprocess.Popen(
         launch_command,
         stdout=subprocess.PIPE,
@@ -91,36 +91,46 @@ def launch_evolve(renderer, trace_mode):
 def main():
     setup_logging()
     parser = ArgumentParser()
+
     parser.add_argument(
-        "-r",
-        "--renderer",
+        "-r", "--renderer",
         help="Whether to run with the hybrid renderer or path tracer",
         required=True,
         choices=RENDERERS,
     )
+
     parser.add_argument(
         "-t", "--trace-mode",
         help="Which type of hardware accelerated ray-tracing mode should be used",
         required=True,
         choices=TRACE_MODES,
     )
+
+    parser.add_argument(
+        "--preset",
+        help="The graphics settings preset to use",
+        required=True,
+        choices=PRESETS,
+    )
+
     args = parser.parse_args()
 
     logging.info(
-        "Starting Evolve with %s renderer and trace mode %s",
+        "Starting Evolve with %s renderer and trace mode %s on %s",
         args.renderer,
         args.trace_mode,
+        args.preset,
     )
 
     start_time = time.time()
-    launch_evolve(args.renderer, args.trace_mode)
+    launch_evolve(args.renderer, args.trace_mode, args.preset)
     end_time = time.time()
     scores = get_scores(RESULTS_FILE)
     logging.info("Benchmark took %.2f seconds", end_time - start_time)
 
     report = {
-        "test": f"Evolve {args.renderer} {args.trace_mode} Benchmark",
-        "test_parameter": f"{args.renderer} {args.trace_mode}",
+        "test": f"Evolve {args.renderer} {args.trace_mode} {args.preset} Benchmark",
+        "test_parameter": f"{args.renderer} {args.trace_mode} {args.preset}",
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
         "unit": "Score",
