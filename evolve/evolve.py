@@ -117,7 +117,7 @@ def main():
     logging.info("Benchmark took %.2f seconds", end_time - start_time)
 
     report = {
-        "test": f"Evolve {args.renderer} {args.trace_mode} Benchmark",
+        "test": "Evolve Benchmark",
         "test_parameter": f"{args.renderer} {args.trace_mode}",
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
