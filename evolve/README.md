@@ -12,6 +12,7 @@ Runs the EVOLVE benchmark scene and reads all the produced scores.
 
 - `--renderer` Specifies the type of renderer to run with
 - `--type` Specifies the method for hardware-accelerated ray-tracing or general rendering to use
+- `--preset` Specifies the graphic preset for the benchmark
 
 ## Output
 

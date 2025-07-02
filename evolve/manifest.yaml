@@ -15,4 +15,10 @@ options:
     values:
       - "pipeline"
       - "inline"
-      - "workgraph"
+      - "work-graph"
+  - name: preset
+    type: select
+    values:
+      - "ultra"
+      - "high"
+      - "medium"
