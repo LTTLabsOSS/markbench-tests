@@ -1,19 +1,20 @@
-"""F1 24 test script"""
+"""Doom: The Dark Ages test script"""
 import logging
 from argparse import ArgumentParser
+from pathlib import Path
 import os.path
-import re
 import time
 import sys
 import pydirectinput as user
+import re
 from doomdarkages_utils import get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
 from doomdarkages_utils import copy_launcher_config
-from harness_utils.steam import exec_steam_game, get_app_install_location, get_build_id
+from harness_utils.steam import exec_steam_game, get_build_id
 from harness_utils.keras_service import KerasService
-from harness_utils.misc import remove_files, press_n_times
+from harness_utils.misc import press_n_times, mouse_scroll_n_times
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
     format_resolution,
@@ -25,201 +26,186 @@ from harness_utils.output import (
 )
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
+
+
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
-PROCESS_NAME = "F1_24"
+PROCESS_NAME = "DOOMTheDarkAges"
 STEAM_GAME_ID = 3017860
-VIDEO_PATH = os.path.join(get_app_install_location(STEAM_GAME_ID), "videos")
-VIDEO_PATH = os.path.join(get_app_install_location(STEAM_GAME_ID), "videos")
-
 username = os.getlogin()
-CONFIG_PATH = f"C:\\Users\\{username}\\Saved Games\\id Software\\DOOMTheDarkAges\\base"
-CONFIG_FILENAME = "hardware_settings_config.xml"
-CONFIG = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
-#BENCHMARK_RESULTS_PATH = f"C:\\Users\\{username}\\Documents\\My Games\\F1 24\\benchmark"
-
-intro_videos = [
-    os.path.join(VIDEO_PATH, "attract.bk2"),
-    os.path.join(VIDEO_PATH, "cm_f1_sting.bk2")
-]
+BENCHMARK_RESULTS_PATH = f"C:\\Users\\{username}\\Saved Games\\id Software\\DOOMTheDarkAges\\base\\benchmark"
 
 def start_game():
     """Launch the game with no launcher or start screen"""
     copy_launcher_config()
-    return exec_steam_game(STEAM_GAME_ID, game_params=["+com_skipIntroVideo 1"])
+    return exec_steam_game(STEAM_GAME_ID, game_params=["+com_skipIntroVideo", "1"])
 
 def find_latest_result_file(base_path):
     """Look for files in the benchmark results path that match the pattern in the regular expression"""
-    pattern = r"benchmark_.*\.xml"
-    list_of_files = []
+    base_path = Path(base_path)
 
-    for filename in os.listdir(base_path):
-        if re.search(pattern, filename, re.IGNORECASE):
-            list_of_files.append(base_path + '\\' +filename)
-
-    latest_file = max(list_of_files, key=os.path.getmtime)
-
-    return latest_file
-
-def find_settings() -> any:
-    """Look for and enter settings"""
-    if not kerasService.look_for_word("settings", attempts=5, interval=3):
-        logging.info("Didn't find settings!")
-        sys.exit(1)
-    user.press("enter")
-    time.sleep(1.5)
-
-
-def find_graphics() -> any:
-    """Look for and enter graphics settings"""
-    if not kerasService.look_for_word("graphics", attempts=5, interval=3):
-        logging.info("Didn't find graphics!")
-        sys.exit(1)
-    user.press("right")
-    time.sleep(0.2)
-    user.press("enter")
-    time.sleep(1.5)
-
-
-def navigate_startup():
-    """press space through the warnings and navigate startup menus"""
-    result = kerasService.wait_for_word("product", timeout=80)
-    if not result:
-        logging.info("Game didn't start in time. Check settings and try again.")
-        sys.exit(1)
-
-    user.press("space")
-    time.sleep(1)
-    user.press("space")
-    time.sleep(1)
-    user.press("space")
-    time.sleep(4)
-
-    # Press enter to proceed to the main menu
-    result = kerasService.wait_for_word("press", interval=2, timeout=80)
-    if not result:
-        logging.info("Game didn't start in time. Check settings and try again.")
-        sys.exit(1)
-
-    logging.info("Hit the title screen. Continuing")
-    user.press("enter")
-    time.sleep(1)
-
-    # cancel logging into ea services
-    result = kerasService.wait_for_word("login", timeout=50)
-    if result:
-        logging.info("Cancelling logging in.")
-        user.press("enter")
-        time.sleep(2)
+    try:
+        return max(
+            base_path.glob("benchmark-*.json"),
+            key=lambda p: p.stat().st_mtime
+        )
+    except ValueError:
+        raise FileNotFoundError(
+            f"No benchmark-*.json files found in {base_path}"
+        )
 
 def run_benchmark():
     """Runs the actual benchmark."""
-    remove_files(intro_videos)
     start_game()
     am = ArtifactManager(LOG_DIRECTORY)
 
     setup_start_time = int(time.time())
-    time.sleep(2)
-    navigate_startup()
+    time.sleep(15)
+    # Press space to proceed to the main menu
+    result = kerasService.wait_for_word_vulkan("press", timeout=80)
+    if not result:
+        logging.info("Didn't see title screen. Check settings and try again.")
+        sys.exit(1)
+
+    logging.info("Hit the title screen. Continuing")
+    user.press("space")
+    time.sleep(4)
 
     # Navigate menus and take screenshots using the artifact manager
-    result = kerasService.wait_for_word("theatre", interval=3, timeout=60)
+    result = kerasService.wait_for_word_vulkan("campaign", interval=3, timeout=60)
     if not result:
         logging.info("Didn't land on the main menu!")
         sys.exit(1)
 
-    logging.info("Saw the options! we are good to go!")
+    logging.info("Saw the main menu. Proceeding.")
     time.sleep(1)
 
-    press_n_times("down", 6, 0.2)
+    press_n_times("down", 2, 0.2)
     user.press("enter")
-    time.sleep(2)
-    #find_settings()
-    find_graphics()
+    time.sleep(1)
 
-    # Navigate to video settings
-    press_n_times("down", 3, 0.2)
-    user.press("enter")
+    result = kerasService.wait_for_word_vulkan("daze", interval=3, timeout=15)
+    if not result:
+        logging.info("Didn't see the game settings. Did it navigate correctly?")
+        sys.exit(1)
+
+    logging.info("Saw the game settings. Proceeding.")
+    press_n_times("q", 2, 0.2)
+    time.sleep(1)
+
+    # Screenshotting the display settings
+    result = kerasService.wait_for_word_vulkan("display", interval=3, timeout=15)
+    if not result:
+        logging.info("Didn't find the video settings. Did it navigate correctly?")
+        sys.exit(1)
+
+    am.take_screenshot_vulkan("video1.png", ArtifactType.CONFIG_IMAGE, "1st screenshot of video settings menu")
+    mouse_scroll_n_times(6, -200,  0.2)
+    time.sleep(1)
+
+    result = kerasService.wait_for_word_vulkan("nvidia", interval=3, timeout=15)
+    if not result:
+        logging.info("Didn't find the NVIDIA Reflex setting. Did it navigate correctly?")
+        sys.exit(1)
+
+    am.take_screenshot_vulkan("video2.png", ArtifactType.CONFIG_IMAGE, "2nd screenshot of video settings menu")
+    mouse_scroll_n_times(6, -200,  0.2)
+    time.sleep(1)
+
+    result = kerasService.wait_for_word_vulkan("advanced", interval=3, timeout=15)
+    if not result:
+        logging.info("Didn't find the advanced heading. Did it navigate correctly?")
+        sys.exit(1)
+
+    am.take_screenshot_vulkan("video3.png", ArtifactType.CONFIG_IMAGE, "3rd screenshot of video settings menu")
+    mouse_scroll_n_times(5, -200,  0.2)
+    time.sleep(1)
+
+    result = kerasService.wait_for_word_vulkan("shading", interval=3, timeout=15)
+    if not result:
+        logging.info("Didn't find the shading quality setting. Did it navigate correctly?")
+        sys.exit(1)
+
+    am.take_screenshot_vulkan("video4.png", ArtifactType.CONFIG_IMAGE, "4th screenshot of video settings menu")
+    mouse_scroll_n_times(5, -220,  0.2)
     time.sleep(0.2)
 
-    result = kerasService.wait_for_word("vsync", interval=3, timeout=60)
+    result = kerasService.wait_for_word_vulkan("brightness", interval=3, timeout=15)
     if not result:
-        logging.info("Didn't find the keyword 'vsync'. Did the program navigate to the video mode menu correctly?")
+        logging.info("Didn't find the brightness setting. Did it navigate correctly?")
         sys.exit(1)
-    press_n_times("down", 18, 0.2)
 
-    am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings menu")
-    user.press("esc")
+    am.take_screenshot_vulkan("video5.png", ArtifactType.CONFIG_IMAGE, "5th screenshot of video settings menu")
+    user.press("escape")
     time.sleep(0.2)
 
-    result = kerasService.wait_for_word("steering", interval=3, timeout=60)
+    # Navigating to the benchmark
+    result = kerasService.wait_for_word_vulkan("campaign", interval=3, timeout=20)
     if not result:
-        logging.info("Didn't find the keyword 'steering'. Did the program exit the video mode menu correctly?")
+        logging.info("Didn't land on the main menu!")
         sys.exit(1)
 
-    # Navigate through graphics settings and take screenshots of all settings contained within
-    am.take_screenshot("graphics_1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of graphics settings")
-    press_n_times("down", 29, 0.2)
+    logging.info("Saw the main menu. Proceeding.")
+    time.sleep(1)
 
-    result = kerasService.wait_for_word("chromatic", interval=3, timeout=60)
+    user.press("up")
+    user.press("enter")
+    time.sleep(1)
+
+    result = kerasService.wait_for_word_vulkan("benchmarks", interval=3, timeout=15)
     if not result:
-        logging.info("Didn't find the keyword 'chromatic'. Did we navigate the menu correctly?")
+        logging.info("Didn't navigate to the extras menu. Did it navigate properly?")
         sys.exit(1)
 
-    am.take_screenshot("graphics_2.png", ArtifactType.CONFIG_IMAGE, "second screenshot of graphics settings")
-    press_n_times("up", 28, 0.2)
-    user.press("enter")
-    time.sleep(0.2)
+    logging.info("Saw the extras menu. Proceeding.")
+    time.sleep(1)
 
-    # Navigate benchmark menu
-    if not kerasService.look_for_word("weather", attempts=5, interval=3):
-        logging.info("Didn't find weather!")
+    user.press("up")
+    user.press("enter")
+    time.sleep(1)
+
+    result = kerasService.wait_for_word_vulkan("abyssal", interval=3, timeout=15)
+    if not result:
+        logging.info("Don't see the Abyssal Forest benchmark option. Did it navigate properly?")
         sys.exit(1)
 
-    am.take_screenshot("benchmark.png", ArtifactType.CONFIG_IMAGE, "screenshot of benchmark settings")
+    logging.info("See the benchmarks. Starting the Abyssal Forest benchmark level.")
+    time.sleep(1)
 
-    press_n_times("down", 6, 0.2)
+    press_n_times("down", 2, 0.2)
     user.press("enter")
-    time.sleep(2)
+    time.sleep(1)
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
-    result = kerasService.wait_for_word("lap", interval=0.5, timeout=90)
+    result = kerasService.wait_for_word_vulkan("frame", interval=0.5, timeout=90)
     if not result:
-        logging.info("Benchmark didn't start.")
+        logging.info("Benchmark didn't start. Did the game crash?")
         sys.exit(1)
 
     logging.info("Benchmark started. Waiting for benchmark to complete.")
     test_start_time = int(time.time()) + 8
 
-    # sleep for 3 laps
-    time.sleep(310)
+    # Sleeping for the duration of the benchmark
+    time.sleep(110)
 
     test_end_time = None
 
-    result = kerasService.wait_for_word("loading", interval=0.5, timeout=90)
+    result = kerasService.wait_for_word_vulkan("results", interval=0.5, timeout=90)
     if result:
-        logging.info("Found the loading screen. Marking the out time.")
+        logging.info("Found the results screen. Marking the out time.")
         test_end_time = int(time.time()) - 2
         time.sleep(2)
     else:
-        logging.info("Could not find the loading screen. Could not mark end time!")
-
-    result = kerasService.wait_for_word("results", interval=3, timeout=90)
-    if not result:
         logging.info("Results screen was not found!" +
             "Did harness not wait long enough? Or test was too long?")
         sys.exit(1)
+
     logging.info("Results screen was found! Finishing benchmark.")
     results_file = find_latest_result_file(BENCHMARK_RESULTS_PATH)
-    am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "screenshot of results")
-    am.copy_file(CONFIG, ArtifactType.CONFIG_TEXT, "config file")
-    am.copy_file(results_file, ArtifactType.RESULTS_TEXT, "benchmark results xml file")
-
-    if test_end_time is None:
-        logging.info("Loading screen end time not found. Using results screen fallback time.")
-        test_end_time = int(time.time())
+    am.take_screenshot_vulkan("result.png", ArtifactType.RESULTS_IMAGE, "screenshot of results")
+    am.copy_file(results_file, ArtifactType.RESULTS_TEXT, "benchmark results/settings xml file")
 
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)

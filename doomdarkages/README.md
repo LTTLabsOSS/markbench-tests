@@ -1,11 +1,11 @@
-# F1 24
+# Doom: The Dark Ages
 
-This script navigates through in-game menus to the built in benchmark and runs it with the current settings. It then waits for a results screen, expecting the benchmark to be running 3 laps.
+This script navigates through in-game menus to the built in benchmark and runs it with the current settings. It then waits for a results screen while running the Abyssal Forest benchmark.
 
 ## Prerequisites
 
 - Python 3.10+
-- F1 24 installed
+- Doom: The Dark Ages installed
 - Keras OCR service
 
 ## Options

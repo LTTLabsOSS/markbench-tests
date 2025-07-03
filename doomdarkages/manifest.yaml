@@ -1,6 +1,6 @@
 friendly_name: "Doom: The Dark Ages"
 executable: "doomdarkages.py"
-process_name: "F1_24.exe"
+process_name: "DOOMTheDarkAges.exe"
 hidden: 0
 output_dir: "run"
 options:
