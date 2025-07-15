@@ -78,11 +78,11 @@ def main():
 
     report = {
         "start_time": start_time,
-        "version": "4.3-stable",
+        "version": "4.4.1-stable",
         "end_time": end_time,
         "score": score,
         "unit": "seconds",
-        "test": "Godot 4.3 Compile"
+        "test": "Godot 4.4.1 Compile"
     }
 
     write_report_json(LOG_DIR, "report.json", report)
