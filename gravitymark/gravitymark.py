@@ -61,7 +61,7 @@ try:
 
     report = {
         "test": "GravityMark",
-        "test_name": friendly_test_param(args.api),
+        "test_parameter": friendly_test_param(args.api),
         "score": score,
         "unit": "score"
     }
