@@ -6,8 +6,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2025-07-15
 - Updated 7-Zip to 25.00
-
-
+- Updated Y-Cruncher to v0.8.6.9545
 
 ## 2025-04-02
 - Fixed Keras not finding the FPS in Shadow of the Tomb Raider
