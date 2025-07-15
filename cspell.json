@@ -46,7 +46,8 @@
     "Stellaris",
     "shusaura",
     "wukong",
-    "vgamepad"
+    "vgamepad",
+    "DaVinci"
   ],
   "ignoreRegExpList": [
     "import .*"

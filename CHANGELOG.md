@@ -14,10 +14,10 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 - Added a screenshot function for Vulkan games for Keras-OCR via DXcam
 - Added Keras functionality to Red Dead Redemption 2
 - Added Strange Brigade (VK) to the team
-- Updated PugetBench harness to include Davinci and After Effects
+- Updated PugetBench harness to include DaVinci and After Effects
 - Updated PugetBench to more consistently find version numbers and include them in the report.json
 - Updated Rocket League harness to check what camera it is on and keep flipping through till it's on the correct one
-- Updated Procyon AI harnesses to have verison numbers in report.json
+- Updated Procyon AI harnesses to have version numbers in report.json
 - Replaced the hardcoded path for Cyberpunk2077 and instead use the get_app_install_location instead
 - Added DOTA 2 screenshotting for video config
 - Added beta harness of Marvel Rivals
