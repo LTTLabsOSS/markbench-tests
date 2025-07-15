@@ -35,11 +35,11 @@ if os.path.isfile(ABS_EXECUTABLE_PATH) is False:
         "7-Zip executable not found, downloading from network drive")
     copy_from_network_drive()
 
-command = f'{ABS_EXECUTABLE_PATH}'
-command = command.rstrip()
+COMMAND = f'{ABS_EXECUTABLE_PATH}'
+COMMAND = COMMAND.rstrip()
 t1 = time.time()
 logging.info("Starting 7-Zip benchmark! This may take a minute or so...")
-with Popen([command, "b", "3"], cwd=os.path.dirname(
+with Popen([COMMAND, "b", "3"], cwd=os.path.dirname(
     os.path.realpath(__file__)), stdout=subprocess.PIPE) as process:
 
     stdout_data, stderr = process.communicate()
