@@ -9,7 +9,8 @@ from handbrake_utils import (
     is_video_source_present,
     copy_video_source,
     copy_handbrake_from_network_drive,
-    connect_and_copy_handbrake
+    connect_and_copy_handbrake,
+    connect_and_copy_video
 )
 import logging
 import subprocess
@@ -125,7 +126,11 @@ def main():
 
         if is_video_source_present() is False:
             logging.info("copying big buck bunny from network drive")
-            copy_video_source()
+            if args.share_user is not None and args.share_name is not None:
+                connect_and_copy_video
+            else:
+                copy_video_source()
+
         else:
             logging.info("detected big buck bunny source file")
 
