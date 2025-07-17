@@ -81,7 +81,7 @@ class ArtifactManager:
         The newly created artifact's `type` and `description` fields are set to the given
         `artifact_type` and `description` arguments respectively while the artifact's `filename`
         is set to the basename of `src`.
-        
+
         Raises a `ValueError` if `src` points to a directory instead of a file.
         """
         src_path = Path(src)
@@ -108,7 +108,7 @@ class ArtifactManager:
         The newly created artifact's `filename`, `type` and `description` fields are set to the
         given `filename`, `artifact_type` and `description` arguments respectively.
 
-        Raises a `ValueError` if `artifact_type` is not one of the `ArtifactType` values which represents an image. 
+        Raises a `ValueError` if `artifact_type` is not one of the `ArtifactType` values which represents an image.
         """
         if artifact_type not in _IMAGE_ARTIFACT_TYPES:
             raise ValueError("artifact_type should be a type that represents an image artifact")
