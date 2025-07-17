@@ -32,52 +32,52 @@ logging.basicConfig(
 ENCODER_TO_PRESET = {
     "h264_cpu": {
         "file": f"{SCRIPT_DIR}\\presets\\h264_bigbuckbunny_1080p_cpu_test.json",
-        "name": "1080p_bbb_h264",
+        "name": "\"CPU 1080p BBB H264\"",
         "api": "cpu"
     },
     "h265_cpu": {
         "file": f"{SCRIPT_DIR}\\presets\\h265_bigbuckbunny_1080p_cpu_test.json",
-        "name": "1080p_bbb_h265",
+        "name": "\"CPU 1080p BBB H265\"",
         "api": "cpu"
     },
     "av1_cpu": {
         "file": f"{SCRIPT_DIR}\\presets\\av1-svt_bigbuckbunny_1080p_cpu_test.json",
-        "name": "1080p_bbb_av1",
+        "name": "\"CPU 1080p BBB AV1\"",
         "api": "cpu"
     },
     "h264_nvenc": {
         "file": f"{SCRIPT_DIR}\\presets\\h264_nvenc_bigbuckbunny_1080p_gpu_test.json",
-        "name": "1080p_bbb_h264",
+        "name": "\"NVENC 1080p BBB H264\"",
         "api": "nvenc"
     },
     "h265_nvenc": {
         "file": f"{SCRIPT_DIR}\\presets\\h265_nvenc_bigbuckbunny_1080p_gpu_test.json",
-        "name": "1080p_bbb_h265",
+        "name": "\"NVENC 1080p BBB H265\"",
         "api": "nvenc"
     },
     "av1_nvenc": {
         "file": f"{SCRIPT_DIR}\\presets\\av1-nvenc_bigbuckbunny_1080p_gpu_test.json",
-        "name": "1080p_bbb_av1",
+        "name": "\"NVENC 1080p BBB AV1\"",
         "api": "nvenc"
     },
     "h264_vce": {
         "file": f"{SCRIPT_DIR}\\presets\\h264-vce-bigbuckbunny_1080p_gpu_test.json",
-        "name": "1080p_bbb_h264",
+        "name": "\"AMD VCE 1080p BBB H264\"",
         "api": "vce"
     },
     "av1_vce": {
         "file": f"{SCRIPT_DIR}\\presets\\av1-vce-bigbuckbunny_1080p_gpu_test.json",
-        "name": "1080p_bbb_av1",
+        "name": "\"AMD VCE 1080p BBB AV1\"",
         "api": "vce"
     },
     "h264_quicksync": {
         "file": f"{SCRIPT_DIR}\\presets\\h264-quicksync_bigbuckbunny_1080p_gpu_test.json",
-        "name": "1080p_bbb_h264",
+        "name": "\"QUICKSYNC 1080p BBB H264\"",
         "api": "quicksync"
     },
     "av1_quicksync": {
         "file": f"{SCRIPT_DIR}\\presets\\av1-quicksync_bigbuckbunny_1080p_gpu_test.json",
-        "name": "1080p_bbb_av1",
+        "name": "\"QUICKSYNC 1080p BBB AV1\"",
         "api": "quicksync"
     }
 }
