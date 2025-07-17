@@ -2,7 +2,15 @@
 from argparse import ArgumentParser
 import os
 import re
-from handbrake_utils import HANDBRAKE_EXECUTABLE, current_time_ms, handbrake_present, is_video_source_present, copy_video_source, copy_handbrake_from_network_drive
+from handbrake_utils import (
+    HANDBRAKE_EXECUTABLE,
+    current_time_ms,
+    handbrake_present,
+    is_video_source_present,
+    copy_video_source,
+    copy_handbrake_from_network_drive,
+    connect_and_copy_handbrake
+)
 import logging
 import subprocess
 import sys
@@ -94,6 +102,8 @@ def main():
     parser = ArgumentParser()
     parser.add_argument("-e", "--encoder", dest="encoder",
                         help="encoder", metavar="encoder", required=True)
+    parser.add_argument("--shareUser", dest="share_user", required=False, default=None)
+    parser.add_argument("--sharePass", dest="share_pass", required=False, default=None)
     args = parser.parse_args()
 
     if args.encoder not in ENCODER_TO_PRESET:
@@ -105,7 +115,11 @@ def main():
         preset = ENCODER_TO_PRESET[args.encoder]
         if handbrake_present() is False:
             logging.info("copying handbrake from network drive")
-            copy_handbrake_from_network_drive()
+            if args.share_user is not None and args.share_name is not None:
+                connect_and_copy_handbrake(args.share_user, args.share_pass)
+            else:
+                copy_handbrake_from_network_drive()
+
         else:
             logging.info("detected handbrake")
 

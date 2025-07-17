@@ -18,3 +18,9 @@ options:
       - h264_quicksync
       - av1_quicksync
     tooltip: Select which preset to use
+  - name: shareUser
+    type: input
+    tooltip: Username for connecting to network drive to retrive test files
+  - name: sharePass
+    type: input
+    tooltip: Password for connecting to network drive to retrive test files
