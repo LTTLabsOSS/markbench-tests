@@ -116,7 +116,7 @@ def main():
         preset = ENCODER_TO_PRESET[args.encoder]
         if handbrake_present() is False:
             logging.info("copying handbrake from network drive")
-            if args.share_user is not None and args.share_name is not None:
+            if args.share_user is not None and args.share_pass is not None:
                 connect_and_copy_handbrake(args.share_user, args.share_pass)
             else:
                 copy_handbrake_from_network_drive()
@@ -126,7 +126,7 @@ def main():
 
         if is_video_source_present() is False:
             logging.info("copying big buck bunny from network drive")
-            if args.share_user is not None and args.share_name is not None:
+            if args.share_user is not None and args.share_pass is not None:
                 connect_and_copy_video(args.share_user, args.share_pass)
             else:
                 copy_video_source()

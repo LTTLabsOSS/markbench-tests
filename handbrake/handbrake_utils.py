@@ -4,10 +4,14 @@ import os
 from pathlib import Path
 import time
 import shutil
+import sys
 
 HANDBRAKE_EXECUTABLE = "HandBrakeCLI.exe"
 SOURCE_VIDEO_NAME = "big_buck_bunny_1080p24.y4m"
 SCRIPT_DIR = Path(os.path.dirname(os.path.realpath(__file__)))
+
+
+sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
 from harness_utils.network_share import (
     network_share_auth
