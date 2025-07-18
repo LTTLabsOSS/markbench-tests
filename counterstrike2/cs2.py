@@ -66,7 +66,7 @@ def run_benchmark(keras_service):
     result = keras_service.wait_for_word("play", timeout=30, interval=0.1)
     if not result:
         logging.info("Did not find the play menu. Did the game load?")
-        sys.exit(1)
+        raise RuntimeError
 
     height, width = get_resolution()
     location = None
@@ -74,14 +74,18 @@ def run_benchmark(keras_service):
     # We check the resolution so we know which screenshot to use for the locate on screen function
     match width:
         case "1920":
-            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\settings_1080.png")
+            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\settings_1080.png", minSearchTime=5, confidence=0.6)
         case "2560":
-            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\settings_1440.png")
+            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\settings_1440.png", minSearchTime=5, confidence=0.6)
         case "3840":
-            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\settings_2160.png")
+            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\settings_2160.png", minSearchTime=5, confidence=0.6)
         case _:
             logging.error("Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?", height, width)
-            sys.exit(1)
+            raise RuntimeError
+
+    if location is None:
+        logging.error("Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?", height, width)
+        raise RuntimeError
 
     click_me = gui.center(location)
     gui.moveTo(click_me.x, click_me.y)
@@ -93,7 +97,7 @@ def run_benchmark(keras_service):
     result = keras_service.look_for_word(word="video", attempts=10, interval=1)
     if not result:
         logging.info("Did not find the video menu button. Did Keras enter settings correctly?")
-        sys.exit(1)
+        raise RuntimeError
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -103,14 +107,14 @@ def run_benchmark(keras_service):
 
     if keras_service.wait_for_word(word="brightness", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
-        sys.exit(1)
+        raise RuntimeError
 
     am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings")
 
     result = keras_service.look_for_word(word="advanced", attempts=10, interval=1)
     if not result:
         logging.info("Did not find the advanced video menu. Did Keras click correctly?")
-        sys.exit(1)
+        raise RuntimeError
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -123,7 +127,7 @@ def run_benchmark(keras_service):
     result = keras_service.look_for_word(word="boost", attempts=10, interval=1)
     if not result:
         logging.info("Did not find the keyword 'Boost' in the advanced video menu. Did Keras click correctly?")
-        sys.exit(1)
+        raise RuntimeError
 
     gui.moveTo(result["x"], result["y"])
     time.sleep(1)
@@ -132,7 +136,7 @@ def run_benchmark(keras_service):
 
     if keras_service.wait_for_word(word="particle", timeout=30, interval=1) is None:
         logging.info("Did not find the keyword 'Particle' in advanced video menu. Did Keras scroll correctly?")
-        sys.exit(1)
+        raise RuntimeError
     am.take_screenshot("advanced_video_2.png", ArtifactType.CONFIG_IMAGE, "second picture of advanced video settings")
 
     logging.info('Starting benchmark')
@@ -149,7 +153,7 @@ def run_benchmark(keras_service):
     time.sleep(3)
     if keras_service.wait_for_word(word="benchmark", timeout=30, interval=0.1) is None:
         logging.error("Didn't see the title of the benchmark. Did the map load?")
-        sys.exit(1)
+        raise RuntimeError
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
@@ -174,10 +178,10 @@ def run_benchmark(keras_service):
     result = keras_service.wait_for_word(word="console", timeout=30, interval=0.1)
     if result is None:
         logging.error("The console didn't open. Please check settings and try again.")
-        sys.exit(1)
-    else:
-        test_end_time = int(time.time())
-        logging.info("The console opened. Marking end time.")
+        raise RuntimeError
+
+    test_end_time = int(time.time())
+    logging.info("The console opened. Marking end time.")
 
     # allow time for result screen to populate
     time.sleep(8)
@@ -226,4 +230,6 @@ if __name__ == "__main__":
     except Exception as ex:
         logging.error("something went wrong running the benchmark!")
         logging.exception(ex)
+    finally:
+        terminate_processes(PROCESS_NAME)
         sys.exit(1)
