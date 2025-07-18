@@ -230,6 +230,6 @@ if __name__ == "__main__":
     except Exception as ex:
         logging.error("something went wrong running the benchmark!")
         logging.exception(ex)
+        sys.exit(1)
     finally:
         terminate_processes(PROCESS_NAME)
-        sys.exit(1)
