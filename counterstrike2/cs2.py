@@ -179,9 +179,9 @@ def run_benchmark(keras_service):
     if result is None:
         logging.error("The console didn't open. Please check settings and try again.")
         raise RuntimeError
-    else:
-        test_end_time = int(time.time())
-        logging.info("The console opened. Marking end time.")
+
+    test_end_time = int(time.time())
+    logging.info("The console opened. Marking end time.")
 
     # allow time for result screen to populate
     time.sleep(8)
