@@ -30,7 +30,7 @@ CONFIG_PATH = Path(f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Rocket League\\
 PROCESS_NAME = "rocketleague.exe"
 EXECUTABLE_PATH = find_epic_executable()
 GAME_ID = "9773aa1aa54f4f7b80e44bef04986cea%3A530145df28a24424923f5828cc9031a1%3ASugar?action=launch&silent=true"
-gamefoldername = "rocketleague"
+GAMEFOLDERNAME = "rocketleague"
 am = ArtifactManager(LOG_DIRECTORY)
 gamepad = LTTGamePadDS4()
 
@@ -63,7 +63,7 @@ def camera_cycle(max_attempts=10):
     :param check_duration: How long (in seconds) to look for the word before pressing a button.
     :param button: The gamepad button to press if word is not found.
     """
-    for attempt in range(max_attempts):
+    for _ in range(max_attempts):
         # Try finding the word within check_duration seconds
         found = kerasService.look_for_word(word="player", attempts=2, interval=0.2)
 
@@ -133,6 +133,11 @@ def run_benchmark():
 
     if kerasService.look_for_word(word="pass", attempts=5, interval=0.2):
         logging.info('Saw rocket pass. Navigating accordingly.')
+        gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH)
+        time.sleep(0.5)
+
+    if kerasService.look_for_word(word="club", attempts=5, interval=0.2):
+        logging.info('Saw Create a Club. Navigating accordingly.')
         gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH)
         time.sleep(0.5)
 
@@ -239,7 +244,7 @@ try:
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
-        "game_version": find_eg_game_version(gamefoldername)
+        "game_version": find_eg_game_version(GAMEFOLDERNAME)
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
