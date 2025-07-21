@@ -136,6 +136,11 @@ def run_benchmark():
         gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH)
         time.sleep(0.5)
 
+    if kerasService.look_for_word(word="club", attempts=5, interval=0.2):
+        logging.info('Saw Create a Club. Navigating accordingly.')
+        gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH)
+        time.sleep(0.5)
+
     gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, n=2, pause=0.8)
     time.sleep(0.5)
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
