@@ -60,7 +60,7 @@ def run_benchmark():
     am = ArtifactManager(LOG_DIRECTORY)
 
     setup_start_time = int(time.time())
-    time.sleep(15)
+    time.sleep(25)
     # Press space to proceed to the main menu
     result = kerasService.wait_for_word_vulkan("press", timeout=80)
     if not result:
