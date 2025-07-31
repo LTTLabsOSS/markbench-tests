@@ -30,3 +30,12 @@ def read_resolution():
             if width_match is not None:
                 width = width_match.group(1)
     return (height, width)
+
+def find_latest_benchmarkcsv():
+    """find latest log from the benchmark"""
+    appdata_path = os.getenv('LOCALAPPDATA')
+    benchmarkcsv_dir = Path(appdata_path) / "Marvel" / "Saved" / "Benchmark"
+    files = [os.path.join(benchmarkcsv_dir, file) for file in os.listdir(
+        benchmarkcsv_dir) if os.path.isfile(os.path.join(benchmarkcsv_dir, file))]
+    latest_file = max(files, key=os.path.getmtime)
+    return latest_file

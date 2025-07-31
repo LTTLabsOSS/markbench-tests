@@ -7,7 +7,7 @@ import time
 import pyautogui as gui
 import pydirectinput as user
 import sys
-from marvelrivals_utils import read_resolution
+from marvelrivals_utils import read_resolution, find_latest_benchmarkcsv
 import subprocess
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
@@ -49,6 +49,8 @@ def setup_logging():
     console.setFormatter(formatter)
     logging.getLogger('').addHandler(console)
 
+
+
 def start_game():
     """Starts the game process"""
     game_path = get_app_install_location(STEAM_GAME_ID)
@@ -61,7 +63,6 @@ def run_benchmark(keras_service):
     """Run Marvel Rivals benchmark"""
     setup_start_time = int(time.time())
     start_game()
-    
 
     #wait for launcher to launch then click the launch button to launch the launcher into the game that we were launching
     time.sleep(20)
@@ -84,7 +85,13 @@ def run_benchmark(keras_service):
     gui.mouseDown()
     time.sleep(0.2)
     gui.mouseUp()
-    time.sleep(0.5)
+    time.sleep(20)
+
+    #checking if a marketing notification has come up
+    result = keras_service.wait_for_word("view", timeout=15, interval=1)
+    if result:
+        user.press("escape")
+        time.sleep(0.5)
 
     #navigating to the video settings and taking screenshots
     result = keras_service.wait_for_word("play", timeout=30, interval=1)
@@ -125,42 +132,14 @@ def run_benchmark(keras_service):
     time.sleep(1)
 
     #navigate to the player profile
-    user.press("escape")
+    mouse_scroll_n_times(10, 800,  0.2)
     time.sleep(1)
-    result = keras_service.wait_for_word("play", timeout=30, interval=1)
+
+    result = keras_service.wait_for_word("run", timeout=30, interval=1)
     if not result:
-        logging.info("Did not find the play menu. Did it press escape?")
+        logging.info("Did not find the Performance Test. Did it scroll back up properly?")
         sys.exit(1)
 
-    time.sleep(1)
-    height, width = read_resolution()
-    location = None
-
-    # We check the resolution so we know which screenshot to use for the locate on screen function
-    match width:
-        case "1280":
-            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\profile_720.png", confidence=0.9)
-        case "1920":
-            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\profile_1080.png", confidence=0.9)
-        case "2560":
-            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\profile_1440.png", confidence=0.9)
-        case "3840":
-            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\profile_2160.png", confidence=0.9)
-        case _:
-            logging.error("Could not find the profile icon. The game resolution is currently %s, %s. Are you using a standard resolution?", height, width)
-            sys.exit(1)
-    click_me = gui.center(location)
-    gui.moveTo(click_me.x, click_me.y)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-    time.sleep(0.5)
-
-    #navigate to the replays section
-    result = keras_service.wait_for_word("favorites", timeout=30, interval=1)
-    if not result:
-        logging.info("Did not find the favorites menu. Did it navigate properly to it?")
-        sys.exit(1)
     gui.moveTo(result["x"], result["y"])
     time.sleep(0.2)
     gui.mouseDown()
@@ -168,69 +147,42 @@ def run_benchmark(keras_service):
     gui.mouseUp()
     time.sleep(1)
 
-    result = keras_service.wait_for_word("match", timeout=30, interval=1)
+    result = keras_service.wait_for_word("start", timeout=30, interval=1)
     if not result:
-        logging.info("Did not find the match replays menu. Did it click correctly?")
+        logging.info("Did not find the Start Test button. Keras click correctly?")
         sys.exit(1)
+
     gui.moveTo(result["x"], result["y"])
     time.sleep(0.2)
     gui.mouseDown()
     time.sleep(0.2)
     gui.mouseUp()
     time.sleep(1)
-    
-    #starting the benchmark replay
-    result = keras_service.wait_for_word("shibuya", timeout=30, interval=1)
-    if not result:
-        logging.info("Did not find the replay we were looking for. Is it not saved in the favorites?")
-        sys.exit(1)
-    match width:
-        case "1280":
-            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\play_720.png", confidence=0.9)
-        case "1920":
-            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\play_1080.png", confidence=0.9)
-        case "2560":
-            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\play_1440.png", confidence=0.9)
-        case "3840":
-            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\play_2160.png", confidence=0.9)
-        case _:
-            logging.error("Could not find the play button. The game resolution is currently %s, %s. Are you using a standard resolution?", height, width)
-            sys.exit(1)
-    click_me = gui.center(location)
-    gui.moveTo(click_me.x, click_me.y)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-    time.sleep(0.5)
 
-    #marking the in-time
+    #marking the end time
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
     time.sleep(2)
-    
-    #looking for the player name to start wait timer till we get into the actual game
-    result = keras_service.wait_for_word("dluo", timeout=30, interval=1)
-    if not result:
-        logging.info("Did not find the player Dluo. Did the replay start?")
-        sys.exit(1)
-    time.sleep(90)
 
-    #looking for landmark to mark benchmark start time and then wait for first round to finish
-    if keras_service.wait_for_word(word="defend", timeout=30, interval=1) is None:
-        logging.info("Didn't see the defend waypoint. Did the game crash?")
+    #looking for the FPS data graph
+    result = keras_service.wait_for_word("fps", timeout=30, interval=1)
+    if not result:
+        logging.info("Did not find the FPS graph. Did the replay start?")
         sys.exit(1)
-    test_start_time = int(time.time()) + 2
-    time.sleep(460)
+
+    test_start_time = int(time.time())
+    time.sleep(98)
 
     #checking that first round has finished
-    result = keras_service.wait_for_word("complete", timeout=30, interval=1)
+    result = keras_service.wait_for_word("again", timeout=30, interval=1)
     if not result:
-        logging.info("First round doesn't appear to have finished. Did the replay start?")
+        logging.info("Didn't see the results screen. Did the test crash?")
         sys.exit(1)
     test_end_time = int(time.time())
-    
+
     am.copy_file(Path(cfg), ArtifactType.CONFIG_TEXT, "Marvel Rivals Video Config")
+    am.copy_file(Path(find_latest_benchmarkcsv()), ArtifactType.CONFIG_TEXT, "Marvel Rivals Benchmark CSV")
     logging.info("Run completed. Closing game.")
     time.sleep(2)
 
