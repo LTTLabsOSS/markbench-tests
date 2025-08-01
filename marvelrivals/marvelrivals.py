@@ -55,8 +55,8 @@ def start_game():
     """Starts the game process"""
     game_path = get_app_install_location(STEAM_GAME_ID)
     process_path = os.path.join(game_path, LAUNCHER_NAME)  # Full path to the executable
-    logging.info("Starting game: %s", process)
-    process = subprocess.Popen([process_path], cwd=game_path)  # pylint: disable=W1510
+    logging.info("Starting game: %s", process_path)
+    process = subprocess.Popen([process_path], cwd=game_path)  # pylint: disable=R1732
     return process
 
 def run_benchmark(keras_service):
