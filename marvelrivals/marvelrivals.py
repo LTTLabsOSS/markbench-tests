@@ -33,7 +33,7 @@ LAUNCHER_NAME = "MarvelRivals_Launcher.exe"
 APPDATA = os.getenv("LOCALAPPDATA")
 CONFIG_LOCATION = f"{APPDATA}\\Marvel\\Saved\\Config\\Windows"
 CONFIG_FILENAME = "GameUserSettings.ini"
-cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
+CFG = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
 
 am = ArtifactManager(LOG_DIR)
 
@@ -55,8 +55,8 @@ def start_game():
     """Starts the game process"""
     game_path = get_app_install_location(STEAM_GAME_ID)
     process_path = os.path.join(game_path, LAUNCHER_NAME)  # Full path to the executable
-    logging.info(f"Starting game: {process_path}")
-    process = subprocess.Popen([process_path], cwd=game_path)
+    logging.info("Starting game: %s", process)
+    process = subprocess.Popen([process_path], cwd=game_path)  # pylint: disable=W1510
     return process
 
 def run_benchmark(keras_service):
@@ -181,7 +181,7 @@ def run_benchmark(keras_service):
         sys.exit(1)
     test_end_time = int(time.time())
 
-    am.copy_file(Path(cfg), ArtifactType.CONFIG_TEXT, "Marvel Rivals Video Config")
+    am.copy_file(Path(CFG), ArtifactType.CONFIG_TEXT, "Marvel Rivals Video Config")
     am.copy_file(Path(find_latest_benchmarkcsv()), ArtifactType.CONFIG_TEXT, "Marvel Rivals Benchmark CSV")
     logging.info("Run completed. Closing game.")
     time.sleep(2)
