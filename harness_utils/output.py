@@ -13,7 +13,6 @@ def setup_log_directory(log_dir: str) -> None:
         os.mkdir(log_dir)
 
 
-# change in future, this any bothers me, should be dict
 def write_report_json(
         log_dir: str, report_name: str, report_json: dict) -> None:
     """Writes the json output of a harness to the log directory"""
