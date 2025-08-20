@@ -81,7 +81,7 @@ def run_benchmark():
     logging.info("Saw the main menu. Proceeding.")
     time.sleep(1)
 
-    press_n_times("down", 2, 0.2)
+    press_n_times("down", 3, 0.2)
     user.press("enter")
     time.sleep(1)
 
