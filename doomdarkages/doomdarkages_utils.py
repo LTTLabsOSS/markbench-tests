@@ -31,8 +31,8 @@ def get_resolution() -> tuple[int, int]:
         ) from exc
 
     if not bench_file.is_file():
-        raise FileNotFoundError(f"Benchmark file not found.")
-    
+        raise FileNotFoundError("Benchmark file not found.")
+
     with bench_file.open(encoding="utf-8") as f:
         data = json.load(f)
 
