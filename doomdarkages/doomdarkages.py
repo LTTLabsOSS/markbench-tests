@@ -6,7 +6,6 @@ import os.path
 import time
 import sys
 import pydirectinput as user
-import re
 from doomdarkages_utils import get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
@@ -41,18 +40,15 @@ def start_game():
     return exec_steam_game(STEAM_GAME_ID, game_params=["+com_skipIntroVideo", "1"])
 
 def find_latest_result_file(base_path):
-    """Look for files in the benchmark results path that match the pattern in the regular expression"""
+    """Look for files in the benchmark results path that match the pattern.
+    Returns the most recent benchmark file."""
     base_path = Path(base_path)
 
-    try:
-        return max(
-            base_path.glob("benchmark-*.json"),
-            key=lambda p: p.stat().st_mtime
-        )
-    except ValueError:
-        raise FileNotFoundError(
-            f"No benchmark-*.json files found in {base_path}"
-        )
+    files = list(base_path.glob("benchmark-*.json"))
+    if not files:
+        raise ValueError(f"No benchmark-*.json files found in {base_path}")
+
+    return max(files, key=lambda p: p.stat().st_mtime)
 
 def run_benchmark():
     """Runs the actual benchmark."""

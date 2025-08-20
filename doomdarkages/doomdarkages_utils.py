@@ -24,9 +24,15 @@ def get_resolution() -> tuple[int, int]:
             RUN_DIR.glob("benchmark-*.json"),
             key=lambda p: p.stat().st_mtime
         )
-    except ValueError:
-        raise FileNotFoundError(f"No benchmark-*.json files in {RUN_DIR}")
+    except ValueError as exc:
+        # No files matched, propagate as a clearer FileNotFoundError
+        raise FileNotFoundError(
+            f"No benchmark-*.json files in {RUN_DIR}"
+        ) from exc
 
+    if not bench_file.is_file():
+        raise FileNotFoundError(f"Benchmark file not found.")
+    
     with bench_file.open(encoding="utf-8") as f:
         data = json.load(f)
 
@@ -54,4 +60,3 @@ def copy_launcher_config() -> None:
     except OSError as err:
         logging.error("Could not copy config file.")
         raise err
-    
