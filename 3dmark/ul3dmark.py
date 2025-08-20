@@ -20,7 +20,7 @@ from harness_utils.output import (
 )
 
 #####
-### Globals
+# Globals
 #####
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR / "run"
@@ -31,25 +31,25 @@ CONFIG_DIR = SCRIPT_DIR / "config"
 BENCHMARK_CONFIG = {
     "TimeSpy": {
         "config": CONFIG_DIR / "timespy.3dmdef",
-        "process_name":  "3DMarkTimeSpy.exe",
+        "process_name": "3DMarkTimeSpy.exe",
         "score_name": "TimeSpyPerformanceGraphicsScore",
         "test_name": "3DMark Time Spy"
     },
     "FireStrike": {
         "config": CONFIG_DIR / "firestrike.3dmdef",
-        "process_name":  "3DMarkICFWorkload.exe",
+        "process_name": "3DMarkICFWorkload.exe",
         "score_name": "firestrikegraphicsscorep",
         "test_name": "3DMark Fire Strike"
     },
     "PortRoyal": {
         "config": CONFIG_DIR / "portroyal.3dmdef",
-        "process_name":  "3DMarkPortRoyal.exe",
+        "process_name": "3DMarkPortRoyal.exe",
         "score_name": "PortRoyalPerformanceGraphicsScore",
         "test_name": "3DMark Port Royal"
     },
     "SolarBay": {
         "config": CONFIG_DIR / "solarbay.3dmdef",
-        "process_name":  "3DMarkSolarBay.exe",
+        "process_name": "3DMarkSolarBay.exe",
         "score_name": "SolarBayPerformanceGraphicsScore",
         "test_name": "3DMark Solar Bay"
     }
@@ -57,9 +57,10 @@ BENCHMARK_CONFIG = {
 RESULTS_FILENAME = "myresults.xml"
 REPORT_PATH = LOG_DIR / RESULTS_FILENAME
 
+
 def setup_logging():
     """setup logging"""
-    setup_log_directory(LOG_DIR)
+    setup_log_directory(str(LOG_DIR))
     logging.basicConfig(filename=LOG_DIR / "harness.log",
                         format=DEFAULT_LOGGING_FORMAT,
                         datefmt=DEFAULT_DATE_FORMAT,
@@ -73,8 +74,9 @@ def setup_logging():
 def get_arguments():
     """get arguments"""
     parser = ArgumentParser()
-    parser.add_argument(
-        "--benchmark", dest="benchmark", help="Benchmark test type", required=True, choices=BENCHMARK_CONFIG.keys())
+    parser.add_argument("--benchmark", dest="benchmark",
+                        help="Benchmark test type", required=True,
+                        choices=BENCHMARK_CONFIG.keys())
     argies = parser.parse_args()
     return argies
 
@@ -94,15 +96,16 @@ def run_benchmark(process_name, command_to_run):
         while True:
             now = time.time()
             elapsed = now - start_time
-            if elapsed >= 30: #seconds
+            if elapsed >= 30:  # seconds
                 raise ValueError("BenchMark subprocess did not start in time")
             process = is_process_running(process_name)
             if process is not None:
                 process.nice(psutil.HIGH_PRIORITY_CLASS)
                 break
             time.sleep(0.2)
-        _, _ = proc.communicate() # blocks until 3dmark exits
+        _, _ = proc.communicate()  # blocks until 3dmark exits
         return proc
+
 
 try:
     setup_logging()
@@ -118,7 +121,9 @@ try:
         logging.error("3DMark exited with return code %d", pr.returncode)
         sys.exit(pr.returncode)
 
-    score = get_score(BENCHMARK_CONFIG[args.benchmark]["score_name"], REPORT_PATH)
+    score = get_score(
+        BENCHMARK_CONFIG[args.benchmark]["score_name"],
+        REPORT_PATH)
     if score is None:
         logging.error("Could not find average FPS output!")
         sys.exit(1)
@@ -129,7 +134,8 @@ try:
     logging.info("Score was %s", score)
 
     report = {
-        "test": BENCHMARK_CONFIG[args.benchmark]["test_name"],
+        "test": "3DMark",
+        "test_parameter": args.benchmark,
         "unit": "score",
         "score": score,
         "start_time": seconds_to_milliseconds(strt),

@@ -14,7 +14,7 @@ MINGW_ZIP = "x86_64-13.2.0-release-posix-seh-msvcrt-rt_v11-rev1.zip"
 MINGW_FOLDER = SCRIPT_DIR.joinpath("mingw64")
 MINICONDA_EXECUTABLE_PATH = Path("C:\\ProgramData\\miniconda3\\_conda.exe")
 CONDA_ENV_NAME = "godotbuild"
-GODOT_DIR = "godot-4.3-stable"
+GODOT_DIR = "godot-4.4.1-stable"
 
 
 def install_mingw() -> str:
@@ -51,7 +51,7 @@ def install_miniconda() -> str:
         raise Exception("could not copy miniconda from network drive") from err
     command =[
         "powershell",
-        "start-process", 
+        "start-process",
         "-FilePath",
         f'"{str(SCRIPT_DIR.joinpath(MINICONDA_INSTALLER))}"',
         "-ArgumentList",

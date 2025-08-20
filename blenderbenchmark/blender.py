@@ -117,10 +117,12 @@ for report in json_array:
     scene_report = {
         "timestamp": report['timestamp'],
         "version": blender_version,
-        "test": f"Blender Benchmark {report['scene']['label']} {DEVICE_TYPE}",
+        "test": "Blender Benchmark",
+        "test_parameter": f"{report['scene']['label']} ",
         "score": round(report['stats']['samples_per_minute'], 2),
         "unit": "samples per minute",
-        "device": report['device_info']['compute_devices'][0]['name']
+        "device": report['device_info']['compute_devices'][0]['name'],
+        "device_type": DEVICE_TYPE,
     }
 
     logging.info(json.dumps(scene_report, indent=2))

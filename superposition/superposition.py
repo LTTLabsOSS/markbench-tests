@@ -43,21 +43,22 @@ formatter = logging.Formatter(LOGGING_FORMAT)
 console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
-cmd = f'{INSTALL_DIR}\\{EXECUTABLE}'
-argstr = f"-fullscreen 1 -mode default -api {args.api} -quality {args.preset} -iterations 1"
-argstr += f" -log_txt {log_dir}\\log.txt"
+CMD = f'{INSTALL_DIR}\\{EXECUTABLE}'
+ARGSTR = f"-fullscreen 1 -mode default -api {args.api} -quality {args.preset} -iterations 1"
+ARGSTR += f" -log_txt {log_dir}\\log.txt"
 
-logging.info(cmd)
-logging.info(argstr)
-argies = argstr.split(" ")
-cmd = cmd.rstrip()
-with Popen([cmd, *argies]) as process:
+logging.info(CMD)
+logging.info(ARGSTR)
+argies = ARGSTR.split(" ")
+CMD = CMD.rstrip()
+with Popen([CMD, *argies]) as process:
     EXIT_CODE = process.wait()
 
 if EXIT_CODE > 0:
     logging.error("Test failed!")
     sys.exit(EXIT_CODE)
 
+SCORE = ""
 pattern = re.compile(r"Score: (\d+)")
 log_path = os.path.join(log_dir, "log.txt")
 with open(log_path, encoding="utf-8") as log:
@@ -65,11 +66,13 @@ with open(log_path, encoding="utf-8") as log:
     for line in lines:
         match = pattern.search(line)
         if match:
-            score = match.group(1)
+            SCORE = match.group(1)
 
 report = {
-    "test": f"Unigine Superposition 2017 {args.preset} ${args.api}",
-    "score": score,
+    "test": "Unigine Superposition",
+    "test_parameter": f"{args.api}",
+    "test_preset": args.preset,
+    "score": SCORE,
     "unit": "score"
 }
 

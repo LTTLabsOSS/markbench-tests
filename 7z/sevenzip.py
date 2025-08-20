@@ -26,7 +26,7 @@ formatter = logging.Formatter(LOGGING_FORMAT)
 console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
-EXECUTABLE = "7zr_24.07.exe"
+EXECUTABLE = "7zr_25.00.exe"
 ABS_EXECUTABLE_PATH = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), EXECUTABLE)
 
@@ -35,18 +35,18 @@ if os.path.isfile(ABS_EXECUTABLE_PATH) is False:
         "7-Zip executable not found, downloading from network drive")
     copy_from_network_drive()
 
-command = f'{ABS_EXECUTABLE_PATH}'
-command = command.rstrip()
+COMMAND = f'{ABS_EXECUTABLE_PATH}'
+COMMAND = COMMAND.rstrip()
 t1 = time.time()
 logging.info("Starting 7-Zip benchmark! This may take a minute or so...")
-with Popen([command, "b", "3"], cwd=os.path.dirname(
+with Popen([COMMAND, "b", "3"], cwd=os.path.dirname(
     os.path.realpath(__file__)), stdout=subprocess.PIPE) as process:
 
     stdout_data, stderr = process.communicate()
     list_of_strings = stdout_data.decode('utf-8').splitlines()
 
     SPEED_PATTERN = r'^Avr:\s*([0-9]*)\s.*\|\s*([0-9]*)\s.*$'
-    VERSION_PATTERN = r'7-Zip (\d+\.\d+).*'
+    VERSION_PATTERN = r'7-Zip \(r\) (\d+\.\d+).*'
 
     VERSION = ""
     SPEED_C = ""
