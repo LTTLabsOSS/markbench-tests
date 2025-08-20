@@ -68,6 +68,7 @@ def run_benchmark():
         sys.exit(1)
 
     logging.info("Hit the title screen. Continuing")
+    time.sleep(2)
     user.press("space")
     time.sleep(4)
 
