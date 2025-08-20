@@ -24,7 +24,7 @@ LOG_FILE = "game.log"
 benchmark_files = [
     "benchmark.ini",
     "pdx_settings.txt",
-    "standard_settings.txt"
+    "settings.txt"
 ]
 
 
