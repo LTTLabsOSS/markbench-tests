@@ -92,7 +92,7 @@ def copy_benchmarksave(save_files: list[str]) -> None:
     """Copy benchmark save file to save directory"""
     for file in save_files:
         try:
-            src_path = SCRIPT_DIRECTORY / "save" / file
+            src_path = SCRIPT_DIRECTORY / "save" / "76561199517889423" / file
             SAVE_LOCATION.mkdir(parents=True, exist_ok=True)
             dest_path = SAVE_LOCATION / file
             logging.info("Copying: %s -> %s", file, dest_path)
