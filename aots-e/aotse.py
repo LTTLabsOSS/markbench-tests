@@ -32,7 +32,7 @@ CONFIG_FILENAME = "settings.ini"
 STEAM_GAME_ID = 507490
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR / "run"
-EXECUTABLE = "AshesEscalation_DX12.exe"
+EXECUTABLE = "StardockLauncher.exe"
 CONFIG_DIR = SCRIPT_DIR / "config"
 BENCHMARK_CONFIG = {
     "GPU_Benchmark": {
@@ -86,12 +86,8 @@ def run_benchmark():
 
     logging.info("Benchmark started. Waiting for benchmark to complete.")
     time.sleep(180)
-    # result = kerasService.wait_for_word("complete", timeout=240, interval=0.5)
-    # if not result:
-    #     logging.info("Did not see the Benchmark Complete pop up. Did it run?")
-    #     sys.exit(1)
 
-    test_end_time = time.time() - 2
+    test_end_time = time.time()
     time.sleep(2)
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
