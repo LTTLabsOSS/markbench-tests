@@ -21,13 +21,11 @@ from harness_utils.steam import get_app_install_location
 USERNAME = getpass.getuser()
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
-PROCESS_NAME = "stellaris.exe"
-STEAM_GAME_ID = 281990
+STEAM_GAME_ID = 507490
 CONFIG_FILENAME = "settings.ini"
 USERNAME = getpass.getuser()
 CONFIG_PATH = Path(f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Ashes of the Singularity - Escalation")
 EXE_PATH = Path(get_app_install_location(STEAM_GAME_ID))
-PROCESS_NAME = "StrangeBrigade.exe"
 BENCHMARK_CONFIG = {
     "GPU_Benchmark": {
         "hardware": "GPU",
