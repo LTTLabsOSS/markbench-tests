@@ -18,7 +18,7 @@ LAUNCHCONFIG_LOCATION = Path(f"{LOCALAPPDATA}\\Paradox Interactive")
 INSTALL_LOCATION = Path(get_app_install_location(STEAM_GAME_ID))
 APPDATA = os.getenv("APPDATA")
 CONFIG_LOCATION = Path(f"{APPDATA}\\..\\LocalLow\\Colossal Order\\Cities Skylines II")
-SAVE_LOCATION = Path(f"{CONFIG_LOCATION}\\Saves")
+SAVE_LOCATION = Path(f"{CONFIG_LOCATION}\\Saves\\76561199517889423")
 CONFIG_FILENAME = "launcher-settings.json"
 
 
@@ -37,7 +37,7 @@ def read_current_resolution():
 
 
 def copy_continuegame(config_files: list[str]) -> None:
-    """Copy launcher files to game directory"""
+    """Copy continue game files to config directory"""
     for file in config_files:
         try:
             src_path = SCRIPT_DIRECTORY / "config" / file
@@ -92,11 +92,11 @@ def copy_benchmarksave(save_files: list[str]) -> None:
     """Copy benchmark save file to save directory"""
     for file in save_files:
         try:
-            src_path = SCRIPT_DIRECTORY / "save" / "76561199517889423" / file
+            src_path = SCRIPT_DIRECTORY / "save" / file
             SAVE_LOCATION.mkdir(parents=True, exist_ok=True)
             dest_path = SAVE_LOCATION / file
             logging.info("Copying: %s -> %s", file, dest_path)
             shutil.copy(src_path, dest_path)
         except OSError as err:
-            logging.error("Could not copy launcher files. %s", err)
+            logging.error("Could not copy the save game. %s", err)
             raise err
