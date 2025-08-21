@@ -84,7 +84,7 @@ def copy_launcherpath():
         shutil.copy(src_path, dest_path)
         #os.chmod(dest_path, stat.S_IREAD)
     except OSError as err:
-        logging.error("Could not copy the launcherpath file. %s", e)
+        logging.error("Could not copy the launcherpath file. %s", err)
         raise err
 
 

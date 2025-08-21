@@ -39,7 +39,6 @@ save_files = [
     "Benchmark.cok.cid"
 ]
 config_files = [
-    "continue_game.json",
     "UserState.coc"
 ]
 
@@ -89,12 +88,41 @@ def run_benchmark(keras_service):
 
     result = keras_service.wait_for_word("paradox", interval=0.5, timeout=100)
     if not result:
-        logging.info("Could not find the paused notification. Unable to mark start time!")
+        logging.info("Could not find the Paradox logo. Did the game launch?")
         sys.exit(1)
     user.press("esc")
     user.press("esc")
     user.press("esc")
-    time.sleep(20)
+    time.sleep(15)
+
+    result = keras_service.wait_for_word("new", interval=0.5, timeout=100)
+    if not result:
+        logging.info("Did not find the main menu. Did the game crash?")
+        sys.exit(1)
+
+    result = keras_service.look_for_word("load", attempts=10, interval=1)
+    if not result:
+        logging.info("Did not find the load game option. Did the save game copy?")
+        sys.exit(1)
+
+    # Navigate to load save menu
+    gui.moveTo(result["x"], result["y"])
+    time.sleep(0.2)
+    gui.click()
+    time.sleep(0.2)
+
+    result = keras_service.look_for_word("08", attempts=10, interval=1)
+    if not result:
+        logging.info("Did not find the save game original date. Did the keras click correctly?")
+        sys.exit(1)
+
+    # Loading the game
+    gui.moveTo(result["x"], result["y"])
+    time.sleep(0.2)
+    gui.click()
+    time.sleep(0.2)
+    user.press("enter")
+    time.sleep(10)
 
     result = keras_service.wait_for_word("grand", interval=0.5, timeout=100)
     if not result:
@@ -102,6 +130,8 @@ def run_benchmark(keras_service):
         sys.exit(1)
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
+    gui.moveTo(result["x"], result["y"])
+    time.sleep(0.2)
     time.sleep(2)
     logging.info('Starting benchmark')
     user.press("3")
