@@ -6,7 +6,7 @@ import time
 import getpass
 import glob
 import os
-from aotse_utils import read_current_resolution, find_score_in_log, delete_old_scores, get_args
+from aotse_utils import read_current_resolution, find_score_in_log, delete_old_scores, get_args, replace_exe, restore_exe
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -60,6 +60,7 @@ def run_benchmark():
     """Start the benchmark"""
      # Start game via Steam and enter fullscreen mode
     setup_start_time = time.time()
+    replace_exe()
     start_game()
 
     time.sleep(10)
@@ -95,6 +96,8 @@ def run_benchmark():
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     time.sleep(3)
+    restore_exe()
+
     return test_start_time, test_end_time
 
 setup_log_directory(LOG_DIR)
