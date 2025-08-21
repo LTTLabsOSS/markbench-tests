@@ -11,12 +11,12 @@ import time
 import shutil
 from argparse import ArgumentParser
 
-from harness_utils.steam import get_app_install_location
-
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
+
+from harness_utils.steam import get_app_install_location
 
 USERNAME = getpass.getuser()
 SCRIPT_DIR = Path(__file__).resolve().parent
