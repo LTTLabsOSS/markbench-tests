@@ -20,7 +20,7 @@ from harness_utils.output import (
     DEFAULT_DATE_FORMAT
 )
 from harness_utils.steam import exec_steam_game, get_build_id
-from harness_utils.keras_service import KerasService
+from harness_utils.keras_service import KerasService, ScreenSplitConfig, ScreenShotDivideMethod, ScreenShotQuadrant
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.misc import mouse_scroll_n_times
 
@@ -29,6 +29,10 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
 PROCESS_NAME = "cities2.exe"
 STEAM_GAME_ID = 949230
+top_left_keras = ScreenSplitConfig(
+    divide_method=ScreenShotDivideMethod.QUADRANT, 
+    quadrant=ScreenShotQuadrant.TOP_LEFT)
+
 launcher_files = [
     "bootstrapper-v2.exe",
     "launcher.exe",
@@ -111,7 +115,7 @@ def run_benchmark(keras_service):
     gui.click()
     time.sleep(0.2)
 
-    result = keras_service.look_for_word("08", attempts=10, interval=1)
+    result = keras_service.look_for_word("benchmark", attempts=10, interval=1, split_config=top_left_keras)
     if not result:
         logging.info("Did not find the save game original date. Did the keras click correctly?")
         sys.exit(1)
