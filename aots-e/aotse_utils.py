@@ -11,6 +11,8 @@ import time
 import shutil
 from argparse import ArgumentParser
 
+from harness_utils.steam import get_app_install_location
+
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
 
