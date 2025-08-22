@@ -1,0 +1,9 @@
+friendly_name: "Rainbow Six Siege X"
+executable: "siegex.py"
+process_name: "RainbowSix.exe"
+output_dir: "run"
+options:
+  - name: kerasHost
+    type: input
+  - name: kerasPort
+    type: input
