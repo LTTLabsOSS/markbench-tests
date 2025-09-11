@@ -85,10 +85,9 @@ def navigate_settings() -> None:
     am.take_screenshot("graphics_1.png", ArtifactType.CONFIG_IMAGE, "graphics menu 1")
 
     user.press("down")
-
-    rast = kerasService.wait_for_word("view", interval=1, timeout=2)
-    if rast:
-        press_n_times("up", 2, 0.2) #gets you to film grain
+    time.sleep(0.5)
+    user.press("down") #gets you to film grain
+    time.sleep(0.5)
 
     dlss = kerasService.wait_for_word("dlss", interval=1, timeout=2)
     if dlss:
