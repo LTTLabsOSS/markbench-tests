@@ -20,7 +20,7 @@
 		version=0
 	}
 	"refreshRate"={
-		value="50"
+		value="60"
 		version=0
 	}
 }
