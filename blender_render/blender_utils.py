@@ -106,7 +106,7 @@ def run_blender_render(executable_path: Path, log_directory: Path, device: str, 
         subprocess.run(cmd_line, stdout=f_obj, text=True, check=True)
 
     # example: Time: 02:59.57 (Saving: 00:00.16)
-    time_regex = r"Time: (.*) \(Saving.*\)"
+    time_regex = r".*Time:\s+([\d:.]+)\s+\(Saving.*\)"
 
     time = None
     with open(blend_log, 'r', encoding="utf-8") as file:
