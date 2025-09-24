@@ -79,7 +79,7 @@ def run_benchmark(keras_host, keras_port):
     if not result:
         logging.info("Did not find the settings button. Is there something wrong on the screen?")
         sys.exit(1)
-    
+
     gui.moveTo(result["x"], result["y"])
     time.sleep(0.2)
     gui.mouseDown()

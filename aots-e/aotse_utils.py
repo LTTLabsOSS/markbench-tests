@@ -132,11 +132,11 @@ def replace_exe():
     if not os.path.exists(check_backup):
         os.rename(launcher_exe, check_backup)
         shutil.copy(dx12_exe, launcher_exe)
-        logging.info(f"Replacing launcher file in {EXE_PATH}")
+        logging.info("Replacing launcher file in %s", EXE_PATH)
     elif os.path.exists(check_backup):
         if not os.path.exists(launcher_exe):
             shutil.copy(dx12_exe, launcher_exe)
-            logging.info(f"Replacing launcher file in {EXE_PATH}")
+            logging.info("Replacing launcher file in %s", EXE_PATH)
         else:
             logging.info("Launcher already replaced with DX12 exe.")
 
@@ -146,12 +146,12 @@ def restore_exe():
     check_backup = Path(f"{EXE_PATH}\\StardockLauncher_launcher.exe")
     launcher_exe = Path(f"{EXE_PATH}\\StardockLauncher.exe")
     if not os.path.exists(check_backup):
-        logging.info(f"Launcher already restored or file does not exist.")
+        logging.info("Launcher already restored or file does not exist.")
     elif os.path.exists(check_backup):
         if not os.path.exists(launcher_exe):
             os.rename(check_backup, launcher_exe)
-            logging.info(f"Restoring launcher file in {EXE_PATH}")
+            logging.info("Restoring launcher file in %s", EXE_PATH)
         else:
             os.remove(launcher_exe)
             os.rename(check_backup, launcher_exe)
-            logging.info(f"Restoring launcher file in {EXE_PATH}")
+            logging.info("Restoring launcher file in %s", EXE_PATH)

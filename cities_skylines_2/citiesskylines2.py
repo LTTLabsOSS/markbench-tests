@@ -30,7 +30,7 @@ LOG_DIR = SCRIPT_DIR.joinpath("run")
 PROCESS_NAME = "cities2.exe"
 STEAM_GAME_ID = 949230
 top_left_keras = ScreenSplitConfig(
-    divide_method=ScreenShotDivideMethod.QUADRANT, 
+    divide_method=ScreenShotDivideMethod.QUADRANT,
     quadrant=ScreenShotQuadrant.TOP_LEFT)
 
 launcher_files = [
