@@ -70,6 +70,15 @@ def run_benchmark(keras_host, keras_port):
     time.sleep(5)
     am = ArtifactManager(LOG_DIR)
 
+    patchnotes = keras_service.wait_for_word("close", interval=0.5, timeout=100)
+    if patchnotes:
+        gui.moveTo(patchnotes["x"], patchnotes["y"])
+        time.sleep(0.2)
+        gui.mouseDown()
+        time.sleep(0.2)
+        gui.mouseUp()
+        time.sleep(0.2)
+
     result = keras_service.wait_for_word("credits", interval=0.5, timeout=100)
     if not result:
         logging.info("Could not find the paused notification. Unable to mark start time!")
@@ -79,7 +88,7 @@ def run_benchmark(keras_host, keras_port):
     if not result:
         logging.info("Did not find the settings button. Is there something wrong on the screen?")
         sys.exit(1)
-
+    
     gui.moveTo(result["x"], result["y"])
     time.sleep(0.2)
     gui.mouseDown()
