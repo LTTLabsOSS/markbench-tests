@@ -134,6 +134,8 @@ def run_benchmark(keras_service: KerasService) -> tuple:
 
     time.sleep(0.3)
 
+    user.press("space")
+
     if keras_service.wait_for_word(word="continue", timeout=5, interval=0.2) is None:
         user.press("down")
     else:
@@ -245,7 +247,7 @@ def navigate_settings(am: ArtifactManager, keras: KerasService) -> None:
     am.take_screenshot("graphics3.png", ArtifactType.CONFIG_IMAGE,
                        "graphics settings 3")  # is at the bottom of the menu
 
-    press_n_times("up", 12)
+    press_n_times("up", 13)
 
     find_word(keras, "scattering", "Couldn't find scattering")
 
