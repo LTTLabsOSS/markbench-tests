@@ -27,7 +27,8 @@ def get_args() -> any:
 
 def copy_from_network_drive():
     """Copies mod file from network drive to harness folder"""
-    src_path = Path(r"\\Labs\labs\03_ProcessingFiles\Cyberpunk 2077\basegame_no_intro_videos.archive")
+    src_path = Path(
+        r"\\labs.lmg.gg\labs\03_ProcessingFiles\Cyberpunk 2077\basegame_no_intro_videos.archive")
     dest_path = SCRIPT_DIRECTORY / "basegame_no_intro_videos.archive"
     shutil.copyfile(src_path, dest_path)
 

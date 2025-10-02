@@ -24,7 +24,7 @@ def install_mingw() -> str:
         if str(MINGW_FOLDER) not in original_path:
             os.environ['PATH'] = str(MINGW_FOLDER.joinpath('bin')) + os.pathsep + original_path
         return "existing mingw installation detected"
-    source = Path("\\\\Labs\\labs\\01_Installers_Utilities\\MinGW\\").joinpath(MINGW_ZIP)
+    source = Path("\\\\labs.lmg.gg\\labs.lmg.gg\\01_Installers_Utilities\\MinGW\\").joinpath(MINGW_ZIP)
     destination = SCRIPT_DIR.joinpath(MINGW_ZIP)
     shutil.copyfile(source, destination)
     with ZipFile(destination, 'r') as zip_object:
@@ -36,7 +36,8 @@ def install_mingw() -> str:
 
 def copy_miniconda_from_network_drive():
     """copies miniconda installer from network drive"""
-    source = Path("\\\\Labs\\labs\\01_Installers_Utilities\\Miniconda\\").joinpath(MINICONDA_INSTALLER)
+    source = Path("\\\\labs.lmg.gg\\labs.lmg.gg\\01_Installers_Utilities\\Miniconda\\").joinpath(
+        MINICONDA_INSTALLER)
     destination = SCRIPT_DIR.joinpath(MINICONDA_INSTALLER)
     shutil.copyfile(source, destination)
 
@@ -49,7 +50,7 @@ def install_miniconda() -> str:
         copy_miniconda_from_network_drive()
     except Exception as err:
         raise Exception("could not copy miniconda from network drive") from err
-    command =[
+    command = [
         "powershell",
         "start-process",
         "-FilePath",
@@ -57,7 +58,7 @@ def install_miniconda() -> str:
         "-ArgumentList",
         '"/S"',
         "-Wait"
-        ]
+    ]
     try:
         output = subprocess.check_output(command, stderr=subprocess.PIPE, text=True)
     except Exception as err:
@@ -71,14 +72,14 @@ def copy_godot_source_from_network_drive() -> str:
     if SCRIPT_DIR.joinpath(GODOT_DIR).is_dir():
         return "existing godot source directory detected"
     zip_name = f"{GODOT_DIR}.zip"
-    source = Path("\\\\Labs\\labs\\03_ProcessingFiles\\Godot Files\\").joinpath(zip_name)
+    source = Path("\\\\labs.lmg.gg\\labs.lmg.gg\\03_ProcessingFiles\\Godot Files\\").joinpath(zip_name)
     destination = SCRIPT_DIR.joinpath(zip_name)
     shutil.copyfile(source, destination)
     with ZipFile(destination, 'r') as zip_object:
         try:
             zip_object.extractall(path=SCRIPT_DIR)
         except Exception as ex:
-            raise Exception ("error extracting godot zip") from ex
+            raise Exception("error extracting godot zip") from ex
         return "godot source copied and unpacked from network drive"
 
 
@@ -90,7 +91,8 @@ def check_conda_environment_exists() -> bool:
         "-n",
         CONDA_ENV_NAME
     ]
-    process = subprocess.run(" ".join(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False)
+    process = subprocess.run(" ".join(command), stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE, text=True, check=False)
     if process.returncode == 1:
         return False
     return True
@@ -131,6 +133,6 @@ def convert_duration_string_to_seconds(duration: str) -> int:
         hours=int(duration.split(':')[0]),
         minutes=int(duration.split(':')[1]),
         seconds=float(duration.split('.')[0].split(':')[2]),
-        milliseconds=int(float('0.' + duration.split('.')[1])*1000))
+        milliseconds=int(float('0.' + duration.split('.')[1]) * 1000))
 
     return round(time_obj.total_seconds())

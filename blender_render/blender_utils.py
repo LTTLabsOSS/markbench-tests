@@ -80,7 +80,7 @@ def download_scene(scene: BlenderScene) -> None:
 
 def copy_scene_from_network_drive(file_name, destination):
     """copy blend file from network drive"""
-    network_dir = Path("\\\\Labs\\labs\\03_ProcessingFiles\\Blender Render")
+    network_dir = Path("\\\\labs.lmg.gg\\labs.lmg.gg\\03_ProcessingFiles\\Blender Render")
     source_path = network_dir.joinpath(file_name)
     logging.info("Copying %s from %s", file_name, source_path)
     shutil.copyfile(source_path, destination)
@@ -97,12 +97,13 @@ def time_to_seconds(time_string):
     return seconds
 
 
-def run_blender_render(executable_path: Path, log_directory: Path, device: str, benchmark: BlenderScene) -> str:
+def run_blender_render(executable_path: Path, log_directory: Path, device: str,
+                       benchmark: BlenderScene) -> str:
     """Execute the blender render of barbershop, returns the duration as string"""
     blend_log = log_directory.joinpath("blender.log")
     blend_path = SCRIPT_DIR.joinpath(benchmark.file_name)
     cmd_line = f'"{str(executable_path)}" -b -E CYCLES -y "{str(blend_path)}" -f 1 -- --cycles-device {device} --cycles-print-stats'
-    with open(blend_log,'w' , encoding="utf-8") as f_obj:
+    with open(blend_log, 'w', encoding="utf-8") as f_obj:
         subprocess.run(cmd_line, stdout=f_obj, text=True, check=True)
 
     # example: Time: 02:59.57 (Saving: 00:00.16)

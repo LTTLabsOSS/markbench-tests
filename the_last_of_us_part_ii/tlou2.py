@@ -47,7 +47,8 @@ def reset_savedata():
     """
     local_savegame_path = Path(
         f"C:\\Users\\{USERNAME}\\Documents\\The Last of Us Part II\\76561199405246658\\savedata")  # make this global
-    network_savegame_path = Path(r"\\Labs\Labs\03_ProcessingFiles\The Last of Us Part II\savedata")
+    network_savegame_path = Path(
+        r"\\labs.lmg.gg\Labs\03_ProcessingFiles\The Last of Us Part II\savedata")
 
     # Delete the local savedata folder if it exists
     if local_savegame_path.exists() and local_savegame_path.is_dir():
@@ -57,7 +58,8 @@ def reset_savedata():
     # Copy the savedata folder from the network drive
     try:
         shutil.copytree(network_savegame_path, local_savegame_path)
-        logging.info("Copied savedata folder from %s to %s", network_savegame_path, local_savegame_path)
+        logging.info("Copied savedata folder from %s to %s",
+                     network_savegame_path, local_savegame_path)
     except Exception as e:
         logging.error("Failed to copy savedata folder: %s", e)
 
@@ -68,7 +70,8 @@ def delete_autosave():
     """
     Deletes the autosave folder from the local directory if it exists.
     """
-    local_savegame_path = Path(f"C:\\Users\\{USERNAME}\\Documents\\The Last of Us Part II\\76561199405246658\\savedata")
+    local_savegame_path = Path(
+        f"C:\\Users\\{USERNAME}\\Documents\\The Last of Us Part II\\76561199405246658\\savedata")
     savefile_path = local_savegame_path / "SAVEFILE0A"  # check for autosaved file, delete if exists
     if savefile_path.exists() and savefile_path.is_dir():
         shutil.rmtree(savefile_path)
