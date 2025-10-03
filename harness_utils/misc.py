@@ -13,6 +13,7 @@ import json
 import re
 import sys
 
+user.FAILSAFE = False
 
 class LTTGamePad360(vg.VX360Gamepad):
     """

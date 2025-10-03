@@ -40,6 +40,7 @@ logging.getLogger('').addHandler(console)
 args = get_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
 
+user.FAILSAFE = False
 
 def start_game():
     """Launch the game with console enabled and FPS unlocked"""

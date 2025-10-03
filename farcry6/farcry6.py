@@ -1,4 +1,6 @@
 """Far Cry 6 test script"""
+
+# pylint: disable = C0116, W0621
 import os
 import logging
 import time
@@ -30,17 +32,23 @@ LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 PROCESS_NAME = "FarCry6.exe"
 GAME_ID = 5266
 username = os.getlogin()
-xml_file = rf"C:\Users\{username}\Documents\My Games\Far Cry 6\gamerprofile.xml"
+XML_FILE = rf"C:\Users\{username}\Documents\My Games\Far Cry 6\gamerprofile.xml"
+
+
+user.FAILSAFE = False
+
 
 def start_game():
-    subprocess.run(f'start uplay://launch/{GAME_ID}/0', shell=True)
+    subprocess.run(f'start uplay://launch/{GAME_ID}/0', shell=True, check=True)
+
 
 def skip_logo_screens() -> None:
     """Simulate input to skip logo screens"""
     logging.info("Skipping logo screens")
 
-    #skipping the logo screens
+    # skipping the logo screens
     press_n_times("escape", 8, 1)
+
 
 def run_benchmark():
     am = ArtifactManager(LOG_DIRECTORY)
@@ -48,7 +56,7 @@ def run_benchmark():
     setup_start_time = int(time.time())
     time.sleep(25)
 
-    #skipping game intros
+    # skipping game intros
     result = kerasService.look_for_word("warning", attempts=20, interval=1)
     if not result:
         logging.info("Did not see warnings. Did the game start?")
@@ -66,7 +74,7 @@ def run_benchmark():
 
     time.sleep(2)
 
-    #navigating the menus to get to the video settings
+    # navigating the menus to get to the video settings
     result = kerasService.look_for_word("later", attempts=5, interval=1)
     if result:
         user.press("escape")
@@ -95,10 +103,11 @@ def run_benchmark():
     gui.mouseUp()
     time.sleep(2)
 
-    #grabbing screenshots of all the video settings
+    # grabbing screenshots of all the video settings
     result = kerasService.look_for_word("adapter", attempts=10, interval=1)
     if not result:
-        logging.info("Did not find the Video Adapter setting in the monitor options. Did keras navigate wrong?")
+        logging.info(
+            "Did not find the Video Adapter setting in the monitor options. Did keras navigate wrong?")
         sys.exit(1)
 
     am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings")
@@ -109,18 +118,20 @@ def run_benchmark():
 
     result = kerasService.look_for_word("filtering", attempts=10, interval=1)
     if not result:
-        logging.info("Did not find the Texture Filtering setting in the quality options. Did keras navigate wrong?")
+        logging.info(
+            "Did not find the Texture Filtering setting in the quality options. Did keras navigate wrong?")
         sys.exit(1)
 
     am.take_screenshot("quality1.png", ArtifactType.CONFIG_IMAGE, "1st picture of quality settings")
 
     time.sleep(2)
 
-    mouse_scroll_n_times(8, -800,  0.2)
+    mouse_scroll_n_times(8, -800, 0.2)
 
     result = kerasService.look_for_word("shading", attempts=10, interval=1)
     if not result:
-        logging.info("Did not find the FidelityFX Variable Shading setting in the quality options. Did keras navigate wrong?")
+        logging.info(
+            "Did not find the FidelityFX Variable Shading setting in the quality options. Did keras navigate wrong?")
         sys.exit(1)
 
     am.take_screenshot("quality2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of quality settings")
@@ -131,12 +142,13 @@ def run_benchmark():
 
     result = kerasService.look_for_word("lock", attempts=10, interval=1)
     if not result:
-        logging.info("Did not find the Enable Framerate Lock setting in the advanced options. Did keras navigate wrong?")
+        logging.info(
+            "Did not find the Enable Framerate Lock setting in the advanced options. Did keras navigate wrong?")
         sys.exit(1)
 
     am.take_screenshot("advanced.png", ArtifactType.CONFIG_IMAGE, "picture of advanced settings")
 
-    #starting the benchmark
+    # starting the benchmark
     time.sleep(2)
     user.press("f5")
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
@@ -148,7 +160,7 @@ def run_benchmark():
         sys.exit(1)
     test_start_time = int(time.time())
 
-    time.sleep(60) # wait for benchmark to complete
+    time.sleep(60)  # wait for benchmark to complete
 
     result = kerasService.wait_for_word("results", interval=0.5, timeout=100)
     if not result:
@@ -165,10 +177,11 @@ def run_benchmark():
 
     # Exit
     terminate_processes(PROCESS_NAME)
-    am.copy_file(xml_file, ArtifactType.CONFIG_TEXT, "config file")
+    am.copy_file(XML_FILE, ArtifactType.CONFIG_TEXT, "config file")
     am.create_manifest()
 
     return test_start_time, test_end_time
+
 
 setup_log_directory(LOG_DIRECTORY)
 

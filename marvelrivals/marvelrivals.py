@@ -35,6 +35,8 @@ CONFIG_LOCATION = f"{APPDATA}\\Marvel\\Saved\\Config\\Windows"
 CONFIG_FILENAME = "GameUserSettings.ini"
 CFG = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
 
+user.FAILSAFE = False
+
 am = ArtifactManager(LOG_DIR)
 
 def setup_logging():

@@ -34,6 +34,8 @@ STEAM_GAME_ID = 3017860
 username = os.getlogin()
 BENCHMARK_RESULTS_PATH = f"C:\\Users\\{username}\\Saved Games\\id Software\\DOOMTheDarkAges\\base\\benchmark"
 
+user.FAILSAFE = False
+
 def start_game():
     """Launch the game with no launcher or start screen"""
     copy_launcher_config()
