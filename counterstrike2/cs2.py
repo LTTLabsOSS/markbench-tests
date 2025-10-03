@@ -29,9 +29,14 @@ PROCESS_NAME = "cs2.exe"
 STEAM_GAME_ID = 730
 
 STEAM_USER_ID = get_registry_active_user()
-cfg = Path(get_steam_folder_path(), "userdata", str(STEAM_USER_ID), str(STEAM_GAME_ID), "local", "cfg", "cs2_video.txt")
+cfg = Path(
+    get_steam_folder_path(),
+    "userdata", str(STEAM_USER_ID),
+    str(STEAM_GAME_ID),
+    "local", "cfg", "cs2_video.txt")
 
-user.FAILSAFE = False 
+user.FAILSAFE = False
+
 
 def setup_logging():
     """default logging config"""
@@ -76,17 +81,24 @@ def run_benchmark(keras_service):
     # We check the resolution so we know which screenshot to use for the locate on screen function
     match width:
         case "1920":
-            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\settings_1080.png", minSearchTime=5, confidence=0.6)
+            location = gui.locateOnScreen(
+                f"{SCRIPT_DIR}\\screenshots\\settings_1080.png", minSearchTime=5, confidence=0.6)
         case "2560":
-            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\settings_1440.png", minSearchTime=5, confidence=0.6)
+            location = gui.locateOnScreen(
+                f"{SCRIPT_DIR}\\screenshots\\settings_1440.png", minSearchTime=5, confidence=0.6)
         case "3840":
-            location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\settings_2160.png", minSearchTime=5, confidence=0.6)
+            location = gui.locateOnScreen(
+                f"{SCRIPT_DIR}\\screenshots\\settings_2160.png", minSearchTime=5, confidence=0.6)
         case _:
-            logging.error("Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?", height, width)
+            logging.error(
+                "Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?",
+                height, width)
             raise RuntimeError
 
     if location is None:
-        logging.error("Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?", height, width)
+        logging.error(
+            "Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?",
+            height, width)
         raise RuntimeError
 
     click_me = gui.center(location)
@@ -124,11 +136,13 @@ def run_benchmark(keras_service):
     gui.mouseUp()
     time.sleep(0.2)
 
-    am.take_screenshot("advanced_video_1.png", ArtifactType.CONFIG_IMAGE, "first picture of advanced video settings")
+    am.take_screenshot("advanced_video_1.png", ArtifactType.CONFIG_IMAGE,
+                       "first picture of advanced video settings")
 
     result = keras_service.look_for_word(word="boost", attempts=10, interval=1)
     if not result:
-        logging.info("Did not find the keyword 'Boost' in the advanced video menu. Did Keras click correctly?")
+        logging.info(
+            "Did not find the keyword 'Boost' in the advanced video menu. Did Keras click correctly?")
         raise RuntimeError
 
     gui.moveTo(result["x"], result["y"])
@@ -137,9 +151,11 @@ def run_benchmark(keras_service):
     time.sleep(1)
 
     if keras_service.wait_for_word(word="particle", timeout=30, interval=1) is None:
-        logging.info("Did not find the keyword 'Particle' in advanced video menu. Did Keras scroll correctly?")
+        logging.info(
+            "Did not find the keyword 'Particle' in advanced video menu. Did Keras scroll correctly?")
         raise RuntimeError
-    am.take_screenshot("advanced_video_2.png", ArtifactType.CONFIG_IMAGE, "second picture of advanced video settings")
+    am.take_screenshot("advanced_video_2.png", ArtifactType.CONFIG_IMAGE,
+                       "second picture of advanced video settings")
 
     logging.info('Starting benchmark')
     user.press("`")
@@ -172,7 +188,7 @@ def run_benchmark(keras_service):
         test_start_time = int(time.time())
         logging.info("Saw \'lets roll\'! Marking the time.")
 
-    time.sleep(112) # sleep duration during gameplay
+    time.sleep(112)  # sleep duration during gameplay
 
     # Default fallback end time
     test_end_time = int(time.time())
