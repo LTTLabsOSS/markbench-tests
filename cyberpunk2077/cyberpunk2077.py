@@ -27,6 +27,8 @@ LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 PROCESS_NAME = "cyberpunk2077.exe"
 
 
+user.FAILSAFE = False
+
 def start_game():
     """Launch the game with no launcher or start screen"""
     return exec_steam_game(STEAM_GAME_ID, game_params=["--launcher-skip", "-skipStartScreen"])

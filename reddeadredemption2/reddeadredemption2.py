@@ -32,6 +32,7 @@ SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 CONFIG_FULL_PATH = Path("C:/Users/", getpass.getuser(), "Documents", "Rockstar Games", "Red Dead Redemption 2", "Settings", "system.xml")
 
+user.FAILSAFE = False
 
 def run_benchmark():
     """Starts the benchmark"""

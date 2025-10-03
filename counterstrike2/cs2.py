@@ -31,6 +31,8 @@ STEAM_GAME_ID = 730
 STEAM_USER_ID = get_registry_active_user()
 cfg = Path(get_steam_folder_path(), "userdata", str(STEAM_USER_ID), str(STEAM_GAME_ID), "local", "cfg", "cs2_video.txt")
 
+user.FAILSAFE = False 
+
 def setup_logging():
     """default logging config"""
     LOG_DIR.mkdir(exist_ok=True)

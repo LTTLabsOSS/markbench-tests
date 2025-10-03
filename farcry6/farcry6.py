@@ -32,6 +32,9 @@ GAME_ID = 5266
 username = os.getlogin()
 xml_file = rf"C:\Users\{username}\Documents\My Games\Far Cry 6\gamerprofile.xml"
 
+
+user.FAILSAFE = False
+
 def start_game():
     subprocess.run(f'start uplay://launch/{GAME_ID}/0', shell=True)
 

@@ -26,6 +26,7 @@ EXECUTABLE_PATH = find_epic_executable()
 GAME_ID = "c4763f236d08423eb47b4c3008779c84%3A93f2a8c3547846eda966cb3c152a026e%3Adc9d2e595d0e4650b35d659f90d41059?action=launch&silent=true"
 gamefoldername = "AlanWake2"
 
+user.FAILSAFE = False
 
 def setup_logging():
     """default logging config"""
