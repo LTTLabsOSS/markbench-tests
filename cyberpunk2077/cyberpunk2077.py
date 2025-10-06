@@ -26,7 +26,6 @@ SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 PROCESS_NAME = "cyberpunk2077.exe"
 
-
 user.FAILSAFE = False
 
 def start_game():
@@ -63,6 +62,25 @@ def check_for_rt():
         if result:
             user.press("down")
             am.take_screenshot("graphics_pt.png", ArtifactType.CONFIG_IMAGE, "graphics menu path tracing")
+
+def check_anisotropy(max_attempts=10):
+    """Continuously looks for a word using kerasService. If not found in the given time, presses a button.
+    """
+    for _ in range(max_attempts):
+        # Try finding the word within check_duration seconds
+        found = kerasService.look_for_word(word="anisotropy", attempts=10, interval=0.5)
+
+        if found:
+            return True  # Stop checking
+
+        # If not found, press the button once
+        user.press("down")
+
+        # Short delay before rechecking
+        time.sleep(0.5)
+
+    logging.info("Max attempts reached for checking the camera. Did the game load the save?")
+    sys.exit(1)  # Word was not found
 
 def navigate_settings() -> None:
     """Simulate inputs to navigate the main menu"""
@@ -115,10 +133,8 @@ def navigate_settings() -> None:
         user.press("down")
         time.sleep(0.5)
 
-    result = kerasService.wait_for_word("anisotropy", interval=3, timeout=20)
-    if not result:
-        logging.info("Did not see anisotropic options. Did the game navigate the graphics menu correctly?")
-        sys.exit(1)
+    check_anisotropy()
+
     am.take_screenshot("graphics_2.png", ArtifactType.CONFIG_IMAGE, "graphics menu 2")
 
     for _ in range(11):
