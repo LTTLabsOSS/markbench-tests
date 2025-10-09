@@ -93,7 +93,7 @@ def run_benchmark(keras_service):
         sys.exit(1)
 
     logging.info('Game started. Entering main menu')
-    time.sleep(2)
+    time.sleep(4)
     user.press("enter")
     time.sleep(2)
 
