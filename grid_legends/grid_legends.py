@@ -142,7 +142,7 @@ def run_benchmark(keras_service):
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
 
-    if keras_service.wait_for_word(word="manzi", timeout=60, interval=0.1) is None:
+    if keras_service.wait_for_word(word="manzi", timeout=120, interval=0.1) is None:
         logging.error("Didn't see Valentino Manzi. Did the benchmark load?")
         sys.exit(1)
     test_start_time = int(time.time())
