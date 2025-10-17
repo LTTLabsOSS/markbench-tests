@@ -77,7 +77,7 @@ def copy_benchmarkfiles() -> None:
 
 def copy_save_from_network_drive(file_name, destination):
     """copy save file from network drive"""
-    network_dir = Path("\\\\labs.lmg.gg\\labs.lmg.gg\\03_ProcessingFiles\\Stellaris")
+    network_dir = Path("\\\\labs.lmg.gg\\labs\\03_ProcessingFiles\\Stellaris")
     source_path = network_dir.joinpath(file_name)
     logging.info("Copying %s from %s", file_name, source_path)
     shutil.copyfile(source_path, destination)
