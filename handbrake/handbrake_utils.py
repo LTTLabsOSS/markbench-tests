@@ -18,7 +18,7 @@ def handbrake_present() -> bool:
 def copy_handbrake_from_network_drive():
     """copy handbrake cli from network drive"""
     source = Path(
-        "\\\\labs.lmg.gg\\labs.lmg.gg\\01_Installers_Utilities\\Handbrake\\X86\\HandBrakeCLI-1.9.1-win-x86_64\\")
+        "\\\\labs.lmg.gg\\labs\\01_Installers_Utilities\\Handbrake\\X86\\HandBrakeCLI-1.9.1-win-x86_64\\")
     copy_souce = source / HANDBRAKE_EXECUTABLE
     destination = SCRIPT_DIR / HANDBRAKE_EXECUTABLE
     shutil.copyfile(copy_souce, destination)
