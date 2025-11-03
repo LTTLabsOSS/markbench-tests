@@ -37,7 +37,7 @@ def get_install_path():
 
 def copy_replay_from_network_drive():
     """Copies replay file from network drive to harness folder"""
-    src_path = Path(r"\\Labs\labs\03_ProcessingFiles\Dota2\benchmark.dem")
+    src_path = Path(r"\\labs.lmg.gg\labs\03_ProcessingFiles\Dota2\benchmark.dem")
     dest_path = SCRIPT_DIRECTORY / "benchmark.dem"
     shutil.copyfile(src_path, dest_path)
 
@@ -84,13 +84,18 @@ def copy_config() -> None:
 
 def read_config() -> list[str] | None:
     """Looks for config file and returns contents if found"""
-    userdata_path = Path(get_steam_folder_path(), "userdata", str(STEAM_USER_ID), str(STEAM_GAME_ID), "local", "cfg", "video.txt")
+    userdata_path = Path(
+        get_steam_folder_path(),
+        "userdata", str(STEAM_USER_ID),
+        str(STEAM_GAME_ID),
+        "local", "cfg", "video.txt")
     install_path = Path(get_install_path(), "game", "dota", "cfg", "video.txt")
     try:
         with open(userdata_path, encoding="utf-8") as f:
             return f.readlines()
     except OSError:
-        logging.error("Did not find config file at path %s. Trying path %s", userdata_path, install_path)
+        logging.error("Did not find config file at path %s. Trying path %s",
+                      userdata_path, install_path)
     try:
         with open(install_path, encoding="utf-8") as f:
             return f.readlines()
@@ -118,6 +123,6 @@ def get_resolution():
             height = height_match.group(1)
         if width_match is not None:
             width = width_match.group(1)
-        if height != 0 and width !=0:
+        if height != 0 and width != 0:
             return (height, width)
     return (height, width)

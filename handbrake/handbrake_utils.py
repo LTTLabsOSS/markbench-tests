@@ -17,7 +17,8 @@ def handbrake_present() -> bool:
 
 def copy_handbrake_from_network_drive():
     """copy handbrake cli from network drive"""
-    source = Path("\\\\Labs\\labs\\01_Installers_Utilities\\Handbrake\\X86\\HandBrakeCLI-1.9.1-win-x86_64\\")
+    source = Path(
+        "\\\\labs.lmg.gg\\labs\\01_Installers_Utilities\\Handbrake\\X86\\HandBrakeCLI-1.9.1-win-x86_64\\")
     copy_souce = source / HANDBRAKE_EXECUTABLE
     destination = SCRIPT_DIR / HANDBRAKE_EXECUTABLE
     shutil.copyfile(copy_souce, destination)
@@ -30,7 +31,7 @@ def is_video_source_present() -> bool:
 
 def copy_video_source():
     """copy big buck bunny source video to local from network drive"""
-    source = r"\\Labs\labs\03_ProcessingFiles\Handbrake Test\big_buck_bunny_1080p24.y4m"
+    source = r"\\labs.lmg.gg\labs\03_ProcessingFiles\Handbrake Test\big_buck_bunny_1080p24.y4m"
     root_dir = os.path.dirname(os.path.realpath(__file__))
     destination = os.path.join(root_dir, SOURCE_VIDEO_NAME)
     shutil.copyfile(source, destination)

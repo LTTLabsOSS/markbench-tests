@@ -1,4 +1,5 @@
 """UL Procyon AI Text Generation test script"""
+# pylint: disable=no-name-in-module
 from argparse import ArgumentParser
 import logging
 from pathlib import Path
@@ -20,7 +21,7 @@ from harness_utils.output import (
 )
 
 #####
-### Globals
+# Globals
 #####
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR / "run"
@@ -31,71 +32,83 @@ CONFIG_DIR = SCRIPT_DIR / "config"
 BENCHMARK_CONFIG = {
     "All_Models_ONNX": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_all.def\"",
-        "process_name":  "Handler.exe",
+        "process_name": "Handler.exe",
         "result_regex": r"<AIImageGenerationOverallScore>(\d+)",
-        "test_name": "All LLM Model Text Generation"
+        "test_name": "all_models",
+        "api": "onnx"
     },
     "Llama_2_13B_ONNX": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_llama2.def\"",
         "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationLlama2OverallScore>(\d+)",
-        "test_name": "LLama 2 Text Generation"
+        "test_name": "llama_2_13b",
+        "api": "onnx"
     },
-     "Llama_3_1_8B_ONNX": {
+    "Llama_3_1_8B_ONNX": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_llama3.1.def\"",
-        "process_name":  "Handler.exe",
+        "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationLlama3OverallScore>(\d+)",
-        "test_name": "Llama 3.1 Text Generation"
+        "test_name": "llama_3_1_8b",
+        "api": "onnx"
     },
     "Mistral_7B_ONNX": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_mistral.def\"",
-        "process_name":  "Handler.exe",
+        "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationMistralOverallScore>(\d+)",
-        "test_name": "Mistral Text Generation"
+        "test_name": "mistral_7b",
+        "api": "onnx"
     },
     "Phi_3_5_ONNX": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_phi.def\"",
-        "process_name":  "Handler.exe",
+        "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationPhiOverallScore>(\d+)",
-        "test_name": "Phi Text Generation"
+        "test_name": "phi_3_5",
+        "api": "onnx"
     },
     "All_Models_OPENVINO": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_all_openvino.def\"",
-        "process_name":  "Handler.exe",
+        "process_name": "Handler.exe",
         "result_regex": r"<AIImageGenerationOverallScore>(\d+)",
-        "test_name": "All LLM Model Text Generation"
+        "test_name": "all_models",
+        "api": "openvino"
     },
     "Llama_2_13B_OPENVINO": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_llama2_openvino.def\"",
         "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationLlama2OverallScore>(\d+)",
-        "test_name": "LLama 2 Text Generation"
+        "test_name": "llama_2_13b",
+        "api": "openvino"
     },
-     "Llama_3_1_8B_OPENVINO": {
+    "Llama_3_1_8B_OPENVINO": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_llama3.1_openvino.def\"",
-        "process_name":  "Handler.exe",
+        "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationLlama3OverallScore>(\d+)",
-        "test_name": "Llama 3.1 Text Generation"
+        "test_name": "llama_3_1_8b",
+        "api": "openvino"
     },
     "Mistral_7B_OPENVINO": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_mistral_openvino.def\"",
-        "process_name":  "Handler.exe",
+        "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationMistralOverallScore>(\d+)",
-        "test_name": "Mistral Text Generation"
+        "test_name": "mistral_7b",
+        "api": "openvino"
     },
     "Phi_3_5_OPENVINO": {
         "config": f"\"{CONFIG_DIR}\\ai_textgeneration_phi_openvino.def\"",
-        "process_name":  "Handler.exe",
+        "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationPhiOverallScore>(\d+)",
-        "test_name": "Phi Text Generation"
+        "test_name": "phi_3_5",
+        "api": "openvino"
     }
 }
+
 RESULTS_FILENAME = "result.xml"
 REPORT_PATH = LOG_DIR / RESULTS_FILENAME
 
+
 def setup_logging():
     """setup logging"""
-    setup_log_directory(LOG_DIR)
+    setup_log_directory(str(LOG_DIR))
     logging.basicConfig(filename=LOG_DIR / "harness.log",
                         format=DEFAULT_LOGGING_FORMAT,
                         datefmt=DEFAULT_DATE_FORMAT,
@@ -110,7 +123,8 @@ def get_arguments():
     """get arguments"""
     parser = ArgumentParser()
     parser.add_argument(
-        "--engine", dest="engine", help="Engine test type", required=True, choices=BENCHMARK_CONFIG.keys())
+        "--engine", dest="engine", help="Engine test type", required=True,
+        choices=BENCHMARK_CONFIG.keys())
     argies = parser.parse_args()
     return argies
 
@@ -129,15 +143,16 @@ def run_benchmark(process_name, command_to_run):
         while True:
             now = time.time()
             elapsed = now - start_time
-            if elapsed >= 60: #seconds
+            if elapsed >= 60:  # seconds
                 raise ValueError("BenchMark subprocess did not start in time")
             process = is_process_running(process_name)
             if process is not None:
                 process.nice(psutil.HIGH_PRIORITY_CLASS)
                 break
             time.sleep(0.2)
-        _, _ = proc.communicate() # blocks until 3dmark exits
+        _, _ = proc.communicate()  # blocks until 3dmark exits
         return proc
+
 
 try:
     setup_logging()
@@ -165,7 +180,8 @@ try:
             sys.exit(1)
 
         report = {
-            "test": BENCHMARK_CONFIG[args.engine]["test_name"],
+            "test": "Procyon AI Text Generation",
+            "test_parameter": BENCHMARK_CONFIG[args.engine]["test_name"],
             "unit": "score",
             "score": score,
             "start_time": seconds_to_milliseconds(start_time),
@@ -175,7 +191,7 @@ try:
         logging.info("Benchmark took %.2f seconds", elapsed_test_time)
         logging.info("Score was %s", score)
 
-        write_report_json(LOG_DIR, "report.json", report)
+        write_report_json(str(LOG_DIR), "report.json", report)
     else:
         session_report = []
 
@@ -198,19 +214,19 @@ try:
                 report = {
                     "start_time": seconds_to_milliseconds(start_time),
                     "end_time": seconds_to_milliseconds(end_time),
-                    "test": test_type[0],
+                    "test": "Procyon AI Text Generation",
+                    "test_parameter": test_type[1]["test_name"],
+                    "api": test_type[1]["api"],
                     "test_version": find_test_version(),
                     "procyon_version": find_procyon_version(),
                     "unit": "score",
                     "score": score
-                    
-                }
 
-                
+                }
 
                 session_report.append(report)
 
-        write_report_json(LOG_DIR, "report.json", session_report)
+        write_report_json(str(LOG_DIR), "report.json", session_report)
 
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")

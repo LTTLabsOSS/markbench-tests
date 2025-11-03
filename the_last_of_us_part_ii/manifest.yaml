@@ -1,0 +1,9 @@
+friendly_name: "The Last of Us Part II"
+executable: "tlou2.py"
+process_name: "tlou-ii.exe"
+output_dir: "run"
+options:
+  - name: kerasHost
+    type: input
+  - name: kerasPort
+    type: input
