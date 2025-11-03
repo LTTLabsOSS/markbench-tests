@@ -33,6 +33,8 @@ CONFIG_PATH = f"C:\\Users\\{username}\\Documents\\My Games\\GRID Legends\\hardwa
 CONFIG_FILENAME = "hardware_settings_config.xml"
 CONFIG_FULL_PATH = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
 
+user.FAILSAFE = False
+
 def get_resolution() -> tuple[int]:
     """Gets resolution width and height from local xml file created by game."""
     resolution = re.compile(r"<resolution width=\"(\d+)\" height=\"(\d+)\"")

@@ -16,15 +16,16 @@ PROCESS_NAME = "stellaris.exe"
 STEAM_GAME_ID = 281990
 CONFIG_LOCATION = Path(f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris")
 LOG_LOCATION = Path(f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris\\logs")
-BENCHMARK_LOCATION = Path(f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris\\save games\\BENCHMARK")
-CONFIG_FILENAME = "standard_settings.txt"
+BENCHMARK_LOCATION = Path(
+    f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris\\save games\\BENCHMARK")
+CONFIG_FILENAME = "settings.txt"
 LOG_FILE = "game.log"
 
 
 benchmark_files = [
     "benchmark.ini",
     "pdx_settings.txt",
-    "standard_settings.txt"
+    "settings.txt"
 ]
 
 
@@ -76,7 +77,7 @@ def copy_benchmarkfiles() -> None:
 
 def copy_save_from_network_drive(file_name, destination):
     """copy save file from network drive"""
-    network_dir = Path("\\\\Labs\\labs\\03_ProcessingFiles\\Stellaris")
+    network_dir = Path("\\\\labs.lmg.gg\\labs\\03_ProcessingFiles\\Stellaris")
     source_path = network_dir.joinpath(file_name)
     logging.info("Copying %s from %s", file_name, source_path)
     shutil.copyfile(source_path, destination)

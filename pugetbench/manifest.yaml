@@ -15,6 +15,6 @@ options:
       - aftereffects
       - resolve
     tooltip: Select which test to run
-  - name: benchmark
+  - name: benchmark_version
     type: input
     tooltip: Version of benchmark to run

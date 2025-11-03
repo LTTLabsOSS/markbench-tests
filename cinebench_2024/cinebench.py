@@ -33,7 +33,8 @@ DURATION_OPTION = "g_CinebenchMinimumTestDuration=1"
 
 parser = ArgumentParser()
 parser.add_argument(
-    "-t", "--test", dest="test", help="Cinebench test type", required=True, choices=TEST_OPTIONS.keys())
+    "-t", "--test", dest="test", help="Cinebench test type", required=True,
+    choices=TEST_OPTIONS.keys())
 args = parser.parse_args()
 
 script_dir = Path(__file__).resolve().parent
@@ -63,21 +64,30 @@ try:
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             bufsize=1,
-            universal_newlines=True) as proc:
-            logging.info("Cinebench started. Waiting for setup to finish to set process priority.")
+                universal_newlines=True) as proc:
+            logging.info(
+                "Cinebench started. Waiting for setup to finish to set process priority.")
+            START_TIME = 0
+            if proc.stdout is None:
+                logging.error("Cinebench process did not start correctly!")
+                sys.exit(1)
             for line in proc.stdout:
                 if "BEFORERENDERING" in line:
-                    elapsed_setup_time = round(time.time() - setup_start_time, 2)
+                    elapsed_setup_time = round(
+                        time.time() - setup_start_time, 2)
                     logging.info("Setup took %.2f seconds", elapsed_setup_time)
-                    logging.info("Setting Cinebench process priority to high (PID: %s)", proc.pid)
+                    logging.info(
+                        "Setting Cinebench process priority to high (PID: %s)",
+                        proc.pid)
                     process = psutil.Process(proc.pid)
                     process.nice(psutil.HIGH_PRIORITY_CLASS)
-                    start_time = time.time()
+                    START_TIME = time.time()
                     break
             out, _ = proc.communicate()
 
             if proc.returncode > 0:
-                logging.warning("Cinebench exited with return code %d", proc.returncode)
+                logging.warning(
+                    "Cinebench exited with return code %d", proc.returncode)
 
             score = get_score(out)
             if score is None:
@@ -85,19 +95,20 @@ try:
                 sys.exit(1)
 
             end_time = time.time()
-            elapsed_test_time = round(end_time - start_time, 2)
+            elapsed_test_time = round(end_time - START_TIME, 2)
             logging.info("Benchmark took %.2f seconds", elapsed_test_time)
 
             report = {
-                "test": friendly_test_name(test_type),
+                "test": "Cinebench 2024",
+                "test_parameter": friendly_test_name(test_type),
                 "score": score,
                 "unit": "score",
-                "start_time": seconds_to_milliseconds(start_time),
+                "start_time": seconds_to_milliseconds(START_TIME),
                 "end_time": seconds_to_milliseconds(end_time)
             }
             session_report.append(report)
 
-    write_report_json(log_dir, "report.json", session_report)
+    write_report_json(str(log_dir), "report.json", session_report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

@@ -1,12 +1,11 @@
 # Marvel Rivals
-This benchmark runs a replay of a Season 1 tournament Double Elimination round game between SendHelp and BeerLovers
+This benchmark runs a canned benchmark built into the Marvel Rivals settings.
 
 ## Prerequisites
 
 - Python 3.10+
 - Marvel Rivals installed on Steam
 - Keras OCR service
-- Favoriting replay ID 10518740076
 
 ## Options
 

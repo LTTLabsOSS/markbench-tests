@@ -1,13 +1,13 @@
 """Dota 2 test script"""
 import logging
-import os
+from pathlib import Path
 import time
 import pyautogui as gui
 import pydirectinput as user
 import sys
 from dota2_utils import get_resolution, copy_replay, copy_config, get_args
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, str(Path(sys.path[0]).parent))
 
 from harness_utils.output import (
     setup_log_directory,
@@ -22,12 +22,12 @@ from harness_utils.steam import exec_steam_game
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 
-SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "dota2.exe"
 STEAM_GAME_ID = 570
 
-setup_log_directory(LOG_DIRECTORY)
+setup_log_directory(str(LOG_DIRECTORY))
 logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
                     format=DEFAULT_LOGGING_FORMAT,
                     datefmt=DEFAULT_DATE_FORMAT,
@@ -40,6 +40,7 @@ logging.getLogger('').addHandler(console)
 args = get_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
 
+user.FAILSAFE = False
 
 def start_game():
     """Launch the game with console enabled and FPS unlocked"""
@@ -75,6 +76,8 @@ def run_benchmark():
             "Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
+    time.sleep(15)  # wait for main menu
+
     screen_height, screen_width = get_resolution()
     location = None
     click_multiple = 0
@@ -87,15 +90,18 @@ def run_benchmark():
             click_multiple = 0.8
         case "1920":
             location = gui.locateOnScreen(
-                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_1080.png")
+                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_1080.png",
+                confidence=0.9)
             click_multiple = 1
         case "2560":
             location = gui.locateOnScreen(
-                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_1440.png")
+                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_1440.png",
+                confidence=0.9)
             click_multiple = 1.5
         case "3840":
             location = gui.locateOnScreen(
-                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_2160.png")
+                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_2160.png",
+                confidence=0.9)
             click_multiple = 2
         case _:
             logging.error(
@@ -130,9 +136,30 @@ def run_benchmark():
             "Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
-    am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE,
+    am.take_screenshot("video1.png", ArtifactType.CONFIG_IMAGE,
                        "picture of video settings")
 
+    user.press("down")
+
+    if kerasService.wait_for_word(
+            word="api", timeout=30, interval=1) is None:
+        logging.info(
+            "Did not find the video settings menu. Did the menu get stuck?")
+        sys.exit(1)
+
+    am.take_screenshot("video2.png", ArtifactType.CONFIG_IMAGE,
+                       "picture of video settings")
+
+    user.press("down")
+
+    if kerasService.wait_for_word(
+            word="direct", timeout=30, interval=1) is None:
+        logging.info(
+            "Did not find the video settings menu. Did the menu get stuck?")
+        sys.exit(1)
+
+    am.take_screenshot("video3.png", ArtifactType.CONFIG_IMAGE,
+                       "picture of video settings")
     # starting the benchmark
     user.press("escape")
     logging.info('Starting benchmark')
@@ -196,14 +223,14 @@ def run_benchmark():
 
 try:
     start_time, end_time = run_benchmark()
-    height, width = get_resolution()
+    res_height, res_width = get_resolution()
     report = {
-        "resolution": format_resolution(width, height),
+        "resolution": format_resolution(int(res_width), int(res_height)),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time)
     }
 
-    write_report_json(LOG_DIRECTORY, "report.json", report)
+    write_report_json(str(LOG_DIRECTORY), "report.json", report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
