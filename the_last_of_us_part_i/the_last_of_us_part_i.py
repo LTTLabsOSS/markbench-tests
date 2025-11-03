@@ -20,8 +20,8 @@ from harness_utils.output import (
 )
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
-  get_registry_active_user,
-  exec_steam_run_command,
+    get_registry_active_user,
+    exec_steam_run_command,
 )
 from harness_utils.misc import press_n_times
 
@@ -34,19 +34,20 @@ PROCESS_NAME = "tlou"
 
 user.FAILSAFE = False
 
+
 def take_screenshots(am: ArtifactManager) -> None:
     """Take screenshots of the benchmark settings"""
     logging.info("Taking screenshots of benchmark settings")
-    press_n_times("s",2,0.2 )
+    press_n_times("s", 2, 0.2)
     user.press("enter")
-    press_n_times("s",4,0.2 )
+    press_n_times("s", 4, 0.2)
     user.press("enter")
     am.take_screenshot("video1.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings1")
 
-    press_n_times("s",15,0.2)
+    press_n_times("s", 15, 0.2)
     am.take_screenshot("video2.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings2")
 
-    press_n_times("s",6, 0.2)
+    press_n_times("s", 6, 0.2)
     am.take_screenshot("video3.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings3")
 
     user.press("backspace")
@@ -68,6 +69,7 @@ def take_screenshots(am: ArtifactManager) -> None:
     user.press("backspace")
     user.press("backspace")
     press_n_times("w", 2, 0.2)
+
 
 def navigate_main_menu(am: ArtifactManager) -> None:
     """Input to navigate main menu"""
@@ -174,7 +176,7 @@ try:
     start_time, end_time = run_benchmark()
     steam_id = get_registry_active_user()
     config_path = os.path.join(
-        os.environ["HOMEPATH"], "Saved Games" ,"The Last of Us Part I",
+        os.environ["HOMEPATH"], "Saved Games", "The Last of Us Part I",
         "users", str(steam_id), "screeninfo.cfg"
     )
     height, width = get_resolution(config_path)
@@ -183,8 +185,8 @@ try:
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time)
     }
-
     write_report_json(LOG_DIRECTORY, "report.json", report)
+
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

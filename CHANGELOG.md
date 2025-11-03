@@ -4,15 +4,20 @@ All notable changes to this project will be documented in this file.
 
 Changes are grouped by the date they are merged to the main branch of the repository and are ordered from newest to oldest. Dates use the ISO 8601 extended calendar date format, i.e. YYYY-MM-DD.
 
+## 2025-07-15
+- Updated 7-Zip to 25.00
+- Updated Y-Cruncher to v0.8.6.9545
+- Updated Godot compile to 4.4.1-stable
+
 ## 2025-04-02
 - Fixed Keras not finding the FPS in Shadow of the Tomb Raider
 - Added a screenshot function for Vulkan games for Keras-OCR via DXcam
 - Added Keras functionality to Red Dead Redemption 2
 - Added Strange Brigade (VK) to the team
-- Updated PugetBench harness to include Davinci and After Effects
+- Updated PugetBench harness to include DaVinci and After Effects
 - Updated PugetBench to more consistently find version numbers and include them in the report.json
 - Updated Rocket League harness to check what camera it is on and keep flipping through till it's on the correct one
-- Updated Procyon AI harnesses to have verison numbers in report.json
+- Updated Procyon AI harnesses to have version numbers in report.json
 - Replaced the hardcoded path for Cyberpunk2077 and instead use the get_app_install_location instead
 - Added DOTA 2 screenshotting for video config
 - Added beta harness of Marvel Rivals

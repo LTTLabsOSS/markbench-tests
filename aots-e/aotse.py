@@ -6,13 +6,13 @@ import time
 import getpass
 import glob
 import os
-from aotse_utils import read_current_resolution, find_score_in_log, delete_old_scores, get_args
+from aotse_utils import read_current_resolution, find_score_in_log, delete_old_scores, get_args, replace_exe, restore_exe
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
 
 from harness_utils.keras_service import KerasService
-from harness_utils.steam import get_app_install_location, get_build_id, exec_steam_game
+from harness_utils.steam import get_build_id, exec_steam_game
 from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
     DEFAULT_LOGGING_FORMAT,
@@ -32,7 +32,7 @@ CONFIG_FILENAME = "settings.ini"
 STEAM_GAME_ID = 507490
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR / "run"
-EXECUTABLE = "AshesEscalation_DX12.exe"
+EXECUTABLE = "StardockLauncher.exe"
 CONFIG_DIR = SCRIPT_DIR / "config"
 BENCHMARK_CONFIG = {
     "GPU_Benchmark": {
@@ -49,7 +49,6 @@ BENCHMARK_CONFIG = {
     }
 }
 CFG = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
-GAME_DIR = get_app_install_location(STEAM_GAME_ID)
 
 def start_game():
     """Launch the game with no launcher or start screen"""
@@ -60,6 +59,7 @@ def run_benchmark():
     """Start the benchmark"""
      # Start game via Steam and enter fullscreen mode
     setup_start_time = time.time()
+    replace_exe()
     start_game()
 
     time.sleep(10)
@@ -85,16 +85,14 @@ def run_benchmark():
 
     logging.info("Benchmark started. Waiting for benchmark to complete.")
     time.sleep(180)
-    # result = kerasService.wait_for_word("complete", timeout=240, interval=0.5)
-    # if not result:
-    #     logging.info("Did not see the Benchmark Complete pop up. Did it run?")
-    #     sys.exit(1)
 
-    test_end_time = time.time() - 2
+    test_end_time = time.time()
     time.sleep(2)
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     time.sleep(3)
+    restore_exe()
+
     return test_start_time, test_end_time
 
 setup_log_directory(LOG_DIR)

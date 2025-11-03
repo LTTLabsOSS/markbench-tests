@@ -8,6 +8,7 @@ from pathlib import Path
 import psutil
 import glob
 import time
+import shutil
 from argparse import ArgumentParser
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
@@ -15,14 +16,16 @@ sys.path.append(PARENT_DIR)
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
+from harness_utils.steam import get_app_install_location
+
 USERNAME = getpass.getuser()
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
-PROCESS_NAME = "stellaris.exe"
-STEAM_GAME_ID = 281990
+STEAM_GAME_ID = 507490
 CONFIG_FILENAME = "settings.ini"
 USERNAME = getpass.getuser()
 CONFIG_PATH = Path(f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Ashes of the Singularity - Escalation")
+EXE_PATH = Path(get_app_install_location(STEAM_GAME_ID))
 BENCHMARK_CONFIG = {
     "GPU_Benchmark": {
         "hardware": "GPU",
@@ -119,3 +122,36 @@ def wait_for_benchmark_process(test_name, process_name, timeout=60):
 
         # Wait for 1 second before checking again
         time.sleep(1)
+
+def replace_exe():
+    """Replaces the Strange Brigade launcher exe with the Vulkan exe for immediate launching
+    """
+    check_backup = Path(f"{EXE_PATH}\\StardockLauncher_launcher.exe")
+    launcher_exe = Path(f"{EXE_PATH}\\StardockLauncher.exe")
+    dx12_exe = Path(f"{EXE_PATH}\\AshesEscalation_DX12.exe")
+    if not os.path.exists(check_backup):
+        os.rename(launcher_exe, check_backup)
+        shutil.copy(dx12_exe, launcher_exe)
+        logging.info("Replacing launcher file in %s", EXE_PATH)
+    elif os.path.exists(check_backup):
+        if not os.path.exists(launcher_exe):
+            shutil.copy(dx12_exe, launcher_exe)
+            logging.info("Replacing launcher file in %s", EXE_PATH)
+        else:
+            logging.info("Launcher already replaced with DX12 exe.")
+
+def restore_exe():
+    """Restores the launcher exe back to the original exe name to close the loop.
+    """
+    check_backup = Path(f"{EXE_PATH}\\StardockLauncher_launcher.exe")
+    launcher_exe = Path(f"{EXE_PATH}\\StardockLauncher.exe")
+    if not os.path.exists(check_backup):
+        logging.info("Launcher already restored or file does not exist.")
+    elif os.path.exists(check_backup):
+        if not os.path.exists(launcher_exe):
+            os.rename(check_backup, launcher_exe)
+            logging.info("Restoring launcher file in %s", EXE_PATH)
+        else:
+            os.remove(launcher_exe)
+            os.rename(check_backup, launcher_exe)
+            logging.info("Restoring launcher file in %s", EXE_PATH)

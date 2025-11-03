@@ -1,4 +1,5 @@
 """UL Procyon AI Image Generation test script"""
+# pylint: disable=no-name-in-module
 from argparse import ArgumentParser
 import logging
 from pathlib import Path
@@ -26,7 +27,7 @@ from harness_utils.output import (
 )
 
 #####
-### Globals
+# Globals
 #####
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR / "run"
@@ -41,102 +42,117 @@ CONFIG_DIR = SCRIPT_DIR / "config"
 BENCHMARK_CONFIG = {
     "AMD_GPU0_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15fp16_onnxruntime.def\"",
-        "process_name":  "ort-directml.exe",
+        "process_name": "ort-directml.exe",
         "device_name": list(WINML_DEVICES.keys())[0],
         "device_id": "0",
-        "test_name": "ONNX Stable Diffusion FP16"
+        "test_name": "stable_diffusion_fp16",
+        "api": "onnx"
     },
     "AMD_GPU1_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15fp16_onnxruntime.def\"",
-        "process_name":  "ort-directml.exe",
+        "process_name": "ort-directml.exe",
         "device_name": list(WINML_DEVICES.keys())[1] if len(list(WINML_DEVICES.keys())) > 1 else list(WINML_DEVICES.keys())[0],
         "device_id": "1" if len(list(WINML_DEVICES.values())) > 1 else "0",
-        "test_name": "ONNX Stable Diffusion FP16"
+        "test_name": "stable_diffusion_fp16",
+        "api": "onnx"
     },
     "AMD_GPU0_XL_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sdxlfp16_onnxruntime.def\"",
         "process_name": "ort-directml.exe",
         "device_name": list(WINML_DEVICES.keys())[0],
         "device_id": "0",
-        "test_name": "ONNX Stable Diffusion FP16 XL"
+        "test_name": "stable_diffusion_fp16_xl",
+        "api": "onnx"
     },
     "AMD_GPU1_XL_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sdxlfp16_onnxruntime.def\"",
         "process_name": "ort-directml.exe",
         "device_name": list(WINML_DEVICES.keys())[1] if len(list(WINML_DEVICES.keys())) > 1 else list(WINML_DEVICES.keys())[0],
         "device_id": list(WINML_DEVICES.values())[1] if len(list(WINML_DEVICES.values())) > 1 else list(WINML_DEVICES.values())[0],
-        "test_name": "ONNX Stable Diffusion FP16 XL"
+        "test_name": "stable_diffusion_fp16_xl",
+        "api": "onnx"
     },
     "Intel_GPU0_INT8": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15int8_openvino.def\"",
-        "process_name":  "openvino.exe",
+        "process_name": "openvino.exe",
         "device_id": "GPU.0" if "GPU.0" in list(OPENVINO_DEVICES.keys()) else "GPU",
-        "device_name": get_openvino_gpu(OPENVINO_DEVICES ,"GPU.0"),
-        "test_name": "Intel OpenVINO Stable Diffusion INT8"
+        "device_name": get_openvino_gpu(OPENVINO_DEVICES, "GPU.0"),
+        "test_name": "stable_diffusion_int8",
+        "api": "openvino"
     },
     "Intel_GPU0_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15fp16_openvino.def\"",
-        "process_name":  "openvino.exe",
+        "process_name": "openvino.exe",
         "device_id": "GPU.0" if "GPU.0" in list(OPENVINO_DEVICES.keys()) else "GPU",
-        "device_name": get_openvino_gpu(OPENVINO_DEVICES ,"GPU.0"),
-        "test_name": "Intel OpenVINO Stable Diffusion FP16"
+        "device_name": get_openvino_gpu(OPENVINO_DEVICES, "GPU.0"),
+        "test_name": "stable_diffusion_fp16",
+        "api": "openvino"
     },
     "Intel_GPU0_XL_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sdxlfp16_openvino.def\"",
-        "process_name":  "openvino.exe",
+        "process_name": "openvino.exe",
         "device_id": "GPU.0" if "GPU.0" in list(OPENVINO_DEVICES.keys()) else "GPU",
-        "device_name": get_openvino_gpu(OPENVINO_DEVICES ,"GPU.0"),
-        "test_name": "Intel OpenVINO Stable Diffusion FP16 XL"
+        "device_name": get_openvino_gpu(OPENVINO_DEVICES, "GPU.0"),
+        "test_name": "stable_diffusion_fp16_xl",
+        "api": "openvino"
     },
     "Intel_GPU1_INT8": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15int8_openvino.def\"",
-        "process_name":  "openvino.exe",
+        "process_name": "openvino.exe",
         "device_id": "GPU.1" if "GPU.1" in list(OPENVINO_DEVICES.keys()) else "GPU",
-        "device_name": get_openvino_gpu(OPENVINO_DEVICES ,"GPU.1"),
-        "test_name": "Intel OpenVINO Stable Diffusion INT8"
+        "device_name": get_openvino_gpu(OPENVINO_DEVICES, "GPU.1"),
+        "test_name": "stable_diffusion_int8",
+        "api": "openvino"
     },
     "Intel_GPU1_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15fp16_openvino.def\"",
-        "process_name":  "openvino.exe",
+        "process_name": "openvino.exe",
         "device_id": "GPU.1" if "GPU.1" in list(OPENVINO_DEVICES.keys()) else "GPU",
-        "device_name": get_openvino_gpu(OPENVINO_DEVICES ,"GPU.1"),
-        "test_name": "Intel OpenVINO Stable Diffusion FP16"
+        "device_name": get_openvino_gpu(OPENVINO_DEVICES, "GPU.1"),
+        "test_name": "stable_diffusion_fp16",
+        "api": "openvino"
     },
     "Intel_GPU1_XL_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sdxlfp16_openvino.def\"",
-        "process_name":  "openvino.exe",
+        "process_name": "openvino.exe",
         "device_id": "GPU.1" if "GPU.1" in list(OPENVINO_DEVICES.keys()) else "GPU",
-        "device_name": get_openvino_gpu(OPENVINO_DEVICES ,"GPU.1"),
-        "test_name": "Intel OpenVINO Stable Diffusion FP16 XL"
+        "device_name": get_openvino_gpu(OPENVINO_DEVICES, "GPU.1"),
+        "test_name": "stable_diffusion_fp16_xl",
+        "api": "openvino"
     },
     "NVIDIA_GPU_INT8": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15int8_tensorrt.def\"",
-        "process_name":  "tensorrt.exe",
+        "process_name": "tensorrt.exe",
         "device_id": "cuda:0",
         "device_name": CUDA_DEVICES.get("cuda:0"),
-        "test_name": "NVIDIA TensorRT Stable Diffusion INT8"
+        "test_name": "stable_diffusion_int8",
+        "api": "tensorrt"
     },
     "NVIDIA_GPU_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sd15fp16_tensorrt.def\"",
-        "process_name":  "tensorrt.exe",
+        "process_name": "tensorrt.exe",
         "device_id": "cuda:0",
         "device_name": CUDA_DEVICES.get("cuda:0"),
-        "test_name": "NVIDIA TensorRT Stable Diffusion FP16"
+        "test_name": "stable_diffusion_fp16",
+        "api": "tensorrt"
     },
     "NVIDIA_GPU_XL_FP16": {
         "config": f"\"{CONFIG_DIR}\\ai_imagegeneration_sdxlfp16_tensorrt.def\"",
-        "process_name":  "tensorrt.exe",
+        "process_name": "tensorrt.exe",
         "device_id": "cuda:0",
         "device_name": CUDA_DEVICES.get("cuda:0"),
-        "test_name": "NVIDIA TensorRT Stable Diffusion FP16 XL"
+        "test_name": "stable_diffusion_fp16_xl",
+        "api": "tensorrt"
     }
 }
+
 RESULTS_FILENAME = "result.xml"
 REPORT_PATH = LOG_DIR / RESULTS_FILENAME
 
+
 def setup_logging():
     """setup logging"""
-    setup_log_directory(LOG_DIR)
+    setup_log_directory(str(LOG_DIR))
     logging.basicConfig(filename=LOG_DIR / "harness.log",
                         format=DEFAULT_LOGGING_FORMAT,
                         datefmt=DEFAULT_DATE_FORMAT,
@@ -151,7 +167,8 @@ def get_arguments():
     """get arguments"""
     parser = ArgumentParser()
     parser.add_argument(
-        "--engine", dest="engine", help="Engine test type", required=True, choices=BENCHMARK_CONFIG.keys())
+        "--engine", dest="engine", help="Engine test type", required=True,
+        choices=BENCHMARK_CONFIG.keys())
     argies = parser.parse_args()
     return argies
 
@@ -179,15 +196,16 @@ def run_benchmark(process_name, command_to_run):
         while True:
             now = time.time()
             elapsed = now - start_time
-            if elapsed >= 60: #seconds
+            if elapsed >= 60:  # seconds
                 raise ValueError("BenchMark subprocess did not start in time")
             process = is_process_running(process_name)
             if process is not None:
                 process.nice(psutil.HIGH_PRIORITY_CLASS)
                 break
             time.sleep(0.2)
-        _, _ = proc.communicate() # blocks until 3dmark exits
+        _, _ = proc.communicate()  # blocks until 3dmark exits
         return proc
+
 
 try:
     setup_logging()
@@ -197,7 +215,9 @@ try:
 
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.engine]["config"]
-    cmd = create_procyon_command(option, BENCHMARK_CONFIG[args.engine]["process_name"], BENCHMARK_CONFIG[args.engine]["device_id"])
+    cmd = create_procyon_command(
+        option, BENCHMARK_CONFIG[args.engine]["process_name"],
+        BENCHMARK_CONFIG[args.engine]["device_id"])
     logging.info('Starting benchmark!')
     logging.info(cmd)
     start_time = time.time()
@@ -221,16 +241,18 @@ try:
     report = {
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
-        "test": BENCHMARK_CONFIG[args.engine]["test_name"],
+        "test": "Procyon AI Image Generation",
+        "test_parameter": BENCHMARK_CONFIG[args.engine]["test_name"],
+        "api": BENCHMARK_CONFIG[args.engine]["api"],
         "test_version": find_test_version(),
         "device_name": BENCHMARK_CONFIG[args.engine]["device_name"],
         "procyon_version": find_procyon_version(),
         "unit": "score",
         "score": score
-        
+
     }
 
-    write_report_json(LOG_DIR, "report.json", report)
+    write_report_json(str(LOG_DIR), "report.json", report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

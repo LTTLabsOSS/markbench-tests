@@ -12,8 +12,8 @@ sys.path.insert(1, os.path.join(sys.path[0], ".."))
 from harness_utils.output import write_report_json, DEFAULT_LOGGING_FORMAT, DEFAULT_DATE_FORMAT
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
-EXECUTABLE_PATH = SCRIPT_DIR.joinpath(YCRUNCHER_FOLDER_NAME, "y-cruncher.exe")
+LOG_DIR = SCRIPT_DIR / "run"
+EXECUTABLE_PATH = SCRIPT_DIR / YCRUNCHER_FOLDER_NAME / "y-cruncher.exe"
 
 
 def setup_logging():
@@ -79,7 +79,7 @@ def main():
 
     report = {
         "start_time": start_time,
-        "version": "v0.8.5.9543",
+        "version": "v0.8.5.9545b",
         "end_time": end_time,
         "score": avg_score,
         "unit": "seconds",

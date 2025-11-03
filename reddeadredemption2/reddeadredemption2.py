@@ -32,6 +32,7 @@ SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
 CONFIG_FULL_PATH = Path("C:/Users/", getpass.getuser(), "Documents", "Rockstar Games", "Red Dead Redemption 2", "Settings", "system.xml")
 
+user.FAILSAFE = False
 
 def run_benchmark():
     """Starts the benchmark"""
@@ -39,7 +40,14 @@ def run_benchmark():
     setup_start_time = int(time.time())
     exec_steam_run_command(STEAM_GAME_ID)
     am = ArtifactManager(LOG_DIRECTORY)
+
     time.sleep(80)
+
+    # patch to look for seasonal popup
+    result = kerasService.look_for_word_vulkan("strange", attempts=30, interval=1)
+    if result:
+        user.press("enter")
+        time.sleep(3)
 
     # Press Z to enter settings
     result = kerasService.look_for_word_vulkan("settings", attempts=30, interval=1)

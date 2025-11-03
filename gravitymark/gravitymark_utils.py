@@ -23,16 +23,16 @@ CLI_OPTIONS = {
     "-status": "1"
 }
 
-def friendly_test_name(api: str) -> str:
+def friendly_test_param(api: str) -> str:
     """return a friendlier string given the API harness argument"""
     if api == "vulkan":
-        return "GravityMark Vulkan"
+        return "Vulkan"
     if api == "opengl":
-        return "GravityMark OpenGL"
+        return "OpenGL"
     if api == "direct3d12":
-        return "GravityMark DX12"
+        return "DX12"
     if api == "direct3d11":
-        return "GravityMark DX11"
+        return "DX11"
     return api
 
 def get_args() -> Namespace:
