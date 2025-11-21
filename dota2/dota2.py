@@ -45,7 +45,7 @@ user.FAILSAFE = False
 def start_game():
     """Launch the game with console enabled and FPS unlocked"""
     return exec_steam_game(
-        STEAM_GAME_ID, game_params=["-console", "+fps_max 0", "-novid", "-sv_cheats true"])
+        STEAM_GAME_ID, game_params=["-console", "+fps_max 0", "-novid"])
 
 
 def console_command(command):
@@ -62,12 +62,6 @@ def run_benchmark():
     setup_start_time = int(time.time())
     start_game()
     time.sleep(10)  # wait for game to load into main menu
-
-    # to skip logo screen
-    if kerasService.wait_for_word(word="va", timeout=20, interval=1):
-        logging.info('Game started. Entering main menu')
-        user.press("esc")
-        time.sleep(1)
 
     # waiting about a minute for the main menu to appear
     if kerasService.wait_for_word(
@@ -164,7 +158,9 @@ def run_benchmark():
     user.press("escape")
     logging.info('Starting benchmark')
     user.press("\\")
-    time.sleep(0.2)
+    time.sleep(0.5)
+    console_command("sv_cheats true")
+    time.sleep(1)
     console_command("exec_async benchmark")
     time.sleep(1)
     user.press("\\")
