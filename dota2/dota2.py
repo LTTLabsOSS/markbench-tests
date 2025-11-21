@@ -45,7 +45,7 @@ user.FAILSAFE = False
 def start_game():
     """Launch the game with console enabled and FPS unlocked"""
     return exec_steam_game(
-        STEAM_GAME_ID, game_params=["-console", "+fps_max 0"])
+        STEAM_GAME_ID, game_params=["-console", "+fps_max 0", "-novid", "-sv_cheats true"])
 
 
 def console_command(command):
