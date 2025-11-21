@@ -161,15 +161,17 @@ def run_benchmark():
     time.sleep(0.5)
     console_command("sv_cheats true")
     time.sleep(1)
-    console_command("exec_async benchmark")
-    time.sleep(1)
-    user.press("\\")
-
+    console_command("exec_async benchmark_load")
     time.sleep(5)
     if kerasService.wait_for_word(
-            word="directed", timeout=30, interval=0.1) is None:
-        logging.error("Didn't see directed camera. Did the replay load?")
+            word="directed", timeout=30, interval=1) is None:
+        logging.info(
+            "Did not find the directed camera. Did the replay load?")
         sys.exit(1)
+    console_command("sv_cheats true")
+    time.sleep(1)
+    console_command("exec_async benchmark_run")
+    user.press("\\")
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
