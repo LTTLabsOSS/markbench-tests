@@ -44,21 +44,23 @@ def copy_replay_from_network_drive():
 
 def copy_replay() -> None:
     """Copy replay file to dota 2 folder"""
+    replay_path = Path(get_install_path(), "game\\dota\\replays")
+    replay_path.mkdir(parents=True, exist_ok=True)
+
+    src_path = SCRIPT_DIRECTORY / "benchmark.dem"
+    dest_path = replay_path / "benchmark.dem"
+
+    #Try local copying first
     try:
-        replay_path = Path(get_install_path(), "game\\dota\\replays")
-        replay_path.mkdir(parents=True, exist_ok=True)
-
-        src_path = SCRIPT_DIRECTORY / "benchmark.dem"
-        dest_path = replay_path / "benchmark.dem"
-
         logging.info("Copying: %s -> %s", src_path, dest_path)
         shutil.copy(src_path, dest_path)
         return
     except OSError:
         logging.error("Could not copy local replay file; Trying from network drive.")
-    try:
-        copy_replay_from_network_drive()
 
+    #Try network copying
+    copy_replay_from_network_drive()
+    try:
         logging.info("Copying: %s -> %s", src_path, dest_path)
         shutil.copy(src_path, dest_path)
     except OSError as err:
