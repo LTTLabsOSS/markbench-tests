@@ -53,9 +53,7 @@ def ensure_replay_in_script_folder() -> None:
     
     copy_replay_from_network_drive()
 
-def copy_replay() -> None:
-    """Copy replay file to dota 2 folder"""
-    ensure_replay_in_script_folder()
+def copy_replay_to_dota_folder() -> None:
     replay_path = Path(get_install_path(), "game\\dota\\replays")
     replay_path.mkdir(parents=True, exist_ok=True)
 
@@ -70,6 +68,12 @@ def copy_replay() -> None:
     except OSError as err:
         logging.error("Could not copy copy the replay file: %s", err)
         raise
+
+
+def copy_replay() -> None:
+    """Copy replay file to dota 2 folder"""
+    ensure_replay_in_script_folder()
+    copy_replay_to_dota_folder()
 
 
 def copy_config() -> None:
