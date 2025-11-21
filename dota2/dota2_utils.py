@@ -34,38 +34,42 @@ def get_install_path():
         return DEFAULT_INSTALL_PATH
     return install_path
 
-
 def copy_replay_from_network_drive():
     """Copies replay file from network drive to harness folder"""
     src_path = Path(r"\\labs.lmg.gg\labs\03_ProcessingFiles\Dota2\benchmark.dem")
     dest_path = SCRIPT_DIRECTORY / "benchmark.dem"
-    shutil.copyfile(src_path, dest_path)
+    try:
+        shutil.copyfile(src_path, dest_path)
+    except OSError as err:
+        logging.error("Network copy failed: %s", err)
+        raise
 
+def ensure_replay_in_script_folder() -> None:
+    """Ensure the replay exists in SCRIPT_DIRECTORY."""
+    src_path = SCRIPT_DIRECTORY / "benchmark.dem"
+
+    if src_path.exists():
+        return
+    
+    copy_replay_from_network_drive()
 
 def copy_replay() -> None:
     """Copy replay file to dota 2 folder"""
+    ensure_replay_in_script_folder()
     replay_path = Path(get_install_path(), "game\\dota\\replays")
     replay_path.mkdir(parents=True, exist_ok=True)
 
     src_path = SCRIPT_DIRECTORY / "benchmark.dem"
     dest_path = replay_path / "benchmark.dem"
 
-    #Try local copying first
+    #Try copying the benchmark to the correct area.
     try:
         logging.info("Copying: %s -> %s", src_path, dest_path)
         shutil.copy(src_path, dest_path)
         return
-    except OSError:
-        logging.error("Could not copy local replay file; Trying from network drive.")
-
-    #Try network copying
-    copy_replay_from_network_drive()
-    try:
-        logging.info("Copying: %s -> %s", src_path, dest_path)
-        shutil.copy(src_path, dest_path)
     except OSError as err:
-        logging.error("Could not copy replay file.")
-        raise err
+        logging.error("Could not copy copy the replay file: %s", err)
+        raise
 
 
 def copy_config() -> None:
