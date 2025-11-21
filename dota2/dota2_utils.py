@@ -72,13 +72,16 @@ def copy_config() -> None:
         config_path = Path(get_install_path(), "game\\dota\\cfg")
         config_path.mkdir(parents=True, exist_ok=True)
 
-        src_path = SCRIPT_DIRECTORY / "benchmark.cfg"
-        dest_path = config_path / "benchmark.cfg"
+        files_to_copy = ["benchmark_run.cfg", "benchmark_load.cfg"]
 
-        logging.info("Copying: %s -> %s", src_path, dest_path)
-        shutil.copy(src_path, dest_path)
+        for filename in files_to_copy:
+            src_path = SCRIPT_DIRECTORY / filename
+            dest_path = config_path / filename
+
+            logging.info("Copying: %s -> %s", src_path, dest_path)
+            shutil.copy(src_path, dest_path)
     except OSError as err:
-        logging.error("Could not copy config file.")
+        logging.error("Could not copy config files.")
         raise err
 
 
