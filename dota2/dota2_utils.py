@@ -50,10 +50,11 @@ def verify_replay() -> None:
 
     if src_path.exists():
         return
-    
+
     copy_replay_from_network_drive()
 
 def copy_replay() -> None:
+    """Copyihg the replay"""
     replay_path = Path(get_install_path(), "game\\dota\\replays")
     replay_path.mkdir(parents=True, exist_ok=True)
 

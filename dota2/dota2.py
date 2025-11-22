@@ -27,6 +27,7 @@ LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "dota2.exe"
 STEAM_GAME_ID = 570
 
+
 setup_log_directory(str(LOG_DIRECTORY))
 logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
                     format=DEFAULT_LOGGING_FORMAT,
@@ -39,6 +40,7 @@ logging.getLogger('').addHandler(console)
 
 args = get_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
+am = ArtifactManager(LOG_DIRECTORY)
 
 user.FAILSAFE = False
 
@@ -53,26 +55,12 @@ def console_command(command):
     gui.write(command)
     user.press("enter")
 
-
-def run_benchmark():
-    """Run dota2 benchmark"""
-    am = ArtifactManager(LOG_DIRECTORY)
+def harness_setup():
     verify_replay()
     copy_replay()
     copy_config()
-    setup_start_time = int(time.time())
-    start_game()
-    time.sleep(10)  # wait for game to load into main menu
 
-    # waiting about a minute for the main menu to appear
-    if kerasService.wait_for_word(
-            word="heroes", timeout=80, interval=1) is None:
-        logging.error(
-            "Game didn't start in time. Check settings and try again.")
-        sys.exit(1)
-
-    time.sleep(15)  # wait for main menu
-
+def screenshot_settings():
     screen_height, screen_width = get_resolution()
     location = None
     click_multiple = 0
@@ -124,7 +112,6 @@ def run_benchmark():
     time.sleep(0.2)
     gui.mouseUp()
     time.sleep(0.2)
-
     if kerasService.wait_for_word(
             word="resolution", timeout=30, interval=1) is None:
         logging.info(
@@ -155,7 +142,8 @@ def run_benchmark():
 
     am.take_screenshot("video3.png", ArtifactType.CONFIG_IMAGE,
                        "picture of video settings")
-    # starting the benchmark
+    
+def load_the_benchmark():
     user.press("escape")
     logging.info('Starting benchmark')
     user.press("\\")
@@ -173,6 +161,26 @@ def run_benchmark():
     time.sleep(1)
     console_command("exec_async benchmark_run")
     user.press("\\")
+
+def run_benchmark():
+    """Run dota2 benchmark"""
+    harness_setup()
+    setup_start_time = int(time.time())
+    start_game()
+    time.sleep(10)  # wait for game to load into main menu
+
+    # waiting about a minute for the main menu to appear
+    if kerasService.wait_for_word(
+            word="heroes", timeout=80, interval=1) is None:
+        logging.error(
+            "Game didn't start in time. Check settings and try again.")
+        sys.exit(1)
+
+    time.sleep(15)  # wait for main menu
+    screenshot_settings()
+    
+    # starting the benchmark
+    load_the_benchmark()
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
