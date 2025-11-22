@@ -39,6 +39,7 @@ def copy_replay_from_network_drive():
     src_path = Path(r"\\labs.lmg.gg\labs\03_ProcessingFiles\Dota2\benchmark.dem")
     dest_path = SCRIPT_DIRECTORY / "benchmark.dem"
     try:
+        logging.info("Copying the replay from the network drive to the harness folder.")
         shutil.copyfile(src_path, dest_path)
     except OSError as err:
         logging.error("Network copy failed: %s", err)
@@ -49,8 +50,10 @@ def verify_replay() -> None:
     src_path = SCRIPT_DIRECTORY / "benchmark.dem"
 
     if src_path.exists():
+        logging.info("The replay exists in the harness folder. Copying the files.")
         return
 
+    logging.info("The replay file doesn't exist in the harness folder.")
     copy_replay_from_network_drive()
 
 def copy_replay() -> None:
@@ -86,8 +89,8 @@ def copy_config() -> None:
             logging.info("Copying: %s -> %s", src_path, dest_path)
             shutil.copy(src_path, dest_path)
     except OSError as err:
-        logging.error("Could not copy config files.")
-        raise err
+        logging.error("Could not copy config files: %s", err)
+        raise
 
 
 def read_config() -> list[str] | None:
