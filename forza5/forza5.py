@@ -88,9 +88,6 @@ def run_benchmark():
     user.press("escape")
     time.sleep(1)
 
-    
-
-
     result = kerasService.wait_for_word("graphics", timeout=30)
     if not result:
         logging.info("Game didn't load to the settings menu.")
