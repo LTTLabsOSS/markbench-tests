@@ -19,9 +19,11 @@ from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
 )
 from harness_utils.process import terminate_processes
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.rtss import  start_rtss_process, copy_rtss_profile
 from harness_utils.steam import exec_steam_run_command
 from harness_utils.keras_service import KerasService
+from harness_utils.misc import press_n_times
 
 STEAM_GAME_ID = 1551360
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -65,6 +67,30 @@ def run_benchmark():
     user.press("x")
     time.sleep(2)
 
+    result = kerasService.wait_for_word("video", timeout=30)
+    if not result:
+        logging.info("Game didn't load to the settings menu.")
+        sys.exit(1)
+
+    logging.info("Video found, clicking and continuing.")
+    gui.moveTo(result["x"], result["y"])
+    time.sleep(0.2)
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+    am.take_screenshot("Video_pt.png", ArtifactType.CONFIG_IMAGE, "Video menu")
+    time.sleep(0.2)
+    press_n_times("down",19,0.1)
+    am.take_screenshot("Video_pt2.png", ArtifactType.CONFIG_IMAGE, "Video menu2")
+    press_n_times("down",5,0.1)
+    am.take_screenshot("Video_pt3.png", ArtifactType.CONFIG_IMAGE, "Video menu3")
+    time.sleep(0.2)
+    user.press("escape")
+    time.sleep(1)
+
+    
+
+
     result = kerasService.wait_for_word("graphics", timeout=30)
     if not result:
         logging.info("Game didn't load to the settings menu.")
@@ -76,6 +102,13 @@ def run_benchmark():
     gui.mouseDown()
     time.sleep(0.2)
     gui.mouseUp()
+    time.sleep(0.2)
+    am.take_screenshot("graphics_pt.png", ArtifactType.CONFIG_IMAGE, "graphics menu")
+    time.sleep(0.2)
+    press_n_times("down",16,0.1)
+    am.take_screenshot("graphics_pt2.png", ArtifactType.CONFIG_IMAGE, "graphics menu2")
+    time.sleep(0.1)
+    user.press("down")
     time.sleep(1)
 
     result = kerasService.wait_for_word("benchmark", timeout=12)
@@ -135,6 +168,7 @@ parser.add_argument("--kerasPort", dest="keras_port",
                     help="Port for Keras OCR service", required=True)
 args = parser.parse_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
+am = ArtifactManager(LOG_DIRECTORY)
 
 try:
     start_time, end_time = run_benchmark()
@@ -144,7 +178,7 @@ try:
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time)
     }
-
+    am.create_manifest()
     write_report_json(LOG_DIRECTORY, "report.json", report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
