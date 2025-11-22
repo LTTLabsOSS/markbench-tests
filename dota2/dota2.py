@@ -56,11 +56,13 @@ def console_command(command):
     user.press("enter")
 
 def harness_setup():
+    """Copies the replay and config files to the appropriate spots"""
     verify_replay()
     copy_replay()
     copy_config()
 
 def screenshot_settings():
+    """Screenshots the settings for the game"""
     screen_height, screen_width = get_resolution()
     location = None
     click_multiple = 0
@@ -142,8 +144,9 @@ def screenshot_settings():
 
     am.take_screenshot("video3.png", ArtifactType.CONFIG_IMAGE,
                        "picture of video settings")
-    
+
 def load_the_benchmark():
+    """Loads the replay and runs the benchmark"""
     user.press("escape")
     logging.info('Starting benchmark')
     user.press("\\")
@@ -178,7 +181,7 @@ def run_benchmark():
 
     time.sleep(15)  # wait for main menu
     screenshot_settings()
-    
+
     # starting the benchmark
     load_the_benchmark()
 
