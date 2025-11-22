@@ -5,7 +5,7 @@ import time
 import pyautogui as gui
 import pydirectinput as user
 import sys
-from dota2_utils import get_resolution, copy_replay, copy_config, get_args
+from dota2_utils import get_resolution, verify_replay, copy_replay, copy_config, get_args
 
 sys.path.insert(1, str(Path(sys.path[0]).parent))
 
@@ -57,6 +57,7 @@ def console_command(command):
 def run_benchmark():
     """Run dota2 benchmark"""
     am = ArtifactManager(LOG_DIRECTORY)
+    verify_replay()
     copy_replay()
     copy_config()
     setup_start_time = int(time.time())
