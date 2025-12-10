@@ -3,6 +3,7 @@ import re
 import os
 from pathlib import Path
 import win32api
+import csv
 
 
 def get_latest_benchmark_by_version(benchmark_name: str):
@@ -60,21 +61,40 @@ def find_latest_log():
 
 
 def find_score_in_log(log_path):
-    """find score in pugetbench log file"""
-    with open(log_path, 'r', encoding="utf-8") as file:
-        for line in file:
-            score = is_score_line(line)
-            if score is not None:
-                return score
-    return None
+    """Return a single PugetBench overall score, preferring Standard > Extended > Basic."""
+    scores = {}
 
+    with open(log_path, newline='', encoding="utf-8") as f:
+        reader = csv.reader(f)
 
-def is_score_line(line):
-    """check if string is a score using regex"""
-    regex_pattern = r"^Overall Score.+,+(\d+),+"
-    match = re.search(regex_pattern, line)
-    if match and len(match.groups()) > 0:
-        return match.group(1)
+        for row in reader:
+            if not row:
+                continue
+
+            label = row[0].strip()
+
+            # Only process rows that begin with "Overall Score"
+            if not label.startswith("Overall Score"):
+                continue
+
+            # Find the first numeric field
+            for field in row:
+                cleaned = field.replace(",", "").strip()
+                if cleaned.isdigit():
+                    scores[label] = int(cleaned)
+                    break
+
+    # Priority order — return the first one found
+    priority = [
+        "Overall Score (Standard)",
+        "Overall Score (Extended)",
+        "Overall Score (Basic)",
+    ]
+
+    for key in priority:
+        if key in scores:
+            return scores[key]
+
     return None
 
 
