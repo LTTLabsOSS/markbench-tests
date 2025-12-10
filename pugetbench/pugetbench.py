@@ -152,7 +152,10 @@ def main():
     elif args.app == "resolve":
         test = "Davinci Resolve Studio"
         if version is None:
-            full_version, trimmed_version = get_davinci_version() + "-studio"
+            full_version, trimmed_version = get_davinci_version()
+            if full_version and trimmed_version:
+                full_version += "-studio"
+                trimmed_version += "-studio"
 
     try:
         start_time, end_time = run_benchmark(
