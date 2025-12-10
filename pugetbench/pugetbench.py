@@ -134,27 +134,29 @@ def main():
 
     version = args.app_version
     score = 0
+    full_version = None
+    trimmed_version = None
     test = ""
     if args.app == "premierepro":
         test = "Adobe Premiere Pro"
         if version is None:
-            version = get_premierepro_version()
+            full_version, trimmed_version = get_premierepro_version()
     elif args.app == "photoshop":
         test = "Adobe Photoshop"
         if version is None:
-            version = get_photoshop_version()
+            full_version, trimmed_version = get_photoshop_version()
     elif args.app == "aftereffects":
         test = "Adobe After Effects"
         if version is None:
-            version = get_aftereffects_version()
+            full_version, trimmed_version = get_aftereffects_version()
     elif args.app == "resolve":
         test = "Davinci Resolve Studio"
         if version is None:
-            version = get_davinci_version() + "-studio"
+            full_version, trimmed_version = get_davinci_version() + "-studio"
 
     try:
         start_time, end_time = run_benchmark(
-            args.app, version, args.benchmark_version)
+            args.app, trimmed_version, args.benchmark_version)
         log_file = find_latest_log()
         score = find_score_in_log(log_file)
         destination = Path(script_dir) / "run" / os.path.split(log_file)[1]
@@ -165,7 +167,7 @@ def main():
             "end_time": seconds_to_milliseconds(end_time),
             "test": "PugetBench",
             "test_parameter": test,
-            "app_version": version,
+            "app_version": full_version,
             "benchmark_version": args.benchmark_version,
             "pugetbench_version": get_pugetbench_version(),
             "unit": "Score",
