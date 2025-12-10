@@ -211,7 +211,7 @@ def get_premierepro_version() -> tuple[str, str]:
     return None, None
 
 
-def get_davinci_version() -> str:
+def get_davinci_version() -> tuple[str, str]:
     """Get the current installed Davinci Resolve Studio version string."""
     path = r"C:\Program Files\Blackmagic Design\DaVinci Resolve\Resolve.exe"
     if not os.path.exists(path):
