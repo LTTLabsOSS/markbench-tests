@@ -74,6 +74,8 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         command = [executable_path] + command_args + ["--app", "photoshop"]
     elif application == "aftereffects":
         command = [executable_path] + command_args + ["--app", "aftereffects"]
+    elif application == "lightroom":
+        command = [executable_path] + command_args + ["--app", "lightroom"]
     elif application == "resolve":
         command = [executable_path] + command_args + ["--app", "resolve"]
 
