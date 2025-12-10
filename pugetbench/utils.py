@@ -8,7 +8,7 @@ import csv
 
 def get_latest_benchmark_by_version(benchmark_name: str):
     """Get the latest benchmark version, prioritizing beta if it's newer."""
-    valid_names = ['photoshop', 'premierepro', 'aftereffects', 'resolve']
+    valid_names = ['photoshop', 'premierepro', 'aftereffects', 'lightroom', 'resolve']
     if benchmark_name not in valid_names:
         raise ValueError("Invalid benchmark name")
 
