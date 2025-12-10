@@ -210,6 +210,41 @@ def get_premierepro_version() -> tuple[str, str]:
     
     return None, None
 
+def get_lightroom_version() -> tuple[str, str]:
+    """Get the current installed Adobe Lightroom Classic version string."""
+    base_path = r"C:\Program Files\Adobe"
+
+    # Check if Adobe folder exists
+    if not os.path.exists(base_path):
+        print("Adobe directory not found.")
+        return None
+
+    # Look for Adobe Lightroom Classic folders
+    possible_versions = sorted(
+        [d for d in os.listdir(base_path) if "Adobe Lightroom Classic" in d],
+        reverse=True  # Prioritize newer versions
+    )
+    
+    for folder in possible_versions:
+        exe_path = os.path.join(base_path, folder, "Lightroom.exe")
+        if os.path.exists(exe_path):
+            try:
+                lang, codepage = win32api.GetFileVersionInfo(
+                    exe_path, "\\VarFileInfo\\Translation"
+                )[0]
+                str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
+                full_version = win32api.GetFileVersionInfo(exe_path, str_info_path)
+
+                # Trim to major.minor
+                parts = full_version.split(".")
+                major_minor = ".".join(parts[:2]) if len(parts) >= 2 else full_version
+
+                return full_version, major_minor
+            except Exception as e:
+                print(f"Error reading version from {exe_path}: {e}")
+    
+    return None, None
+
 
 def get_davinci_version() -> tuple[str, str]:
     """Get the current installed Davinci Resolve Studio version string."""

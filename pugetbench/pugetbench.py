@@ -8,7 +8,7 @@ from argparse import ArgumentParser
 import time
 from subprocess import Popen, PIPE
 import threading
-from utils import find_latest_log, find_score_in_log, get_photoshop_version, get_premierepro_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
+from utils import find_latest_log, find_score_in_log, get_photoshop_version, get_premierepro_version, get_lightroom_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 from harness_utils.process import terminate_processes
@@ -122,6 +122,7 @@ def main():
         "premierepro",
         "photoshop",
         "aftereffects",
+        "lightroom",
         "resolve"
     ]
 
@@ -149,6 +150,10 @@ def main():
         test = "Adobe After Effects"
         if version is None:
             full_version, trimmed_version = get_aftereffects_version()
+    elif args.app == "lightroom":
+        test = "Adobe Lightroom Classic"
+        if version is None:
+            full_version, trimmed_version = get_lightroom_version()
     elif args.app == "resolve":
         test = "Davinci Resolve Studio"
         if version is None:
