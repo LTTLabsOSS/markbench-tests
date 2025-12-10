@@ -98,7 +98,7 @@ def find_score_in_log(log_path):
     return None
 
 
-def get_photoshop_version() -> str:
+def get_photoshop_version() -> tuple[str, str]:
     """Get the installed Adobe Photoshop version string, prioritizing Beta versions."""
     base_path = r"C:\Program Files\Adobe"
 
