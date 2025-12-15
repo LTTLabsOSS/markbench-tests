@@ -127,10 +127,10 @@ def get_photoshop_version() -> tuple[str, str]:
                 parts = full_version.split(".")
                 major_minor = ".".join(parts[:2]) if len(parts) >= 2 else full_version
 
-                return full_version, major_minor  
+                return full_version, major_minor
             except Exception as e:
                 print(f"Error reading version from {exe_path}: {e}")
-    
+
     return None, None
 
 def get_aftereffects_version() -> tuple[str, str]:
@@ -189,7 +189,7 @@ def get_premierepro_version() -> tuple[str, str]:
         [d for d in os.listdir(base_path) if "Adobe Premiere Pro" in d],
         reverse=True  # Prioritize newer versions
     )
-    
+
     for folder in possible_versions:
         exe_path = os.path.join(base_path, folder, "Adobe Premiere Pro.exe")
         if os.path.exists(exe_path):
@@ -207,7 +207,7 @@ def get_premierepro_version() -> tuple[str, str]:
                 return full_version, major_minor
             except Exception as e:
                 print(f"Error reading version from {exe_path}: {e}")
-    
+
     return None, None
 
 def get_lightroom_version() -> tuple[str, str]:
@@ -224,7 +224,7 @@ def get_lightroom_version() -> tuple[str, str]:
         [d for d in os.listdir(base_path) if "Adobe Lightroom Classic" in d],
         reverse=True  # Prioritize newer versions
     )
-    
+
     for folder in possible_versions:
         exe_path = os.path.join(base_path, folder, "Lightroom.exe")
         if os.path.exists(exe_path):
@@ -242,7 +242,7 @@ def get_lightroom_version() -> tuple[str, str]:
                 return full_version, major_minor
             except Exception as e:
                 print(f"Error reading version from {exe_path}: {e}")
-    
+
     return None, None
 
 
