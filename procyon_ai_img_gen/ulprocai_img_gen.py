@@ -196,9 +196,7 @@ def get_arguments():
 
 def create_procyon_command(test_option, process_name, device_id):
     """create command string"""
-    command = (
-        f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}"'
-    )
+    command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}"'
 
     match process_name:
         case "ort-directml.exe":

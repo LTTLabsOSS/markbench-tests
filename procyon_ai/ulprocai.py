@@ -209,7 +209,7 @@ try:
     logging.info("Detected Windows ML Devices: %s", str(WINML_DEVICES))
     logging.info("Detected OpenVino Devices: %s", str(OPENVINO_DEVICES))
     logging.info("Detected CUDA Devices: %s", (CUDA_DEVICES))
-    
+
     am = ArtifactManager(LOG_DIR)
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.engine]["config"]
@@ -229,7 +229,7 @@ try:
     if score is None:
         logging.error("Could not find overall score!")
         sys.exit(1)
-        
+
     am.copy_file(RESULTS_XML_PATH, ArtifactType.RESULTS_TEXT, "results xml file")
     end_time = time.time()
     elapsed_test_time = round(end_time - start_time, 2)

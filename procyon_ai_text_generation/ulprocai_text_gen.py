@@ -146,9 +146,7 @@ def get_arguments():
 
 def create_procyon_command(test_option):
     """create command string"""
-    command = (
-        f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}"'
-    )
+    command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}"'
     command = command.rstrip()
     return command
 
