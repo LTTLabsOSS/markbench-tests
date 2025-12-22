@@ -212,8 +212,8 @@ def run_benchmark():
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(0.4)
 
-    if kerasService.look_for_word(word="video", attempts=10, interval=1) is None:
-        logging.info("Couldn't find the video tab. Did the settings menu open?")
+    if kerasService.look_for_word(word="audio", attempts=10, interval=1) is None:
+        logging.info("Couldn't find the audio tab. Did the settings menu open?")
         sys.exit(1)
 
     time.sleep(1)
