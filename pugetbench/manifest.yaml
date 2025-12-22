@@ -13,6 +13,7 @@ options:
       - premierepro
       - photoshop
       - aftereffects
+      - lightroom
       - resolve
     tooltip: Select which test to run
   - name: benchmark_version

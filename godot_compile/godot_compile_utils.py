@@ -24,7 +24,7 @@ def install_mingw() -> str:
         if str(MINGW_FOLDER) not in original_path:
             os.environ['PATH'] = str(MINGW_FOLDER.joinpath('bin')) + os.pathsep + original_path
         return "existing mingw installation detected"
-    source = Path("\\\\labs.lmg.gg\\labs.lmg.gg\\01_Installers_Utilities\\MinGW\\").joinpath(MINGW_ZIP)
+    source = Path("\\\\labs.lmg.gg\\labs\\01_Installers_Utilities\\MinGW\\").joinpath(MINGW_ZIP)
     destination = SCRIPT_DIR.joinpath(MINGW_ZIP)
     shutil.copyfile(source, destination)
     with ZipFile(destination, 'r') as zip_object:
@@ -36,7 +36,7 @@ def install_mingw() -> str:
 
 def copy_miniconda_from_network_drive():
     """copies miniconda installer from network drive"""
-    source = Path("\\\\labs.lmg.gg\\labs.lmg.gg\\01_Installers_Utilities\\Miniconda\\").joinpath(
+    source = Path("\\\\labs.lmg.gg\\labs\\01_Installers_Utilities\\Miniconda\\").joinpath(
         MINICONDA_INSTALLER)
     destination = SCRIPT_DIR.joinpath(MINICONDA_INSTALLER)
     shutil.copyfile(source, destination)
@@ -72,7 +72,7 @@ def copy_godot_source_from_network_drive() -> str:
     if SCRIPT_DIR.joinpath(GODOT_DIR).is_dir():
         return "existing godot source directory detected"
     zip_name = f"{GODOT_DIR}.zip"
-    source = Path("\\\\labs.lmg.gg\\labs.lmg.gg\\03_ProcessingFiles\\Godot Files\\").joinpath(zip_name)
+    source = Path("\\\\labs.lmg.gg\\labs\\03_ProcessingFiles\\Godot Files\\").joinpath(zip_name)
     destination = SCRIPT_DIR.joinpath(zip_name)
     shutil.copyfile(source, destination)
     with ZipFile(destination, 'r') as zip_object:

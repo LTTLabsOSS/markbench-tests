@@ -80,7 +80,7 @@ def download_scene(scene: BlenderScene) -> None:
 
 def copy_scene_from_network_drive(file_name, destination):
     """copy blend file from network drive"""
-    network_dir = Path("\\\\labs.lmg.gg\\labs.lmg.gg\\03_ProcessingFiles\\Blender Render")
+    network_dir = Path("\\\\labs.lmg.gg\\labs\\03_ProcessingFiles\\Blender Render")
     source_path = network_dir.joinpath(file_name)
     logging.info("Copying %s from %s", file_name, source_path)
     shutil.copyfile(source_path, destination)
