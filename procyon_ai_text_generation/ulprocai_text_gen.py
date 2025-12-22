@@ -1,13 +1,21 @@
 """UL Procyon AI Text Generation test script"""
+
 # pylint: disable=no-name-in-module
-from argparse import ArgumentParser
 import logging
-from pathlib import Path
 import subprocess
 import sys
 import time
+from argparse import ArgumentParser
+from pathlib import Path
+
 import psutil
-from utils import regex_find_score_in_xml, is_process_running, get_install_path, find_procyon_version, find_test_version
+from utils import (
+    find_procyon_version,
+    find_test_version,
+    get_install_path,
+    is_process_running,
+    regex_find_score_in_xml,
+)
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -17,7 +25,7 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     seconds_to_milliseconds,
     setup_log_directory,
-    write_report_json
+    write_report_json,
 )
 
 #####
@@ -31,75 +39,75 @@ ABS_EXECUTABLE_PATH = DIR_PROCYON / EXECUTABLE
 CONFIG_DIR = SCRIPT_DIR / "config"
 BENCHMARK_CONFIG = {
     "All_Models_ONNX": {
-        "config": f"\"{CONFIG_DIR}\\ai_textgeneration_all.def\"",
+        "config": f'"{CONFIG_DIR}\\ai_textgeneration_all.def"',
         "process_name": "Handler.exe",
         "result_regex": r"<AIImageGenerationOverallScore>(\d+)",
         "test_name": "all_models",
-        "api": "onnx"
+        "api": "onnx",
     },
     "Llama_2_13B_ONNX": {
-        "config": f"\"{CONFIG_DIR}\\ai_textgeneration_llama2.def\"",
+        "config": f'"{CONFIG_DIR}\\ai_textgeneration_llama2.def"',
         "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationLlama2OverallScore>(\d+)",
         "test_name": "llama_2_13b",
-        "api": "onnx"
+        "api": "onnx",
     },
     "Llama_3_1_8B_ONNX": {
-        "config": f"\"{CONFIG_DIR}\\ai_textgeneration_llama3.1.def\"",
+        "config": f'"{CONFIG_DIR}\\ai_textgeneration_llama3.1.def"',
         "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationLlama3OverallScore>(\d+)",
         "test_name": "llama_3_1_8b",
-        "api": "onnx"
+        "api": "onnx",
     },
     "Mistral_7B_ONNX": {
-        "config": f"\"{CONFIG_DIR}\\ai_textgeneration_mistral.def\"",
+        "config": f'"{CONFIG_DIR}\\ai_textgeneration_mistral.def"',
         "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationMistralOverallScore>(\d+)",
         "test_name": "mistral_7b",
-        "api": "onnx"
+        "api": "onnx",
     },
     "Phi_3_5_ONNX": {
-        "config": f"\"{CONFIG_DIR}\\ai_textgeneration_phi.def\"",
+        "config": f'"{CONFIG_DIR}\\ai_textgeneration_phi.def"',
         "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationPhiOverallScore>(\d+)",
         "test_name": "phi_3_5",
-        "api": "onnx"
+        "api": "onnx",
     },
     "All_Models_OPENVINO": {
-        "config": f"\"{CONFIG_DIR}\\ai_textgeneration_all_openvino.def\"",
+        "config": f'"{CONFIG_DIR}\\ai_textgeneration_all_openvino.def"',
         "process_name": "Handler.exe",
         "result_regex": r"<AIImageGenerationOverallScore>(\d+)",
         "test_name": "all_models",
-        "api": "openvino"
+        "api": "openvino",
     },
     "Llama_2_13B_OPENVINO": {
-        "config": f"\"{CONFIG_DIR}\\ai_textgeneration_llama2_openvino.def\"",
+        "config": f'"{CONFIG_DIR}\\ai_textgeneration_llama2_openvino.def"',
         "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationLlama2OverallScore>(\d+)",
         "test_name": "llama_2_13b",
-        "api": "openvino"
+        "api": "openvino",
     },
     "Llama_3_1_8B_OPENVINO": {
-        "config": f"\"{CONFIG_DIR}\\ai_textgeneration_llama3.1_openvino.def\"",
+        "config": f'"{CONFIG_DIR}\\ai_textgeneration_llama3.1_openvino.def"',
         "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationLlama3OverallScore>(\d+)",
         "test_name": "llama_3_1_8b",
-        "api": "openvino"
+        "api": "openvino",
     },
     "Mistral_7B_OPENVINO": {
-        "config": f"\"{CONFIG_DIR}\\ai_textgeneration_mistral_openvino.def\"",
+        "config": f'"{CONFIG_DIR}\\ai_textgeneration_mistral_openvino.def"',
         "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationMistralOverallScore>(\d+)",
         "test_name": "mistral_7b",
-        "api": "openvino"
+        "api": "openvino",
     },
     "Phi_3_5_OPENVINO": {
-        "config": f"\"{CONFIG_DIR}\\ai_textgeneration_phi_openvino.def\"",
+        "config": f'"{CONFIG_DIR}\\ai_textgeneration_phi_openvino.def"',
         "process_name": "Handler.exe",
         "result_regex": r"<AiTextGenerationPhiOverallScore>(\d+)",
         "test_name": "phi_3_5",
-        "api": "openvino"
-    }
+        "api": "openvino",
+    },
 }
 
 RESULTS_FILENAME = "result.xml"
@@ -109,36 +117,49 @@ REPORT_PATH = LOG_DIR / RESULTS_FILENAME
 def setup_logging():
     """setup logging"""
     setup_log_directory(str(LOG_DIR))
-    logging.basicConfig(filename=LOG_DIR / "harness.log",
-                        format=DEFAULT_LOGGING_FORMAT,
-                        datefmt=DEFAULT_DATE_FORMAT,
-                        level=logging.DEBUG)
+    logging.basicConfig(
+        filename=LOG_DIR / "harness.log",
+        format=DEFAULT_LOGGING_FORMAT,
+        datefmt=DEFAULT_DATE_FORMAT,
+        level=logging.DEBUG,
+    )
     console = logging.StreamHandler()
     formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
     console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
+    logging.getLogger("").addHandler(console)
 
 
 def get_arguments():
     """get arguments"""
     parser = ArgumentParser()
     parser.add_argument(
-        "--engine", dest="engine", help="Engine test type", required=True,
-        choices=BENCHMARK_CONFIG.keys())
+        "--engine",
+        dest="engine",
+        help="Engine test type",
+        required=True,
+        choices=BENCHMARK_CONFIG.keys(),
+    )
     argies = parser.parse_args()
     return argies
 
 
 def create_procyon_command(test_option):
     """create command string"""
-    command = f'\"{ABS_EXECUTABLE_PATH}\" --definition={test_option} --export=\"{REPORT_PATH}\"'
+    command = (
+        f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{REPORT_PATH}"'
+    )
     command = command.rstrip()
     return command
 
 
 def run_benchmark(process_name, command_to_run):
     """run the benchmark"""
-    with subprocess.Popen(command_to_run, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True) as proc:
+    with subprocess.Popen(
+        command_to_run,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=True,
+    ) as proc:
         logging.info("Procyon AI Text Generation benchmark has started.")
         while True:
             now = time.time()
@@ -159,7 +180,7 @@ try:
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.engine]["config"]
     cmd = create_procyon_command(option)
-    logging.info('Starting benchmark!')
+    logging.info("Starting benchmark!")
     logging.info(cmd)
     start_time = time.time()
     pr = run_benchmark(BENCHMARK_CONFIG[args.engine]["process_name"], cmd)
@@ -171,7 +192,10 @@ try:
     end_time = time.time()
     elapsed_test_time = round(end_time - start_time, 2)
 
-    if not args.engine == "All_Models_OPENVINO" and not args.engine == "All_Models_ONNX":
+    if (
+        not args.engine == "All_Models_OPENVINO"
+        and not args.engine == "All_Models_ONNX"
+    ):
         results_regex = BENCHMARK_CONFIG[args.engine]["result_regex"]
         score = regex_find_score_in_xml(results_regex)
 
@@ -185,7 +209,7 @@ try:
             "unit": "score",
             "score": score,
             "start_time": seconds_to_milliseconds(start_time),
-            "end_time": seconds_to_milliseconds(end_time)
+            "end_time": seconds_to_milliseconds(end_time),
         }
 
         logging.info("Benchmark took %.2f seconds", elapsed_test_time)
@@ -198,10 +222,15 @@ try:
         logging.info("Benchmark took %.2f seconds", elapsed_test_time)
 
         for test_type in BENCHMARK_CONFIG.items():
-            if test_type[0] == "All_Models_ONNX" or test_type[0] == "All_Models_OPENVINO":
+            if (
+                test_type[0] == "All_Models_ONNX"
+                or test_type[0] == "All_Models_OPENVINO"
+            ):
                 continue
 
-            if ("ONNX" in args.engine and "ONNX" in test_type[0]) or ("OPENVINO" in args.engine and "OPENVINO" in test_type[0]):
+            if ("ONNX" in args.engine and "ONNX" in test_type[0]) or (
+                "OPENVINO" in args.engine and "OPENVINO" in test_type[0]
+            ):
                 results_regex = test_type[1]["result_regex"]
                 score = regex_find_score_in_xml(results_regex)
 
@@ -220,8 +249,7 @@ try:
                     "test_version": find_test_version(),
                     "procyon_version": find_procyon_version(),
                     "unit": "score",
-                    "score": score
-
+                    "score": score,
                 }
 
                 session_report.append(report)
