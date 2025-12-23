@@ -112,36 +112,17 @@ def run_benchmark():
 
     time.sleep(3)
 
-    # Navigating main menu:
+    #Navigating main menu by going to the bottom of the menu first:
     if kerasService.wait_for_word(word="profile", timeout=60, interval=0.5) is None:
         logging.error("Main menu didn't show up. Check settings and try again.")
         sys.exit(1)
 
     gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_WEST)
     time.sleep(0.5)
-    gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_NORTH, n=4, pause=0.8)
+    gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, n=15, pause=0.8)
 
-    if kerasService.look_for_word(word="esports", attempts=5, interval=0.2):
-        logging.info('Saw esports. Navigating accordingly.')
-        gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH)
-        time.sleep(0.5)
-
-    if kerasService.look_for_word(word="shop", attempts=10, interval=0.2):
-        logging.info('Saw item shop. Navigating accordingly.')
-        gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH)
-        time.sleep(0.5)
-
-    if kerasService.look_for_word(word="pass", attempts=5, interval=0.2):
-        logging.info('Saw rocket pass. Navigating accordingly.')
-        gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH)
-        time.sleep(0.5)
-
-    if kerasService.look_for_word(word="club", attempts=5, interval=0.2):
-        logging.info('Saw Create a Club. Navigating accordingly.')
-        gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH)
-        time.sleep(0.5)
-
-    gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, n=2, pause=0.8)
+    #Navigating to the profile:
+    gamepad.dpad_press_n_times(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_NORTH, n=2, pause=0.8)
     time.sleep(0.5)
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(1)
