@@ -8,7 +8,7 @@ import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
-from harness_utils.artifacts import ArtifactManager
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
@@ -72,7 +72,7 @@ def main():
         copy_video_source()
 
     try:
-        start_time = current_time_ms()
+        start_encoding_time = current_time_ms()
         logging.info("Starting ffmpeg_cpu benchmark...")
 
         if args.encoder == "h264":
@@ -87,10 +87,11 @@ def main():
 
         logging.info("Executing command: %s", command)
 
-        # with open("encoding.log", "w", encoding="utf-8") as encoding_log:
-        #     logging.info("Encoding...")
-        #     subprocess.run(command, stderr=encoding_log, check=True)
+        with open("encoding.log", "w", encoding="utf-8") as encoding_log:
+            logging.info("Encoding...")
+            subprocess.run(command, stderr=encoding_log, check=True)
 
+        end_encoding_time = current_time_ms()
         logging.info("Encoding completed")
 
         logging.info("Beginning VMAF")
@@ -132,9 +133,12 @@ def main():
 
         logging.getLogger("").removeHandler(console)
         logging.getLogger("").addHandler(console)
-        am = ArtifactManager()
-        am.cop
-        
+
+        am = ArtifactManager(LOG_DIR)
+        am.copy_file("ffmpeg.log", ArtifactType.RESULTS_TEXT, "ffmpeg log file")
+        am.copy_file("vmaf.log", ArtifactType.RESULTS_TEXT, "vmaf log file")
+        am.create_manifest()
+
         report = {
             "test": "FFMPEG CPU Encoding",
             "test_parameter": str(args.encoder),
@@ -142,7 +146,9 @@ def main():
             "vmaf_version": VMAF_VERSION,
             "score": vmaf_score,
             "unit": "score",
-            "start_time": start_time,
+            "encoding_duration": end_encoding_time - start_encoding_time,
+            "vmaf_duration": end_time - end_encoding_time,
+            "start_time": start_encoding_time,
             "end_time": end_time,
         }
         write_report_json(str(LOG_DIR), "report.json", report)
