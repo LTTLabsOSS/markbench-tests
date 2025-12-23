@@ -8,8 +8,6 @@ import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
-
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
 from ffmpeg_cpu_utils import (
@@ -20,6 +18,7 @@ from ffmpeg_cpu_utils import (
     is_video_source_present,
 )
 
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
     DEFAULT_LOGGING_FORMAT,
@@ -48,13 +47,6 @@ console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
 
-def check_ffmpeg_is_done():
-    tl = subprocess.run(
-        ["tasklist", "/FI", "IMAGENAME eq ffmpeg.exe"], capture_output=True, text=True
-    )
-    return "ffmpeg.exe" not in tl.stdout
-
-
 def main():
     """entrypoint"""
     parser = ArgumentParser()
@@ -66,9 +58,11 @@ def main():
         sys.exit(1)
 
     if not ffmpeg_present():
+        logging.info("FFmpeg not found, copying from network drive...")
         copy_ffmpeg_from_network_drive()
 
     if not is_video_source_present():
+        logging.info("Video source not found, copying from network drive...")
         copy_video_source()
 
     try:
@@ -135,7 +129,7 @@ def main():
         logging.getLogger("").addHandler(console)
 
         am = ArtifactManager(LOG_DIR)
-        am.copy_file("ffmpeg.log", ArtifactType.RESULTS_TEXT, "ffmpeg log file")
+        am.copy_file("encoding.log", ArtifactType.RESULTS_TEXT, "encoding log file")
         am.copy_file("vmaf.log", ArtifactType.RESULTS_TEXT, "vmaf log file")
         am.create_manifest()
 
