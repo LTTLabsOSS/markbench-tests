@@ -7,16 +7,17 @@ import subprocess
 import sys
 from argparse import ArgumentParser
 from pathlib import Path
-from time import sleep
+
+from harness_utils.artifacts import ArtifactManager
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
 from ffmpeg_cpu_utils import (
+    copy_ffmpeg_from_network_drive,
+    copy_video_source,
     current_time_ms,
     ffmpeg_present,
-    copy_ffmpeg_from_network_drive,
     is_video_source_present,
-    copy_video_source
 )
 
 from harness_utils.output import (
@@ -39,6 +40,7 @@ logging.basicConfig(
 
 ENCODERS = ["h264", "av1", "h265"]
 FFMPEG_EXE_PATH = SCRIPT_DIR / "ffmpeg-8.0.1-full_build" / "bin" / "ffmpeg.exe"
+FFMPEG_VERSION = "ffmpeg-8.0.1-full_build"
 VMAF_VERSION = "vmaf_v0.6.1neg"
 console = logging.StreamHandler()
 formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
@@ -62,41 +64,35 @@ def main():
     if args.encoder not in ENCODERS:
         logging.error("Invalid encoder selection: %s", args.encoder)
         sys.exit(1)
-        
+
     if not ffmpeg_present():
         copy_ffmpeg_from_network_drive()
-    
+
     if not is_video_source_present():
         copy_video_source()
-    
-    try:
-        score = 0
 
-        logging.info("starting benchmark, this may take a few minutes")
-        logging.info(
-            "you can ensure the test is running by checking that cpu usage is 100% in task manager"
-        )
-        execute_me = FFMPEG_EXE_PATH
+    try:
         start_time = current_time_ms()
+        logging.info("Starting ffmpeg_cpu benchmark...")
 
         if args.encoder == "h264":
-            command = f"{execute_me} -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libx264 -preset slow -profile:v high -level:v 5.1 -crf 20 -c:a copy output.mp4"
+            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libx264 -preset slow -profile:v high -level:v 5.1 -crf 20 -c:a copy output.mp4"
         elif args.encoder == "av1":
-            command = f"{execute_me} -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libsvtav1 -preset 7 -profile:v main -level:v 5.1 -crf 20 -c:a copy output.mp4"
+            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libsvtav1 -preset 7 -profile:v main -level:v 5.1 -crf 20 -c:a copy output.mp4"
         elif args.encoder == "h265":
-            command = f"{execute_me} -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libx265 -preset slow -profile:v main -level:v 5.1 -crf 20 -c:a copy output.mp4"
+            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libx265 -preset slow -profile:v main -level:v 5.1 -crf 20 -c:a copy output.mp4"
         else:
             logging.error("Invalid encoder selection: %s", args.encoder)
             sys.exit(1)
 
-        output = subprocess.check_output(command, text=True, stderr=subprocess.STDOUT)
+        logging.info("Executing command: %s", command)
 
-        while not check_ffmpeg_is_done():
-            sleep(2)
-
-        end_time = current_time_ms()
+        # with open("encoding.log", "w", encoding="utf-8") as encoding_log:
+        #     logging.info("Encoding...")
+        #     subprocess.run(command, stderr=encoding_log, check=True)
 
         logging.info("Encoding completed")
+
         logging.info("Beginning VMAF")
 
         source_path = SCRIPT_DIR / "big_buck_bunny_1080p24.y4m"
@@ -116,19 +112,40 @@ def main():
             "-",
         ]
         logging.info("VMAF args: %s", argument_list)
-        out_fp = open("output.log", "w", encoding="utf-8")
-        err_fp = open("vmaf.log", "w", encoding="utf-8")
-        process = subprocess.Popen(
-            [FFMPEG_EXE_PATH, *argument_list], stdout=out_fp, stderr=err_fp
-        )
 
-        while not check_ffmpeg_is_done():
-            sleep(2)
+        vmaf_score = None
+        with open("vmaf.log", "w+", encoding="utf-8") as vmaf_log:
+            logging.info("Calculating VMAF...")
+            subprocess.run(
+                [FFMPEG_EXE_PATH, *argument_list], stderr=vmaf_log, check=True
+            )
+            vmaf_log.flush()
+            vmaf_log.seek(0)
+            for line in reversed(vmaf_log.read().splitlines()):
+                if "VMAF score:" in line:
+                    match = re.search(r"VMAF score:\s*([0-9]+(?:\.[0-9]+)?)", line)
+                    if match:
+                        vmaf_score = float(match.group(1))
+                    break
+        end_time = current_time_ms()
+        logging.info("VMAF score: %s", vmaf_score)
 
         logging.getLogger("").removeHandler(console)
-        logging.info(output)
         logging.getLogger("").addHandler(console)
-
+        am = ArtifactManager()
+        am.cop
+        
+        report = {
+            "test": "FFMPEG CPU Encoding",
+            "test_parameter": str(args.encoder),
+            "ffmpeg_version": FFMPEG_VERSION,
+            "vmaf_version": VMAF_VERSION,
+            "score": vmaf_score,
+            "unit": "score",
+            "start_time": start_time,
+            "end_time": end_time,
+        }
+        write_report_json(str(LOG_DIR), "report.json", report)
     except Exception as e:
         logging.error("Something went wrong running the benchmark!")
         logging.exception(e)
