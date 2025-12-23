@@ -20,6 +20,7 @@ from utils import (
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
 
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
     DEFAULT_LOGGING_FORMAT,
@@ -111,7 +112,7 @@ BENCHMARK_CONFIG = {
 }
 
 RESULTS_FILENAME = "result.xml"
-REPORT_PATH = LOG_DIR / RESULTS_FILENAME
+RESULTS_XML_PATH = LOG_DIR / RESULTS_FILENAME
 
 
 def setup_logging():
@@ -145,9 +146,7 @@ def get_arguments():
 
 def create_procyon_command(test_option):
     """create command string"""
-    command = (
-        f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{REPORT_PATH}"'
-    )
+    command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}"'
     command = command.rstrip()
     return command
 
@@ -192,6 +191,9 @@ try:
     end_time = time.time()
     elapsed_test_time = round(end_time - start_time, 2)
 
+    am = ArtifactManager(LOG_DIR)
+    am.copy_file(RESULTS_XML_PATH, ArtifactType.RESULTS_TEXT, "results xml file")
+    am.create_manifest()
     if (
         not args.engine == "All_Models_OPENVINO"
         and not args.engine == "All_Models_ONNX"
