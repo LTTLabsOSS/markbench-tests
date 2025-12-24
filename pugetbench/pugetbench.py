@@ -8,7 +8,7 @@ from argparse import ArgumentParser
 import time
 from subprocess import Popen, PIPE
 import threading
-from utils import find_latest_log, find_score_in_log, get_photoshop_version, get_premierepro_version, get_lightroom_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
+from utils import find_latest_log, trim_to_major_minor, find_score_in_log, get_photoshop_version, get_premierepro_version, get_lightroom_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 from harness_utils.process import terminate_processes
@@ -32,7 +32,6 @@ console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
 EXECUTABLE_NAME = "PugetBench for Creators.exe"
-
 
 def read_output(stream, log_func, error_func, error_in_output):
     """Read and log output in real-time from a stream (stdout or stderr)."""
@@ -64,6 +63,9 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
     start_time = time.time()
     executable_path = Path(
         f"C:\\Program Files\\PugetBench for Creators\\{EXECUTABLE_NAME}")
+    if not executable_path.exists():
+        logging.error(f"PugetBench executable not found at {executable_path}")
+        sys.exit(1)
     command_args = ["--run_count", "1", "--rerun_count", "1",
                     "--benchmark_version", f"{benchmark_version}", "--preset",
                     "Standard", "--app_version", f"{app_version}"]
@@ -137,32 +139,47 @@ def main():
 
     version = args.app_version
     score = 0
-    full_version = None
-    trimmed_version = None
+    full_version = version
+    trimmed_version = trim_to_major_minor(version)
     test = ""
     if args.app == "premierepro":
         test = "Adobe Premiere Pro"
         if version is None:
             full_version, trimmed_version = get_premierepro_version()
+            if full_version is None or trimmed_version is None:
+                logging.error("Could not determine Premiere Pro version. Is it installed?")
+                sys.exit(1)
     elif args.app == "photoshop":
         test = "Adobe Photoshop"
         if version is None:
             full_version, trimmed_version = get_photoshop_version()
+            if full_version is None or trimmed_version is None:
+                logging.error("Could not determine Photoshop version. Is it installed?")
+                sys.exit(1)
     elif args.app == "aftereffects":
         test = "Adobe After Effects"
         if version is None:
             full_version, trimmed_version = get_aftereffects_version()
+            if full_version is None or trimmed_version is None:
+                logging.error("Could not determine After Effects version. Is it installed?")
+                sys.exit(1)
     elif args.app == "lightroom":
         test = "Adobe Lightroom Classic"
         if version is None:
             full_version, trimmed_version = get_lightroom_version()
+            if full_version is None or trimmed_version is None:
+                logging.error("Could not determine Lightroom version. Is it installed?")
+                sys.exit(1)
     elif args.app == "resolve":
         test = "Davinci Resolve Studio"
         if version is None:
             full_version, trimmed_version = get_davinci_version()
-            if full_version and trimmed_version:
-                full_version += "-studio"
-                trimmed_version += "-studio"
+            if full_version is None or trimmed_version is None:
+                logging.error("Could not determine Resolve Studio version. Is it installed?")
+                sys.exit(1)
+            full_version += "-studio"
+            trimmed_version += "-studio"
+            
 
     try:
         start_time, end_time = run_benchmark(

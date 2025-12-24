@@ -5,6 +5,21 @@ from pathlib import Path
 import win32api
 import csv
 
+def trim_to_major_minor(version: str | None) -> str | None:
+    if version is None:
+        return None
+     # Match major.minor at the start
+    match = re.match(r"(\d+)\.(\d+)", version)
+    if not match:
+        return version  # fallback if unrecognized
+
+    major_minor = f"{match.group(1)}.{match.group(2)}"
+
+    # Preserve -beta suffix if present
+    if "-beta" in version:
+        major_minor += "-beta"
+
+    return major_minor
 
 def get_latest_benchmark_by_version(benchmark_name: str):
     """Get the latest benchmark version, prioritizing beta if it's newer."""
@@ -42,8 +57,14 @@ def get_latest_benchmark_by_version(benchmark_name: str):
     if not versions:
         raise ValueError("No valid benchmark versions found after parsing.")
 
-    # Sort versions (beta will automatically come last if sorted lexicographically)
-    versions.sort(reverse=True)
+    # Sort numerically, with releases before beta
+    def version_key(v: str):
+        main, *suffix = v.split("-")
+        nums = tuple(int(x) for x in main.split("."))
+        beta_flag = 1 if "-beta" in v else 0
+        return nums, -beta_flag  # release first
+    
+    versions.sort(key=version_key, reverse=True)
 
     # Return the latest version
     return versions[0]
@@ -56,8 +77,7 @@ def find_latest_log():
     files = [os.path.join(puget_lunch_dir, file) for file in os.listdir(
         puget_lunch_dir) if os.path.isfile(os.path.join(puget_lunch_dir, file))]
     latest_file = max(files, key=os.path.getmtime)
-    script_dir = os.path.dirname(os.path.realpath(__file__))
-    return Path(script_dir) / latest_file
+    return Path(latest_file)
 
 
 def find_score_in_log(log_path):
@@ -105,7 +125,7 @@ def get_photoshop_version() -> tuple[str, str]:
     # Check if Adobe folder exists
     if not os.path.exists(base_path):
         print("Adobe directory not found.")
-        return None
+        return None, None
 
     # Look for Adobe Photoshop folders
     possible_versions = sorted(
@@ -124,8 +144,7 @@ def get_photoshop_version() -> tuple[str, str]:
                 full_version = win32api.GetFileVersionInfo(exe_path, str_info_path)
 
                 # Trim to major.minor
-                parts = full_version.split(".")
-                major_minor = ".".join(parts[:2]) if len(parts) >= 2 else full_version
+                major_minor = trim_to_major_minor(full_version)
 
                 return full_version, major_minor
             except Exception as e:
@@ -140,7 +159,7 @@ def get_aftereffects_version() -> tuple[str, str]:
     # Check if Adobe folder exists
     if not os.path.exists(base_path):
         print("Adobe directory not found.")
-        return None
+        return None, None
 
     # Look for After Effects folders (including Beta)
     possible_versions = sorted(
@@ -165,8 +184,7 @@ def get_aftereffects_version() -> tuple[str, str]:
                         full_version = str(win32api.GetFileVersionInfo(exe_path, str_info_path))
 
                         # Trim to major.minor
-                        parts = full_version.split(".")
-                        major_minor = ".".join(parts[:2]) if len(parts) >= 2 else full_version
+                        major_minor = trim_to_major_minor(full_version)
 
                         return full_version, major_minor
                 except Exception as e:
@@ -182,7 +200,7 @@ def get_premierepro_version() -> tuple[str, str]:
     # Check if Adobe folder exists
     if not os.path.exists(base_path):
         print("Adobe directory not found.")
-        return None
+        return None, None
 
     # Look for Adobe Premiere Pro folders
     possible_versions = sorted(
@@ -201,8 +219,7 @@ def get_premierepro_version() -> tuple[str, str]:
                 full_version = win32api.GetFileVersionInfo(exe_path, str_info_path)
 
                 # Trim to major.minor
-                parts = full_version.split(".")
-                major_minor = ".".join(parts[:2]) if len(parts) >= 2 else full_version
+                major_minor = trim_to_major_minor(full_version)
 
                 return full_version, major_minor
             except Exception as e:
@@ -217,7 +234,7 @@ def get_lightroom_version() -> tuple[str, str]:
     # Check if Adobe folder exists
     if not os.path.exists(base_path):
         print("Adobe directory not found.")
-        return None
+        return None, None
 
     # Look for Adobe Lightroom Classic folders
     possible_versions = sorted(
@@ -236,8 +253,7 @@ def get_lightroom_version() -> tuple[str, str]:
                 full_version = win32api.GetFileVersionInfo(exe_path, str_info_path)
 
                 # Trim to major.minor
-                parts = full_version.split(".")
-                major_minor = ".".join(parts[:2]) if len(parts) >= 2 else full_version
+                major_minor = trim_to_major_minor(full_version)
 
                 return full_version, major_minor
             except Exception as e:
@@ -261,8 +277,7 @@ def get_davinci_version() -> tuple[str, str]:
         full_version = win32api.GetFileVersionInfo(path, str_info_path)
 
         # Trim to major.minor
-        parts = full_version.split(".")
-        major_minor = ".".join(parts[:2]) if len(parts) >= 2 else full_version
+        major_minor = trim_to_major_minor(full_version)
 
         return full_version, major_minor
 
