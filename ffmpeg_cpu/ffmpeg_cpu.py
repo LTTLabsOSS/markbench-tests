@@ -81,7 +81,7 @@ def main():  # pylint: disable=too-many-locals
 
         logging.info("Executing command: %s", command)
 
-        encoding_log_path = SCRIPT_DIR / "encoding.log"
+        encoding_log_path = LOG_DIR / "encoding.log"
         with open(encoding_log_path, "w", encoding="utf-8") as encoding_log:
             logging.info("Encoding...")
             subprocess.run(command, stderr=encoding_log, check=True)
@@ -110,7 +110,7 @@ def main():  # pylint: disable=too-many-locals
         logging.info("VMAF args: %s", argument_list)
 
         vmaf_score = None
-        vmaf_log_path = SCRIPT_DIR / "vmaf.log"
+        vmaf_log_path = LOG_DIR / "vmaf.log"
         with open(vmaf_log_path, "w+", encoding="utf-8") as vmaf_log:
             logging.info("Calculating VMAF...")
             subprocess.run(
