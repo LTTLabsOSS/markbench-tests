@@ -16,6 +16,7 @@ import yaml
 
 logger = logging.getLogger(__name__)
 
+
 @unique
 class ArtifactType(Enum):
     """
@@ -99,11 +100,13 @@ class ArtifactManager:
         filename = src_path.name
         try:
             if Path(src).resolve() != Path(self.output_path).resolve() / filename:
-                logger.info(f"Copying {src} to {self.output_path / filename}")
+                logger.info("Copying %s to %s", src, self.output_path / filename)
                 copy(src, self.output_path / filename)
             else:
                 logger.info(
-                    f"Skipping copy of {src} to {self.output_path / filename} as it already exists"
+                    "Skipping copy of %s to %s as it already exists",
+                    src,
+                    self.output_path / filename,
                 )
             artifact = Artifact(filename, artifact_type, description)
             self.artifacts.append(artifact)
