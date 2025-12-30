@@ -81,7 +81,8 @@ def main():  # pylint: disable=too-many-locals
 
         logging.info("Executing command: %s", command)
 
-        with open("encoding.log", "w", encoding="utf-8") as encoding_log:
+        encoding_log_path = SCRIPT_DIR / "encoding.log"
+        with open(encoding_log_path, "w", encoding="utf-8") as encoding_log:
             logging.info("Encoding...")
             subprocess.run(command, stderr=encoding_log, check=True)
 
@@ -109,7 +110,8 @@ def main():  # pylint: disable=too-many-locals
         logging.info("VMAF args: %s", argument_list)
 
         vmaf_score = None
-        with open("vmaf.log", "w+", encoding="utf-8") as vmaf_log:
+        vmaf_log_path = SCRIPT_DIR / "vmaf.log"
+        with open(vmaf_log_path, "w+", encoding="utf-8") as vmaf_log:
             logging.info("Calculating VMAF...")
             subprocess.run(
                 [FFMPEG_EXE_PATH, *argument_list], stderr=vmaf_log, check=True
@@ -129,8 +131,10 @@ def main():  # pylint: disable=too-many-locals
         logging.getLogger("").addHandler(console)
 
         am = ArtifactManager(LOG_DIR)
-        am.copy_file("encoding.log", ArtifactType.RESULTS_TEXT, "encoding log file")
-        am.copy_file("vmaf.log", ArtifactType.RESULTS_TEXT, "vmaf log file")
+        am.copy_file(
+            str(encoding_log_path), ArtifactType.RESULTS_TEXT, "encoding log file"
+        )
+        am.copy_file(str(vmaf_log_path), ArtifactType.RESULTS_TEXT, "vmaf log file")
         am.create_manifest()
 
         report = {
