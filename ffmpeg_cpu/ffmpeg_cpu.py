@@ -70,11 +70,11 @@ def main():  # pylint: disable=too-many-locals
         logging.info("Starting ffmpeg_cpu benchmark...")
 
         if args.encoder == "h264":
-            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libx264 -preset slow -profile:v high -level:v 5.1 -crf 20 -c:a copy output.mp4"
+            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libx264 -preset slow -profile:v high -level:v 5.1 -crf 20 -c:a copy {SCRIPT_DIR}\\output.mp4"
         elif args.encoder == "av1":
-            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libsvtav1 -preset 7 -profile:v main -level:v 5.1 -crf 20 -c:a copy output.mp4"
+            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libsvtav1 -preset 7 -profile:v main -level:v 5.1 -crf 20 -c:a copy {SCRIPT_DIR}\\output.mp4"
         elif args.encoder == "h265":
-            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libx265 -preset slow -profile:v main -level:v 5.1 -crf 20 -c:a copy output.mp4"
+            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libx265 -preset slow -profile:v main -level:v 5.1 -crf 20 -c:a copy {SCRIPT_DIR}\\output.mp4"
         else:
             logging.error("Invalid encoder selection: %s", args.encoder)
             sys.exit(1)
