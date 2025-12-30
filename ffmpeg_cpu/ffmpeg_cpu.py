@@ -70,18 +70,19 @@ def main():  # pylint: disable=too-many-locals
         logging.info("Starting ffmpeg_cpu benchmark...")
 
         if args.encoder == "h264":
-            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libx264 -preset slow -profile:v high -level:v 5.1 -crf 20 -c:a copy output.mp4"
+            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libx264 -preset slow -profile:v high -level:v 5.1 -crf 20 -c:a copy {SCRIPT_DIR}\\output.mp4"
         elif args.encoder == "av1":
-            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libsvtav1 -preset 7 -profile:v main -level:v 5.1 -crf 20 -c:a copy output.mp4"
+            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libsvtav1 -preset 7 -profile:v main -level:v 5.1 -crf 20 -c:a copy {SCRIPT_DIR}\\output.mp4"
         elif args.encoder == "h265":
-            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libx265 -preset slow -profile:v main -level:v 5.1 -crf 20 -c:a copy output.mp4"
+            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libx265 -preset slow -profile:v main -level:v 5.1 -crf 20 -c:a copy {SCRIPT_DIR}\\output.mp4"
         else:
             logging.error("Invalid encoder selection: %s", args.encoder)
             sys.exit(1)
 
         logging.info("Executing command: %s", command)
 
-        with open("encoding.log", "w", encoding="utf-8") as encoding_log:
+        encoding_log_path = LOG_DIR / "encoding.log"
+        with open(encoding_log_path, "w", encoding="utf-8") as encoding_log:
             logging.info("Encoding...")
             subprocess.run(command, stderr=encoding_log, check=True)
 
@@ -109,7 +110,8 @@ def main():  # pylint: disable=too-many-locals
         logging.info("VMAF args: %s", argument_list)
 
         vmaf_score = None
-        with open("vmaf.log", "w+", encoding="utf-8") as vmaf_log:
+        vmaf_log_path = LOG_DIR / "vmaf.log"
+        with open(vmaf_log_path, "w+", encoding="utf-8") as vmaf_log:
             logging.info("Calculating VMAF...")
             subprocess.run(
                 [FFMPEG_EXE_PATH, *argument_list], stderr=vmaf_log, check=True
@@ -129,8 +131,10 @@ def main():  # pylint: disable=too-many-locals
         logging.getLogger("").addHandler(console)
 
         am = ArtifactManager(LOG_DIR)
-        am.copy_file("encoding.log", ArtifactType.RESULTS_TEXT, "encoding log file")
-        am.copy_file("vmaf.log", ArtifactType.RESULTS_TEXT, "vmaf log file")
+        am.copy_file(
+            str(encoding_log_path), ArtifactType.RESULTS_TEXT, "encoding log file"
+        )
+        am.copy_file(str(vmaf_log_path), ArtifactType.RESULTS_TEXT, "vmaf log file")
         am.create_manifest()
 
         report = {
