@@ -47,7 +47,7 @@ console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
 
-def main():  # pylint: disable=too-many-locals
+def main():  # pylint: disable=too-many-locals too-many-branches
     """entrypoint"""
     parser = ArgumentParser()
     parser.add_argument("--encoder", dest="encoder", required=True)
@@ -88,6 +88,23 @@ def main():  # pylint: disable=too-many-locals
 
         end_encoding_time = current_time_ms()
         logging.info("Encoding completed")
+
+        encoding_fps = None
+        last_encoding_line = None
+        with open(encoding_log_path, "r", encoding="utf-8") as encoding_log:
+            for line in reversed(encoding_log.read().splitlines()):
+                if line.strip():
+                    last_encoding_line = line.strip()
+                    break
+        if last_encoding_line:
+            frame_match = re.search(r"frame=\s*(\d+)", last_encoding_line)
+            if frame_match:
+                total_frames = int(frame_match.group(1))
+                duration_seconds = (end_encoding_time - start_encoding_time) / 1000.0
+                if duration_seconds > 0:
+                    encoding_fps = total_frames / duration_seconds
+
+        logging.info("Encoding FPS (overall): %s", encoding_fps)
 
         logging.info("Beginning VMAF")
 
@@ -142,9 +159,10 @@ def main():  # pylint: disable=too-many-locals
             "test_parameter": str(args.encoder),
             "ffmpeg_version": FFMPEG_VERSION,
             "vmaf_version": VMAF_VERSION,
-            "score": vmaf_score,
-            "unit": "score",
+            "score": encoding_fps,
+            "unit": "frames per second",
             "encoding_duration": end_encoding_time - start_encoding_time,
+            "vmaf_score": vmaf_score,
             "vmaf_duration": end_time - end_encoding_time,
             "start_time": start_encoding_time,
             "end_time": end_time,
