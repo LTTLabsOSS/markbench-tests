@@ -47,7 +47,7 @@ console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
 
-def main():  # pylint: disable=too-many-locals
+def main():  # pylint: disable=too-many-locals too-many-branches
     """entrypoint"""
     parser = ArgumentParser()
     parser.add_argument("--encoder", dest="encoder", required=True)
