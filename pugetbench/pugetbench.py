@@ -6,7 +6,7 @@ import shutil
 import sys
 from argparse import ArgumentParser
 import time
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, STDOUT
 import threading
 from utils import find_latest_log, trim_to_major_minor, find_score_in_log, get_photoshop_version, get_premierepro_version, get_lightroom_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
 
@@ -66,12 +66,19 @@ def read_output(stream, log_func, error_func, error_in_output):
     for line in iter(stream.readline, ''):
         line = line.strip()
         log_func(line)
+        # If getting a known error
         if line.startswith("Error!:"):
             error_func(line)
             error_in_output["exception"] = RuntimeError(f"Benchmark failed with error: {line}")
             break
+        # If getting a benchmark unknown failure
         if line.startswith("Benchmark failed:"):
             error_in_output["exception"] = RuntimeError("Benchmark had an unknown failure.")
+            break
+        # NEW: catch unsupported version / benchmark mismatch
+        if "not supported" in line:
+            error_func(line)
+            error_in_output["exception"] = RuntimeError(f"Benchmark version mismatch: {line}")
             break
         sys.stdout.flush()
 
@@ -100,17 +107,13 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
 
     error_in_output = {"exception": None}  # Shared state for error reporting
 
-    with Popen(command, stdout=PIPE, stderr=PIPE, text=True) as process:
+    with Popen(command, stdout=PIPE, stderr=STDOUT, text=True, bufsize=1) as process:
         stdout_thread = threading.Thread(target=read_output, args=(process.stdout, logging.info, logging.error, error_in_output))
-        stderr_thread = threading.Thread(target=read_output, args=(process.stderr, logging.error, logging.error, error_in_output))
-
         stdout_thread.start()
-        stderr_thread.start()
 
         retcode = process.wait()
         stdout_thread.join()
-        stderr_thread.join()
-    
+
         if error_in_output["exception"]:
             raise error_in_output["exception"]
 
