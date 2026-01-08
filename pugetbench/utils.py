@@ -6,6 +6,7 @@ import win32api
 import csv
 
 def trim_to_major_minor(version: str | None) -> str | None:
+    """Trims the versioning into major.minor."""
     if version is None:
         return None
      # Match major.minor at the start
@@ -59,11 +60,11 @@ def get_latest_benchmark_by_version(benchmark_name: str):
 
     # Sort numerically, with releases before beta
     def version_key(v: str):
-        main, *suffix = v.split("-")
+        main = v.split("-")[0]  # take numeric part only
         nums = tuple(int(x) for x in main.split("."))
         beta_flag = 1 if "-beta" in v else 0
         return nums, -beta_flag  # release first
-    
+
     versions.sort(key=version_key, reverse=True)
 
     # Return the latest version
