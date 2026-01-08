@@ -210,7 +210,6 @@ try:
     logging.info("Detected OpenVino Devices: %s", str(OPENVINO_DEVICES))
     logging.info("Detected CUDA Devices: %s", (CUDA_DEVICES))
 
-    am = ArtifactManager(LOG_DIR)
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.engine]["config"]
     proc_name = BENCHMARK_CONFIG[args.engine]["process_name"]
@@ -230,7 +229,9 @@ try:
         logging.error("Could not find overall score!")
         sys.exit(1)
 
+    am = ArtifactManager(LOG_DIR)
     am.copy_file(RESULTS_XML_PATH, ArtifactType.RESULTS_TEXT, "results xml file")
+    am.create_manifest()
     end_time = time.time()
     elapsed_test_time = round(end_time - start_time, 2)
     logging.info("Benchmark took %.2f seconds", elapsed_test_time)
@@ -248,7 +249,6 @@ try:
         "unit": "score",
         "score": score,
     }
-    am.create_manifest()
     write_report_json(str(LOG_DIR), "report.json", report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
