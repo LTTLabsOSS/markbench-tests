@@ -161,20 +161,20 @@ def main():
         start_time, end_time = run_benchmark(args.app, trimmed_version, args.benchmark_version)
 
         log_file = find_latest_log()
-        # Optional: check that the benchmark actually wrote expected output
+        # Check that the benchmark actually wrote expected output
         with open(log_file, encoding="utf-8") as f:
             log_content = f.read()
         expected_marker = "Overall Score"
         if expected_marker not in log_content:
-            raise RuntimeError("Benchmark did not complete correctly; expected '%s' not found in log %s",expected_marker,log_file)
-        
-        #Grab the score
+            raise RuntimeError(f"Benchmark did not complete correctly; expected '{expected_marker}' not found in log {log_file}")
+
+        # Grab the score
         score = find_score_in_log(log_file)
         if score is None:
-            raise RuntimeError("No valid score found in log: %s",log_file)
-        
-        #Copy the log
-        destination = Path(script_dir) / "run" / os.path.split(log_file)[1]
+            raise RuntimeError(f"No valid score found in log: {log_file}")
+
+        # Copy the log
+        destination = Path(script_dir) / "run" / log_file.name
         shutil.copy(log_file, destination)
 
         report = {
