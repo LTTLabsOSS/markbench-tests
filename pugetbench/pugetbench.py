@@ -107,18 +107,19 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         stdout_thread.start()
         stderr_thread.start()
 
-        process.wait()
-
+        retcode = process.wait()
         stdout_thread.join()
         stderr_thread.join()
-
-        # Raise the error if detected before exiting the block
+    
         if error_in_output["exception"]:
-            raise RuntimeError(error_in_output["exception"])
+            raise error_in_output["exception"]
 
-    end_time = time.time()
+        if retcode != 0:
+            raise RuntimeError(f"Benchmark process exited with code {retcode}")
 
-    return start_time, end_time
+        end_time = time.time()
+
+        return start_time, end_time
 
 
 def main():
@@ -158,8 +159,21 @@ def main():
 
     try:
         start_time, end_time = run_benchmark(args.app, trimmed_version, args.benchmark_version)
+
         log_file = find_latest_log()
+        # Optional: check that the benchmark actually wrote expected output
+        with open(log_file, encoding="utf-8") as f:
+            log_content = f.read()
+        expected_marker = "Overall Score"
+        if expected_marker not in log_content:
+            raise RuntimeError("Benchmark did not complete correctly; expected '%s' not found in log %s",expected_marker,log_file)
+        
+        #Grab the score
         score = find_score_in_log(log_file)
+        if score is None:
+            raise RuntimeError("No valid score found in log: %s",log_file)
+        
+        #Copy the log
         destination = Path(script_dir) / "run" / os.path.split(log_file)[1]
         shutil.copy(log_file, destination)
 
@@ -176,7 +190,7 @@ def main():
         }
 
         write_report_json(log_dir, "report.json", report)
-        
+
     except Exception as e:
         logging.error("Something went wrong running the benchmark!")
         logging.exception(e)
