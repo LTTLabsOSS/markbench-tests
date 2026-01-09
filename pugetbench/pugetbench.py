@@ -114,8 +114,9 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         retcode = process.wait()
         stdout_thread.join()
 
-        if error_in_output["exception"]:
-            raise error_in_output["exception"]
+        exc = error_in_output.get("exception")
+        if exc is not None:
+            raise exc
 
         if retcode != 0:
             raise RuntimeError(f"Benchmark process exited with code {retcode}")
@@ -124,61 +125,59 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
 
         return start_time, end_time
 
+def get_app_version_info(app: str, version_arg: str):
+    """Return (full_version, trimmed_version, label) for the app."""
+    config = APP_CONFIG[app]
+    full_version = version_arg
+    trimmed_version = trim_to_major_minor(version_arg) if version_arg else None
 
-def main():
-    """main"""
-
-    start_time = time.time()
-    parser = ArgumentParser()
-    parser.add_argument("--app", choices=APP_CONFIG.keys(), dest="app", help="Application name to test", required=True)
-    parser.add_argument("--app_version", dest="app_version",help="Application version to test", required=False)
-    parser.add_argument("--benchmark_version", dest="benchmark_version", help="Puget Bench Benchmark version to use", required=False)
-    args = parser.parse_args()
-
-    config = APP_CONFIG[args.app]
-    test_label = config["label"]
-
-    # if args.app is None or args.app not in apps:
-    #     logging.info("unrecognized option for program")
-    #     sys.exit(1)
-
-    # Determine app version
-    if args.app_version is None:
+    if not full_version:
         full_version, trimmed_version = config["version_func"]()
         if not full_version or not trimmed_version:
-            logging.error("Could not determine %s version. Is it installed?", test_label)
+            logging.error("Could not determine %s version. Is it installed?", config["label"])
             sys.exit(1)
-    else:
-        full_version = args.app_version
-        trimmed_version = trim_to_major_minor(full_version)
 
-    # Apply optional suffix (e.g., Resolve)
     if config["suffix"]:
         full_version += config["suffix"]
         trimmed_version += config["suffix"]
+
+    return full_version, trimmed_version, config["label"]
+
+def execute_benchmark(app: str, app_version: str, benchmark_version: str, script_dir: Path):
+    start_time, end_time = run_benchmark(app, app_version, benchmark_version)
+
+    log_file = find_latest_log()
+
+    # Check benchmark completed
+    with open(log_file, encoding="utf-8") as f:
+        if "Overall Score" not in f.read():
+            raise RuntimeError(f"Benchmark did not complete correctly; expected 'Overall Score' not found in {log_file}")
+
+    score = find_score_in_log(log_file)
+    if score is None:
+        raise RuntimeError(f"No valid score found in log: {log_file}")
+
+    destination = Path(script_dir) / "run" / log_file.name
+    shutil.copy(log_file, destination)
+
+    return start_time, end_time, score
+
+def main():
+    parser = ArgumentParser()
+    parser.add_argument("--app", choices=APP_CONFIG.keys(), dest="app", help="Application name to test", required=True)
+    parser.add_argument("--app_version", dest="app_version", help="Application version to test", required=False)
+    parser.add_argument("--benchmark_version", dest="benchmark_version", help="PugetBench Benchmark version to use", required=False)
+    args = parser.parse_args()
+
+    full_version, trimmed_version, test_label = get_app_version_info(args.app, args.app_version)
 
     if args.benchmark_version is None:
         args.benchmark_version = get_latest_benchmark_by_version(args.app)
 
     try:
-        start_time, end_time = run_benchmark(args.app, trimmed_version, args.benchmark_version)
-
-        log_file = find_latest_log()
-        # Check that the benchmark actually wrote expected output
-        with open(log_file, encoding="utf-8") as f:
-            log_content = f.read()
-        expected_marker = "Overall Score"
-        if expected_marker not in log_content:
-            raise RuntimeError(f"Benchmark did not complete correctly; expected '{expected_marker}' not found in log {log_file}")
-
-        # Grab the score
-        score = find_score_in_log(log_file)
-        if score is None:
-            raise RuntimeError(f"No valid score found in log: {log_file}")
-
-        # Copy the log
-        destination = Path(script_dir) / "run" / log_file.name
-        shutil.copy(log_file, destination)
+        start_time, end_time, score = execute_benchmark(
+            args.app, trimmed_version, args.benchmark_version, Path(script_dir)
+        )
 
         report = {
             "start_time": seconds_to_milliseconds(start_time),
