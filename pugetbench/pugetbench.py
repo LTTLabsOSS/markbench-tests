@@ -120,7 +120,7 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
 
         try:
             retcode = process.wait(timeout=2400)  # waits 2400 seconds = 40 minutes and if test takes longer timeout
-        except TimeoutExpired:
+        except TimeoutExpired as exc:
             safe_terminate(EXECUTABLE_NAME)
             raise RuntimeError("Benchmark timed out after 40 minutes. Check PugetBench logs for more info.") from exc
 
