@@ -20,7 +20,7 @@ from harness_utils.output import (
 )
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
-log_dir = script_dir / "run"
+log_dir = os.path.join(script_dir, "run")
 setup_log_directory(log_dir)
 logging.basicConfig(filename=f'{log_dir}/harness.log',
                     format=DEFAULT_LOGGING_FORMAT,
