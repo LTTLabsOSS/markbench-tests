@@ -143,7 +143,8 @@ def get_app_version_info(app: str, version_arg: str):
 
     return full_version, trimmed_version, config["label"]
 
-def execute_benchmark(app: str, app_version: str, benchmark_version: str, script_dir: Path):
+def execute_benchmark(app: str, app_version: str, benchmark_version: str):
+    """Executes the benchmark and then captures the log file"""
     start_time, end_time = run_benchmark(app, app_version, benchmark_version)
 
     log_file = find_latest_log()
