@@ -144,7 +144,7 @@ def get_app_version_info(app: str, version_arg: str):
     return full_version, trimmed_version, config["label"]
 
 def execute_benchmark(app: str, app_version: str, benchmark_version: str):
-    """Executes the benchmark and then captures the log file"""
+    """Executes the benchmark and then captures the log file."""
     start_time, end_time = run_benchmark(app, app_version, benchmark_version)
 
     log_file = find_latest_log()
@@ -164,6 +164,7 @@ def execute_benchmark(app: str, app_version: str, benchmark_version: str):
     return start_time, end_time, score
 
 def main():
+    """Do all the things now."""
     parser = ArgumentParser()
     parser.add_argument("--app", choices=APP_CONFIG.keys(), dest="app", help="Application name to test", required=True)
     parser.add_argument("--app_version", dest="app_version", help="Application version to test", required=False)
@@ -177,7 +178,7 @@ def main():
 
     try:
         start_time, end_time, score = execute_benchmark(
-            args.app, trimmed_version, args.benchmark_version, Path(script_dir)
+            args.app, trimmed_version, args.benchmark_version
         )
 
         report = {
