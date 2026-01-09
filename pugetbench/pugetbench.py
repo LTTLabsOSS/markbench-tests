@@ -6,7 +6,7 @@ import shutil
 import sys
 from argparse import ArgumentParser
 import time
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, PIPE, STDOUT, TimeoutExpired
 import threading
 from utils import find_latest_log, trim_to_major_minor, find_score_in_log, get_photoshop_version, get_premierepro_version, get_lightroom_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
 
@@ -20,7 +20,7 @@ from harness_utils.output import (
 )
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
-log_dir = os.path.join(script_dir, "run")
+log_dir = script_dir / "run"
 setup_log_directory(log_dir)
 logging.basicConfig(filename=f'{log_dir}/harness.log',
                     format=DEFAULT_LOGGING_FORMAT,
@@ -61,6 +61,13 @@ APP_CONFIG = {
     },
 }
 
+def safe_terminate(process_name: str):
+    """Attempt to terminate a process but ignore any errors if it fails."""
+    try:
+        terminate_processes(process_name)
+    except Exception as e:
+        logging.info("Process '%s' could not be terminated (may not exist): %s", process_name, e)
+
 def read_output(stream, log_func, error_func, error_in_output):
     """Read and log output in real-time from a stream (stdout or stderr)."""
     for line in iter(stream.readline, ''):
@@ -84,7 +91,7 @@ def read_output(stream, log_func, error_func, error_in_output):
 
 
 def run_benchmark(application: str, app_version: str, benchmark_version: str):
-    """run benchmark"""
+    """Commands to initiate benchmark"""
     start_time = time.time()
     executable_path = Path(f"C:\\Program Files\\PugetBench for Creators\\{EXECUTABLE_NAME}")
     if not executable_path.exists():
@@ -111,7 +118,12 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         stdout_thread = threading.Thread(target=read_output, args=(process.stdout, logging.info, logging.error, error_in_output))
         stdout_thread.start()
 
-        retcode = process.wait()
+        try:
+            retcode = process.wait(timeout=2400)  # waits 2400 seconds = 40 minutes and if test takes longer timeout
+        except TimeoutExpired:
+            safe_terminate(EXECUTABLE_NAME)
+            raise RuntimeError("Benchmark timed out after 40 minutes. Check PugetBench logs for more info.")
+        
         stdout_thread.join()
 
         exc = error_in_output.get("exception")
@@ -119,6 +131,7 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
             raise exc
 
         if retcode != 0:
+            safe_terminate(EXECUTABLE_NAME)
             raise RuntimeError(f"Benchmark process exited with code {retcode}")
 
         end_time = time.time()
@@ -195,10 +208,20 @@ def main():
 
         write_report_json(log_dir, "report.json", report)
 
-    except Exception as e:
+    except RuntimeError as e:
+        msg = str(e)
         logging.error("Something went wrong running the benchmark!")
         logging.exception(e)
-        terminate_processes(EXECUTABLE_NAME)
+
+        # Terminate the process only for "real" failures
+        if "timed out" in msg or "Benchmark failed" in msg:
+            safe_terminate(EXECUTABLE_NAME)
+
+        sys.exit(1)
+    except Exception as e:
+        # Non-runtime exceptions, e.g., coding errors, still exit
+        logging.error("Unexpected error!")
+        logging.exception(e)
         sys.exit(1)
 
 
