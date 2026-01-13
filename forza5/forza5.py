@@ -22,7 +22,7 @@ from harness_utils.process import terminate_processes
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.rtss import  start_rtss_process, copy_rtss_profile
 from harness_utils.steam import exec_steam_run_command
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import OcrService
 from harness_utils.misc import press_n_times
 
 STEAM_GAME_ID = 1551360
@@ -164,7 +164,7 @@ parser.add_argument("--kerasHost", dest="keras_host",
 parser.add_argument("--kerasPort", dest="keras_port",
                     help="Port for Keras OCR service", required=True)
 args = parser.parse_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
+kerasService = OcrService(args.keras_host, args.keras_port)
 am = ArtifactManager(LOG_DIRECTORY)
 
 try:

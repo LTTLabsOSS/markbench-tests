@@ -18,7 +18,7 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT)
 from harness_utils.process import terminate_processes
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import OcrService
 from harness_utils.steam import exec_steam_game, get_registry_active_user, get_steam_folder_path, get_build_id
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
@@ -226,7 +226,7 @@ def main():
                         help="Port for Keras OCR service", required=True)
     args = parser.parse_args()
 
-    keras_service = KerasService(args.keras_host, args.keras_port)
+    keras_service = OcrService(args.keras_host, args.keras_port)
 
     start_time, end_time = run_benchmark(keras_service)
 

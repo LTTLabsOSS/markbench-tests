@@ -22,7 +22,7 @@ from harness_utils.output import (
     DEFAULT_DATE_FORMAT
 )
 from harness_utils.steam import get_app_install_location, exec_steam_run_command, get_build_id
-from harness_utils.keras_service import KerasService, ScreenSplitConfig, ScreenShotDivideMethod, ScreenShotQuadrant
+from harness_utils.ocr_service import OcrService, ScreenSplitConfig, ScreenShotDivideMethod, ScreenShotQuadrant
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -144,7 +144,7 @@ parser.add_argument("--kerasHost", dest="keras_host",
 parser.add_argument("--kerasPort", dest="keras_port",
                     help="Port for Keras OCR service", required=True)
 args = parser.parse_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
+kerasService = OcrService(args.keras_host, args.keras_port)
 
 try:
     start_time, endtime = run_benchmark()

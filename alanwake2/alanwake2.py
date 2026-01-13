@@ -15,7 +15,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from harness_utils.output import (
     setup_log_directory, write_report_json, DEFAULT_LOGGING_FORMAT, DEFAULT_DATE_FORMAT)
 from harness_utils.process import terminate_processes
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import OcrService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.misc import press_n_times, find_eg_game_version
 
@@ -162,7 +162,7 @@ try:
                         help="Port for Keras OCR service", required=True)
     args = parser.parse_args()
     setup_logging()
-    kerasService = KerasService(args.keras_host, args.keras_port)
+    kerasService = OcrService(args.keras_host, args.keras_port)
     am = ArtifactManager(LOG_DIRECTORY)
     start_time, end_time = run_benchmark()
     height, width = get_resolution()

@@ -11,7 +11,7 @@ from aotse_utils import read_current_resolution, find_score_in_log, delete_old_s
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
 
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import OcrService
 from harness_utils.steam import get_build_id, exec_steam_game
 from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
@@ -106,7 +106,7 @@ console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
 args = get_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
+kerasService = OcrService(args.keras_host, args.keras_port)
 am = ArtifactManager(LOG_DIR)
 
 try:

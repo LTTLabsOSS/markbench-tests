@@ -17,7 +17,7 @@ from harness_utils.output import (
     seconds_to_milliseconds,
 )
 from harness_utils.steam import get_build_id, exec_steam_game
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import OcrService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.misc import (
     press_n_times,
@@ -247,7 +247,7 @@ def run_benchmark(keras_service):
 
 def main():
     """entry point"""
-    keras_service = KerasService(
+    keras_service = OcrService(
         keras_args().keras_host, keras_args().keras_port)
     start_time, endtime = run_benchmark(keras_service)
     height, width = read_current_resolution()

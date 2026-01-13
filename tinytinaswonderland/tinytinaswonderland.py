@@ -14,7 +14,7 @@ from harness_utils.output import (
     format_resolution, seconds_to_milliseconds, setup_log_directory, write_report_json, DEFAULT_LOGGING_FORMAT, DEFAULT_DATE_FORMAT)
 from harness_utils.process import terminate_processes
 from harness_utils.steam import exec_steam_game, get_build_id
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import OcrService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -123,7 +123,7 @@ try:
     parser.add_argument("--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True)
     parser.add_argument("--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True)
     args = parser.parse_args()
-    kerasService = KerasService(args.keras_host, args.keras_port)
+    kerasService = OcrService(args.keras_host, args.keras_port)
     am = ArtifactManager(LOG_DIRECTORY)
     start_time, end_time = run_benchmark()
     height, width = read_resolution()

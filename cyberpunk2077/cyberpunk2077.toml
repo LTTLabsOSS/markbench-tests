@@ -1,0 +1,4 @@
+friendly_name = "Cyberpunk2077"
+executable = "Cyberpunk2077.exe"
+presentmon_enabled = true
+ocr = true

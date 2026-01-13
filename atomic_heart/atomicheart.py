@@ -20,7 +20,7 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT,
 )
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import OcrService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
@@ -189,7 +189,7 @@ parser.add_argument("--kerasHost", dest="keras_host",
 parser.add_argument("--kerasPort", dest="keras_port",
                     help="Port for Keras OCR service", required=True)
 args = parser.parse_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
+kerasService = OcrService(args.keras_host, args.keras_port)
 
 try:
     start_time, end_time = run_benchmark()

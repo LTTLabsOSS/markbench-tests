@@ -22,7 +22,7 @@ from harness_utils.output import (
     DEFAULT_DATE_FORMAT
 )
 from harness_utils.steam import get_app_install_location
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import OcrService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 
@@ -62,7 +62,7 @@ def console_command(command):
 
 def run_benchmark(keras_host, keras_port):
     """Starts the benchmark"""
-    keras_service = KerasService(keras_host, keras_port)
+    keras_service = OcrService(keras_host, keras_port)
     copy_benchmarkfiles()
     copy_benchmarksave()
     start_game()

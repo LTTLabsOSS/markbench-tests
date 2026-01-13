@@ -9,7 +9,7 @@ from f1_22_utils import get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import OcrService
 from harness_utils.steam import exec_steam_run_command, get_steamapps_common_path
 from harness_utils.output import (
     format_resolution,
@@ -158,7 +158,7 @@ console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
 args = get_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
+kerasService = OcrService(args.keras_host, args.keras_port)
 
 try:
     start_time, end_time = run_benchmark()
