@@ -97,6 +97,11 @@ try:
                 logging.error("Could not find score in Cinebench output!")
                 sys.exit(1)
 
+            logging.info(
+                "Cinebench result [%s]: %s",
+                friendly_test_name(test_type),
+                score
+            )
             end_time = time.time()
             elapsed_test_time = round(end_time - START_TIME, 2)
             logging.info("Benchmark took %.2f seconds", elapsed_test_time)
