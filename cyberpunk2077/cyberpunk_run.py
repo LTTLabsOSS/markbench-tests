@@ -6,10 +6,7 @@ from harness_utils.screenshot import Screenshotter
 
 
 def run_benchmark(sc: Screenshotter, am: ArtifactManager) -> tuple[int, int]:
-    sleep(20)
-
-    if not find_word(sc, "new", "Did not see main menu.", timeout = 30):
-        return (0, 0)
+    sleep(15)
 
     if not navigate_settings(sc, am):
         return (0, 0)
@@ -20,8 +17,8 @@ def run_benchmark(sc: Screenshotter, am: ArtifactManager) -> tuple[int, int]:
     test_start_time = int_time() - 5
 
     logging.info("Benchmark started. Waiting for benchmark to complete.")
-    
-    sleep(70)  # could be made into an editable const
+
+    sleep(70)  # make into an editable const, adjust timings
 
     if not find_word(sc, "results", "Did not see results screen."):
         return (0, 0)
@@ -40,14 +37,17 @@ def navigate_settings(sc: Screenshotter, am: ArtifactManager) -> bool:
 
     logging.info("Navigating main menu")
 
+    if not find_word(sc, "new", "Did not see main menu.", timeout = 30):
+        return False
+
     # navigating to settings menu
     if not find_word(sc, "continue"):
-        # an account with no save game has less menu options, so just press left and enter settings
+        # an account with no save game
         press("left,enter")
     else:
         press("left,down,enter")
 
-    if not find_word(sc, "volume", "Did not see volume options"):
+    if not find_word(sc, "volume", "Did not see settings menu"):
         return False
 
     # entered settings
@@ -57,63 +57,58 @@ def navigate_settings(sc: Screenshotter, am: ArtifactManager) -> bool:
         return False
 
     # now on graphics tab
-    am.take_screenshot("graphics_1.png", ArtifactType.CONFIG_IMAGE, "graphics menu 1")
+
+    am.take_screenshot("2_graphics_preset.png", ArtifactType.CONFIG_IMAGE, "graphics preset")
 
     press("down*2")
 
-    # gets you to film grain
-    if find_word(sc, "dlss"):
-        if find_word(sc, "multi"):
-            press("down")
-        press("down*2")
+    if not find_word(sc, "grain"):
+        if not find_word(sc, "reflections"):
+            # RT off
+            # Resolution Scaling On
+            if not find_word(sc, "field"):
+                press("down*8")
+            else:
+                press("down*7")
+        else:
+            # RT on
+            if not find_word(sc, "crowd"):
+                # RT on, Resolution Scaling on
+                if not find_word(sc, "photo"):
+                    #DLSS
+                    press("down*3")
+                else:
+                    press("down")
+                    
+                am.take_screenshot(
+                    "3_graphics_rt_scaling.png", ArtifactType.CONFIG_IMAGE, "graphics menu rt when scaling also enabled"
+                )
+            else:
+                # RT on, Resolution Scaling off
+                press("down*8")
 
-        # gets you to film grain usually except for combined with RT
+    else:
+        # Normal Run
+        press("down*6")
 
-        if not find_word(sc, "grain"):
-            press("down")
-
-    # fsr
-    if find_word(sc, "amd"):
-        press("down")  # gets you to film grain
-
-    # xess
-    if find_word(sc, "xess"):
-        press("down")  # gets you to film grain
-
-    logging.info("check for rt")
-    if find_word(sc, "reflections"):
-        press("down*3")
-        am.take_screenshot(
-            "graphics_rt.png", ArtifactType.CONFIG_IMAGE, "graphics menu rt"
-        )
-    elif find_word(sc, "path"):
-        press("down")
-        am.take_screenshot(
-            "graphics_pt.png",
-            ArtifactType.CONFIG_IMAGE,
-            "graphics menu path tracing",
-        )
-
-    press("down*7")
-
-    if not find_word(sc, "anisotropy"):
+    if not find_word(sc, "shadows"):
         return False
 
-    am.take_screenshot("graphics_2.png", ArtifactType.CONFIG_IMAGE, "graphics menu 2")
+    am.take_screenshot("4_graphics_basic.png", ArtifactType.CONFIG_IMAGE, "graphics basic")
 
-    press("down*11")
+    press("down*10")
 
-    if not find_word(sc, "occlusion"):
+    if not find_word(sc, "dynamic"):
         return False
 
-    am.take_screenshot("graphics_3.png", ArtifactType.CONFIG_IMAGE, "graphics menu 3")
+    am.take_screenshot("5_graphics_advanced1.png", ArtifactType.CONFIG_IMAGE, "graphics advanced 1")
 
-    press("down*3")
+    press("down*6")
 
     if not find_word(sc, "level"):
         return False
 
-    am.take_screenshot("graphics_4.png", ArtifactType.CONFIG_IMAGE, "graphics menu 4")
+    am.take_screenshot("6_graphics_advanced2.png", ArtifactType.CONFIG_IMAGE, "graphics advanced 2")
 
     press("3")
 
@@ -121,7 +116,7 @@ def navigate_settings(sc: Screenshotter, am: ArtifactManager) -> bool:
         return False
 
     # now on video tab
-    am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "video menu")
+    am.take_screenshot("1_video.png", ArtifactType.CONFIG_IMAGE, "video menu")
 
     press("b, enter")
 
