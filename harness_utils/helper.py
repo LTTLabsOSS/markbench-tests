@@ -15,18 +15,18 @@ user.FAILSAFE = False
 
 @lru_cache(maxsize=1)
 def _load_ocr_url():
-    config_path = Path(__file__).resolve().parent.parent / "ocr.toml"
+    config_path = Path(__file__).resolve().parent.parent.parent / "config" / "config.toml"
 
     if not config_path.is_file():
-        raise FileNotFoundError("ocr.toml not found")
+        raise FileNotFoundError("config.toml not found")
 
     with config_path.open("rb") as handle:
         config = tomllib.load(handle)
 
-    host = config.get("host")
-    port = config.get("port")
+    host = config["ocr"]["host"]
+    port = config["ocr"]["port"]
     if host is None or port is None:
-        raise ValueError("ocr.toml missing host or port")
+        raise ValueError("config.toml missing host or port")
 
     url = f"http://{host}:{port}/process"
     return url
@@ -60,7 +60,6 @@ def find_word(sc: Screenshotter, word: str, msg: str = "", timeout: int = 3):
     else:
         logging.error(f'Did not find: "{word}"')
     return False
-
 
 
 def get_ocr_args():
