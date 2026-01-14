@@ -3,19 +3,21 @@ import time
 from argparse import ArgumentParser
 from functools import lru_cache
 from pathlib import Path
+
+import pydirectinput as user
 import requests
 import tomllib
 
-import pydirectinput as user
-
-
 from harness_utils.screenshot import Screenshotter
+
 user.FAILSAFE = False
 
 
 @lru_cache(maxsize=1)
 def _load_ocr_url():
-    config_path = Path(__file__).resolve().parent.parent.parent / "config" / "config.toml"
+    config_path = (
+        Path(__file__).resolve().parent.parent.parent / "configs" / "config.toml"
+    )
 
     if not config_path.is_file():
         raise FileNotFoundError("config.toml not found")
@@ -34,12 +36,12 @@ def _load_ocr_url():
 
 def find_word(sc: Screenshotter, word: str, msg: str = "", timeout: int = 3):
     url = _load_ocr_url()
-    
+
     start_time = time.time()
-    
+
     while time.time() - start_time < timeout:
         image_bytes = sc.take_sc_bytes()
-    
+
         try:
             response = requests.post(
                 url,
@@ -49,12 +51,12 @@ def find_word(sc: Screenshotter, word: str, msg: str = "", timeout: int = 3):
         except requests.exceptions.RequestException as e:
             logging.error(f"OCR request error: {e}")
             return False
-    
+
         if not response.ok or "not found" in response.text:
             continue
         else:
             return True
-    
+
     if msg:
         logging.error(msg)
     else:
