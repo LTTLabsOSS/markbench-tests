@@ -8,7 +8,6 @@ from cyberpunk_run import run_benchmark
 from cyberpunk_utils import copy_no_intro_mod, start_game, write_report
 
 from harness_utils.artifacts import ArtifactManager
-from harness_utils.helper import get_ocr_args
 from harness_utils.output import setup_logging
 from harness_utils.process import terminate_processes
 from harness_utils.screenshot import Screenshotter
@@ -19,8 +18,6 @@ PROCESS_NAME = "cyberpunk2077.exe"
 
 
 setup_logging(LOG_DIRECTORY)
-
-args = get_ocr_args()
 
 sc = Screenshotter()
 am = ArtifactManager(LOG_DIRECTORY, sc)
