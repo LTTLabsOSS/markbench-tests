@@ -20,7 +20,7 @@ from harness_utils.output import (
     DEFAULT_DATE_FORMAT
 )
 from harness_utils.steam import exec_steam_game, get_build_id
-from harness_utils.ocr_service import OcrService, ScreenSplitConfig, ScreenShotDivideMethod, ScreenShotQuadrant
+from harness_utils.ocr_service import OCRService, ScreenSplitConfig, ScreenShotDivideMethod, ScreenShotQuadrant
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.misc import mouse_scroll_n_times
 
@@ -225,7 +225,7 @@ def main():
     parser.add_argument("--kerasPort", dest="keras_port",
                         help="Port for Keras OCR service", required=True)
     args = parser.parse_args()
-    keras_service = OcrService(args.keras_host, args.keras_port)
+    keras_service = OCRService(args.keras_host, args.keras_port)
 
     test_start_time, test_end_time = run_benchmark(keras_service)
     resolution = read_current_resolution()

@@ -18,7 +18,7 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT)
 from harness_utils.process import terminate_processes
-from harness_utils.ocr_service import OcrService, ScreenShotDivideMethod, ScreenShotQuadrant, ScreenSplitConfig
+from harness_utils.ocr_service import OCRService, ScreenShotDivideMethod, ScreenShotQuadrant, ScreenSplitConfig
 from harness_utils.steam import exec_steam_game, get_build_id
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
@@ -160,7 +160,7 @@ def main():
     """entry point"""
     setup_logging()
     args = get_args()
-    keras_service = OcrService(args.keras_host, args.keras_port)
+    keras_service = OCRService(args.keras_host, args.keras_port)
     am = ArtifactManager(LOG_DIR)
     run_benchmark(keras_service, am)
 

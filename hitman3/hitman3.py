@@ -11,7 +11,7 @@ from hitman3_utils import get_resolution, get_args, process_registry_file, get_b
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
-from harness_utils.ocr_service import OcrService
+from harness_utils.ocr_service import OCRService
 from harness_utils.output import (
     seconds_to_milliseconds,
     setup_log_directory,
@@ -132,7 +132,7 @@ console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
 args = get_args()
-kerasService = OcrService(args.keras_host, args.keras_port)
+kerasService = OCRService(args.keras_host, args.keras_port)
 
 try:
     test_start_time, test_end_time, benchmark_name = run_benchmark()

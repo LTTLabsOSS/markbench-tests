@@ -11,7 +11,7 @@ from f1_24_utils import get_resolution
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
 from harness_utils.steam import exec_steam_run_command, get_app_install_location, get_build_id
-from harness_utils.ocr_service import OcrService
+from harness_utils.ocr_service import OCRService
 from harness_utils.misc import remove_files, press_n_times
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
@@ -255,7 +255,7 @@ parser.add_argument(
     "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
 )
 args = parser.parse_args()
-kerasService = OcrService(args.keras_host, args.keras_port)
+kerasService = OCRService(args.keras_host, args.keras_port)
 
 try:
     start_time, end_time = run_benchmark()

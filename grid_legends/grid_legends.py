@@ -19,7 +19,7 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT)
 from harness_utils.process import terminate_processes
-from harness_utils.ocr_service import OcrService
+from harness_utils.ocr_service import OCRService
 from harness_utils.steam import exec_steam_game, get_build_id
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
@@ -169,7 +169,7 @@ def run_benchmark(keras_service):
 def main():
     """entry point"""
     args = get_args()
-    keras_service = OcrService(args.keras_host, args.keras_port)
+    keras_service = OCRService(args.keras_host, args.keras_port)
     start_time, end_time = run_benchmark(keras_service)
     elapsed_test_time = round((end_time - start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)

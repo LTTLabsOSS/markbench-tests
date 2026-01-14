@@ -12,7 +12,7 @@ import shutil
 
 sys.path.insert(1, str(Path(sys.path[0]).parent))
 
-from harness_utils.ocr_service import OcrService
+from harness_utils.ocr_service import OCRService
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -30,7 +30,7 @@ from harness_utils.misc import (
     int_time,
     find_word,
     press_n_times,
-    keras_args)
+    get_ocr_args)
 
 USERNAME = getpass.getuser()
 STEAM_GAME_ID = 2531310
@@ -108,7 +108,7 @@ def read_registry_value(key_path, value_name):
         return None
 
 
-def run_benchmark(keras_service: OcrService) -> tuple:
+def run_benchmark(keras_service: OCRService) -> tuple:
     """Starts Game, Sets Settings, and Runs Benchmark"""
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int_time()
@@ -205,7 +205,7 @@ def run_benchmark(keras_service: OcrService) -> tuple:
     return test_start_time, test_end_time
 
 
-def navigate_settings(am: ArtifactManager, keras: OcrService) -> None:
+def navigate_settings(am: ArtifactManager, keras: OCRService) -> None:
     """Navigate through settings and take screenshots. 
     Exits to main menu after taking screenshots.
     """
@@ -261,7 +261,7 @@ def main():
     try:
         logging.info("Starting The Last of Us Part II benchmark")
 
-        keras_service = OcrService(keras_args().keras_host, keras_args().keras_port)
+        keras_service = OCRService(get_ocr_args().keras_host, get_ocr_args().keras_port)
 
         reset_savedata()
 

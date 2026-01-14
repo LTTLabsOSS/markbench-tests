@@ -12,7 +12,7 @@ sys.path.insert(1, os.path.join(sys.path[0], ".."))
 
 from doomdarkages_utils import copy_launcher_config
 from harness_utils.steam import exec_steam_game, get_build_id
-from harness_utils.ocr_service import OcrService
+from harness_utils.ocr_service import OCRService
 from harness_utils.misc import press_n_times, mouse_scroll_n_times
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
@@ -236,7 +236,7 @@ parser.add_argument(
     "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
 )
 args = parser.parse_args()
-kerasService = OcrService(args.keras_host, args.keras_port)
+kerasService = OCRService(args.keras_host, args.keras_port)
 
 try:
     start_time, end_time = run_benchmark()

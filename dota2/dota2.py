@@ -17,7 +17,7 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT,
     DEFAULT_DATE_FORMAT)
 from harness_utils.process import terminate_processes
-from harness_utils.ocr_service import OcrService
+from harness_utils.ocr_service import OCRService
 from harness_utils.steam import exec_steam_game
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
@@ -39,7 +39,7 @@ console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
 args = get_args()
-kerasService = OcrService(args.keras_host, args.keras_port)
+kerasService = OCRService(args.keras_host, args.keras_port)
 am = ArtifactManager(LOG_DIRECTORY)
 
 user.FAILSAFE = False

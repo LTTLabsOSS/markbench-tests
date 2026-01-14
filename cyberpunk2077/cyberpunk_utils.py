@@ -1,36 +1,18 @@
 """Utility functions for Cyberpunk 2077 test script"""
-from argparse import ArgumentParser
-import os
+
 import logging
-from pathlib import Path
+import os
 import re
 import shutil
-import sys
+from pathlib import Path
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
-from harness_utils.steam import get_app_install_location
+from harness_utils.steam import exec_steam_game, get_app_install_location, get_build_id
+
+from harness_utils.output import seconds_to_milliseconds, write_report_json 
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 STEAM_GAME_ID = 1091500
 CYBERPUNK_INSTALL_DIR = get_app_install_location(STEAM_GAME_ID)
-
-
-def get_args() -> any:
-    """Returns command line arg values"""
-    parser = ArgumentParser()
-    parser.add_argument("--kerasHost", dest="keras_host",
-                        help="Host for Keras OCR service", required=True)
-    parser.add_argument("--kerasPort", dest="keras_port",
-                        help="Port for Keras OCR service", required=True)
-    return parser.parse_args()
-
-
-def copy_from_network_drive():
-    """Copies mod file from network drive to harness folder"""
-    src_path = Path(
-        r"\\labs.lmg.gg\labs\03_ProcessingFiles\Cyberpunk 2077\basegame_no_intro_videos.archive")
-    dest_path = SCRIPT_DIRECTORY / "basegame_no_intro_videos.archive"
-    shutil.copyfile(src_path, dest_path)
 
 
 def copy_no_intro_mod() -> None:
@@ -39,22 +21,26 @@ def copy_no_intro_mod() -> None:
         mod_path = Path(f"{CYBERPUNK_INSTALL_DIR}\\archive\\pc\\mod")
         mod_path.mkdir(parents=True, exist_ok=True)
 
-        src_path = SCRIPT_DIRECTORY / "basegame_no_intro_videos.archive"
+        src_path = Path(
+            r"\\labs.lmg.gg\labs\03_ProcessingFiles\Cyberpunk 2077\basegame_no_intro_videos.archive"
+        )
         dest_path = mod_path / "basegame_no_intro_videos.archive"
 
-        logging.info("Copying: %s -> %s", src_path, dest_path)
-        shutil.copy(src_path, dest_path)
+        if dest_path.exists():
+            logging.info("No intro mod already exists")
+        else:
+            shutil.copyfile(src_path, dest_path)
+
         return
     except OSError:
-        logging.error("Could not copy local mod file; Trying from network drive")
-    try:
-        copy_from_network_drive()
+        logging.error("could not copy mod file")
 
-        logging.info("Copying: %s -> %s", src_path, dest_path)
-        shutil.copy(src_path, dest_path)
-    except OSError as err:
-        logging.error("Could not copy mod file from network drive")
-        raise err
+
+def start_game():
+    """Launch the game with no launcher or start screen"""
+    return exec_steam_game(
+        STEAM_GAME_ID, game_params=["--launcher-skip", "-skipStartScreen"]
+    )
 
 
 def read_current_resolution():
@@ -72,3 +58,14 @@ def read_current_resolution():
             if resolution_match is not None:
                 resolution = resolution_match.group(1)
     return resolution
+
+
+def write_report(log_directory: Path, start_time: int, end_time: int):
+    resolution = read_current_resolution()
+    report = {
+        "resolution": f"{resolution}",
+        "start_time": seconds_to_milliseconds(start_time),
+        "end_time": seconds_to_milliseconds(end_time),
+        "version": get_build_id(STEAM_GAME_ID),
+    }
+    write_report_json(log_directory, report)

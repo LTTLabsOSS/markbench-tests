@@ -17,13 +17,13 @@ from harness_utils.output import (
     seconds_to_milliseconds,
 )
 from harness_utils.steam import get_build_id, exec_steam_game
-from harness_utils.ocr_service import OcrService
+from harness_utils.ocr_service import OCRService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.misc import (
     press_n_times,
     int_time,
     find_word,
-    keras_args)
+    get_ocr_args)
 
 USERNAME = getpass.getuser()
 STEAM_GAME_ID = 3159330
@@ -247,8 +247,8 @@ def run_benchmark(keras_service):
 
 def main():
     """entry point"""
-    keras_service = OcrService(
-        keras_args().keras_host, keras_args().keras_port)
+    keras_service = OCRService(
+        get_ocr_args().keras_host, get_ocr_args().keras_port)
     start_time, endtime = run_benchmark(keras_service)
     height, width = read_current_resolution()
     report = {

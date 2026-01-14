@@ -1,18 +1,15 @@
+
 """Provides ArtifactManager class for capturing artifacts from test runs."""
 
 import logging
 import os
-from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum, unique
 from pathlib import Path
 from shutil import copy
 
-import cv2
-import dxcam
-import mss
-import numpy as np
 import yaml
+from harness_utils.screenshot import Screenshotter
 
 logger = logging.getLogger(__name__)
 
@@ -76,11 +73,14 @@ class ArtifactManager:
     The manager maintains a list of artifacts it has captured and can produce a manifest file listing them.
     """
 
-    def __init__(self, output_path: str | os.PathLike) -> None:
+    def __init__(
+        self, output_path: str | os.PathLike, screenshotter: Screenshotter
+    ) -> None:
         self.output_path = Path(output_path)
-        self.artifacts: list[Artifact] = []
-
         self.output_path.mkdir(parents=True, exist_ok=True)
+
+        self.artifacts: list[Artifact] = []
+        self.screenshotter = screenshotter
 
     def copy_file(
         self, src: str | os.PathLike, artifact_type: ArtifactType, description=""
@@ -114,40 +114,7 @@ class ArtifactManager:
             raise e
 
     def take_screenshot(
-        self,
-        filename: str,
-        artifact_type: ArtifactType,
-        description="",
-        screenshot_override: Callable[[str | os.PathLike], None] | None = None,
-    ):
-        """
-        Takes a screenshot and saves it to the manager's `output_path` with the given `filename`
-        and adds a new Artifact to the manager's artifact list.
-
-        The newly created artifact's `filename`, `type` and `description` fields are set to the
-        given `filename`, `artifact_type` and `description` arguments respectively.
-
-        Raises a `ValueError` if `artifact_type` is not one of the `ArtifactType` values which represents an image.
-        """
-        if artifact_type not in _IMAGE_ARTIFACT_TYPES:
-            raise ValueError(
-                "artifact_type should be a type that represents an image artifact"
-            )
-
-        if screenshot_override is None:
-            with mss.mss() as sct:
-                sct.shot(output=str(self.output_path / filename))
-        else:
-            screenshot_override(self.output_path / filename)
-        artifact = Artifact(filename, artifact_type, description)
-        self.artifacts.append(artifact)
-
-    def take_screenshot_vulkan(
-        self,
-        filename: str,
-        artifact_type: ArtifactType,
-        description="",
-        screenshot_override: Callable[[str | os.PathLike], None] | None = None,
+        self, filename: str, artifact_type: ArtifactType, description=""
     ):
         """
         Takes a screenshot using dxcam and saves it to the manager's `output_path` with the given `filename`.
@@ -155,6 +122,7 @@ class ArtifactManager:
 
         Raises a `ValueError` if `artifact_type` is not one of the `_IMAGE_ARTIFACT_TYPES` values which represent an image.
         """
+
         if artifact_type not in _IMAGE_ARTIFACT_TYPES:
             raise ValueError(
                 "artifact_type should be a type that represents an image artifact"
@@ -162,20 +130,10 @@ class ArtifactManager:
 
         output_filepath = str(self.output_path / filename)
 
-        if screenshot_override is None:
-            camera = dxcam.create(output_idx=0)  # Initialize DXCam
-            frame = camera.grab()  # Capture the screenshot
-
-            if frame is None:
-                raise RuntimeError("Failed to capture screenshot with dxcam.")
-
-            # Convert to BGR format (since dxcam outputs in RGB)
-            frame_bgr = cv2.cvtColor(np.array(frame), cv2.COLOR_RGB2BGR)
-
-            # Save image using OpenCV
-            cv2.imwrite(output_filepath, frame_bgr)
-        else:
-            screenshot_override(output_filepath)
+        try:
+            self.screenshotter.take_sc_save_png(output_filepath)
+        except Exception as e:
+            raise e
 
         artifact = Artifact(filename, artifact_type, description)
         self.artifacts.append(artifact)
