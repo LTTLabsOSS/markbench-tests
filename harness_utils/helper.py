@@ -14,7 +14,7 @@ user.FAILSAFE = False
 
 
 @lru_cache(maxsize=1)
-def _load_ocr_config():
+def _load_ocr_url():
     config_path = Path(__file__).resolve().parent.parent / "ocr.toml"
 
     if not config_path.is_file():
@@ -28,13 +28,13 @@ def _load_ocr_config():
     if host is None or port is None:
         raise ValueError("ocr.toml missing host or port")
 
-    return host, port
+    url = f"http://{host}:{port}/process"
+    return url
 
 
 def find_word(sc: Screenshotter, word: str, msg: str = "", timeout: int = 3):
-    host, port = _load_ocr_config()
-    url = f"http://{host}:{port}/process"
-
+    url = _load_ocr_url()
+    
     start_time = time.time()
     
     while time.time() - start_time < timeout:

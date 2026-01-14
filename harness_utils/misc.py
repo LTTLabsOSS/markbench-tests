@@ -11,11 +11,9 @@ import requests
 import vgamepad as vg
 import json
 import re
-import sys
-
-from harness_utils.ocr_service import OCRService
 
 user.FAILSAFE = False
+
 
 class LTTGamePad360(vg.VX360Gamepad):
     """
@@ -168,8 +166,6 @@ def mouse_scroll_n_times(n: int, scroll_amount: int, pause: float):
     for _ in range(n):
         gui.vscroll(scroll_amount)
         time.sleep(pause)
-
-
 
 
 def remove_files(paths: list[str]) -> None:

@@ -8,7 +8,7 @@ from harness_utils.screenshot import Screenshotter
 def run_benchmark(sc: Screenshotter, am: ArtifactManager) -> tuple[int, int]:
     sleep(20)
 
-    if not find_word(sc, "new", "Did not see main menu."):
+    if not find_word(sc, "new", "Did not see main menu.", timeout = 30):
         return (0, 0)
 
     if not navigate_settings(sc, am):
@@ -20,6 +20,7 @@ def run_benchmark(sc: Screenshotter, am: ArtifactManager) -> tuple[int, int]:
     test_start_time = int_time() - 5
 
     logging.info("Benchmark started. Waiting for benchmark to complete.")
+    
     sleep(70)  # could be made into an editable const
 
     if not find_word(sc, "results", "Did not see results screen."):
