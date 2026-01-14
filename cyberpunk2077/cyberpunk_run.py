@@ -14,7 +14,7 @@ def run_benchmark(sc: Screenshotter, am: ArtifactManager) -> tuple[int, int]:
     if not navigate_settings(sc, am):
         return (0, 0)
 
-    if not find_word(sc, "fps", "Benchmark didn't start."):
+    if not find_word(sc, "fps", "Benchmark didn't start.", timeout = 30):
         return (0, 0)
 
     test_start_time = int_time() - 5
