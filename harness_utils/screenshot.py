@@ -10,7 +10,7 @@ class Screenshotter():
     
     def take_sc_bytes(self):
         if self.cam is None:
-            self.cam = dxcam.create(output_color="BGR")
+            self.cam = dxcam.create(output_idx=0, output_color="BGR")
         
         screenshot = self.cam.grab()
         if screenshot is None:
@@ -24,7 +24,7 @@ class Screenshotter():
 
     def take_sc_save_png(self, output_path):
         if self.cam is None:
-            self.cam = dxcam.create(output_color="BGR")
+            self.cam = dxcam.create(output_idx=0, output_color="BGR")
             
         screenshot = self.cam.grab()
         if screenshot is None:
