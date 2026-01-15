@@ -2,16 +2,15 @@ import logging
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.helper import find_word, int_time, press, sleep
-from harness_utils.screenshot import Screenshotter
 
 
-def run_benchmark(sc: Screenshotter, am: ArtifactManager) -> tuple[int, int]:
+def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
     sleep(15)
 
-    if not navigate_settings(sc, am):
+    if not navigate_settings(am):
         return (0, 0)
 
-    if not find_word(sc, "fps", "Benchmark didn't start.", timeout=30):
+    if not find_word("fps", "Benchmark didn't start.", timeout=30):
         return (0, 0)
 
     test_start_time = int_time() - 4
@@ -20,7 +19,7 @@ def run_benchmark(sc: Screenshotter, am: ArtifactManager) -> tuple[int, int]:
 
     sleep(70)  # make into an editable const, adjust timings
 
-    if not find_word(sc, "results", "Did not see results screen."):
+    if not find_word("results", "Did not see results screen."):
         return (0, 0)
 
     test_end_time = int_time()
@@ -32,28 +31,28 @@ def run_benchmark(sc: Screenshotter, am: ArtifactManager) -> tuple[int, int]:
     return test_start_time, test_end_time
 
 
-def navigate_settings(sc: Screenshotter, am: ArtifactManager) -> bool:
+def navigate_settings(am: ArtifactManager) -> bool:
     """Simulate inputs to navigate the main menu"""
 
     logging.info("Navigating main menu")
 
-    if not find_word(sc, "new", "Did not see main menu.", timeout=30):
+    if not find_word("new", "Did not see main menu.", timeout=30):
         return False
 
     # navigating to settings menu
-    if not find_word(sc, "continue"):
+    if not find_word("continue"):
         # an account with no save game
         press("left,enter")
     else:
         press("left,down,enter")
 
-    if not find_word(sc, "volume", "Did not see settings menu"):
+    if not find_word("volume", "Did not see settings menu"):
         return False
 
     # entered settings
     press("3*3")
 
-    if not find_word(sc, "preset"):
+    if not find_word("preset"):
         return False
 
     # now on graphics tab
@@ -64,19 +63,19 @@ def navigate_settings(sc: Screenshotter, am: ArtifactManager) -> bool:
 
     press("down*2")
 
-    if not find_word(sc, "grain"):
-        if not find_word(sc, "reflections"):
+    if not find_word("grain"):
+        if not find_word("reflections"):
             # RT off
             # Resolution Scaling On
-            if not find_word(sc, "field"):
+            if not find_word("field"):
                 press("down*8")
             else:
                 press("down*7")
         else:
             # RT on
-            if not find_word(sc, "crowd"):
+            if not find_word("crowd"):
                 # RT on, Resolution Scaling on
-                if not find_word(sc, "photo"):
+                if not find_word("photo"):
                     # DLSS
                     press("down*3")
                 else:
@@ -95,7 +94,7 @@ def navigate_settings(sc: Screenshotter, am: ArtifactManager) -> bool:
         # Normal Run
         press("down*6")
 
-    if not find_word(sc, "shadows"):
+    if not find_word("shadows"):
         return False
 
     am.take_screenshot(
@@ -104,7 +103,7 @@ def navigate_settings(sc: Screenshotter, am: ArtifactManager) -> bool:
 
     press("down*10")
 
-    if not find_word(sc, "dynamic"):
+    if not find_word("dynamic"):
         return False
 
     am.take_screenshot(
@@ -113,7 +112,7 @@ def navigate_settings(sc: Screenshotter, am: ArtifactManager) -> bool:
 
     press("down*6")
 
-    if not find_word(sc, "level"):
+    if not find_word("level"):
         return False
 
     am.take_screenshot(
@@ -122,7 +121,7 @@ def navigate_settings(sc: Screenshotter, am: ArtifactManager) -> bool:
 
     press("3")
 
-    if not find_word(sc, "resolution"):
+    if not find_word("resolution"):
         return False
 
     # now on video tab

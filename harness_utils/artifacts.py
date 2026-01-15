@@ -9,7 +9,8 @@ from pathlib import Path
 from shutil import copy
 
 import yaml
-from harness_utils.screenshot import Screenshotter
+
+from mss.windows import MSS as mss
 
 logger = logging.getLogger(__name__)
 
@@ -74,13 +75,12 @@ class ArtifactManager:
     """
 
     def __init__(
-        self, output_path: str | os.PathLike, screenshotter: Screenshotter
+        self, output_path: str | os.PathLike
     ) -> None:
         self.output_path = Path(output_path)
         self.output_path.mkdir(parents=True, exist_ok=True)
 
         self.artifacts: list[Artifact] = []
-        self.screenshotter = screenshotter
 
     def copy_file(
         self, src: str | os.PathLike, artifact_type: ArtifactType, description=""
@@ -131,7 +131,9 @@ class ArtifactManager:
         output_filepath = str(self.output_path / filename)
 
         try:
-            self.screenshotter.take_sc_save_png(output_filepath)
+            with mss() as scr:
+                _ = scr.shot(mon=1, output=output_filepath)
+                
         except Exception as e:
             raise e
 

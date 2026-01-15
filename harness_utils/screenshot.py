@@ -1,36 +1,22 @@
-import dxcam
-import cv2
 import logging
+
+import cv2
+import mss
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
-class Screenshotter():
-    cam = None
-    prev_sc = None
-    
+
+class Screenshotter:
     def take_sc_bytes(self):
-        if self.cam is None:
-            self.cam = dxcam.create(output_idx=0, output_color="BGR")
-        
-        screenshot = self.cam.grab()
-        if screenshot is None:
-            logger.debug("grab returned none: using previous screenshot")
-            screenshot = self.prev_sc
-        ok, buf = cv2.imencode('.jpg', screenshot)
-        if not ok:
-            raise Exception("Failed to encode screenshot")
-        self.prev_sc = screenshot
+        with mss.mss() as sct:
+            monitor_1 = sct.monitors[1]
+            screenshot = np.array(sct.grab(monitor_1))
+            _, buf = cv2.imencode(".jpg", screenshot)
         return buf.tobytes()
 
     def take_sc_save_png(self, output_path):
-        if self.cam is None:
-            self.cam = dxcam.create(output_idx=0, output_color="BGR")
-            
-        screenshot = self.cam.grab()
-        if screenshot is None:
-            raise Exception("Failed to capture screenshot")
+        with mss.mss() as sct:
+            monitor_1 = sct.monitors[1]
+            screenshot = np.array(sct.grab(monitor_1))
         cv2.imwrite(output_path, screenshot)
-
-    def close(self):
-        if self.cam is not None:
-            self.cam.release()

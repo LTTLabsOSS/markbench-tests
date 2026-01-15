@@ -1,14 +1,14 @@
 import logging
 import time
-from argparse import ArgumentParser
-from functools import lru_cache
+import tomllib
 from pathlib import Path
+import requests
+from functools import lru_cache
 
 import pydirectinput as user
-import requests
-import tomllib
-
-from harness_utils.screenshot import Screenshotter
+from mss.windows import MSS as mss
+import cv2
+import numpy as np
 
 user.FAILSAFE = False
 
@@ -34,46 +34,38 @@ def _load_ocr_url():
     return url
 
 
-def find_word(sc: Screenshotter, word: str, msg: str = "", timeout: int = 3):
+def find_word(word: str, msg: str = "", timeout: int = 3):
     url = _load_ocr_url()
 
     start_time = time.time()
-
-    while time.time() - start_time < timeout:
-        image_bytes = sc.take_sc_bytes()
-
-        try:
-            response = requests.post(
-                url,
-                data={"word": word},
-                files={"file": ("sc.jpg", image_bytes, "image/jpeg")},
-            )
-        except requests.exceptions.RequestException as e:
-            logging.error(f"OCR request error: {e}")
-            return False
-
-        if not response.ok or "not found" in response.text:
-            continue
-        else:
-            return True
+    
+    with mss() as scr:
+        monitor = scr.monitors[1]
+        while time.time() - start_time < timeout:
+            sc = np.array(scr.grab(monitor))
+            _, buf = cv2.imencode(".jpg", sc)
+            image_bytes = buf.tobytes()
+    
+            try:
+                response = requests.post(
+                    url,
+                    data={"word": word},
+                    files={"file": ("sc.jpg", image_bytes, "image/jpeg")},
+                )
+            except requests.exceptions.RequestException as e:
+                logging.error(f"OCR request error: {e}")
+                return False
+    
+            if not response.ok or "not found" in response.text:
+                continue
+            else:
+                return True
 
     if msg:
         logging.error(msg)
     else:
         logging.error(f'Did not find: "{word}"')
     return False
-
-
-def get_ocr_args():
-    """helper function to get args for keras"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--ocrHost", dest="ocr_host", help="Host for OCR service", required=True
-    )
-    parser.add_argument(
-        "--ocrPort", dest="ocr_port", help="Port for OCR service", required=True
-    )
-    return parser.parse_args()
 
 
 def press(keys: str, pause: float = 0.5):
