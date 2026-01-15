@@ -8,12 +8,17 @@ def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
     sleep(15)
 
     if not navigate_settings(am):
+        logging.error("Failed to navigate settings")
+        return (0, 0)
+        
+    logging.info("Starting benchmark")
+    
+    press("b, enter")
+    
+    if not find_word("fps", timeout=30):
         return (0, 0)
 
-    if not find_word("fps", "Benchmark didn't start.", timeout=30):
-        return (0, 0)
-
-    test_start_time = int_time() - 4
+    test_start_time = int_time() - 3
 
     logging.info("Benchmark started. Waiting for benchmark to complete.")
 
@@ -22,7 +27,7 @@ def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
     if not find_word("results", "Did not see results screen."):
         return (0, 0)
 
-    test_end_time = int_time()
+    test_end_time = int_time() - 4
 
     am.take_screenshot(
         "results.png", ArtifactType.RESULTS_IMAGE, "results of benchmark"
@@ -126,7 +131,5 @@ def navigate_settings(am: ArtifactManager) -> bool:
 
     # now on video tab
     am.take_screenshot("1_video.png", ArtifactType.CONFIG_IMAGE, "video menu")
-
-    press("b, enter")
 
     return True

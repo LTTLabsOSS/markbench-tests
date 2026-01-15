@@ -1,11 +1,11 @@
 import sys
 from pathlib import Path
 
-HARNESSES_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(1, str(HARNESSES_ROOT))
-
 from cyberpunk_run import run_benchmark
 from cyberpunk_utils import copy_no_intro_mod, start_game, write_report
+
+HARNESSES_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(1, str(HARNESSES_ROOT))
 
 from harness_utils.artifacts import ArtifactManager
 from harness_utils.output import setup_logging
@@ -27,4 +27,3 @@ terminate_processes(PROCESS_NAME)
 am.create_manifest()
 write_report(LOG_DIRECTORY, start_time, end_time)
 sys.exit(0)
-
