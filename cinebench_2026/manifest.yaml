@@ -6,5 +6,5 @@ output_dir: "run"
 options:
   - name: test
     type: select
-    values: ["cpu-single-thread", "cpu_single_core", "cpu-multi-thread", "cpu-both", "gpu", "all"]
+    values: ["cpu-single-thread", "cpu-single-core", "cpu-multi-thread", "cpu-1/x-thread", "cpu-all", "gpu", "all"]
     tooltip: Select which Cinebench test to run

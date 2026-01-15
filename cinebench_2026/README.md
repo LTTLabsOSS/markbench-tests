@@ -11,7 +11,8 @@ Runs a single test of Cinebench 2026 and reads the score result from the output.
 
 ## Options
 
-- `-t` or `--test`: Specifies the Cinebench test to run. Can be one of three options: `cpu-single-core`, `cpu-multi-core` or `gpu`. Any other value will throw an error.
+- `-t` or `--test`: Specifies the Cinebench test to run. Can be one of four options: `cpu-single-thread`, `cpu-single-core`, `cpu-multi-thread` or `gpu`. Any other value will throw an error.
+- Test options available in Markbench: `cpu-single-thread` (1 thread), `cpu-single-core` (1 core that supports SMT), `cpu-multi-thread` (all CPU threads), `cpu-1/x-thread` (runs single thread and multi thread tests), `cpu-all` (runs all 3 CPU based tests), `gpu` (runs GPU test), `all` (runs all available Cinebench 2026 tests)
 
 ## Output
 

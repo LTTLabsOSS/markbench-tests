@@ -25,9 +25,10 @@ CPU_X_TEST = "g_CinebenchCpuXTest=true"
 CPU_1SMT_TEST = "g_CinebenchCpuSMTTest=true"
 TEST_OPTIONS = {
     "cpu-single-thread": [CPU_1_TEST],
-    "cpu_single_core": [CPU_1SMT_TEST],
+    "cpu-single-core": [CPU_1SMT_TEST],
     "cpu-multi-thread": [CPU_X_TEST],
-    "cpu-both": [CPU_X_TEST, CPU_1_TEST],
+    "cpu-1/x-thread": [CPU_X_TEST, CPU_1_TEST],
+    "cpu-all": [CPU_X_TEST, CPU_1SMT_TEST, CPU_1_TEST],
     "gpu": [GPU_TEST],
     "all": [GPU_TEST, CPU_X_TEST, CPU_1_TEST]
 }
