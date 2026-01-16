@@ -8,8 +8,6 @@ from enum import Enum, unique
 from pathlib import Path
 from shutil import copy
 
-import yaml
-
 from mss.windows import MSS as mss
 
 logger = logging.getLogger(__name__)
@@ -82,6 +80,12 @@ class ArtifactManager:
 
         self.artifacts: list[Artifact] = []
 
+    def dump_artifacts_yaml(self, artifacts, file):
+        for artifact in artifacts:
+            file.write(f"- filename: {artifact['filename']}\n")
+            file.write(f"  type: {artifact['type']}\n")
+            file.write(f"  description: {artifact['description']}\n")
+
     def copy_file(
         self, src: str | os.PathLike, artifact_type: ArtifactType, description=""
     ):
@@ -146,4 +150,4 @@ class ArtifactManager:
         The file is created at the location specified by the manager's `output_path`.
         """
         with open(self.output_path / "artifacts.yaml", encoding="utf-8", mode="w") as f:
-            yaml.safe_dump([a.as_dict() for a in self.artifacts], f, sort_keys=False)
+            self.dump_artifacts_yaml([a.as_dict() for a in self.artifacts], f)
