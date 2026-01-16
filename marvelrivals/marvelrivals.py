@@ -183,6 +183,8 @@ def run_benchmark(keras_service):
         sys.exit(1)
     test_end_time = int(time.time())
 
+    am.take_screenshot("results.png", ArtifactType.CONFIG_IMAGE, "results picture")
+
     am.copy_file(Path(CFG), ArtifactType.CONFIG_TEXT, "Marvel Rivals Video Config")
     am.copy_file(Path(find_latest_benchmarkcsv()), ArtifactType.CONFIG_TEXT, "Marvel Rivals Benchmark CSV")
     logging.info("Run completed. Closing game.")
