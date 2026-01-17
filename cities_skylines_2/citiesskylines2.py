@@ -194,7 +194,7 @@ def run_benchmark(keras_service):
     gui.moveTo(result["x"], result["y"])
     time.sleep(0.2)
 
-    mouse_scroll_n_times(8, -400,  0.2)
+    mouse_scroll_n_times(8, -800,  0.2)
 
     if keras_service.wait_for_word(word="water", timeout=30, interval=1) is None:
         logging.info("Did not find the keyword 'water' in menu. Did the game scroll correctly?")
