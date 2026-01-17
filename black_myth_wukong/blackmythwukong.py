@@ -160,7 +160,7 @@ def run_benchmark(keras_service):
         logging.info("Could not find current. Unable to mark start time!")
         sys.exit(1)
 
-    test_start_time = int(time.time()) - 2
+    test_start_time = int(time.time())
 
     time.sleep(142)
 
@@ -168,7 +168,7 @@ def run_benchmark(keras_service):
         logging.info("Did not find result screen. Did the benchmark run?")
         sys.exit(1)
 
-    test_end_time = int(time.time()) - 1
+    test_end_time = int(time.time()) - 4
     time.sleep(5)
     am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
     am.copy_file(f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}", ArtifactType.CONFIG_TEXT, "GameUserSettings.ini")
