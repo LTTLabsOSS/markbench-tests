@@ -128,7 +128,7 @@ def run_benchmark() -> tuple[float]:
 
     user.press("enter")
 
-    test_start_time = int(time.time())
+    test_start_time = int(time.time()) + 4
 
     # Wait for benchmark to complete
     time.sleep(180)
@@ -138,7 +138,7 @@ def run_benchmark() -> tuple[float]:
         logging.info("Did not find the results screen. Did the game not finish the benchmark?")
         sys.exit(1)
 
-    test_end_time = round(int(time.time()))
+    test_end_time = round(int(time.time())) - 3
     # Give results screen time to fill out, then save screenshot and config file
     time.sleep(2)
     am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "screenshot of benchmark result")
