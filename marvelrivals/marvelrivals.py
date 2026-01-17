@@ -173,7 +173,7 @@ def run_benchmark(keras_service):
         logging.info("Did not find the FPS graph. Did the replay start?")
         sys.exit(1)
 
-    test_start_time = int(time.time())
+    test_start_time = int(time.time()) + 5
     time.sleep(98)
 
     #checking that first round has finished
@@ -181,7 +181,7 @@ def run_benchmark(keras_service):
     if not result:
         logging.info("Didn't see the results screen. Did the test crash?")
         sys.exit(1)
-    test_end_time = int(time.time())
+    test_end_time = int(time.time()) - 3
 
     am.take_screenshot("results.png", ArtifactType.CONFIG_IMAGE, "results picture")
 
