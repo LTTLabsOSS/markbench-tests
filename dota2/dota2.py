@@ -211,7 +211,7 @@ def run_benchmark():
         logging.error(
             "Unable to find gold count of 1195. Using default end time value.")
     else:
-        test_end_time = int(time.time())
+        test_end_time = int(time.time()) - 2
         logging.info("Found the gold. Marking end time.")
 
     time.sleep(2)
