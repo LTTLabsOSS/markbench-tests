@@ -16,4 +16,4 @@ This is a test harness to run the test suite [PugetBench for Creators](https://w
 
 report.json
 - `test`: The application that was tested.
-- `score`: The score extraced from PugetBench.
+- `score`: The score extracted from PugetBench.
