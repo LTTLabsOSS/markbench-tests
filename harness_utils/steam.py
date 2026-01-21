@@ -55,7 +55,7 @@ def get_app_install_location(app_id: int) -> str:
 
 def exec_steam_run_command(game_id: int, steam_path=None) -> Popen:
     """Runs a game using the Steam browser protocol. The `steam_path` argument can be used to
-    specify a specifc path to the Steam executable instead of relying on finding the current
+    specify a specific path to the Steam executable instead of relying on finding the current
     installation in the Window's registry.
 
     To launch a game with provided arguments,
@@ -70,7 +70,7 @@ def exec_steam_run_command(game_id: int, steam_path=None) -> Popen:
 
 def exec_steam_game(game_id: int, steam_path=None, game_params=None) -> Popen:
     """Runs a game by providing steam executable with an array of parameters.
-    The `steam_path` argument can be used to specify a specifc path to the Steam executable
+    The `steam_path` argument can be used to specify a specific path to the Steam executable
     instead of relying on finding the current installation in the Window's registry.
     """
     if steam_path is None:

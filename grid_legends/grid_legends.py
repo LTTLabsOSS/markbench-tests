@@ -150,7 +150,7 @@ def run_benchmark(keras_service):
     time.sleep(136)
     # TODO -> Mark benchmark start time using video OCR by looking for a players name
     if keras_service.wait_for_word(word="results", timeout=30, interval=0.1) is None:
-        logging.error("Didn't see results screen for the bnechmark. Could not mark start time! Did the benchmark crash?")
+        logging.error("Didn't see results screen for the benchmark. Could not mark start time! Did the benchmark crash?")
         sys.exit(1)
 
     test_end_time = int(time.time()) - 2
