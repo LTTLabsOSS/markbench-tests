@@ -148,7 +148,7 @@ kerasService = KerasService(args.keras_host, args.keras_port)
 
 try:
     start_time, endtime = run_benchmark()
-    height, width = read_current_resolution()
+    width, height = read_current_resolution()
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),

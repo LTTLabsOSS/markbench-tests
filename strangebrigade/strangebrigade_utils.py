@@ -1,4 +1,4 @@
-"""Utility functions for Total War: Warhammer III test script"""
+"""Utility functions for Strange Brigade test script"""
 import os
 import re
 import logging
@@ -19,22 +19,35 @@ CONFIG_LOCATION = f"{LOCALAPPDATA}\\Strange Brigade"
 CONFIG_FILENAME = "GraphicsOptions.ini"
 
 def read_current_resolution():
-    """Reads resolutions settings from local game file"""
-    height_pattern = re.compile(r"Resolution_Width = (\d+);")
-    width_pattern = re.compile(r"Resolution_Height = (\d+);")
+    width = 0
+    height = 0
     cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
-    height_value = 0
-    width_value = 0
-    with open(cfg, encoding="utf-8") as file:
-        lines = file.readlines()
-        for line in lines:
-            height_match = height_pattern.search(line)
-            width_match = width_pattern.search(line)
-            if height_match is not None:
-                height_value = height_match.group(1)
-            if width_match is not None:
-                width_value = width_match.group(1)
-    return (height_value, width_value)
+
+    try:
+        with open(cfg, encoding="utf-8") as file:
+            for line in file:
+                line = line.strip()
+
+                if line.startswith("Resolution_Width"):
+                    try:
+                        width = int(line.split("=", 1)[1])
+                    except (ValueError, IndexError):
+                        width = 0
+
+                elif line.startswith("Resolution_Height"):
+                    try:
+                        height = int(line.split("=", 1)[1])
+                    except (ValueError, IndexError):
+                        height = 0
+
+                if width and height:
+                    break
+
+    except OSError:
+        # File missing, locked, unreadable, etc.
+        return 0, 0
+
+    return width, height
 
 def replace_exe():
     """Replaces the Strange Brigade launcher exe with the Vulkan exe for immediate launching
