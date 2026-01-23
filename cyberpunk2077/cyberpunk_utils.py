@@ -4,11 +4,14 @@ import logging
 import os
 import re
 import shutil
+import sys
 from pathlib import Path
 
-from harness_utils.steam import exec_steam_game, get_app_install_location, get_build_id
+HARNESSES_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(1, str(HARNESSES_ROOT))
 
-from harness_utils.output import seconds_to_milliseconds, write_report_json 
+from harness_utils.output import seconds_to_milliseconds, write_report_json
+from harness_utils.steam import exec_steam_game, get_app_install_location, get_build_id
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 STEAM_GAME_ID = 1091500
