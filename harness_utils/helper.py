@@ -5,6 +5,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+import psutil
 import pydirectinput as user
 import requests
 import tomllib
@@ -94,3 +95,9 @@ def int_time() -> int:
 
 def sleep(seconds: int):
     time.sleep(seconds)
+
+
+def terminate_process(process_name: str) -> None:
+    for process in psutil.process_iter():
+        if process_name.lower() in process.name().lower():
+            process.terminate()

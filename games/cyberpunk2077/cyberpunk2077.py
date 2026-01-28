@@ -4,13 +4,12 @@ from pathlib import Path
 
 from cyberpunk_utils import copy_no_intro_mod, start_game, write_report
 
-HARNESSES_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(1, str(HARNESSES_ROOT))
+HARNESS_UTILS_PARENT = Path(__file__).resolve().parent.parent
+sys.path.insert(1, str(HARNESS_UTILS_PARENT))
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.helper import find_word, int_time, press, sleep
+from harness_utils.helper import find_word, int_time, press, sleep, terminate_process
 from harness_utils.output import setup_logging
-from harness_utils.process import terminate_processes
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
@@ -149,7 +148,7 @@ def main():
     if start_time and end_time == 0:
         logging.error("Benchmark Failed")
         sys.exit(1)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     am.create_manifest()
     write_report(LOG_DIRECTORY, start_time, end_time)
     sys.exit(0)
