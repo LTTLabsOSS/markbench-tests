@@ -146,6 +146,9 @@ def main():
     copy_no_intro_mod()
     start_game()
     start_time, end_time = run_benchmark(am)
+    if start_time and end_time == 0:
+        logging.error("Benchmark Failed")
+        sys.exit(1)
     terminate_processes(PROCESS_NAME)
     am.create_manifest()
     write_report(LOG_DIRECTORY, start_time, end_time)
