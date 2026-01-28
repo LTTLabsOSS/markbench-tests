@@ -3,7 +3,12 @@ import sys
 import time
 from pathlib import Path
 
-from f1_24_utils import find_latest_result_file, remove_intro_videos, write_report
+from f1_24_utils import (
+    find_latest_result_file,
+    remove_intro_videos,
+    start_game,
+    write_report,
+)
 
 HARNESS_UTILS_PARENT = Path(__file__).resolve().parents[2]
 sys.path.insert(1, str(HARNESS_UTILS_PARENT))
@@ -140,6 +145,8 @@ def main():
     am = ArtifactManager(LOG_DIRECTORY)
 
     remove_intro_videos()
+
+    start_game()
 
     start_time, end_time = run_benchmark(am)
 
