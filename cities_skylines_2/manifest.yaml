@@ -1,9 +1,0 @@
-friendly_name: "Cities Skylines II"
-executable: "citiesskylines2.py"
-process_name: "Cities2.exe"
-output_dir: "run"
-options:
-  - name: kerasHost
-    type: input
-  - name: kerasPort
-    type: input

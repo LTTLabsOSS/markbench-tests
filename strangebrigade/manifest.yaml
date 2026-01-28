@@ -1,9 +1,0 @@
-friendly_name: "Strange Brigade"
-executable: "strangebrigade.py"
-process_name: "StrangeBrigade.exe"
-output_dir: "run"
-options:
-  - name: kerasHost
-    type: input
-  - name: kerasPort
-    type: input

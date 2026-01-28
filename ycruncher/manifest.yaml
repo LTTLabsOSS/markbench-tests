@@ -1,5 +1,0 @@
-friendly_name: "Y-Cruncher"
-executable: "ycruncher.py"
-process_name: "y-cruncher.exe"
-disable_presentmon: true
-output_dir: "run"

@@ -1,5 +1,0 @@
-friendly_name: "7-Zip"
-executable: "sevenzip.py"
-process_name: "7zr.exe"
-disable_presentmon: true
-output_dir: "run"
