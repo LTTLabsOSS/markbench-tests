@@ -93,7 +93,6 @@ def main():
     parser = ArgumentParser()
 
     parser.add_argument(
-        "-r",
         "--resolution",
         help="The resolution of the rendered image",
         required=True,
@@ -102,7 +101,6 @@ def main():
     )
 
     parser.add_argument(
-        "-r",
         "--renderer",
         help="Whether to run with the hybrid renderer or path tracer",
         required=True,
@@ -110,7 +108,6 @@ def main():
     )
 
     parser.add_argument(
-        "-t",
         "--trace-mode",
         help="Which type of hardware accelerated ray-tracing mode should be used",
         required=True,
@@ -147,7 +144,7 @@ def main():
         "end_time": seconds_to_milliseconds(end_time),
         "unit": "Score",
         "Raytracing": scores["Raytracing"],
-        "Acceleration Structure Build": scores["Acceleration Structure Build"],
+        "Acceleration Structure Builds": scores["Acceleration Structure Builds"],
         "Rasterization": scores["Rasterization"],
         "Compute": scores["Compute"],
         "Workgraphs": scores["Workgraphs"],
