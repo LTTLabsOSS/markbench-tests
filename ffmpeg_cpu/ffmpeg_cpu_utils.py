@@ -1,27 +1,28 @@
-"""utility functions for running handbrake tests"""
+"""utility functions for running ffmpeg tests"""
 
 import os
-from pathlib import Path
-import time
 import shutil
+import time
+from pathlib import Path
 
-HANDBRAKE_EXECUTABLE = "HandBrakeCLI.exe"
-SOURCE_VIDEO_NAME = "big_buck_bunny_1080p24.y4m"
+L_FFMPEG_FOLDER = Path(
+    "\\\\labs.lmg.gg\\labs\\01_Installers_Utilities\\ffmpeg\\ffmpeg-8.0.1-full_build"
+)
 SCRIPT_DIR = Path(os.path.dirname(os.path.realpath(__file__)))
+FFMPEG_FOLDER_NAME = "ffmpeg-8.0.1-full_build"
+FFMPEG_EXE_PATH = SCRIPT_DIR / FFMPEG_FOLDER_NAME / "bin" / "ffmpeg.exe"
+SOURCE_VIDEO_NAME = "big_buck_bunny_1080p24.y4m"
 
 
-def handbrake_present() -> bool:
-    """Check if handbrake is present on the system"""
-    return os.path.isfile(Path(SCRIPT_DIR / HANDBRAKE_EXECUTABLE))
+def ffmpeg_present() -> bool:
+    """Check if ffmpeg is present on the system"""
+    return os.path.isfile(FFMPEG_EXE_PATH)
 
 
-def copy_handbrake_from_network_drive():
-    """copy handbrake cli from network drive"""
-    source = Path(
-        "\\\\labs.lmg.gg\\labs\\01_Installers_Utilities\\Handbrake\\X86\\HandBrakeCLI-1.9.1-win-x86_64\\")
-    copy_source = source / HANDBRAKE_EXECUTABLE
-    destination = SCRIPT_DIR / HANDBRAKE_EXECUTABLE
-    shutil.copyfile(copy_source, destination)
+def copy_ffmpeg_from_network_drive():
+    """copy ffmpeg cli from network drive"""
+    source = L_FFMPEG_FOLDER
+    shutil.copytree(source, SCRIPT_DIR / FFMPEG_FOLDER_NAME)
 
 
 def is_video_source_present() -> bool:

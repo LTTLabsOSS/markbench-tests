@@ -269,7 +269,7 @@ def main():
         resolution_tuple = get_current_resolution()
         report = {
             "resolution": format_resolution(resolution_tuple[0], resolution_tuple[1]),
-            "start_time": seconds_to_milliseconds(start_time),  # secconds to miliseconds
+            "start_time": seconds_to_milliseconds(start_time),  # seconds to milliseconds
             "end_time": seconds_to_milliseconds(end_time),
         }
         write_report_json(LOG_DIRECTORY, "report.json", report)
