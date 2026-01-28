@@ -1,14 +1,14 @@
 import logging
 import time
-import tomllib
-from pathlib import Path
-import requests
 from functools import lru_cache
+from pathlib import Path
 
-import pydirectinput as user
-from mss.windows import MSS as mss
 import cv2
 import numpy as np
+import pydirectinput as user
+import requests
+import tomllib
+from mss.windows import MSS as mss
 
 user.FAILSAFE = False
 
@@ -38,14 +38,14 @@ def find_word(word: str, msg: str = "", timeout: int = 3):
     url = _load_ocr_url()
 
     start_time = time.time()
-    
+
     with mss() as scr:
         monitor = scr.monitors[1]
         while time.time() - start_time < timeout:
             sc = np.array(scr.grab(monitor))
             _, buf = cv2.imencode(".jpg", sc)
             image_bytes = buf.tobytes()
-    
+
             try:
                 response = requests.post(
                     url,
@@ -55,7 +55,7 @@ def find_word(word: str, msg: str = "", timeout: int = 3):
             except requests.exceptions.RequestException as e:
                 logging.error(f"OCR request error: {e}")
                 return False
-    
+
             if not response.ok or "not found" in response.text:
                 continue
             else:
@@ -68,7 +68,7 @@ def find_word(word: str, msg: str = "", timeout: int = 3):
     return False
 
 
-def press(keys: str, pause: float = 0.5):
+def press(keys: str, pause: float = 0.2):
     for part in keys.split(","):
         part = part.strip()
         if not part:
