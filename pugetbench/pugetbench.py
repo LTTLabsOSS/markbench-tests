@@ -7,7 +7,7 @@ from argparse import ArgumentParser
 import time
 from subprocess import Popen, PIPE, STDOUT, TimeoutExpired
 import threading
-from utils import find_latest_log, trim_to_major_minor, find_score_in_log, get_photoshop_version, get_premierepro_version, get_lightroom_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
+from pugetbench_utils import find_latest_log, trim_to_major_minor, find_score_in_log, get_photoshop_version, get_premierepro_version, get_lightroom_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
 
 sys.path.insert(1, str((Path(sys.path[0]) / "..").resolve()))
 from harness_utils.process import terminate_processes
