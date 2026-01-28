@@ -46,12 +46,12 @@ def setup_logging():
 TRACE_MODES = ["inline", "pipeline", "work-graph"]
 RENDERERS = ["ray-tracing", "path-tracing"]
 PRESETS = ["ultra", "high", "medium"]
-RESOLUTIONS = [(1920, 1080), (2560,1440), (3840,2160)]
+RESOLUTIONS = [(1920, 1080), (2560, 1440), (3840, 2160)]
 
 
 def get_scores(results_path):
     """obtain and parse the scores from the evolve run"""
-    with open(results_path, mode="r") as results_file:
+    with open(results_path, mode="r", encoding="utf-8") as results_file:
         # Format is score name in the first row,
         # score on the second row, which DictReader
         # will translate to a proper dict.
@@ -88,9 +88,10 @@ def launch_evolve(resolution, renderer, trace_mode, preset):
 
 
 def main():
+    """ a doc string """
     setup_logging()
     parser = ArgumentParser()
-    
+
     parser.add_argument(
         "-r",
         "--resolution",
@@ -99,7 +100,7 @@ def main():
         nargs=2,
         type=int,
     )
-    
+
     parser.add_argument(
         "-r",
         "--renderer",
@@ -126,7 +127,7 @@ def main():
     args = parser.parse_args()
 
     logging.info(
-        "Starting Evolve with %s renderer and trace mode %s on %s",
+        "Starting Evolve: \nResolution: %s\nRenderer: %s\nTrace Mode: %s\nPreset: %s",
         args.resolution,
         args.renderer,
         args.trace_mode,
