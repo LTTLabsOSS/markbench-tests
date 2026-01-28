@@ -5,7 +5,7 @@ import re
 import sys
 from pathlib import Path
 
-HARNESS_UTILS_PARENT = Path(__file__).resolve().parent.parent.parent
+HARNESS_UTILS_PARENT = Path(__file__).resolve().parents[2]
 sys.path.insert(1, str(HARNESS_UTILS_PARENT))
 
 from harness_utils.misc import remove_files

@@ -5,7 +5,7 @@ from pathlib import Path
 
 from f1_24_utils import find_latest_result_file, remove_intro_videos, write_report
 
-HARNESS_UTILS_PARENT = Path(__file__).resolve().parent.parent.parent
+HARNESS_UTILS_PARENT = Path(__file__).resolve().parents[2]
 sys.path.insert(1, str(HARNESS_UTILS_PARENT))
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType

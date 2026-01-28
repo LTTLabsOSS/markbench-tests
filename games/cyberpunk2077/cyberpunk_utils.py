@@ -7,7 +7,7 @@ import shutil
 import sys
 from pathlib import Path
 
-HARNESSES_ROOT = Path(__file__).resolve().parent.parent
+HARNESSES_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(1, str(HARNESSES_ROOT))
 
 from harness_utils.output import seconds_to_milliseconds, write_report_json
