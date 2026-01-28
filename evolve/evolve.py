@@ -1,26 +1,24 @@
 """Evolve test script"""
 
-from pathlib import Path
-from argparse import ArgumentParser
+import csv
 import logging
+import subprocess
 import sys
 import time
-import subprocess
+from argparse import ArgumentParser
+from pathlib import Path
+
 import psutil
-import csv
 
 sys.path.insert(1, str((Path(sys.path[0]) / "..").resolve()))
 
 from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
     DEFAULT_LOGGING_FORMAT,
-    write_report_json,
     seconds_to_milliseconds,
+    write_report_json,
 )
-from harness_utils.process import (
-    is_process_running
-)
-
+from harness_utils.process import is_process_running
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR / "run"
@@ -45,9 +43,11 @@ def setup_logging():
     logging.getLogger("").addHandler(console)
 
 
-TRACE_MODES = ["pipeline", "inline", "work-graph"]
+TRACE_MODES = ["inline", "pipeline", "work-graph"]
 RENDERERS = ["ray-tracing", "path-tracing"]
 PRESETS = ["ultra", "high", "medium"]
+RESOLUTIONS = [(1920, 1080), (2560,1440), (3840,2160)]
+
 
 def get_scores(results_path):
     """obtain and parse the scores from the evolve run"""
@@ -61,9 +61,9 @@ def get_scores(results_path):
     return results
 
 
-def launch_evolve(renderer, trace_mode, preset):
+def launch_evolve(resolution, renderer, trace_mode, preset):
     """launch evolve with the given render and trace parameters"""
-    launch_command = f'"{EXECUTABLE_PATH}"  --offline run-custom --renderer {renderer} --mode {trace_mode} --preset {preset} --fullscreen --export-scores {RESULTS_FILE}'
+    launch_command = f'"{EXECUTABLE_PATH}"  --offline run-custom --render-resolution {resolution[0]} {resolution[1]} --renderer {renderer} --mode {trace_mode} --preset {preset} --fullscreen --export-scores {RESULTS_FILE}'
     with subprocess.Popen(
         launch_command,
         stdout=subprocess.PIPE,
@@ -77,8 +77,7 @@ def launch_evolve(renderer, trace_mode, preset):
             now = time.time()
             elapsed = now - start_time
             if elapsed >= 30:  # seconds
-                raise ValueError(
-                    "Evolve Benchmark subprocess did not start in time")
+                raise ValueError("Evolve Benchmark subprocess did not start in time")
             process = is_process_running(EXECUTABLE)
             if process is not None:
                 process.nice(psutil.HIGH_PRIORITY_CLASS)
@@ -91,16 +90,27 @@ def launch_evolve(renderer, trace_mode, preset):
 def main():
     setup_logging()
     parser = ArgumentParser()
-
+    
     parser.add_argument(
-        "-r", "--renderer",
+        "-r",
+        "--resolution",
+        help="The resolution of the rendered image",
+        required=True,
+        nargs=2,
+        type=int,
+    )
+    
+    parser.add_argument(
+        "-r",
+        "--renderer",
         help="Whether to run with the hybrid renderer or path tracer",
         required=True,
         choices=RENDERERS,
     )
 
     parser.add_argument(
-        "-t", "--trace-mode",
+        "-t",
+        "--trace-mode",
         help="Which type of hardware accelerated ray-tracing mode should be used",
         required=True,
         choices=TRACE_MODES,
@@ -117,33 +127,34 @@ def main():
 
     logging.info(
         "Starting Evolve with %s renderer and trace mode %s on %s",
+        args.resolution,
         args.renderer,
         args.trace_mode,
         args.preset,
     )
 
     start_time = time.time()
-    launch_evolve(args.renderer, args.trace_mode, args.preset)
+    launch_evolve(args.resolution, args.renderer, args.trace_mode, args.preset)
     end_time = time.time()
     scores = get_scores(RESULTS_FILE)
     logging.info("Benchmark took %.2f seconds", end_time - start_time)
 
     report = {
-        "test": f"Evolve Benchmark",
+        "test": "Evolve Benchmark",
         "test_parameter": f"{args.renderer} {args.trace_mode} {args.preset}",
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
         "unit": "Score",
-        "Raytracing": scores['Raytracing'],
-        "Acceleration Structure Build": scores['Acceleration Structure Build'],
-        "Rasterization": scores['Rasterization'],
-        "Compute": scores['Compute'],
-        "Workgraphs": scores['Workgraphs'],
-        "Driver": scores['Driver'],
-        "Energy": scores['Energy'],
+        "Raytracing": scores["Raytracing"],
+        "Acceleration Structure Build": scores["Acceleration Structure Build"],
+        "Rasterization": scores["Rasterization"],
+        "Compute": scores["Compute"],
+        "Workgraphs": scores["Workgraphs"],
+        "Driver": scores["Driver"],
+        "Energy": scores["Energy"],
     }
 
-    write_report_json(LOG_DIR, "report.json", report)
+    write_report_json(str(LOG_DIR), "report.json", report)
 
 
 if __name__ == "__main__":
