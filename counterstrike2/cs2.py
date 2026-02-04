@@ -64,7 +64,6 @@ def console_command(command):
 
 def run_benchmark(keras_service):
     """Run cs2 benchmark"""
-    copy_config()
     setup_start_time = int(time.time())
     start_game()
     am = ArtifactManager(LOG_DIR)
@@ -158,13 +157,10 @@ def run_benchmark(keras_service):
                        "second picture of advanced video settings")
 
     logging.info('Starting benchmark')
+
     user.press("`")
     time.sleep(0.5)
-    console_command(r"exec maps\de_dust2_benchmark")
-    time.sleep(1)
-    console_command("ui_playsettings_maps_workshop @workshop/3240880604/de_dust2_benchmark")
-    time.sleep(1)
-    console_command("map_workshop 3240880604 de_dust2_benchmark")
+    console_command("map_workshop 3240880604 de_dust2")
     time.sleep(1)
     user.press("`")
 
@@ -199,10 +195,11 @@ def run_benchmark(keras_service):
         raise RuntimeError
 
     test_end_time = int(time.time())
+    user.press("`")
     logging.info("The console opened. Marking end time.")
 
     # allow time for result screen to populate
-    time.sleep(8)
+    time.sleep(13)
 
     am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
     am.copy_file(Path(cfg), ArtifactType.CONFIG_TEXT, "cs2 video config")

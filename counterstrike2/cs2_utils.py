@@ -24,21 +24,6 @@ def get_install_path():
     return install_path
 
 
-def copy_config() -> None:
-    """Copy benchmark config to cs2 2 folder"""
-    try:
-        config_path = Path(get_install_path(), "game\\csgo\\")
-        config_path.mkdir(parents=True, exist_ok=True)
-        src_path = SCRIPT_DIRECTORY / "csgo"
-        dest_path = config_path
-        shutil.copytree(src_path, dest_path, dirs_exist_ok=True)
-        logging.info("Copying: %s -> %s", src_path, dest_path)
-    except OSError as err:
-        logging.info("Copying: %s -> %s", src_path, dest_path)
-        logging.error("Could not copy config files.")
-        raise err
-
-
 def read_config() -> list[str] | None:
     """Looks for config file and returns contents if found"""
     userdata_path = Path(get_steam_folder_path(), "userdata", str(STEAM_USER_ID), str(STEAM_GAME_ID), "local", "cfg", "cs2_video.txt")
