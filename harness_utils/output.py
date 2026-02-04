@@ -32,6 +32,8 @@ def seconds_to_milliseconds(seconds: float | int) -> int:
 
 
 def setup_logging(log_directory: Path) -> None:
+    
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
     setup_log_directory(log_directory)
 
     root = logging.getLogger()
