@@ -7,7 +7,7 @@ import time
 import pyautogui as gui
 import pydirectinput as user
 import sys
-from cs2_utils import get_resolution, copy_config
+from cs2_utils import get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
