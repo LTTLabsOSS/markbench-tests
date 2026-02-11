@@ -15,11 +15,12 @@ jobs:
         with:
           fetch-depth: 0 # Fetches all history and branches
           clean: true
-      - name: Force clean repo
+      - name: Cleanup workspace
+        shell: bash
         run: |
           git worktree prune || true
-          git reset --hard
-          git clean -fdx
+          git reset --hard || true
+          git clean -fdx || true
       - name: Sync Folders
         shell: bash
         run: |
