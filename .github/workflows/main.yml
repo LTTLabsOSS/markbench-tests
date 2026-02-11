@@ -22,7 +22,7 @@ jobs:
           set -euo pipefail
 
           # Base folder from secret
-          BASE_DIR="${{ secrets.NETWORK_DRIVE_PATH }}\03_ProcessingFiles\markbench_harnesses"
+          BASE_DIR="${{ secrets.NETWORK_DRIVE_PATH }}\03_ProcessingFiles\markbench_harnesses\"
           mkdir -p "$BASE_DIR"
           echo "Using BASE_DIR=$BASE_DIR"
 
