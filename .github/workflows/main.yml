@@ -1,0 +1,42 @@
+name: Sync Branches to Folders
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  sync:
+    permissions:
+      contents: write
+    runs-on: [self-hosted, Windows]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetches all history and branches
+
+      - name: Sync Folders
+        shell: bash
+        run: |
+          BASE_DIR="${{ secrets.NETWORK_DRIVE_PATH }}\03_ProcessingFiles\markbench_harnesses"
+          mkdir -p "$BASE_DIR"
+
+          # 1. Get all remote branch names
+          # Using the already checked-out repo to list branches
+          branches=$(git branch -r | grep -v '\->' | sed 's/origin\///')
+
+          for branch in $branches; do
+            dir="$BASE_DIR/$branch"
+            
+            if [ ! -d "$dir" ]; then
+              echo "Creating directory for $branch..."
+              # Use git worktree for a faster, lighter sync
+              git worktree add "$dir" "$branch"
+            else
+              echo "Updating $branch..."
+              cd "$dir"
+              git fetch origin "$branch"
+              git reset --hard "origin/$branch"
+              cd - > /dev/null
+            fi
+          done
