@@ -15,12 +15,20 @@ jobs:
         with:
           fetch-depth: 0 # Fetches all history and branches
           clean: true
-      - name: Cleanup workspace
-        shell: bash
+      - name: Clean existing worktrees
+        shell: pwsh
         run: |
-          git worktree prune || true
-          git reset --hard || true
-          git clean -fdx || true
+          $worktrees = git worktree list --porcelain | Select-String "worktree " | ForEach-Object {
+              ($_ -split " ")[1]
+          }
+      
+          foreach ($wt in $worktrees) {
+              if ($wt -ne $PWD.Path) {
+                  git worktree remove $wt --force
+              }
+          }
+      
+          git worktree prune
       - name: Sync Folders
         shell: bash
         run: |
