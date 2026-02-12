@@ -5,7 +5,7 @@ import time
 import sys
 import pydirectinput as user
 
-from the_last_of_us_part_i_utils import get_args, get_resolution
+from the_last_of_us_part_i_utils import get_args, get_resolution, copy_autosave
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
@@ -170,13 +170,11 @@ def navigate_main_menu(am: ArtifactManager) -> None:
     user.press("space")
     time.sleep(0.5)
 
-    # Go to bottom save
+    # Verify in the load section
     result = kerasService.wait_for_word("hometown", interval=3, timeout=60)
     if not result:
         logging.info("Did not saves to load. Did something mess up? Or did you forget to delete the saves?")
         sys.exit(1)
-    user.press("w")
-    time.sleep(0.5)
 
     #load the save
     user.press("space")
@@ -185,6 +183,7 @@ def navigate_main_menu(am: ArtifactManager) -> None:
 
 def run_benchmark():
     """Starts the benchmark"""
+    copy_autosave()
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int(time.time())
     am = ArtifactManager(LOG_DIRECTORY)
@@ -261,7 +260,7 @@ try:
     start_time, end_time = run_benchmark()
     steam_id = get_registry_active_user()
     config_path = os.path.join(
-        os.environ["HOMEPATH"], "Saved Games", "The Last of Us Part I",
+        os.environ["USERPROFILE"], "Saved Games", "The Last of Us Part I",
         "users", str(steam_id), "screeninfo.cfg"
     )
     height, width = get_resolution(config_path)
