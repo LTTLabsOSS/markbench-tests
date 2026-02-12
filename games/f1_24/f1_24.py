@@ -14,7 +14,7 @@ HARNESS_UTILS_PARENT = Path(__file__).resolve().parents[2]
 sys.path.insert(1, str(HARNESS_UTILS_PARENT))
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.helper import find_word, int_time, press, terminate_process
+from harness_utils.helper import find_word, int_time, press, terminate_process, sleep
 from harness_utils.output import setup_logging
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -62,6 +62,7 @@ def settings_and_start(am: ArtifactManager) -> bool:
 
     press("right, enter")
 
+    sleep(3)
     # check if in graphics here
 
     press("down*3,enter")
