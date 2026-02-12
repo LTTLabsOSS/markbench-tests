@@ -120,11 +120,11 @@ def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
 
     test_start_time = int_time() + 8
 
-    time.sleep(310)
+    time.sleep(360)
 
     test_end_time = None
 
-    if not find_word("loading", "loading screen not found", timeout=30):
+    if not find_word("loading", "loading screen not found", timeout=60):
         return (0, 0)
 
     test_end_time = int_time() - 2
