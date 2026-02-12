@@ -115,7 +115,7 @@ def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
         return (0, 0)
 
     # looking for start in time of benchmark
-    if not find_word("lap", "lap at benchmark start not seen"):
+    if not find_word("lap", "lap at benchmark start not seen", timeout=30):
         return (0, 0)
 
     test_start_time = int_time() + 8
@@ -124,7 +124,7 @@ def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
 
     test_end_time = None
 
-    if not find_word("loading", "loading screen not found"):
+    if not find_word("loading", "loading screen not found", timeout=30):
         return (0, 0)
 
     test_end_time = int_time() - 2
