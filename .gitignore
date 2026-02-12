@@ -1,9 +1,1 @@
-.vscode/*
-
-
-# python
 __pycache__/
-
-ffmpeg-8.0.1-full_build/
-*.log
-*.txt
