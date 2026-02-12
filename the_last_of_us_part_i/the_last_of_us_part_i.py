@@ -150,7 +150,7 @@ def navigate_main_menu(am: ArtifactManager) -> None:
     logging.info("Navigating main menu")
 
     # Enter TLOU menu
-    time.sleep(1)
+    time.sleep(5)
     user.press("space")
     time.sleep(0.5)
     take_screenshots(am)
@@ -167,7 +167,7 @@ def navigate_main_menu(am: ArtifactManager) -> None:
 
     # Press load game
     press_n_times("s", 2, 0.2)
-    user.keyDown("space")
+    user.press("space")
     time.sleep(0.5)
 
     # Go to bottom save
