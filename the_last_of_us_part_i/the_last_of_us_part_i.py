@@ -150,6 +150,7 @@ def navigate_main_menu(am: ArtifactManager) -> None:
     logging.info("Navigating main menu")
 
     # Enter TLOU menu
+    time.sleep(1)
     user.press("space")
     time.sleep(0.5)
     take_screenshots(am)
