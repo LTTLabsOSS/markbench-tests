@@ -158,11 +158,49 @@ def run_benchmark(keras_service):
 
     logging.info('Starting benchmark')
 
-    user.press("`")
-    time.sleep(0.5)
-    console_command("map_workshop 3240880604 de_dust2")
-    time.sleep(1)
-    user.press("`")
+    result = keras_service.look_for_word(word="play", attempts=10, interval=1)
+    if not result:
+        logging.info("Did not find the play button. Did Keras click correctly?")
+        raise RuntimeError
+
+    gui.moveTo(result["x"], result["y"])
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+    time.sleep(0.2)
+
+    result = keras_service.look_for_word(word="workshop", attempts=10, interval=1)
+    if not result:
+        logging.info("Did not find the workshop. Did Keras click correctly?")
+        raise RuntimeError
+
+    gui.moveTo(result["x"], result["y"])
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+    time.sleep(0.2)
+
+    result = keras_service.look_for_word(word="fps", attempts=10, interval=1)
+    if not result:
+        logging.info("Did not find the advanced video menu. Did Keras click correctly?")
+        raise RuntimeError
+
+    gui.moveTo(result["x"], result["y"])
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+    time.sleep(0.2)
+
+    result = keras_service.look_for_word(word="go", attempts=10, interval=1)
+    if not result:
+        logging.info("Did not find the advanced video menu. Did Keras click correctly?")
+        raise RuntimeError
+
+    gui.moveTo(result["x"], result["y"])
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+    time.sleep(0.2)
 
     time.sleep(3)
     if keras_service.wait_for_word(word="benchmark", timeout=30, interval=0.1) is None:

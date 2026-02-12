@@ -4,6 +4,8 @@ import re
 import shutil
 import sys
 from pathlib import Path
+import ctypes
+import logging
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -15,6 +17,14 @@ SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 STEAM_USER_ID = get_registry_active_user()
 DEFAULT_INSTALL_PATH = Path(r"C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive")
 
+def apply_runtime_dpi_awareness():
+    """
+    Applies DPI awareness to this process and any child processes (CS2).
+    Fixes click/UI scaling issues without touching registry.
+    """
+    DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 = -4
+    ctypes.windll.user32.SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2)
+    logging.info("Applied runtime DPI awareness to current process")
 
 def get_install_path():
     """Gets install path for Counter-Strike 2"""
