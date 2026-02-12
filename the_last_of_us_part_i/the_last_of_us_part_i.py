@@ -239,6 +239,9 @@ def run_benchmark():
 
     am.create_manifest()
 
+    logging.info("Sleeping to let steam cloud catch up as to avoid overriding.")
+    time.sleep(10)
+
     return test_start_time, test_end_time
 
 

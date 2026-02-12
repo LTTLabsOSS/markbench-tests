@@ -3,11 +3,11 @@ from argparse import ArgumentParser
 import ctypes
 import re
 import os
-import logging
+import sys
 import shutil
 from pathlib import Path
 
-
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 from harness_utils.steam import get_registry_active_user
 
