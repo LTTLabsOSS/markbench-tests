@@ -5,7 +5,7 @@ import os
 import sys
 import time
 
-from forzams_utils import get_resolution, get_args
+from forzamotorsport_utils import get_resolution, get_args
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 

@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 import pydirectinput as user
-from red_dead_redemption_2_utils import get_resolution
+from reddeadredemption2_utils import get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 

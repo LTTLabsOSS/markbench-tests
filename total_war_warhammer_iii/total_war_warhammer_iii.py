@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pyautogui as gui
 import pydirectinput as user
-from twwh3_utils import read_current_resolution
+from total_war_warhammer_iii_utils import read_current_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 

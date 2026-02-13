@@ -7,7 +7,6 @@ import time
 from argparse import ArgumentParser
 from pathlib import Path
 
-from utils import get_score
 import psutil
 from ul3dmark_utils import get_score
 

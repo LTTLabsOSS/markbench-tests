@@ -10,7 +10,7 @@ from pathlib import Path
 import pyautogui as gui
 import pydirectinput as user
 
-from citiesskylines2_utils import read_current_resolution, copy_launcherfiles, copy_launcherpath, copy_benchmarksave, copy_continuegame
+from cities_skylines_2_utils import read_current_resolution, copy_launcherfiles, copy_launcherpath, copy_benchmarksave, copy_continuegame
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 

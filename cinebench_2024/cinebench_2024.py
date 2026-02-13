@@ -8,7 +8,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 import psutil
-from cinebench_utils import friendly_test_name, get_score
+from cinebench_2024_utils import friendly_test_name, get_score
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)

@@ -1,7 +1,5 @@
 """Blender render test script"""
-from pathlib import Path
-from blender_utils import BENCHMARK_CONFIG, find_blender, run_blender_render, download_scene
-from argparse import ArgumentParser
+
 import logging
 import sys
 import time

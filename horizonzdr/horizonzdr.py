@@ -6,7 +6,7 @@ import sys
 import time
 import winreg
 
-from hzdr_utils import get_resolution, get_args, process_registry_file
+from horizonzdr_utils import get_resolution, get_args, process_registry_file
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 

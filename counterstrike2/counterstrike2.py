@@ -9,8 +9,7 @@ from pathlib import Path
 
 import pyautogui as gui
 import pydirectinput as user
-import sys
-from cs2_utils import get_resolution, copy_config
+from counterstrike2_utils import copy_config, get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 

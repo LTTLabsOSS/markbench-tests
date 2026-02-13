@@ -2,7 +2,7 @@
 
 import logging
 import os
-from utils import read_resolution, get_documents_path, find_latest_result_file
+import sys
 from argparse import ArgumentParser
 from pathlib import Path
 

@@ -7,7 +7,7 @@ import time
 from argparse import ArgumentParser
 
 import pydirectinput as user
-from utils import read_resolution
+from atomic_heart_utils import read_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], ".."))
 

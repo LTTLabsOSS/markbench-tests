@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 import psutil
-from utils import (
+from procyon_ai_text_generation_utils import (
     find_procyon_version,
     find_test_version,
     get_install_path,
