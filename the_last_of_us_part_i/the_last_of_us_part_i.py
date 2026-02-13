@@ -142,7 +142,6 @@ def take_screenshots(am: ArtifactManager) -> None:
     if not result:
         logging.info("Did not see main menu after taking the graphics screenshots. Did something mess up?")
         sys.exit(1)
-    
 
 
 def navigate_main_menu(am: ArtifactManager) -> None:
