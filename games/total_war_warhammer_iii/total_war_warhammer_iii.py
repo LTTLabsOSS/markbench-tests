@@ -11,7 +11,7 @@ import pyautogui as gui
 import pydirectinput as user
 from total_war_warhammer_iii_utils import read_current_resolution
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+sys.path.insert(1, os.path.join(sys.path[0], "../.."))
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
