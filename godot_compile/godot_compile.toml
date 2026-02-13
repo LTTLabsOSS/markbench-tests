@@ -1,0 +1,4 @@
+friendly_name = "Godot Compile"
+executable = "HandBrakeCLI.exe"
+presentmon_enabled = false
+presentmon_ignore_exit = true

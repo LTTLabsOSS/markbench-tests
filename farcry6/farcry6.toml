@@ -1,0 +1,4 @@
+friendly_name = "Far Cry 6"
+executable = "FarCry6.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true

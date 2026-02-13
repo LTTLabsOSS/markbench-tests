@@ -5,9 +5,9 @@ import os
 import sys
 import time
 
-from forzamotorsport_utils import get_resolution, get_args
+from forzamotorsport_utils import get_resolution
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+sys.path.insert(1, os.path.join(sys.path[0], "../.."))
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
@@ -181,8 +181,7 @@ formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
-args = get_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
+kerasService = KerasService()
 
 try:
     start_time, end_time = run_benchmark()

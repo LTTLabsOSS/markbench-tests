@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 import pydirectinput as user
 from atomic_heart_utils import read_resolution
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+sys.path.insert(1, os.path.join(sys.path[0], "../.."))
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
@@ -210,15 +210,8 @@ formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
-parser = ArgumentParser()
-parser.add_argument(
-    "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
-)
-parser.add_argument(
-    "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
-)
-args = parser.parse_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
+
+kerasService = KerasService()
 
 try:
     start_time, end_time = run_benchmark()

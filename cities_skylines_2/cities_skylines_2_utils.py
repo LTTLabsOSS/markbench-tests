@@ -1,12 +1,13 @@
 """Utility functions for Total War: Warhammer III test script"""
+
+import logging
 import os
 import re
-import sys
-import logging
 import shutil
+import sys
 from pathlib import Path
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, os.path.join(sys.path[0], "../.."))
 
 from harness_utils.steam import get_app_install_location
 
@@ -75,14 +76,19 @@ def copy_launcherpath():
             try:
                 file_path = os.path.join(LAUNCHCONFIG_LOCATION, launcherpath)
                 os.remove(file_path)
-                logging.info("Removing old launcher file from %s", LAUNCHCONFIG_LOCATION)
+                logging.info(
+                    "Removing old launcher file from %s", LAUNCHCONFIG_LOCATION
+                )
             except OSError as e:
-                logging.error("The following error occurred while trying to remove the launcherpath file: %s.", e)
+                logging.error(
+                    "The following error occurred while trying to remove the launcherpath file: %s.",
+                    e,
+                )
         logging.info("Copying: %s -> %s", launcherpath, dest_path)
         with open(f"{src_path}", "w", encoding="utf-8") as f:
             f.write(f"{INSTALL_LOCATION}")
         shutil.copy(src_path, dest_path)
-        #os.chmod(dest_path, stat.S_IREAD)
+        # os.chmod(dest_path, stat.S_IREAD)
     except OSError as err:
         logging.error("Could not copy the launcherpath file. %s", err)
         raise err

@@ -1,0 +1,15 @@
+friendly_name = "Blender Render"
+executable = "blender.exe"
+presentmon_enabled = false
+presentmon_ignore_exit = true
+
+[[args]]
+name = "device"
+type = "select"
+values = ["CPU", "CUDA", "OPTIX", "HIP", "ONEAPI", "METAL"]
+
+[[args]]
+name = "benchmark"
+type = "select"
+tooltip = "Select which Blender scene to render"
+values = ["Barbershop", "Monster", "Classroom", "Junkshop", "BMW"]

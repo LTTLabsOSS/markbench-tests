@@ -1,5 +1,4 @@
 """Rocket League test utils"""
-from argparse import ArgumentParser
 import winreg
 import getpass
 import logging
@@ -15,16 +14,6 @@ REPLAY_LOCATION = Path(
 CONFIG_PATH = Path(
     f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Rocket League\\TAGame\\Config\\TASystemSettings.ini")
 DEFAULT_EXECUTABLE_NAME = "EpicGamesLauncher.exe"
-
-
-def get_args() -> any:
-    """Returns command line arg values"""
-    parser = ArgumentParser()
-    parser.add_argument("--kerasHost", dest="keras_host",
-                        help="Host for Keras OCR service", required=True)
-    parser.add_argument("--kerasPort", dest="keras_port",
-                        help="Port for Keras OCR service", required=True)
-    return parser.parse_args()
 
 
 def get_resolution():

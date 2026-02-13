@@ -1,34 +1,35 @@
 """Utility functions supporting Doom: The Dark Ages test script."""
+
+import json
+import logging
 import os
 import re
-from pathlib import Path
-import sys
-import logging
 import shutil
-import json
+import sys
+from pathlib import Path
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, os.path.join(sys.path[0], "../.."))
 from harness_utils.steam import get_app_install_location
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 RUN_DIR = SCRIPT_DIRECTORY / "run"
 STEAM_GAME_ID = 3017860
 username = os.getlogin()
-BENCHMARK_PATH = f"C:\\Users\\{username}\\Saved Games\\id Software\\DOOMTheDarkAges\\base\\benchmark"
-RES_REGEX = re.compile(r'\s*(\d+)\s*[x×]\s*(\d+)')
+BENCHMARK_PATH = (
+    f"C:\\Users\\{username}\\Saved Games\\id Software\\DOOMTheDarkAges\\base\\benchmark"
+)
+RES_REGEX = re.compile(r"\s*(\d+)\s*[x×]\s*(\d+)")
+
 
 def get_resolution() -> tuple[int, int]:
     """Gets resolution width and height from local xml file created by game."""
     try:
         bench_file = max(
-            RUN_DIR.glob("benchmark-*.json"),
-            key=lambda p: p.stat().st_mtime
+            RUN_DIR.glob("benchmark-*.json"), key=lambda p: p.stat().st_mtime
         )
     except ValueError as exc:
         # No files matched, propagate as a clearer FileNotFoundError
-        raise FileNotFoundError(
-            f"No benchmark-*.json files in {RUN_DIR}"
-        ) from exc
+        raise FileNotFoundError(f"No benchmark-*.json files in {RUN_DIR}") from exc
 
     if not bench_file.is_file():
         raise FileNotFoundError("Benchmark file not found.")
@@ -46,10 +47,13 @@ def get_resolution() -> tuple[int, int]:
     width, height = map(int, m.groups())
     return width, height
 
+
 def copy_launcher_config() -> None:
     """Copy launcher config to doom launcher config folder"""
     try:
-        launcherconfig_path = Path(get_app_install_location(STEAM_GAME_ID), "launcherData\\base\\configs")
+        launcherconfig_path = Path(
+            get_app_install_location(STEAM_GAME_ID), "launcherData\\base\\configs"
+        )
         launcherconfig_path.mkdir(parents=True, exist_ok=True)
 
         src_path = SCRIPT_DIRECTORY / "launcher.cfg"

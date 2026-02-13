@@ -1,0 +1,4 @@
+friendly_name = "Total War: Pharaoh"
+executable = "Pharaoh.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true

@@ -1,0 +1,4 @@
+friendly_name = "The Last of Us Part I"
+executable = "tlou-i.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true

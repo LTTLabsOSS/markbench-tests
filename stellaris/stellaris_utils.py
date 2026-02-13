@@ -1,32 +1,34 @@
 """Utility functions for Total War: Warhammer III test script"""
+
+import getpass
+import logging
 import os
 import re
-import sys
-import logging
 import shutil
-import getpass
+import sys
 from pathlib import Path
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, os.path.join(sys.path[0], "../.."))
 
 USERNAME = getpass.getuser()
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
 PROCESS_NAME = "stellaris.exe"
 STEAM_GAME_ID = 281990
-CONFIG_LOCATION = Path(f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris")
-LOG_LOCATION = Path(f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris\\logs")
+CONFIG_LOCATION = Path(
+    f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris"
+)
+LOG_LOCATION = Path(
+    f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris\\logs"
+)
 BENCHMARK_LOCATION = Path(
-    f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris\\save games\\BENCHMARK")
+    f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris\\save games\\BENCHMARK"
+)
 CONFIG_FILENAME = "settings.txt"
 LOG_FILE = "game.log"
 
 
-benchmark_files = [
-    "benchmark.ini",
-    "pdx_settings.txt",
-    "settings.txt"
-]
+benchmark_files = ["benchmark.ini", "pdx_settings.txt", "settings.txt"]
 
 
 def read_current_resolution():
@@ -93,7 +95,9 @@ def delete_existing_saves():
                 file_path = BENCHMARK_LOCATION.joinpath(file)
                 if file_path.exists():
                     os.remove(file_path)
-            logging.info("Removing any additional save files from %s", BENCHMARK_LOCATION)
+            logging.info(
+                "Removing any additional save files from %s", BENCHMARK_LOCATION
+            )
         except OSError as ex:
             logging.error("Error occurred while deleting files: %s", ex)
 

@@ -1,0 +1,4 @@
+friendly_name = "Counter-Strike 2"
+executable = "cs2.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true

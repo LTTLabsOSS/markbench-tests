@@ -1,0 +1,10 @@
+friendly_name = "GravityMark"
+executable = "GravityMark.exe"
+presentmon_enabled = false
+presentmon_ignore_exit = true
+
+[[args]]
+name = "api"
+type = "select"
+tooltip = "Select which Graphics API to use"
+values = ["vulkan", "opengl", "direct3d12", "direct3d11"]

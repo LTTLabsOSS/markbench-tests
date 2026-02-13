@@ -1,17 +1,9 @@
 """Utility functions supporting Hitman World of Assassination test script."""
-from argparse import ArgumentParser
 import re
 import winreg
 import os
 
-def get_args() -> any:
-    """Get command line arguments"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True)
-    parser.add_argument(
-        "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True)
-    return parser.parse_args()
+
 
 def export_registry_key(hive, subkey, input_file):
     """Exports a registry key for interpretation."""

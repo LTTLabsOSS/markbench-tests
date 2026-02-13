@@ -62,7 +62,7 @@ def console_command(command):
 
 def run_benchmark(keras_host, keras_port):
     """Starts the benchmark"""
-    keras_service = KerasService(keras_host, keras_port)
+    keras_service = KerasService()
     copy_benchmarkfiles()
     copy_benchmarksave()
     start_game()

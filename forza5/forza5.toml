@@ -1,0 +1,4 @@
+friendly_name = "Forza Horizon 5"
+executable = "forzahorizon5.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true

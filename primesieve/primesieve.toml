@@ -1,0 +1,4 @@
+friendly_name = "Primesieve"
+executable = "primesieve.exe"
+presentmon_enabled = false
+presentmon_ignore_exit = true

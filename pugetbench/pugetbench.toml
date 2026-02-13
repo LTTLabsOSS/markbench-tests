@@ -1,0 +1,20 @@
+friendly_name = "PugetBench"
+executable = "PugetBench for Creators.exe"
+presentmon_enabled = false
+presentmon_ignore_exit = true
+
+[[args]]
+name = "app_version"
+type = "input"
+tooltip = "Version of the selected test"
+
+[[args]]
+name = "app"
+type = "select"
+tooltip = "Select which test to run"
+values = ["premierepro", "photoshop", "aftereffects", "lightroom", "resolve"]
+
+[[args]]
+name = "benchmark_version"
+type = "input"
+tooltip = "Version of benchmark to run"

@@ -80,9 +80,7 @@ class ScreenSplitConfig:
 class KerasService:
     """Sets up connection to a Keras service and provides methods to use it"""
 
-    def __init__(
-        self, ip_addr: str, port: int | str, timeout: float = DEFAULT_TIMEOUT
-    ) -> None:
+    def __init__(self, timeout: float = DEFAULT_TIMEOUT) -> None:
         self.url = _load_ocr_url()
         self.timeout = timeout
 

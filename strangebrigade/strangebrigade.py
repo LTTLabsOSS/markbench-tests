@@ -144,7 +144,7 @@ parser.add_argument("--kerasHost", dest="keras_host",
 parser.add_argument("--kerasPort", dest="keras_port",
                     help="Port for Keras OCR service", required=True)
 args = parser.parse_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
+kerasService = KerasService()
 
 try:
     start_time, endtime = run_benchmark()

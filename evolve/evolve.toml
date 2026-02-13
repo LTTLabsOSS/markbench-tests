@@ -1,0 +1,24 @@
+friendly_name = "Evolve"
+executable = "evolve.exe"
+presentmon_enabled = false
+presentmon_ignore_exit = true
+
+[[args]]
+name = "resolution"
+type = "select"
+values = ["1920 1080", "2560 1440", "3840 2160"]
+
+[[args]]
+name = "renderer"
+type = "select"
+values = ["ray-tracing", "path-tracing"]
+
+[[args]]
+name = "trace-mode"
+type = "select"
+values = ["pipeline", "inline", "work-graph"]
+
+[[args]]
+name = "preset"
+type = "select"
+values = ["ultra", "high", "medium"]

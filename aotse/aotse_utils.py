@@ -1,20 +1,22 @@
 """Utility functions for Ashes of the Singularity: Escalation test script"""
+
+import getpass
+import glob
+import logging
 import os
 import re
-import sys
-import logging
-import getpass
-from pathlib import Path
-import psutil
-import glob
-import time
 import shutil
+import sys
+import time
 from argparse import ArgumentParser
+from pathlib import Path
 
-PARENT_DIR = str(Path(sys.path[0], ".."))
+import psutil
+
+PARENT_DIR = str(Path(sys.path[0], "../.."))
 sys.path.append(PARENT_DIR)
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, os.path.join(sys.path[0], "../.."))
 
 from harness_utils.steam import get_app_install_location
 
@@ -24,33 +26,39 @@ LOG_DIR = SCRIPT_DIR.joinpath("run")
 STEAM_GAME_ID = 507490
 CONFIG_FILENAME = "settings.ini"
 USERNAME = getpass.getuser()
-CONFIG_PATH = Path(f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Ashes of the Singularity - Escalation")
+CONFIG_PATH = Path(
+    f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Ashes of the Singularity - Escalation"
+)
 EXE_PATH = Path(get_app_install_location(STEAM_GAME_ID))
 BENCHMARK_CONFIG = {
     "GPU_Benchmark": {
         "hardware": "GPU",
         "config": "benchfinal",
         "score_name": "Avg Framerate:",
-        "test_name": "Ashes of the Singularity: Escalation GPU Benchmark"
+        "test_name": "Ashes of the Singularity: Escalation GPU Benchmark",
     },
     "CPU_Benchmark": {
         "hardware": "CPU",
         "config": "CPUbench",
         "score_name": r"CPU frame rate \(estimated if not GPU bound\):",
-        "test_name": "Ashes of the Singularity: Escalation CPU Benchmark"
-    }
+        "test_name": "Ashes of the Singularity: Escalation CPU Benchmark",
+    },
 }
+
 
 def get_args() -> any:
     """Returns command line arg values"""
     parser = ArgumentParser()
-    parser.add_argument("--kerasHost", dest="keras_host",
-                        help="Host for Keras OCR service", required=True)
-    parser.add_argument("--kerasPort", dest="keras_port",
-                        help="Port for Keras OCR service", required=True)
+
     parser.add_argument(
-        "--benchmark", dest="benchmark", help="Benchmark test type", required=True, choices=BENCHMARK_CONFIG.keys())
+        "--benchmark",
+        dest="benchmark",
+        help="Benchmark test type",
+        required=True,
+        choices=BENCHMARK_CONFIG.keys(),
+    )
     return parser.parse_args()
+
 
 def read_current_resolution():
     """Get resolution from local game file"""
@@ -66,6 +74,7 @@ def read_current_resolution():
                 width, height = resolution_match.groups()
     return width, height
 
+
 def delete_old_scores(file):
     """Deletes old score files based on a given pattern"""
     files = glob.glob(os.path.join(CONFIG_PATH, file))
@@ -76,9 +85,12 @@ def delete_old_scores(file):
         except Exception as e:
             print(f"Error deleting file {thefile}: {e}")
 
+
 def find_score_in_log(score_name, file):
     """Reads score from local game log"""
-    files = sorted(glob.glob(os.path.join(CONFIG_PATH, file)), key=os.path.getmtime, reverse=True)
+    files = sorted(
+        glob.glob(os.path.join(CONFIG_PATH, file)), key=os.path.getmtime, reverse=True
+    )
     if not files:
         return None
 
@@ -93,12 +105,14 @@ def find_score_in_log(score_name, file):
                 break
     return score_value
 
+
 def is_process_running(process_name):
     """check if given process is running"""
-    for process in psutil.process_iter(['pid', 'name']):
-        if process.info['name'] == process_name:
+    for process in psutil.process_iter(["pid", "name"]):
+        if process.info["name"] == process_name:
             return process
     return None
+
 
 def wait_for_benchmark_process(test_name, process_name, timeout=60):
     """Wait for the benchmark game process to start and then finish."""
@@ -117,15 +131,19 @@ def wait_for_benchmark_process(test_name, process_name, timeout=60):
 
         # If we exceed the timeout, break out of the loop and log an error
         if time.time() - start_time > timeout:
-            logging.error("Timeout reached while waiting for process '%s'.", process_name)
-            raise TimeoutError(f"Process '{process_name}' did not start within the expected time. Is the game configured for DX12?")
+            logging.error(
+                "Timeout reached while waiting for process '%s'.", process_name
+            )
+            raise TimeoutError(
+                f"Process '{process_name}' did not start within the expected time. Is the game configured for DX12?"
+            )
 
         # Wait for 1 second before checking again
         time.sleep(1)
 
+
 def replace_exe():
-    """Replaces the Strange Brigade launcher exe with the Vulkan exe for immediate launching
-    """
+    """Replaces the Strange Brigade launcher exe with the Vulkan exe for immediate launching"""
     check_backup = Path(f"{EXE_PATH}\\StardockLauncher_launcher.exe")
     launcher_exe = Path(f"{EXE_PATH}\\StardockLauncher.exe")
     dx12_exe = Path(f"{EXE_PATH}\\AshesEscalation_DX12.exe")
@@ -140,9 +158,9 @@ def replace_exe():
         else:
             logging.info("Launcher already replaced with DX12 exe.")
 
+
 def restore_exe():
-    """Restores the launcher exe back to the original exe name to close the loop.
-    """
+    """Restores the launcher exe back to the original exe name to close the loop."""
     check_backup = Path(f"{EXE_PATH}\\StardockLauncher_launcher.exe")
     launcher_exe = Path(f"{EXE_PATH}\\StardockLauncher.exe")
     if not os.path.exists(check_backup):

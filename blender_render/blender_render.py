@@ -13,7 +13,7 @@ from blender_render_utils import (
     run_blender_render,
 )
 
-sys.path.insert(1, str(Path(sys.path[0]).parent))
+sys.path.insert(1, str(Path(sys.path[0]).parent.parent))
 from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
     DEFAULT_LOGGING_FORMAT,

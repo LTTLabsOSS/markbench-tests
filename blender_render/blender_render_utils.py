@@ -1,20 +1,20 @@
-
 """Blender render test script"""
-from datetime import datetime
+
 import logging
 import os
-from pathlib import Path
 import re
 import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
+
 # pylint: disable=no-name-in-module
-from win32api import LOWORD, HIWORD, GetFileVersionInfo
+from win32api import HIWORD, LOWORD, GetFileVersionInfo
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, os.path.join(sys.path[0], "../.."))
 from harness_utils.misc import download_file, extract_file_from_archive
-
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 
@@ -22,6 +22,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 @dataclass
 class BlenderScene:
     """a renderable blender project"""
+
     name: str
     file_name: str
     download_url: str
@@ -31,23 +32,23 @@ BENCHMARK_CONFIG = {
     "Barbershop": BlenderScene(
         name="barbershop",
         file_name="barbershop_interior.blend",
-        download_url="https://svn.blender.org/svnroot/bf-blender/trunk/lib/benchmarks/cycles/barbershop_interior/barbershop_interior.blend"
+        download_url="https://svn.blender.org/svnroot/bf-blender/trunk/lib/benchmarks/cycles/barbershop_interior/barbershop_interior.blend",
     ),
     "Monster": BlenderScene(
         name="monster",
         file_name="monster_under_the_bed_sss_demo_by_metin_seven.blend",
-        download_url="https://download.blender.org/demo/cycles/monster_under_the_bed_sss_demo_by_metin_seven.blend"
+        download_url="https://download.blender.org/demo/cycles/monster_under_the_bed_sss_demo_by_metin_seven.blend",
     ),
     "Junkshop": BlenderScene(
         name="junkshop",
         file_name="Junkshop.blend",
-        download_url="https://svn.blender.org/svnroot/bf-blender/tags/blender-4.1-release/lib/benchmarks/cycles/junkshop/junkshop.blend"
+        download_url="https://svn.blender.org/svnroot/bf-blender/tags/blender-4.1-release/lib/benchmarks/cycles/junkshop/junkshop.blend",
     ),
     "BMW": BlenderScene(
         name="bmw",
         file_name="bmw27_cpu.blend",
-        download_url="https://download.blender.org/demo/test/BMW27_2.blend.zip"
-    )
+        download_url="https://download.blender.org/demo/test/BMW27_2.blend.zip",
+    ),
 }
 
 
@@ -74,7 +75,9 @@ def download_scene(scene: BlenderScene) -> None:
         if destination.exists():
             return
     except Exception as ex:
-        logging.error("could not download scene from any source, check connections and try again")
+        logging.error(
+            "could not download scene from any source, check connections and try again"
+        )
         raise Exception("error downloading scene", cause=ex) from ex
 
 
@@ -88,29 +91,35 @@ def copy_scene_from_network_drive(file_name, destination):
 
 def time_to_seconds(time_string):
     """convert string to duration in seconds"""
-    colon_count = time_string.count(':')
+    colon_count = time_string.count(":")
     time_format = "%H:%M:%S.%f"
     if colon_count < 2:
         time_format = "%M:%S.%f"
     time_obj = datetime.strptime(time_string, time_format)
-    seconds = (time_obj.hour * 3600) + (time_obj.minute * 60) + time_obj.second + (time_obj.microsecond / 1e6)
+    seconds = (
+        (time_obj.hour * 3600)
+        + (time_obj.minute * 60)
+        + time_obj.second
+        + (time_obj.microsecond / 1e6)
+    )
     return seconds
 
 
-def run_blender_render(executable_path: Path, log_directory: Path, device: str,
-                       benchmark: BlenderScene) -> str:
+def run_blender_render(
+    executable_path: Path, log_directory: Path, device: str, benchmark: BlenderScene
+) -> str:
     """Execute the blender render of barbershop, returns the duration as string"""
     blend_log = log_directory.joinpath("blender.log")
     blend_path = SCRIPT_DIR.joinpath(benchmark.file_name)
     cmd_line = f'"{str(executable_path)}" -b -E CYCLES -y "{str(blend_path)}" -f 1 -- --cycles-device {device} --cycles-print-stats'
-    with open(blend_log, 'w', encoding="utf-8") as f_obj:
+    with open(blend_log, "w", encoding="utf-8") as f_obj:
         subprocess.run(cmd_line, stdout=f_obj, text=True, check=True)
 
     # example: Time: 02:59.57 (Saving: 00:00.16)
     time_regex = r".*Time:\s+([\d:.]+)\s+\(Saving.*\)"
 
     time = None
-    with open(blend_log, 'r', encoding="utf-8") as file:
+    with open(blend_log, "r", encoding="utf-8") as file:
         lines = file.readlines()
         lines.reverse()
         count = 0
@@ -138,7 +147,7 @@ def find_blender():
     if not executable_path.exists():
         raise Exception("Blender not detected")
     info = GetFileVersionInfo(str(executable_path), "\\")
-    version_ms = info['FileVersionMS']
-    version_ls = info['FileVersionLS']
-    version = f"{HIWORD (version_ms)}.{LOWORD (version_ms)}.{HIWORD (version_ls)}.{LOWORD (version_ls)}"
+    version_ms = info["FileVersionMS"]
+    version_ls = info["FileVersionLS"]
+    version = f"{HIWORD(version_ms)}.{LOWORD(version_ms)}.{HIWORD(version_ls)}.{LOWORD(version_ls)}"
     return executable_path, version

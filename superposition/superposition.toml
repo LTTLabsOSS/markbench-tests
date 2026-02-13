@@ -1,0 +1,16 @@
+friendly_name = "Unigine Superposition"
+executable = "superposition.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true
+
+[[args]]
+name = "api"
+type = "select"
+tooltip = "Select API to use in test"
+values = ["directx", "opengl"]
+
+[[args]]
+name = "preset"
+type = "select"
+tooltip = "See Superposition doc section \"Benchmark Presets\""
+values = ["low", "medium", "high", "extreme", "4k_optimized", "8k_optimized"]

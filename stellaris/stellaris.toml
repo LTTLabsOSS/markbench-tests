@@ -1,0 +1,4 @@
+friendly_name = "Stellaris"
+executable = "stellaris.exe"
+presentmon_enabled = false
+presentmon_ignore_exit = true

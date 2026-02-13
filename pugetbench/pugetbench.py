@@ -1,34 +1,49 @@
 """pugetbench for creators test script"""
+
 import logging
-from pathlib import Path
 import shutil
 import sys
-from argparse import ArgumentParser
-import time
-from subprocess import Popen, PIPE, STDOUT, TimeoutExpired
 import threading
-from pugetbench_utils import find_latest_log, trim_to_major_minor, find_score_in_log, get_photoshop_version, get_premierepro_version, get_lightroom_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
+import time
+from argparse import ArgumentParser
+from pathlib import Path
+from subprocess import PIPE, STDOUT, Popen, TimeoutExpired
 
-sys.path.insert(1, str((Path(sys.path[0]) / "..").resolve()))
-from harness_utils.process import terminate_processes
+from pugetbench_utils import (
+    find_latest_log,
+    find_score_in_log,
+    get_aftereffects_version,
+    get_davinci_version,
+    get_latest_benchmark_by_version,
+    get_lightroom_version,
+    get_photoshop_version,
+    get_premierepro_version,
+    get_pugetbench_version,
+    trim_to_major_minor,
+)
+
+sys.path.insert(1, str((Path(sys.path[0]) / "../..").resolve()))
 from harness_utils.output import (
+    DEFAULT_LOGGING_FORMAT,
     seconds_to_milliseconds,
     setup_log_directory,
     write_report_json,
-    DEFAULT_LOGGING_FORMAT
 )
+from harness_utils.process import terminate_processes
 
 script_dir = Path(__file__).resolve().parent
 log_dir = script_dir / "run"
 setup_log_directory(log_dir)
-logging.basicConfig(filename=f'{log_dir}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt='%m-%d %H:%M',
-                    level=logging.DEBUG)
+logging.basicConfig(
+    filename=f"{log_dir}/harness.log",
+    format=DEFAULT_LOGGING_FORMAT,
+    datefmt="%m-%d %H:%M",
+    level=logging.DEBUG,
+)
 console = logging.StreamHandler()
 formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+logging.getLogger("").addHandler(console)
 
 EXECUTABLE_NAME = "PugetBench for Creators.exe"
 
@@ -60,31 +75,41 @@ APP_CONFIG = {
     },
 }
 
+
 def safe_terminate(process_name: str):
     """Attempt to terminate a process but ignore any errors if it fails."""
     try:
         terminate_processes(process_name)
     except Exception as e:
-        logging.info("Process '%s' could not be terminated (may not exist): %s", process_name, e)
+        logging.info(
+            "Process '%s' could not be terminated (may not exist): %s", process_name, e
+        )
+
 
 def read_output(stream, log_func, error_func, error_in_output):
     """Read and log output in real-time from a stream (stdout or stderr)."""
-    for line in iter(stream.readline, ''):
+    for line in iter(stream.readline, ""):
         line = line.strip()
         log_func(line)
         # If getting a known error
         if line.startswith("Error!:"):
             error_func(line)
-            error_in_output["exception"] = RuntimeError(f"Benchmark failed with error: {line}")
+            error_in_output["exception"] = RuntimeError(
+                f"Benchmark failed with error: {line}"
+            )
             break
         # If getting a benchmark unknown failure
         if line.startswith("Benchmark failed:"):
-            error_in_output["exception"] = RuntimeError("Benchmark had an unknown failure.")
+            error_in_output["exception"] = RuntimeError(
+                "Benchmark had an unknown failure."
+            )
             break
         # NEW: catch unsupported version / benchmark mismatch
         if "not supported" in line:
             error_func(line)
-            error_in_output["exception"] = RuntimeError(f"Benchmark version mismatch: {line}")
+            error_in_output["exception"] = RuntimeError(
+                f"Benchmark version mismatch: {line}"
+            )
             break
         sys.stdout.flush()
 
@@ -92,19 +117,27 @@ def read_output(stream, log_func, error_func, error_in_output):
 def run_benchmark(application: str, app_version: str, benchmark_version: str):
     """Commands to initiate benchmark"""
     start_time = time.time()
-    executable_path = Path(f"C:\\Program Files\\PugetBench for Creators\\{EXECUTABLE_NAME}")
+    executable_path = Path(
+        f"C:\\Program Files\\PugetBench for Creators\\{EXECUTABLE_NAME}"
+    )
     if not executable_path.exists():
         logging.error("PugetBench executable not found at %s", executable_path)
         sys.exit(1)
 
     command = [
         executable_path,
-        "--run_count", "1",
-        "--rerun_count", "1",
-        "--benchmark_version", benchmark_version,
-        "--preset", "Standard",
-        "--app_version", app_version,
-        "--app", application
+        "--run_count",
+        "1",
+        "--rerun_count",
+        "1",
+        "--benchmark_version",
+        benchmark_version,
+        "--preset",
+        "Standard",
+        "--app_version",
+        app_version,
+        "--app",
+        application,
     ]
 
     logging.info("Running benchmark command: %s", command)
@@ -114,14 +147,21 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
     error_in_output = {"exception": None}  # Shared state for error reporting
 
     with Popen(command, stdout=PIPE, stderr=STDOUT, text=True, bufsize=1) as process:
-        stdout_thread = threading.Thread(target=read_output, args=(process.stdout, logging.info, logging.error, error_in_output))
+        stdout_thread = threading.Thread(
+            target=read_output,
+            args=(process.stdout, logging.info, logging.error, error_in_output),
+        )
         stdout_thread.start()
 
         try:
-            retcode = process.wait(timeout=2400)  # waits 2400 seconds = 40 minutes and if test takes longer timeout
+            retcode = process.wait(
+                timeout=2400
+            )  # waits 2400 seconds = 40 minutes and if test takes longer timeout
         except TimeoutExpired as exc:
             safe_terminate(EXECUTABLE_NAME)
-            raise RuntimeError("Benchmark timed out after 40 minutes. Check PugetBench logs for more info.") from exc
+            raise RuntimeError(
+                "Benchmark timed out after 40 minutes. Check PugetBench logs for more info."
+            ) from exc
 
         stdout_thread.join()
 
@@ -137,6 +177,7 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
 
         return start_time, end_time
 
+
 def get_app_version_info(app: str, version_arg: str):
     """Return (full_version, trimmed_version, label) for the app."""
     config = APP_CONFIG[app]
@@ -146,7 +187,9 @@ def get_app_version_info(app: str, version_arg: str):
     if not full_version:
         full_version, trimmed_version = config["version_func"]()
         if not full_version or not trimmed_version:
-            logging.error("Could not determine %s version. Is it installed?", config["label"])
+            logging.error(
+                "Could not determine %s version. Is it installed?", config["label"]
+            )
             sys.exit(1)
 
     if config["suffix"]:
@@ -154,6 +197,7 @@ def get_app_version_info(app: str, version_arg: str):
         trimmed_version += config["suffix"]
 
     return full_version, trimmed_version, config["label"]
+
 
 def execute_benchmark(app: str, app_version: str, benchmark_version: str):
     """Executes the benchmark and then captures the log file."""
@@ -164,7 +208,9 @@ def execute_benchmark(app: str, app_version: str, benchmark_version: str):
     # Check benchmark completed
     with open(log_file, encoding="utf-8") as f:
         if "Overall Score" not in f.read():
-            raise RuntimeError(f"Benchmark did not complete correctly; expected 'Overall Score' not found in {log_file}")
+            raise RuntimeError(
+                f"Benchmark did not complete correctly; expected 'Overall Score' not found in {log_file}"
+            )
 
     score = find_score_in_log(log_file)
     if score is None:
@@ -175,15 +221,34 @@ def execute_benchmark(app: str, app_version: str, benchmark_version: str):
 
     return start_time, end_time, score
 
+
 def main():
     """Do all the things now."""
     parser = ArgumentParser()
-    parser.add_argument("--app", choices=APP_CONFIG.keys(), dest="app", help="Application name to test", required=True)
-    parser.add_argument("--app_version", dest="app_version", help="Application version to test", required=False)
-    parser.add_argument("--benchmark_version", dest="benchmark_version", help="PugetBench Benchmark version to use", required=False)
+    parser.add_argument(
+        "--app",
+        choices=APP_CONFIG.keys(),
+        dest="app",
+        help="Application name to test",
+        required=True,
+    )
+    parser.add_argument(
+        "--app_version",
+        dest="app_version",
+        help="Application version to test",
+        required=False,
+    )
+    parser.add_argument(
+        "--benchmark_version",
+        dest="benchmark_version",
+        help="PugetBench Benchmark version to use",
+        required=False,
+    )
     args = parser.parse_args()
 
-    full_version, trimmed_version, test_label = get_app_version_info(args.app, args.app_version)
+    full_version, trimmed_version, test_label = get_app_version_info(
+        args.app, args.app_version
+    )
 
     if args.benchmark_version is None:
         args.benchmark_version = get_latest_benchmark_by_version(args.app)
@@ -202,7 +267,7 @@ def main():
             "benchmark_version": args.benchmark_version,
             "pugetbench_version": get_pugetbench_version(),
             "unit": "Score",
-            "score": score
+            "score": score,
         }
 
         write_report_json(log_dir, "report.json", report)

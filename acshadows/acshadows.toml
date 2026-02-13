@@ -1,0 +1,4 @@
+friendly_name = "Assassin's Creed Shadows"
+executable = "ACShadows.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true

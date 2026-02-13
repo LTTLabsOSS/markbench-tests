@@ -1,0 +1,20 @@
+friendly_name = "MSI Kombustor"
+executable = "MSI-Kombustor-x64.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true
+
+[[args]]
+name = "test"
+type = "select"
+tooltip = "Select combuster test"
+values = ["vkfurrytorus", "glfurrytorus", "vkfurrymsi", "glfurrymsi", "glfurmark1700mb", "glfurmark3200mb", "glfurmark5200mb", "glfurmark6500mb", "glmsi01burn", "glmsi01", "glmsi02cpumedium", "glmsi02cpumedium++", "glmsi02gpumedium", "glmsi02gpumedium++", "glmsi02cpuhard", "glmsi02gpuhard", "glphongdonut", "vkphongdonut", "glpbrdonut", "vktessyspherex32", "vktessyspherex16", "gltessyspherex32", "gltessyspherex16"]
+
+[[args]]
+name = "resolution"
+type = "select"
+values = ["1080,1920", "1440,2560", "2160,3840"]
+
+[[args]]
+name = "benchmark"
+type = "checkbox"
+tooltip = "Enable benchmark mode"

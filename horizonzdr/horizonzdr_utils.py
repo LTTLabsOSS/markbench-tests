@@ -83,11 +83,3 @@ def get_resolution(config_file: str) -> tuple[int]:
 
     return (height, width)
 
-def get_args() -> any:
-    """Get command line arguments"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True)
-    parser.add_argument(
-        "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True)
-    return parser.parse_args()

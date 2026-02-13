@@ -1,0 +1,4 @@
+friendly_name = "Marvel Rivals"
+executable = "Marvel-Win64-Shipping.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true

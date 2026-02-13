@@ -17,7 +17,7 @@ from procyon_ai_img_gen_utils import (
     is_process_running,
 )
 
-PARENT_DIR = str(Path(sys.path[0], ".."))
+PARENT_DIR = str(Path(sys.path[0], "../.."))
 sys.path.append(PARENT_DIR)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType

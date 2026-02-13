@@ -1,0 +1,4 @@
+friendly_name = "Black Myth Wukong"
+executable = "b1-Win64-Shipping.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true

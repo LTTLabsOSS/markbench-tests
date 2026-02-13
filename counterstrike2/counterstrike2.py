@@ -11,7 +11,7 @@ import pyautogui as gui
 import pydirectinput as user
 from counterstrike2_utils import copy_config, get_resolution
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+sys.path.insert(1, os.path.join(sys.path[0], "../.."))
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
@@ -274,7 +274,7 @@ def main():
     )
     args = parser.parse_args()
 
-    keras_service = KerasService(args.keras_host, args.keras_port)
+    keras_service = KerasService()
 
     start_time, end_time = run_benchmark(keras_service)
 

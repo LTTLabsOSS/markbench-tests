@@ -3,9 +3,13 @@
 import logging
 import os
 import sys
-from shadow_of_the_tomb_raider_utils import get_latest_file_report, get_resolution, get_args
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+from shadowofthetombraider_utils import (
+    get_latest_file_report,
+    get_resolution,
+)
+
+sys.path.insert(1, os.path.join(sys.path[0], "../.."))
 
 # pylint: disable=wrong-import-position
 from harness_utils.artifacts import ArtifactManager, ArtifactType
@@ -184,8 +188,7 @@ def run_benchmark(keras_service, am):
 def main():
     """entry point"""
     setup_logging()
-    args = get_args()
-    keras_service = KerasService(args.keras_host, args.keras_port)
+    keras_service = KerasService()
     am = ArtifactManager(LOG_DIR)
     run_benchmark(keras_service, am)
 

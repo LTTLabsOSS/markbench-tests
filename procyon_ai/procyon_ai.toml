@@ -1,0 +1,10 @@
+friendly_name = "Procyon AI CV"
+executable = "ProcyonCmd.exe"
+presentmon_enabled = false
+presentmon_ignore_exit = true
+
+[[args]]
+name = "engine"
+type = "select"
+tooltip = "Select which configuration to run for Procyon"
+values = ["AMD_CPU", "AMD_GPU0", "AMD_GPU1", "Intel_CPU", "Intel_GPU0", "Intel_GPU1", "Intel_NPU", "NVIDIA_GPU", "Qualcomm_HTP"]

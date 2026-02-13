@@ -1,0 +1,4 @@
+friendly_name = "Strange Brigade"
+executable = "StrangeBrigade.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true

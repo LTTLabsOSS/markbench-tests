@@ -1,33 +1,44 @@
 """Ashes of the Singularity: Escalation test script"""
-import logging
-from pathlib import Path
-import sys
-import time
+
 import getpass
 import glob
+import logging
 import os
-from aotse_utils import read_current_resolution, find_score_in_log, delete_old_scores, get_args, replace_exe, restore_exe
+import sys
+import time
+from pathlib import Path
 
-PARENT_DIR = str(Path(sys.path[0], ".."))
+from aotse_utils import (
+    delete_old_scores,
+    find_score_in_log,
+    read_current_resolution,
+    get_args,
+    replace_exe,
+    restore_exe,
+)
+
+PARENT_DIR = str(Path(sys.path[0], "../.."))
 sys.path.append(PARENT_DIR)
 
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
-from harness_utils.steam import get_build_id, exec_steam_game
 from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
     DEFAULT_LOGGING_FORMAT,
+    format_resolution,
     seconds_to_milliseconds,
     setup_log_directory,
-    format_resolution,
-    write_report_json
+    write_report_json,
 )
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.steam import exec_steam_game, get_build_id
 
 #####
 ### Globals
 #####
 USERNAME = getpass.getuser()
-CONFIG_PATH = Path(f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Ashes of the Singularity - Escalation")
+CONFIG_PATH = Path(
+    f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Ashes of the Singularity - Escalation"
+)
 CONFIG_FILENAME = "settings.ini"
 STEAM_GAME_ID = 507490
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -39,25 +50,27 @@ BENCHMARK_CONFIG = {
         "hardware": "GPU",
         "config": "benchfinal",
         "score_name": "Avg Framerate:",
-        "test_name": "Ashes of the Singularity: Escalation GPU Benchmark"
+        "test_name": "Ashes of the Singularity: Escalation GPU Benchmark",
     },
     "CPU_Benchmark": {
         "hardware": "CPU",
         "config": "CPUbench",
         "score_name": r"CPU frame rate \(estimated if not GPU bound\):",
-        "test_name": "Ashes of the Singularity: Escalation CPU Benchmark"
-    }
+        "test_name": "Ashes of the Singularity: Escalation CPU Benchmark",
+    },
 }
 CFG = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
+
 
 def start_game():
     """Launch the game with no launcher or start screen"""
     test_option = BENCHMARK_CONFIG[args.benchmark]["config"]
     return exec_steam_game(STEAM_GAME_ID, game_params=["-benchmark", f"{test_option}"])
 
+
 def run_benchmark():
     """Start the benchmark"""
-     # Start game via Steam and enter fullscreen mode
+    # Start game via Steam and enter fullscreen mode
     setup_start_time = time.time()
     replace_exe()
     start_game()
@@ -95,23 +108,26 @@ def run_benchmark():
 
     return test_start_time, test_end_time
 
+
 setup_log_directory(LOG_DIR)
-logging.basicConfig(filename=LOG_DIR / "harness.log",
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
+logging.basicConfig(
+    filename=LOG_DIR / "harness.log",
+    format=DEFAULT_LOGGING_FORMAT,
+    datefmt=DEFAULT_DATE_FORMAT,
+    level=logging.DEBUG,
+)
 console = logging.StreamHandler()
 formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+logging.getLogger("").addHandler(console)
 
 args = get_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
+kerasService = KerasService()
 am = ArtifactManager(LOG_DIR)
 
 try:
-    logging.info('Starting benchmark!')
-    RESULT="Output_*_*_*_*.txt"
+    logging.info("Starting benchmark!")
+    RESULT = "Output_*_*_*_*.txt"
     delete_old_scores(RESULT)
     start_time, end_time = run_benchmark()
     score = find_score_in_log(BENCHMARK_CONFIG[args.benchmark]["score_name"], RESULT)
@@ -122,7 +138,9 @@ try:
     logging.info("Score was %s", score)
 
     am.copy_file(CFG, ArtifactType.CONFIG_TEXT, "Settings file")
-    result_file = sorted(glob.glob(os.path.join(CONFIG_PATH, RESULT)), key=os.path.getmtime, reverse=True)
+    result_file = sorted(
+        glob.glob(os.path.join(CONFIG_PATH, RESULT)), key=os.path.getmtime, reverse=True
+    )
     output_file = result_file[0]
     am.copy_file(output_file, ArtifactType.CONFIG_TEXT, "Results file")
     hardware = BENCHMARK_CONFIG[args.benchmark]["hardware"]
@@ -134,7 +152,7 @@ try:
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
-        "version": get_build_id(STEAM_GAME_ID)
+        "version": get_build_id(STEAM_GAME_ID),
     }
 
     am.create_manifest()

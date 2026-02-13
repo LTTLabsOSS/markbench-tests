@@ -17,7 +17,7 @@ from procyon_ai_text_generation_utils import (
     regex_find_score_in_xml,
 )
 
-PARENT_DIR = str(Path(sys.path[0], ".."))
+PARENT_DIR = str(Path(sys.path[0], "../.."))
 sys.path.append(PARENT_DIR)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType

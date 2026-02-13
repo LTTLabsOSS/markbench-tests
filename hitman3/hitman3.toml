@@ -1,0 +1,4 @@
+friendly_name = "Hitman World of Assassination"
+executable = "HITMAN3.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true

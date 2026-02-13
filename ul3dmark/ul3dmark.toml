@@ -1,0 +1,10 @@
+friendly_name = "3DMark"
+executable = "3DMarkCmd.exe"
+presentmon_enabled = false
+presentmon_ignore_exit = true
+
+[[args]]
+name = "benchmark"
+type = "select"
+tooltip = "Select which 3DMark scene to run"
+values = ["TimeSpy", "FireStrike", "PortRoyal", "SolarBay"]

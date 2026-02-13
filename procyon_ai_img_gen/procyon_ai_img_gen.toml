@@ -1,0 +1,10 @@
+friendly_name = "Procyon AI Image Generation"
+executable = "ProcyonCmd.exe"
+presentmon_enabled = false
+presentmon_ignore_exit = true
+
+[[args]]
+name = "engine"
+type = "select"
+tooltip = "Select which configuration to run for Procyon"
+values = ["AMD_GPU0_FP16", "AMD_GPU1_FP16", "AMD_GPU0_XL_FP16", "AMD_GPU1_XL_FP16", "Intel_GPU0_INT8", "Intel_GPU1_INT8", "Intel_GPU0_FP16", "Intel_GPU1_FP16", "Intel_GPU0_XL_FP16", "Intel_GPU1_XL_FP16", "NVIDIA_GPU_INT8", "NVIDIA_GPU_FP16", "NVIDIA_GPU_XL_FP16"]

@@ -10,7 +10,7 @@ from pathlib import Path
 import psutil
 from ul3dmark_utils import get_score
 
-PARENT_DIR = str(Path(sys.path[0], ".."))
+PARENT_DIR = str(Path(sys.path[0], "../.."))
 sys.path.append(PARENT_DIR)
 
 from harness_utils.output import (

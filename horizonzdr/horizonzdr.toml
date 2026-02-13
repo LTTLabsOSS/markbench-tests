@@ -1,0 +1,4 @@
+friendly_name = "Horizon Zero Dawn Remastered"
+executable = "HorizonZeroDawnRemastered.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true

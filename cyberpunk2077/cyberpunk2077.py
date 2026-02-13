@@ -6,9 +6,9 @@ import sys
 import time
 
 import pydirectinput as user
-from cyberpunk2077_utils import copy_no_intro_mod, get_args, read_current_resolution
+from cyberpunk2077_utils import copy_no_intro_mod,  read_current_resolution
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+sys.path.insert(1, os.path.join(sys.path[0], "../.."))
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
@@ -261,8 +261,7 @@ formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
-args = get_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
+kerasService = KerasService()
 am = ArtifactManager(LOG_DIRECTORY)
 
 try:

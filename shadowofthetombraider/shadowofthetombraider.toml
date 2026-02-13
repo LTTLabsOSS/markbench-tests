@@ -1,0 +1,4 @@
+friendly_name = "Shadow of the Tomb Raider"
+executable = "SOTTR.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true

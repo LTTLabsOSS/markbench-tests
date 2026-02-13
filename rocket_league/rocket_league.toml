@@ -1,0 +1,4 @@
+friendly_name = "Rocket League"
+executable = "RocketLeague.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true

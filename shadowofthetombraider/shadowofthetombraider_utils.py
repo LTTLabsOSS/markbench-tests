@@ -25,16 +25,6 @@ def get_resolution() -> tuple[int]:
     return (height, width)
 
 
-def get_args() -> any:
-    """Returns command line arg values"""
-    parser = ArgumentParser()
-    parser.add_argument("--kerasHost", dest="keras_host",
-                        help="Host for Keras OCR service", required=True)
-    parser.add_argument("--kerasPort", dest="keras_port",
-                        help="Port for Keras OCR service", required=True)
-    return parser.parse_args()
-
-
 def get_latest_file_report(directory: Path):
     """
     get latest benchmark report from SOTTR documents directory

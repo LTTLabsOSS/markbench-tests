@@ -1,31 +1,31 @@
 """Far Cry 6 test script"""
 
 # pylint: disable = C0116, W0621
-import os
 import logging
+import os
+import subprocess
+import sys
 import time
+from argparse import ArgumentParser
+
 import pyautogui as gui
 import pydirectinput as user
-import sys
-from argparse import ArgumentParser
-import subprocess
-
 from farcry6_utils import get_resolution
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, os.path.join(sys.path[0], "../.."))
 
-from harness_utils.process import terminate_processes
+from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.keras_service import KerasService
+from harness_utils.misc import mouse_scroll_n_times, press_n_times
 from harness_utils.output import (
+    DEFAULT_DATE_FORMAT,
+    DEFAULT_LOGGING_FORMAT,
     format_resolution,
+    seconds_to_milliseconds,
     setup_log_directory,
     write_report_json,
-    seconds_to_milliseconds,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT
 )
-from harness_utils.keras_service import KerasService
-from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.misc import press_n_times, mouse_scroll_n_times
+from harness_utils.process import terminate_processes
 
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
@@ -39,7 +39,7 @@ user.FAILSAFE = False
 
 
 def start_game():
-    subprocess.run(f'start uplay://launch/{GAME_ID}/0', shell=True, check=True)
+    subprocess.run(f"start uplay://launch/{GAME_ID}/0", shell=True, check=True)
 
 
 def skip_logo_screens() -> None:
@@ -107,10 +107,13 @@ def run_benchmark():
     result = kerasService.look_for_word("adapter", attempts=10, interval=1)
     if not result:
         logging.info(
-            "Did not find the Video Adapter setting in the monitor options. Did keras navigate wrong?")
+            "Did not find the Video Adapter setting in the monitor options. Did keras navigate wrong?"
+        )
         sys.exit(1)
 
-    am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings")
+    am.take_screenshot(
+        "video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings"
+    )
 
     time.sleep(2)
 
@@ -119,10 +122,13 @@ def run_benchmark():
     result = kerasService.look_for_word("filtering", attempts=10, interval=1)
     if not result:
         logging.info(
-            "Did not find the Texture Filtering setting in the quality options. Did keras navigate wrong?")
+            "Did not find the Texture Filtering setting in the quality options. Did keras navigate wrong?"
+        )
         sys.exit(1)
 
-    am.take_screenshot("quality1.png", ArtifactType.CONFIG_IMAGE, "1st picture of quality settings")
+    am.take_screenshot(
+        "quality1.png", ArtifactType.CONFIG_IMAGE, "1st picture of quality settings"
+    )
 
     time.sleep(2)
 
@@ -131,10 +137,13 @@ def run_benchmark():
     result = kerasService.look_for_word("shading", attempts=10, interval=1)
     if not result:
         logging.info(
-            "Did not find the FidelityFX Variable Shading setting in the quality options. Did keras navigate wrong?")
+            "Did not find the FidelityFX Variable Shading setting in the quality options. Did keras navigate wrong?"
+        )
         sys.exit(1)
 
-    am.take_screenshot("quality2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of quality settings")
+    am.take_screenshot(
+        "quality2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of quality settings"
+    )
 
     time.sleep(2)
 
@@ -143,10 +152,13 @@ def run_benchmark():
     result = kerasService.look_for_word("lock", attempts=10, interval=1)
     if not result:
         logging.info(
-            "Did not find the Enable Framerate Lock setting in the advanced options. Did keras navigate wrong?")
+            "Did not find the Enable Framerate Lock setting in the advanced options. Did keras navigate wrong?"
+        )
         sys.exit(1)
 
-    am.take_screenshot("advanced.png", ArtifactType.CONFIG_IMAGE, "picture of advanced settings")
+    am.take_screenshot(
+        "advanced.png", ArtifactType.CONFIG_IMAGE, "picture of advanced settings"
+    )
 
     # starting the benchmark
     time.sleep(2)
@@ -156,7 +168,9 @@ def run_benchmark():
 
     result = kerasService.look_for_word("toggle", attempts=10, interval=1)
     if not result:
-        logging.info("Did not find the toggle ui button in the lower right. Did the benchmark crash?")
+        logging.info(
+            "Did not find the toggle ui button in the lower right. Did the benchmark crash?"
+        )
         sys.exit(1)
     test_start_time = int(time.time())
 
@@ -185,22 +199,26 @@ def run_benchmark():
 
 setup_log_directory(LOG_DIRECTORY)
 
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
+logging.basicConfig(
+    filename=f"{LOG_DIRECTORY}/harness.log",
+    format=DEFAULT_LOGGING_FORMAT,
+    datefmt=DEFAULT_DATE_FORMAT,
+    level=logging.DEBUG,
+)
 console = logging.StreamHandler()
 formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+logging.getLogger("").addHandler(console)
 
 parser = ArgumentParser()
-parser.add_argument("--kerasHost", dest="keras_host",
-                    help="Host for Keras OCR service", required=True)
-parser.add_argument("--kerasPort", dest="keras_port",
-                    help="Port for Keras OCR service", required=True)
+parser.add_argument(
+    "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
+)
+parser.add_argument(
+    "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
+)
 args = parser.parse_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
+kerasService = KerasService()
 
 try:
     test_start_time, test_end_time = run_benchmark()
@@ -209,7 +227,7 @@ try:
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(test_start_time),
         "end_time": seconds_to_milliseconds(test_end_time),
-        "version": "unknown"
+        "version": "unknown",
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)

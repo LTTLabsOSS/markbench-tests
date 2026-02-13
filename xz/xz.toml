@@ -1,0 +1,4 @@
+friendly_name = "XZ Compression"
+executable = "xz.exe"
+presentmon_enabled = false
+presentmon_ignore_exit = true

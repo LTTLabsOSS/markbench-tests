@@ -10,7 +10,7 @@ from pathlib import Path
 
 import psutil
 
-sys.path.insert(1, str((Path(sys.path[0]) / "..").resolve()))
+sys.path.insert(1, str((Path(sys.path[0]) / "../..").resolve()))
 
 from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
@@ -88,7 +88,7 @@ def launch_evolve(resolution, renderer, trace_mode, preset):
 
 
 def main():
-    """ a doc string """
+    """a doc string"""
     setup_logging()
     parser = ArgumentParser()
 

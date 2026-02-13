@@ -1,0 +1,9 @@
+friendly_name = "FFMPEG CPU VMAF"
+executable = "ffmpeg.exe"
+presentmon_enabled = false
+presentmon_ignore_exit = true
+
+[[args]]
+name = "encoder"
+type = "select"
+values = ["h264", "av1", "h265"]

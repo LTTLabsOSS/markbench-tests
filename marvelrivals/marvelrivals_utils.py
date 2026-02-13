@@ -1,10 +1,11 @@
 """Marvel Rivals test script utils"""
+
+import os
 import re
 import sys
 from pathlib import Path
-import os
 
-PARENT_DIR = str(Path(sys.path[0], ".."))
+PARENT_DIR = str(Path(sys.path[0], "../.."))
 sys.path.append(PARENT_DIR)
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -31,11 +32,15 @@ def read_resolution():
                 width = width_match.group(1)
     return (height, width)
 
+
 def find_latest_benchmarkcsv():
     """find latest log from the benchmark"""
-    appdata_path = os.getenv('LOCALAPPDATA')
+    appdata_path = os.getenv("LOCALAPPDATA")
     benchmarkcsv_dir = Path(appdata_path) / "Marvel" / "Saved" / "Benchmark"
-    files = [os.path.join(benchmarkcsv_dir, file) for file in os.listdir(
-        benchmarkcsv_dir) if os.path.isfile(os.path.join(benchmarkcsv_dir, file))]
+    files = [
+        os.path.join(benchmarkcsv_dir, file)
+        for file in os.listdir(benchmarkcsv_dir)
+        if os.path.isfile(os.path.join(benchmarkcsv_dir, file))
+    ]
     latest_file = max(files, key=os.path.getmtime)
     return latest_file

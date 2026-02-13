@@ -1,0 +1,10 @@
+friendly_name = "Ashes of the Singularity: Escalation"
+executable = "StardockLauncher.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true
+
+[[args]]
+name = "benchmark"
+type = "select"
+tooltip = "Select which benchmark scene to run"
+values = ["GPU_Benchmark", "CPU_Benchmark"]

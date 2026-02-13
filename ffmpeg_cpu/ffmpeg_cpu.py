@@ -8,7 +8,7 @@ import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+sys.path.insert(1, os.path.join(sys.path[0], "../.."))
 
 from ffmpeg_cpu_utils import (
     copy_ffmpeg_from_network_drive,

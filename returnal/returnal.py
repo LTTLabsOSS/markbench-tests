@@ -5,7 +5,7 @@ import sys
 import time
 import pydirectinput as user
 
-from returnal_utils import get_resolution, get_args
+from returnal_utils import get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
@@ -215,8 +215,7 @@ formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
-args = get_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
+kerasService = KerasService()
 
 try:
     start_time, end_time = run_benchmark()

@@ -9,10 +9,15 @@ from pathlib import Path
 
 import pyautogui as gui
 import pydirectinput as user
+from cities_skylines_2_utils import (
+    copy_benchmarksave,
+    copy_continuegame,
+    copy_launcherfiles,
+    copy_launcherpath,
+    read_current_resolution,
+)
 
-from cities_skylines_2_utils import read_current_resolution, copy_launcherfiles, copy_launcherpath, copy_benchmarksave, copy_continuegame
-
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+sys.path.insert(1, os.path.join(sys.path[0], "../.."))
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import (
@@ -263,7 +268,7 @@ def main():
         required=True,
     )
     args = parser.parse_args()
-    keras_service = KerasService(args.keras_host, args.keras_port)
+    keras_service = KerasService()
 
     test_start_time, test_end_time = run_benchmark(keras_service)
     resolution = read_current_resolution()

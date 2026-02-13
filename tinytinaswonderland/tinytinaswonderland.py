@@ -3,7 +3,6 @@
 import logging
 import os
 import sys
-from argparse import ArgumentParser
 from pathlib import Path
 
 import pydirectinput as user
@@ -13,7 +12,7 @@ from tinytinaswonderland_utils import (
     read_resolution,
 )
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+sys.path.insert(1, os.path.join(sys.path[0], "../.."))
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
@@ -146,21 +145,8 @@ def run_benchmark():
 
 
 try:
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    args = parser.parse_args()
-    kerasService = KerasService(args.keras_host, args.keras_port)
+
+    kerasService = KerasService()
     am = ArtifactManager(LOG_DIRECTORY)
     start_time, end_time = run_benchmark()
     height, width = read_resolution()

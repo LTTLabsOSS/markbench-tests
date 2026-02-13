@@ -45,8 +45,7 @@ formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
-args = get_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
+kerasService = KerasService()
 
 
 def get_run_game_id_command(game_id: int) -> str:

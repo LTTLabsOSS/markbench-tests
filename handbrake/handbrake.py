@@ -1,21 +1,29 @@
 """test script for handbrake encoding tests"""
-from argparse import ArgumentParser
+
+import logging
 import os
 import re
-from handbrake_utils import HANDBRAKE_EXECUTABLE, current_time_ms, handbrake_present, is_video_source_present, copy_video_source, copy_handbrake_from_network_drive
-import logging
 import subprocess
 import sys
+from argparse import ArgumentParser
 from pathlib import Path
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+from handbrake_utils import (
+    HANDBRAKE_EXECUTABLE,
+    copy_handbrake_from_network_drive,
+    copy_video_source,
+    current_time_ms,
+    handbrake_present,
+    is_video_source_present,
+)
+
+sys.path.insert(1, os.path.join(sys.path[0], "../.."))
 
 from harness_utils.output import (
     DEFAULT_DATE_FORMAT,
     DEFAULT_LOGGING_FORMAT,
-    write_report_json
+    write_report_json,
 )
-
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR.joinpath("run")
@@ -26,60 +34,60 @@ logging.basicConfig(
     filename=LOG_FILE,
     format=DEFAULT_LOGGING_FORMAT,
     datefmt=DEFAULT_DATE_FORMAT,
-    level=logging.DEBUG
+    level=logging.DEBUG,
 )
 
 ENCODER_TO_PRESET = {
     "h264_cpu": {
         "file": f"{SCRIPT_DIR}\\presets\\h264_bigbuckbunny_1080p_cpu_test.json",
-        "name": "\"CPU 1080p BBB H264\"",
-        "api": "cpu"
+        "name": '"CPU 1080p BBB H264"',
+        "api": "cpu",
     },
     "h265_cpu": {
         "file": f"{SCRIPT_DIR}\\presets\\h265_bigbuckbunny_1080p_cpu_test.json",
-        "name": "\"CPU 1080p BBB H265\"",
-        "api": "cpu"
+        "name": '"CPU 1080p BBB H265"',
+        "api": "cpu",
     },
     "av1_cpu": {
         "file": f"{SCRIPT_DIR}\\presets\\av1-svt_bigbuckbunny_1080p_cpu_test.json",
-        "name": "\"CPU 1080p BBB AV1\"",
-        "api": "cpu"
+        "name": '"CPU 1080p BBB AV1"',
+        "api": "cpu",
     },
     "h264_nvenc": {
         "file": f"{SCRIPT_DIR}\\presets\\h264_nvenc_bigbuckbunny_1080p_gpu_test.json",
-        "name": "\"NVENC 1080p BBB H264\"",
-        "api": "nvenc"
+        "name": '"NVENC 1080p BBB H264"',
+        "api": "nvenc",
     },
     "h265_nvenc": {
         "file": f"{SCRIPT_DIR}\\presets\\h265_nvenc_bigbuckbunny_1080p_gpu_test.json",
-        "name": "\"NVENC 1080p BBB H265\"",
-        "api": "nvenc"
+        "name": '"NVENC 1080p BBB H265"',
+        "api": "nvenc",
     },
     "av1_nvenc": {
         "file": f"{SCRIPT_DIR}\\presets\\av1-nvenc_bigbuckbunny_1080p_gpu_test.json",
-        "name": "\"NVENC 1080p BBB AV1\"",
-        "api": "nvenc"
+        "name": '"NVENC 1080p BBB AV1"',
+        "api": "nvenc",
     },
     "h264_vce": {
         "file": f"{SCRIPT_DIR}\\presets\\h264-vce-bigbuckbunny_1080p_gpu_test.json",
-        "name": "\"AMD VCE 1080p BBB H264\"",
-        "api": "vce"
+        "name": '"AMD VCE 1080p BBB H264"',
+        "api": "vce",
     },
     "av1_vce": {
         "file": f"{SCRIPT_DIR}\\presets\\av1-vce-bigbuckbunny_1080p_gpu_test.json",
-        "name": "\"AMD VCE 1080p BBB AV1\"",
-        "api": "vce"
+        "name": '"AMD VCE 1080p BBB AV1"',
+        "api": "vce",
     },
     "h264_quicksync": {
         "file": f"{SCRIPT_DIR}\\presets\\h264-quicksync_bigbuckbunny_1080p_gpu_test.json",
-        "name": "\"QUICKSYNC 1080p BBB H264\"",
-        "api": "quicksync"
+        "name": '"QUICKSYNC 1080p BBB H264"',
+        "api": "quicksync",
     },
     "av1_quicksync": {
         "file": f"{SCRIPT_DIR}\\presets\\av1-quicksync_bigbuckbunny_1080p_gpu_test.json",
-        "name": "\"QUICKSYNC 1080p BBB AV1\"",
-        "api": "quicksync"
-    }
+        "name": '"QUICKSYNC 1080p BBB AV1"',
+        "api": "quicksync",
+    },
 }
 
 
@@ -92,8 +100,14 @@ logging.getLogger("").addHandler(console)
 def main():
     """entrypoint"""
     parser = ArgumentParser()
-    parser.add_argument("-e", "--encoder", dest="encoder",
-                        help="encoder", metavar="encoder", required=True)
+    parser.add_argument(
+        "-e",
+        "--encoder",
+        dest="encoder",
+        help="encoder",
+        metavar="encoder",
+        required=True,
+    )
     args = parser.parse_args()
 
     if args.encoder not in ENCODER_TO_PRESET:
@@ -117,16 +131,14 @@ def main():
 
         logging.info("starting benchmark, this may take a few minutes")
         logging.info(
-            "you can ensure the test is running by checking that cpu usage is 100% in task manager")
+            "you can ensure the test is running by checking that cpu usage is 100% in task manager"
+        )
         execute_me = f"{SCRIPT_DIR}\\{HANDBRAKE_EXECUTABLE}"
         start_time = current_time_ms()
-        avgencoding_pattern = r'average encoding speed for job is (\d+\.\d+) fps'
+        avgencoding_pattern = r"average encoding speed for job is (\d+\.\d+) fps"
         command = f"{execute_me} -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -o {SCRIPT_DIR}\\bbboutput.mp4 --preset-import-file {preset['file']} --preset {preset['name']}"
 
-        output = subprocess.check_output(
-            command,
-            text=True,
-            stderr=subprocess.STDOUT)
+        output = subprocess.check_output(command, text=True, stderr=subprocess.STDOUT)
 
         end_time = current_time_ms()
 
@@ -147,12 +159,12 @@ def main():
         report = {
             "test": "HandBrake Encoding",
             "test_parameter": f"{ENCODER_TO_PRESET[args.encoder]['name']}",
-            "api": ENCODER_TO_PRESET[args.encoder]['api'],
+            "api": ENCODER_TO_PRESET[args.encoder]["api"],
             "score": score,
             "unit": "frames per second",
             "version": "1.9.1",
             "start_time": start_time,
-            "end_time": end_time
+            "end_time": end_time,
         }
 
         write_report_json(str(LOG_DIR), "report.json", report)

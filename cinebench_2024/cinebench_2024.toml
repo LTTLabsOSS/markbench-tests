@@ -1,0 +1,10 @@
+friendly_name = "Cinebench 2024"
+executable = "Cinebench.exe"
+presentmon_enabled = false
+presentmon_ignore_exit = true
+
+[[args]]
+name = "test"
+type = "select"
+tooltip = "Select which Cinebench test to run"
+values = ["cpu-single-core", "cpu-multi-core", "cpu-both", "gpu", "all"]

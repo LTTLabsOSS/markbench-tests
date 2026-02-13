@@ -1,5 +1,4 @@
 """Total War: Warhammer III test script"""
-from argparse import ArgumentParser
 import logging
 import os
 from pathlib import Path
@@ -217,13 +216,7 @@ def setup_logging():
 
 def main():
     """entry point"""
-    parser = ArgumentParser()
-    parser.add_argument("--kerasHost", dest="keras_host",
-                        help="Host for Keras OCR service", required=True)
-    parser.add_argument("--kerasPort", dest="keras_port",
-                        help="Port for Keras OCR service", required=True)
-    args = parser.parse_args()
-    keras_service = KerasService(args.keras_host, args.keras_port)
+    keras_service = KerasService()
     start_time, endtime = run_benchmark(keras_service)
     height, width = read_current_resolution()
     report = {

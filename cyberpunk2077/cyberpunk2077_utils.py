@@ -1,13 +1,13 @@
 """Utility functions for Cyberpunk 2077 test script"""
-from argparse import ArgumentParser
-import os
+
 import logging
-from pathlib import Path
+import os
 import re
 import shutil
 import sys
+from pathlib import Path
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, os.path.join(sys.path[0], "../.."))
 from harness_utils.steam import get_app_install_location
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -15,20 +15,13 @@ STEAM_GAME_ID = 1091500
 CYBERPUNK_INSTALL_DIR = get_app_install_location(STEAM_GAME_ID)
 
 
-def get_args() -> any:
-    """Returns command line arg values"""
-    parser = ArgumentParser()
-    parser.add_argument("--kerasHost", dest="keras_host",
-                        help="Host for Keras OCR service", required=True)
-    parser.add_argument("--kerasPort", dest="keras_port",
-                        help="Port for Keras OCR service", required=True)
-    return parser.parse_args()
 
 
 def copy_from_network_drive():
     """Copies mod file from network drive to harness folder"""
     src_path = Path(
-        r"\\labs.lmg.gg\labs\03_ProcessingFiles\Cyberpunk 2077\basegame_no_intro_videos.archive")
+        r"\\labs.lmg.gg\labs\03_ProcessingFiles\Cyberpunk 2077\basegame_no_intro_videos.archive"
+    )
     dest_path = SCRIPT_DIRECTORY / "basegame_no_intro_videos.archive"
     shutil.copyfile(src_path, dest_path)
 

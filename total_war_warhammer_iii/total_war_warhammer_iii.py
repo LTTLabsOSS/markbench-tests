@@ -11,7 +11,7 @@ import pyautogui as gui
 import pydirectinput as user
 from total_war_warhammer_iii_utils import read_current_resolution
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+sys.path.insert(1, os.path.join(sys.path[0], "../.."))
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
@@ -201,14 +201,9 @@ parser.add_argument(
     metavar="benchmark",
     required=True,
 )
-parser.add_argument(
-    "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
-)
-parser.add_argument(
-    "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
-)
+
 args = parser.parse_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
+kerasService = KerasService()
 
 try:
     start_time, endtime = run_benchmark()

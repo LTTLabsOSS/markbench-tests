@@ -1,0 +1,19 @@
+friendly_name = "Blender Benchmark"
+executable = "blender.exe"
+presentmon_enabled = false
+presentmon_ignore_exit = true
+
+[[args]]
+name = "scene"
+type = "select"
+values = ["all", "classroom", "junkshop", "monster"]
+
+[[args]]
+name = "version"
+type = "select"
+values = ["4.1.0", "4.0.0", "3.6.0", "3.5.0", "3.4.0", "3.3.0"]
+
+[[args]]
+name = "device"
+type = "select"
+values = ["CPU", "GPU"]
