@@ -130,13 +130,9 @@ def copy_autosave():
     if not src_autosave_dir.exists():
         raise FileNotFoundError(f"Source autosave folder not found: {src_autosave_dir}")
 
-    # Ensure parent directory exists
-    dest_savedata_dir.mkdir(parents=True, exist_ok=True)
-
     dest_folder = dest_savedata_dir.joinpath(TLOU_SAVE.name)
-    # Remove existing savedata (autosave restore should be exact)
-    if dest_folder.exists():
-        shutil.rmtree(dest_folder)
+    # Ensure parent directory exists
+    dest_folder.mkdir(parents=True, exist_ok=True)
 
     shutil.copytree(src_autosave_dir, dest_folder)
 
