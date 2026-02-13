@@ -183,7 +183,6 @@ def navigate_main_menu(am: ArtifactManager) -> None:
 
 def run_benchmark():
     """Starts the benchmark"""
-    copy_autosave()
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int(time.time())
     am = ArtifactManager(LOG_DIRECTORY)
@@ -193,6 +192,8 @@ def run_benchmark():
     if not result:
         logging.info("Did not see start screen")
         sys.exit(1)
+
+    copy_autosave()
 
     navigate_main_menu(am)
 
