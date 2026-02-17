@@ -6,6 +6,9 @@ import sys
 import re
 import pydirectinput as user
 import getpass
+
+from argparse import ArgumentParser
+
 sys.path.insert(1, str(Path(sys.path[0]).parent))
 
 # pylint: disable=wrong-import-position
@@ -247,8 +250,16 @@ def run_benchmark(keras_service):
 
 def main():
     """entry point"""
+    parser = ArgumentParser()
+    parser.add_argument(
+        "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
+    )
+    parser.add_argument(
+        "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
+    )
+    args = parser.parse_args()
     keras_service = KerasService(
-        keras_args().keras_host, keras_args().keras_port)
+        args.keras_host, args.keras_port)
     start_time, endtime = run_benchmark(keras_service)
     height, width = read_current_resolution()
     report = {
