@@ -1,0 +1,5 @@
+friendly_name = "Assassin's Creed Shadows"
+py_script = "f1_24.py"
+executable = "ACShadows.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true
