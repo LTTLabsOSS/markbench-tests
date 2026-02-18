@@ -77,8 +77,8 @@ def get_arguments():
     parser = ArgumentParser()
     parser.add_argument(
         "--drive_letter",
-        required=True,
-        help="Drive letter to test (e.g. D:)",
+        default="C",  # <- default drive letter
+        help="Drive letter to test (e.g. D). Defaults to C if not specified.",
     )
     parser.add_argument(
         "--test",
