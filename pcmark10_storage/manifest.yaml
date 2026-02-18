@@ -1,0 +1,15 @@
+friendly_name: "PCMark 10 Storage"
+executable: "pcmark10_storage.py"
+process_name: "PCMark10Cmd.exe"
+disable_presentmon: true
+output_dir: "run"
+options:
+  - name: drive_letter
+    type: input
+    tooltip: The drive letter that you wish to test
+  - name: test
+    type: select
+    values:
+      - full
+      - quick
+    tooltip: Full requires 200GB free space, Quick requires 25GB
