@@ -25,8 +25,7 @@ from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.misc import (
     press_n_times,
     int_time,
-    find_word,
-    keras_args)
+    find_word)
 
 USERNAME = getpass.getuser()
 STEAM_GAME_ID = 3159330
