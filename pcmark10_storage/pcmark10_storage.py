@@ -46,7 +46,7 @@ BENCHMARK_CONFIG = {
         "test_name": "full",
     },
     "quick": {
-        "config": f'"{CONFIG_DIR}\\pcm10_storage_quick_default.pcmdef"',
+        "config": str(CONFIG_DIR / "pcm10_storage_quick_default.pcmdef"),
         "process_name": "PCMark10-Storage.exe",
         "result_regex": r"<Pcm10StorageQuickScore>(\d+)",
         "test_name": "quick",
@@ -105,11 +105,10 @@ def create_pcmark10_command(drive_letter, test_option):
     """create command string"""
     command = [
             str(ABS_EXECUTABLE_PATH),
-            "--drive", drive_letter,
-            "--definition=", test_option,
-            "--export=", str(RESULTS_XML_PATH)
+            f"--drive={drive_letter}",
+            f"--definition={test_option}",
+            f"--export={RESULTS_XML_PATH}"
     ]
-    command = command.rstrip()
     return command
 
 
@@ -163,13 +162,24 @@ try:
         logging.error("Could not find overall score!")
         sys.exit(1)
     score = int(score_str)
+
+    pcmark_version = find_pcmark10_version()
+    if not pcmark_version:
+        logging.error("Could not determine PCMark 10 version!")
+        sys.exit(1)
+
+    test_version = find_test_version()
+    if not test_version:
+        logging.error("Could not determine PCMark 10 test version!")
+        sys.exit(1)
+
     report = {
             "test": "PCMark 10 Storage",
             "test_parameter": BENCHMARK_CONFIG[args.test]["test_name"],
             "unit": "score",
             "score": score,
-            "pcmark10_version": find_pcmark10_version() or "unknown",
-            "test_version": find_test_version() or "unknown",
+            "pcmark10_version": pcmark_version,
+            "test_version": test_version,
             "start_time": seconds_to_milliseconds(start_time),
             "end_time": seconds_to_milliseconds(end_time),
         }
