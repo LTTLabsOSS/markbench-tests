@@ -1,0 +1,5 @@
+friendly_name = "Y-Cruncher"
+py_script = "ycruncher.py"
+executable = "y-cruncher.exe"
+presentmon_enabled = false
+non_game = true

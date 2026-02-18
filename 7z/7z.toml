@@ -1,0 +1,5 @@
+friendly_name = "7-Zip"
+py_script = "sevenzip.py"
+executable = "7zr.exe"
+presentmon_enabled = false
+non_game = true

@@ -1,0 +1,5 @@
+friendly_name = "Grid Legends"
+py_script = "grid_legends.py"
+executable = "GridLegends.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true
