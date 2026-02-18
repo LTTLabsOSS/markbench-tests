@@ -1,4 +1,0 @@
-friendly_name = "Recording Session"
-py_script = "dummy.py"
-presentmon_enabled = true
-presentmon_ignore_exit = true
