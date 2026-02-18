@@ -1,0 +1,11 @@
+friendly_name = "Procyon AI Text Generation"
+py_script = "ulprocai_text_gen.py"
+executable = "ProcyonCmd.exe"
+presentmon_enabled = false
+non_game = true
+
+[[args]]
+name = "engine"
+type = "select"
+tooltip = "Select which configuration to run for Procyon"
+values = ["All_Models_ONNX", "Llama_2_13B_ONNX", "Llama_3_1_8B_ONNX", "Mistral_7B_ONNX", "Phi_3_5_ONNX", "All_Models_OPENVINO", "Llama_2_13B_OPENVINO", "Llama_3_1_8B_OPENVINO", "Mistral_7B_OPENVINO", "Phi_3_5_OPENVINO"]

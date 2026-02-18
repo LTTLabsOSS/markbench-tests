@@ -1,0 +1,5 @@
+friendly_name = "Shadow of the Tomb Raider"
+py_script = "shadowofthetombraider.py"
+executable = "SOTTR.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true

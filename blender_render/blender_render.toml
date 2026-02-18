@@ -1,0 +1,17 @@
+friendly_name = "Blender Render"
+py_script = "blender.py"
+executable = "blender.exe"
+presentmon_enabled = false
+non_game = true
+
+[[args]]
+name = "device"
+type = "select"
+tooltip = "Select device to use for rendering"
+values = ["CPU", "CUDA", "OPTIX", "HIP", "ONEAPI", "METAL"]
+
+[[args]]
+name = "benchmark"
+type = "select"
+tooltip = "Select which Blender scene to render"
+values = ["Barbershop", "Monster", "Classroom", "Junkshop", "BMW"]

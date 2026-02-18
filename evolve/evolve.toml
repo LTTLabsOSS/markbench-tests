@@ -1,0 +1,29 @@
+friendly_name = "Evolve"
+py_script = "evolve.py"
+executable = "evolve.exe"
+presentmon_enabled = false
+non_game = true
+
+[[args]]
+name = "resolution"
+type = "select"
+tooltip = "Select resolution"
+values = ["1920 1080", "2560 1440", "3840 2160"]
+
+[[args]]
+name = "renderer"
+type = "select"
+tooltip = "Select rendering mode"
+values = ["ray-tracing", "path-tracing"]
+
+[[args]]
+name = "trace-mode"
+type = "select"
+tooltip = "Select trace mode"
+values = ["pipeline", "inline", "work-graph"]
+
+[[args]]
+name = "preset"
+type = "select"
+tooltip = "Select quality preset"
+values = ["ultra", "high", "medium"]

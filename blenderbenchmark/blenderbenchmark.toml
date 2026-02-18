@@ -1,0 +1,23 @@
+friendly_name = "Blender Benchmark"
+py_script = "blender.py"
+executable = "blender.exe"
+presentmon_enabled = false
+non_game = true
+
+[[args]]
+name = "scene"
+type = "select"
+tooltip = "Select which Blender scene to render"
+values = ["all", "classroom", "junkshop", "monster"]
+
+[[args]]
+name = "version"
+type = "select"
+tooltip = "Select Blender version"
+values = ["4.1.0", "4.0.0", "3.6.0", "3.5.0", "3.4.0", "3.3.0"]
+
+[[args]]
+name = "device"
+type = "select"
+tooltip = "Select rendering device"
+values = ["CPU", "GPU"]

@@ -1,0 +1,5 @@
+friendly_name = "Primesieve"
+py_script = "primesieve.py"
+executable = "primesieve.exe"
+presentmon_enabled = false
+non_game = true

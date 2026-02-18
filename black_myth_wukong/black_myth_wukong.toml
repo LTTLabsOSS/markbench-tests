@@ -1,0 +1,5 @@
+friendly_name = "Black Myth Wukong"
+py_script = "blackmythwukong.py"
+executable = "b1-Win64-Shipping.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true
