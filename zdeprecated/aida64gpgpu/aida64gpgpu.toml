@@ -1,5 +1,0 @@
-friendly_name = "Aida64 GPGPU"
-py_script = "aida64gpgpu.py"
-executable = "aida64.exe"
-presentmon_enabled = false
-non_game = true
