@@ -55,7 +55,24 @@ formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
+def cpu_supports_smt() -> bool:
+    """Returns True if CPU supports SMT (hyperthreading)."""
+    try:
+        # physical cores vs logical cores
+        physical = psutil.cpu_count(logical=False)
+        logical = psutil.cpu_count(logical=True)
+        return logical > physical
+    except Exception:
+        return False
+
 test_types = TEST_OPTIONS[args.test]
+
+# If the test includes SMT but CPU has no hyperthreading, skip it
+if CPU_1SMT_TEST in test_types and not cpu_supports_smt():
+    logging.warning(
+        "CPU does not support SMT. Skipping single-core SMT test."
+    )
+    test_types = [t for t in test_types if t != CPU_1SMT_TEST]
 
 try:
     logging.info('Starting benchmark!')
