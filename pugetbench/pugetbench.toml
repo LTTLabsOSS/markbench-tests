@@ -1,0 +1,21 @@
+friendly_name = "PugetBench"
+py_script = "pugetbench.py"
+executable = "PugetBench for Creators.exe"
+presentmon_enabled = false
+non_game = true
+
+[[args]]
+name = "app_version"
+type = "input"
+tooltip = "Version of the selected test"
+
+[[args]]
+name = "app"
+type = "select"
+tooltip = "Select which test to run"
+values = ["premierepro", "photoshop", "aftereffects", "lightroom", "resolve"]
+
+[[args]]
+name = "benchmark_version"
+type = "input"
+tooltip = "Version of benchmark to run"

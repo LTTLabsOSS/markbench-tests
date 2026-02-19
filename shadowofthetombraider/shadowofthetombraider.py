@@ -97,7 +97,7 @@ def run_benchmark(keras_service, am):
 
     am.take_screenshot("display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings")
 
-    # press up until we have DISPLAY hilighted so we can flip to the graphics tab
+    # press up until we have DISPLAY highlighted so we can flip to the graphics tab
     for _ in range(21):
         user.press("up")
         time.sleep(0.2)

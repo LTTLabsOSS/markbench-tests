@@ -1,0 +1,5 @@
+friendly_name = "Hitman World of Assassination"
+py_script = "hitman3.py"
+executable = "HITMAN3.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true

@@ -2,7 +2,18 @@
 from argparse import ArgumentParser
 import ctypes
 import re
+import os
+import sys
+import shutil
+from pathlib import Path
 
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+
+from harness_utils.steam import get_registry_active_user
+
+USERFOLDER = os.environ["USERPROFILE"]
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+TLOU_SAVE = SCRIPT_DIRECTORY.joinpath("SAVEFILE0A")
 
 def get_args() -> any:
     """Get command line arg values"""
@@ -98,3 +109,35 @@ def get_resolution(config_path: str):
             window_height, window_width = get_windowed_resolution(lines)
 
     return window_height, window_width
+
+
+def copy_autosave():
+    """
+    Copies The Last of Us Part I autosave folder to the savedata directory.
+    Existing destination is replaced.
+    """
+    src_autosave_dir = Path(TLOU_SAVE)
+    steam_user_id = str(get_registry_active_user())
+    dest_savedata_dir = Path(
+    USERFOLDER,
+    "Saved Games",
+    "The Last of Us Part I",
+    "users",
+    steam_user_id,
+    "SaveData",
+)
+
+    if not src_autosave_dir.exists():
+        raise FileNotFoundError(f"Source autosave folder not found: {src_autosave_dir}")
+
+    # Ensure parent directory exists
+    dest_savedata_dir.mkdir(parents=True, exist_ok=True)
+
+    dest_folder = dest_savedata_dir.joinpath(TLOU_SAVE.name)
+    # Remove existing savedata (autosave restore should be exact)
+    if dest_folder.exists():
+        shutil.rmtree(dest_folder)
+
+    shutil.copytree(src_autosave_dir, dest_folder)
+
+    print(f"Autosave copied from {src_autosave_dir} -> {dest_folder}")

@@ -1,0 +1,5 @@
+friendly_name = "Horizon Zero Dawn Remastered"
+py_script = "hzdr.py"
+executable = "HorizonZeroDawnRemastered.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true

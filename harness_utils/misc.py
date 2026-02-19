@@ -161,7 +161,7 @@ def mouse_scroll_n_times(n: int, scroll_amount: int, pause: float):
 
     n --> the number of times you want to scroll, should be a positive integer
     scroll_amount --> positive is scroll up, negative is scroll down
-    pause --> the amount of time to pause betwee subsequent scrolls
+    pause --> the amount of time to pause between subsequent scrolls
     """
     for _ in range(n):
         gui.vscroll(scroll_amount)
@@ -206,7 +206,7 @@ def extract_archive(zip_file: Path, destination_dir: Path) -> None:
 
 
 def extract_file_from_archive(zip_file: Path, member_path: str, destination_dir: Path) -> None:
-    """Extract a single file memeber from an archive"""
+    """Extract a single file member from an archive"""
     with ZipFile(zip_file, 'r') as zip_object:
         zip_object.extract(member_path, path=destination_dir)
 

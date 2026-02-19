@@ -1,6 +1,5 @@
 """pugetbench for creators test script"""
 import logging
-import os.path
 from pathlib import Path
 import shutil
 import sys
@@ -8,9 +7,9 @@ from argparse import ArgumentParser
 import time
 from subprocess import Popen, PIPE, STDOUT, TimeoutExpired
 import threading
-from utils import find_latest_log, trim_to_major_minor, find_score_in_log, get_photoshop_version, get_premierepro_version, get_lightroom_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
+from pugetbench_utils import find_latest_log, trim_to_major_minor, find_score_in_log, get_photoshop_version, get_premierepro_version, get_lightroom_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+sys.path.insert(1, str((Path(sys.path[0]) / "..").resolve()))
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
     seconds_to_milliseconds,
@@ -19,8 +18,8 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT
 )
 
-script_dir = os.path.dirname(os.path.realpath(__file__))
-log_dir = os.path.join(script_dir, "run")
+script_dir = Path(__file__).resolve().parent
+log_dir = script_dir / "run"
 setup_log_directory(log_dir)
 logging.basicConfig(filename=f'{log_dir}/harness.log',
                     format=DEFAULT_LOGGING_FORMAT,
