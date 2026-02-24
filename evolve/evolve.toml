@@ -8,7 +8,7 @@ non_game = true
 name = "resolution"
 type = "select"
 tooltip = "Select resolution"
-values = ["1920 1080", "2560 1440", "3840 2160"]
+values = [(1920,1080), (2560,1440), (3840,2160)]
 
 [[args]]
 name = "renderer"

@@ -88,7 +88,7 @@ def launch_evolve(resolution, renderer, trace_mode, preset):
 
 
 def main():
-    """ a doc string """
+    """a doc string"""
     setup_logging()
     parser = ArgumentParser()
 
