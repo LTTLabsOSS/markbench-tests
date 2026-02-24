@@ -31,6 +31,7 @@ def launch_chrome(chrome_path: str, url: str):
         "--disable-extensions",
         "--disable-background-networking",
         f"--user-data-dir={profile_dir}",
+        "--start-fullscreen",
         url
     ])
     return proc, profile_dir
