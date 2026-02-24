@@ -1,0 +1,11 @@
+friendly_name: "Browser Benchmark"
+executable: "browserbench.py"
+process_name: "chrome.exe"
+disable_presentmon: true
+hidden: 0
+output_dir: "run"
+options:
+  - name: benchmark
+    type: select
+    values: ["jetstream2", "speedometer", "motionmark","kraken","webxprt"]
+    tooltip: Select which browser benchmark to run
