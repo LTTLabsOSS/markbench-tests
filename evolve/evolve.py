@@ -63,7 +63,8 @@ def get_scores(results_path):
 
 def launch_evolve(resolution, renderer, trace_mode, preset):
     """launch evolve with the given render and trace parameters"""
-    launch_command = f'"{EXECUTABLE_PATH}"  --offline run-custom --render-resolution {resolution[0]} {resolution[1]} --renderer {renderer} --mode {trace_mode} --preset {preset} --fullscreen --export-scores {RESULTS_FILE}'
+    launch_command = f'"{EXECUTABLE_PATH}"  --offline run-custom --render-resolution {resolution} --renderer {renderer} --mode {trace_mode} --preset {preset} --fullscreen --export-scores {RESULTS_FILE}'
+    logging.info(launch_command)
     with subprocess.Popen(
         launch_command,
         stdout=subprocess.PIPE,
@@ -96,8 +97,7 @@ def main():
         "--resolution",
         help="The resolution of the rendered image",
         required=True,
-        nargs=2,
-        type=int,
+        type=str,
     )
 
     parser.add_argument(
@@ -132,6 +132,7 @@ def main():
     )
 
     start_time = time.time()
+    logging.info(args.resolution)
     launch_evolve(args.resolution, args.renderer, args.trace_mode, args.preset)
     end_time = time.time()
     scores = get_scores(RESULTS_FILE)
