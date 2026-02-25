@@ -132,7 +132,6 @@ def main():
     )
 
     start_time = time.time()
-    logging.info(args.resolution)
     launch_evolve(args.resolution, args.renderer, args.trace_mode, args.preset)
     end_time = time.time()
     scores = get_scores(RESULTS_FILE)
