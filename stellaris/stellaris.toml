@@ -2,4 +2,3 @@ friendly_name = "Stellaris"
 py_script = "stellaris.py"
 executable = "stellaris.exe"
 presentmon_enabled = false
-non_game = true
