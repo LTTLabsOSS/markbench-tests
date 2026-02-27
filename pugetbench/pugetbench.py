@@ -104,7 +104,8 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         "--benchmark_version", benchmark_version,
         "--preset", "Standard",
         "--app_version", app_version,
-        "--app", application
+        "--app", application,
+        "--timeout", "2400"
     ]
 
     logging.info("Running benchmark command: %s", command)
