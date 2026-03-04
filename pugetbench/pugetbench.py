@@ -36,36 +36,45 @@ APP_CONFIG = {
     "premierepro": {
         "label": "Adobe Premiere Pro",
         "version_func": get_premierepro_version,
+        "app_name": "Adobe Premiere Pro.exe",
         "suffix": None,
     },
     "photoshop": {
         "label": "Adobe Photoshop",
         "version_func": get_photoshop_version,
+        "app_name": "Photoshop.exe",
         "suffix": None,
     },
     "aftereffects": {
         "label": "Adobe After Effects",
         "version_func": get_aftereffects_version,
+        "app_name": "AfterFX.exe",
         "suffix": None,
     },
     "lightroom": {
         "label": "Adobe Lightroom Classic",
         "version_func": get_lightroom_version,
+        "app_name": "Lightroom.exe",
         "suffix": None,
     },
     "resolve": {
         "label": "Davinci Resolve Studio",
         "version_func": get_davinci_version,
+        "app_name": "Resolve.exe",
         "suffix": "-studio",
     },
 }
 
-def safe_terminate(process_name: str):
-    """Attempt to terminate a process but ignore any errors if it fails."""
-    try:
-        terminate_processes(process_name)
-    except Exception as e:
-        logging.info("Process '%s' could not be terminated (may not exist): %s", process_name, e)
+def safe_terminate(process_names: list[str]):
+    """Terminate multiple processes safely."""
+    for pname in process_names:
+        try:
+            terminate_processes(pname)
+        except Exception as e:
+            logging.info(
+                "Process '%s' could not be terminated (may not exist): %s",
+                pname, e
+            )
 
 def read_output(stream, log_func, error_func, error_in_output):
     """Read and log output in real-time from a stream (stdout or stderr)."""
@@ -121,7 +130,7 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         try:
             retcode = process.wait(timeout=2400)  # waits 2400 seconds = 40 minutes and if test takes longer timeout
         except TimeoutExpired as exc:
-            safe_terminate(EXECUTABLE_NAME)
+            safe_terminate([EXECUTABLE_NAME, APP_CONFIG[application]["app_name"]])
             raise RuntimeError("Benchmark timed out after 40 minutes. Check PugetBench logs for more info.") from exc
 
         stdout_thread.join()
@@ -131,7 +140,7 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
             raise exc
 
         if retcode != 0:
-            safe_terminate(EXECUTABLE_NAME)
+            safe_terminate([EXECUTABLE_NAME, APP_CONFIG[application]["app_name"]])
             raise RuntimeError(f"Benchmark process exited with code {retcode}")
 
         end_time = time.time()
@@ -215,7 +224,7 @@ def main():
 
         # Terminate the process only for "real" failures
         if "timed out" in msg or "Benchmark failed" in msg:
-            safe_terminate(EXECUTABLE_NAME)
+            safe_terminate([EXECUTABLE_NAME, APP_CONFIG[args.app]["app_name"]])
 
         sys.exit(1)
     except Exception as e:
