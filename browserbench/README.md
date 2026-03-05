@@ -9,7 +9,7 @@ Runs one of several browser based benchmarks in Google Chrome
 
 ## Options
 
-- `--benchmark`: One of 5 options of benchmarks [jetstream2,speedometer,motionmark,kraken,webxprt4]
+- `--benchmark`: One of 6 options of benchmarks [jetstream2,speedometer,motionmark,kraken,webxprt4,webxprt5]
 
 ## Output
 
