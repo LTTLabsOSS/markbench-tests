@@ -5,10 +5,9 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from datetime import datetime
 
 from cdp_client import CDPClient
-from chrome_utils import get_chrome_path_from_registry, launch_chrome, get_browser_websocket_url, wait_for_ready, get_browser_version, run_js
+from chrome_utils import get_chrome_path_from_registry, launch_chrome, get_browser_websocket_url, wait_for_ready, get_browser_version
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -127,9 +126,11 @@ BENCHMARKS = {
 }
 
 def start_benchmark(client: CDPClient, start_expr: str):
+    """Starts the benchmark once loaded"""
     client.call("Runtime.evaluate", {"expression": start_expr})
 
 def wait_for_score(client: CDPClient, score_expr: str) -> float:
+    """Looking for score of the benchmark, times out after 15 minutes"""
     start_time = time.time()
     while time.time() - start_time < INTERNAL_TIMEOUT:
         res = client.call("Runtime.evaluate", {"expression": score_expr})
@@ -140,8 +141,8 @@ def wait_for_score(client: CDPClient, score_expr: str) -> float:
     raise TimeoutError("Benchmark did not finish in time")
 
 def main():
-    # Determine units based on benchmark
-    
+    """Running the benchmark"""
+
     parser = argparse.ArgumentParser(description="Browser benchmark harness")
     parser.add_argument("--benchmark", choices=BENCHMARKS.keys(), required=True,
                         help="Which benchmark to run")
@@ -156,7 +157,7 @@ def main():
         # Determine initial URL
         initial_url = bench.get("landing_url", bench["url"])
         logging.info("Launching isolated Chrome instance...")
-        chrome_proc, profile_dir = launch_chrome(chrome_path, initial_url)
+        chrome_proc = launch_chrome(chrome_path, initial_url)
 
         # Connect CDP
         ws_url = get_browser_websocket_url(initial_url)
@@ -170,7 +171,7 @@ def main():
             time.sleep(10)
 
             # Click Begin link
-            START_TIME = time.time()
+            start_time = time.time()
             start_benchmark(client, bench["start_expr_landing"])
             logging.info("Clicked 'Begin', driver page now loading...'")
 
@@ -182,15 +183,15 @@ def main():
             # Wait for page to fully load (driver page DOM ready)
             wait_for_ready(client, "document.readyState === 'complete'")
             logging.info("Kraken driver page loaded and running benchmark.")
-            
+
             unit = "ms"
         else:
             # Wait for benchmark start
             wait_for_ready(client, bench["wait_expr"])
             time.sleep(10)  # settle
-            
 
-            START_TIME = time.time()
+
+            start_time = time.time()
             start_benchmark(client, bench["start_expr"])
             unit = "score"
 
@@ -198,7 +199,7 @@ def main():
         logging.info("Browser version: %s", browser_version)
 
         score = wait_for_score(client, bench["score_expr"])
-        END_TIME = time.time()
+        end_time = time.time()
 
         logging.info("%s score: %s", args.benchmark, score)
 
@@ -210,8 +211,8 @@ def main():
             "score": score,
             "unit": unit,
             "browser_version": browser_version,
-            "start_time": seconds_to_milliseconds(START_TIME),
-            "end_time": seconds_to_milliseconds(END_TIME)
+            "start_time": seconds_to_milliseconds(start_time),
+            "end_time": seconds_to_milliseconds(end_time)
         }
 
         write_report_json(str(log_dir), "report.json", report)

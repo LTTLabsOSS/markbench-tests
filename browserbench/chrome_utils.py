@@ -1,3 +1,4 @@
+"""Utilities for Google Chrome"""
 import tempfile
 import time
 import json
@@ -7,6 +8,7 @@ import subprocess
 import winreg
 
 def get_chrome_path_from_registry() -> str:
+    """Finds the path to where Google Chrome is installed"""
     reg_paths = [
         r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe",
         r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe"
@@ -22,6 +24,7 @@ def get_chrome_path_from_registry() -> str:
     raise FileNotFoundError("Chrome executable not found in registry.")
 
 def launch_chrome(chrome_path: str, url: str):
+    """Launches Google Chrome in maximized window with minimal extras on a new profile"""
     profile_dir = tempfile.mkdtemp()
     proc = subprocess.Popen([
         chrome_path,
@@ -37,6 +40,7 @@ def launch_chrome(chrome_path: str, url: str):
     return proc, profile_dir
 
 def get_browser_websocket_url(target_url: str, retries=20) -> str:
+    """Grabs the websocket url for the tab"""
     devtools_url = "http://localhost:9222/json"
     for _ in range(retries):
         try:
@@ -49,6 +53,7 @@ def get_browser_websocket_url(target_url: str, retries=20) -> str:
     raise RuntimeError("Failed to obtain DevTools websocket URL for tab")
 
 def wait_for_ready(client, js_expr: str, retries=30, interval=1):
+    """Ensures that the benchmark frontpage has finished loading before trying to start"""
     for _ in range(retries):
         res = client.call("Runtime.evaluate", {"expression": js_expr})
         val = res["result"]["result"].get("value")
@@ -59,10 +64,12 @@ def wait_for_ready(client, js_expr: str, retries=30, interval=1):
     raise RuntimeError("Page did not reach ready state")
 
 def get_browser_version(client):
+    """Gets the Google Chrome version for traceability"""
     res = client.call("Browser.getVersion")
     return res["result"]["product"]
 
 def run_js(client, expression: str):
+    """Holdover run JavaScript function"""
     response = client.call("Runtime.evaluate", {
         "expression": expression,
         "returnByValue": True

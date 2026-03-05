@@ -1,3 +1,4 @@
+"""CDP Client Functions"""
 import socket
 import json
 import base64
@@ -14,6 +15,7 @@ class CDPClient:
         self.message_id = 0
 
     def connect(self):
+        """Trying to connect to the webpage to control it"""
         parsed = urlparse(self.websocket_url)
         host = parsed.hostname
         port = parsed.port
@@ -69,6 +71,7 @@ class CDPClient:
         return self.sock.recv(length).decode()
 
     def call(self, method: str, params: dict | None = None) -> dict:
+        """Sends a CDP command and waits for a response"""
         self.message_id += 1
         message = {"id": self.message_id, "method": method, "params": params or {}}
         self._send_frame(json.dumps(message))
