@@ -1,7 +1,6 @@
 """pugetbench for creators test script"""
 import logging
 from pathlib import Path
-import shutil
 import sys
 from argparse import ArgumentParser
 import time
@@ -20,7 +19,8 @@ from harness_utils.output import (
 
 script_dir = Path(__file__).resolve().parent
 log_dir = script_dir / "run"
-log_file_path = log_dir / f"pugetbench_{int(time.time())}.csv"
+timestamp = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())  # e.g., 20260304_153245
+log_file_path = log_dir / f"pugetbench_{timestamp}.csv"
 setup_log_directory(log_dir)
 logging.basicConfig(filename=f'{log_dir}/harness.log',
                     format=DEFAULT_LOGGING_FORMAT,
