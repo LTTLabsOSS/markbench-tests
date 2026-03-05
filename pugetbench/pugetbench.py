@@ -20,6 +20,7 @@ from harness_utils.output import (
 
 script_dir = Path(__file__).resolve().parent
 log_dir = script_dir / "run"
+log_file_path = log_dir / f"pugetbench_{int(time.time())}.csv"
 setup_log_directory(log_dir)
 logging.basicConfig(filename=f'{log_dir}/harness.log',
                     format=DEFAULT_LOGGING_FORMAT,
@@ -115,7 +116,7 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         "--app_version", app_version,
         "--app", application,
         "--timeout", "2400",
-        "--copy_log", log_dir
+        "--copy_log", str(log_file_path)
     ]
 
     logging.info("Running benchmark command: %s", command)
@@ -170,19 +171,17 @@ def execute_benchmark(app: str, app_version: str, benchmark_version: str):
     """Executes the benchmark and then captures the log file."""
     start_time, end_time = run_benchmark(app, app_version, benchmark_version)
 
-    log_files = list(log_dir.glob("*.csv"))
-    if not log_files:
-        raise RuntimeError(f"No CSV log found in {log_dir}")
-    log_file = log_files[0]  # since there should be only one
+    if not log_file_path.exists():
+        raise RuntimeError(f"Expected CSV log not found: {log_file_path}")
 
     # Check benchmark completed
-    with open(log_file, encoding="utf-8") as f:
+    with open(log_file_path, encoding="utf-8") as f:
         if "Overall Score" not in f.read():
             raise RuntimeError(f"Benchmark did not complete correctly; expected 'Overall Score' not found in {log_file}")
 
-    score = find_score_in_log(log_file)
+    score = find_score_in_log(log_file_path)
     if score is None:
-        raise RuntimeError(f"No valid score found in log: {log_file}")
+        raise RuntimeError(f"No valid score found in log: {log_file_path}")
 
     return start_time, end_time, score
 
