@@ -7,7 +7,7 @@ from argparse import ArgumentParser
 import time
 from subprocess import Popen, PIPE, STDOUT, TimeoutExpired
 import threading
-from pugetbench_utils import find_latest_log, trim_to_major_minor, find_score_in_log, get_photoshop_version, get_premierepro_version, get_lightroom_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
+from pugetbench_utils import trim_to_major_minor, find_score_in_log, get_photoshop_version, get_premierepro_version, get_lightroom_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
 
 sys.path.insert(1, str((Path(sys.path[0]) / "..").resolve()))
 from harness_utils.process import terminate_processes
@@ -114,7 +114,8 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         "--preset", "Standard",
         "--app_version", app_version,
         "--app", application,
-        "--timeout", "2400"
+        "--timeout", "2400",
+        "--copy_log", log_dir
     ]
 
     logging.info("Running benchmark command: %s", command)
@@ -169,7 +170,10 @@ def execute_benchmark(app: str, app_version: str, benchmark_version: str):
     """Executes the benchmark and then captures the log file."""
     start_time, end_time = run_benchmark(app, app_version, benchmark_version)
 
-    log_file = find_latest_log()
+    log_files = list(log_dir.glob("*.csv"))
+    if not log_files:
+        raise RuntimeError(f"No CSV log found in {log_dir}")
+    log_file = log_files[0]  # since there should be only one
 
     # Check benchmark completed
     with open(log_file, encoding="utf-8") as f:
@@ -179,9 +183,6 @@ def execute_benchmark(app: str, app_version: str, benchmark_version: str):
     score = find_score_in_log(log_file)
     if score is None:
         raise RuntimeError(f"No valid score found in log: {log_file}")
-
-    destination = Path(script_dir) / "run" / log_file.name
-    shutil.copy(log_file, destination)
 
     return start_time, end_time, score
 
