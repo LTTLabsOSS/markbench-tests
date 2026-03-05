@@ -1,4 +1,3 @@
-<!-- cspell:ignore webxprt4 webxprt5 jetstream2 motionmark kraken speedometer -->
 # Browser Benchmark
 
 Runs one of several browser based benchmarks in Google Chrome
