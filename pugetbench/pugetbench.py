@@ -177,7 +177,7 @@ def execute_benchmark(app: str, app_version: str, benchmark_version: str):
     # Check benchmark completed
     with open(log_file_path, encoding="utf-8") as f:
         if "Overall Score" not in f.read():
-            raise RuntimeError(f"Benchmark did not complete correctly; expected 'Overall Score' not found in {log_file}")
+            raise RuntimeError(f"Benchmark did not complete correctly; expected 'Overall Score' not found in {log_file_path}")
 
     score = find_score_in_log(log_file_path)
     if score is None:
