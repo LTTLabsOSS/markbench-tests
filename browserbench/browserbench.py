@@ -19,6 +19,7 @@ from harness_utils.output import (
     write_report_json,
     seconds_to_milliseconds
 )
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 INTERNAL_TIMEOUT = 900  # 15 minutes
 script_dir = Path(__file__).resolve().parent
@@ -31,6 +32,7 @@ logging.basicConfig(
     datefmt=DEFAULT_DATE_FORMAT,
     level=logging.DEBUG
 )
+am = ArtifactManager(log_dir)
 console = logging.StreamHandler()
 formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
@@ -213,6 +215,8 @@ def main():
         }
 
         write_report_json(str(log_dir), "report.json", report)
+        am.take_screenshot("result.png", ArtifactType.CONFIG_IMAGE, "Screenshot of the benchmark result")
+        am.create_manifest()
 
         time.sleep(15)
 
