@@ -93,7 +93,7 @@ BENCHMARKS = {
         """,
         "version": "1.1"
     },
-    "webxprt": {
+    "webxprt4": {
         "url": "https://www.principledtechnologies.com/benchmarkxprt/webxprt/2021/wx4_build_3_7_3/",
         "wait_expr": "!!document.querySelector('button.wx-start_btn[data-start-test]')",
         "start_expr": "document.querySelector('button.wx-start_btn[data-start-test]').click(); true;",
@@ -106,7 +106,22 @@ BENCHMARKS = {
                 return isNaN(num) ? null : num;
             })();
         """,
-        "version": "3.7.3"
+        "version": "wx4_build_3.7.3"
+    },
+    "webxprt5": {
+        "url": "https://www.principledtechnologies.com/wx5/",
+        "wait_expr": "!!document.querySelector('button.wx-start_btn[data-start-test]')",
+        "start_expr": "document.querySelector('button.wx-start_btn[data-start-test]').click(); true;",
+        "score_expr": """
+            (function() {
+                const el = document.querySelector('.wx-results-score-text');
+                if (!el) return null;
+                const val = el.innerText.trim();
+                const num = parseFloat(val);
+                return isNaN(num) ? null : num;
+            })();
+        """,
+        "version": "5.0"
     }
 }
 

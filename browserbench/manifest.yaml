@@ -7,5 +7,5 @@ output_dir: "run"
 options:
   - name: benchmark
     type: select
-    values: ["jetstream2", "speedometer", "motionmark","kraken","webxprt"]
+    values: ["jetstream2", "speedometer", "motionmark","kraken","webxprt4","webxprt5"]
     tooltip: Select which browser benchmark to run
