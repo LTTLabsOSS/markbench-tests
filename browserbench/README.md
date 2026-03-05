@@ -1,16 +1,15 @@
-# Blender Benchmark
+# Browser Benchmark
 
-A wrapper for the CLI version of [Blender Benchmark](https://opendata.blender.org/).
+Runs one of several browser based benchmarks in Google Chrome
 
 ## Prerequisites
 
 - Python 3.10+
+- Google Chrome
 
 ## Options
 
-- `--scene`: one of four options [all, monster, classroom, junkshop]
-- `--device`: cpu or gpu
-- `--version`: blender version, examples: "3.6.0", "3.5.0"
+- `--benchmark`: One of 5 options of benchmarks [jetstream2,speedometer,motionmark,kraken,webxprt4]
 
 ## Output
 
