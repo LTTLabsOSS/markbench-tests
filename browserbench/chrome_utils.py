@@ -26,9 +26,9 @@ def get_chrome_path_from_registry() -> str:
 def launch_chrome(chrome_path: str, url: str):
     """Launches Google Chrome in maximized window with minimal extras on a new profile"""
     profile_dir = tempfile.mkdtemp()
-    proc = subprocess.Popen([
+    proc = subprocess.Popen([  # pylint: disable=consider-using-with
         chrome_path,
-        f"--remote-debugging-port=9222",
+        "--remote-debugging-port=9222",
         "--no-first-run",
         "--no-default-browser-check",
         "--disable-extensions",
@@ -37,14 +37,16 @@ def launch_chrome(chrome_path: str, url: str):
         "--start-maximized",
         url
     ])
-    return proc, profile_dir
+    return proc
 
 def get_browser_websocket_url(target_url: str, retries=20) -> str:
     """Grabs the websocket url for the tab"""
     devtools_url = "http://localhost:9222/json"
     for _ in range(retries):
         try:
-            targets = json.load(urllib.request.urlopen(devtools_url))
+            with urllib.request.urlopen(devtools_url) as response:
+                targets = json.load(response)
+
             for t in targets:
                 if target_url in t.get("url", ""):
                     return t["webSocketDebuggerUrl"]
