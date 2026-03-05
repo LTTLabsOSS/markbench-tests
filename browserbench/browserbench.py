@@ -110,14 +110,13 @@ BENCHMARKS = {
     },
     "webxprt5": {
         "url": "https://www.principledtechnologies.com/wx5/",
-        "wait_expr": "!!document.querySelector('button.wx-start_btn[data-start-test]')",
-        "start_expr": "document.querySelector('button.wx-start_btn[data-start-test]').click(); true;",
+        "wait_expr": "!!document.querySelector('#startBtn')",
+        "start_expr": "document.querySelector('#startBtn').click(); true;",
         "score_expr": """
             (function() {
-                const el = document.querySelector('.wx-results-score-text');
+                const el = document.querySelector('.wx-results-score');
                 if (!el) return null;
-                const val = el.innerText.trim();
-                const num = parseFloat(val);
+                const num = parseFloat(el.innerText.trim());
                 return isNaN(num) ? null : num;
             })();
         """,
