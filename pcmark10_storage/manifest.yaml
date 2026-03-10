@@ -6,7 +6,7 @@ output_dir: "run"
 options:
   - name: drive_letter
     type: input
-    tooltip: The drive letter that you wish to test
+    tooltip: The drive letter without colon that you wish to test (Default is C)
   - name: test
     type: select
     values:

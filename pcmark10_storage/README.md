@@ -1,16 +1,17 @@
-# UL Procyon AI Text Generation
+# PCMark 10 Storage
 
-Runs the UL Procyon AI Text Generation benchmark using a specified engine and reads the Performance Score result from the output.
+Runs the PCMark 10 Storage benchmark (specifying either quick or full test) and reads the Score result from the output.
 
 ## Prerequisites
 
 - Python 3.10+
-- UL Procyon installed in default location and activated with at least the AI tests
-- AI Text Generation Benchmark DLC installed
+- PCMark 10 with the Storage benchmark installed
+- At least 200GB (Full) or 25GB (Quick) free space on the drive to test
 
 ## Options
 
-- `--engine` Specifies the hardware to benchmark.
+- `--drive_letter` : Allows you to specify a drive letter (default is C)
+- `--test` : Specifies which test to run [full,quick] 
 
 ## Output
 
@@ -19,5 +20,6 @@ report.json
 - `end_time`: number representing a timestamp of the test's end time in milliseconds
 - `test`: The name of the selected benchmark
 - `test_version`: The version of the benchmark
-- `procyon_version`: The version of Procyon used
-- `score`: The text generation scores
+- `pcmark10_version`: The version of PCMark10 used
+- `test_parameter`: Which test was ran
+- `score`: The storage test score
