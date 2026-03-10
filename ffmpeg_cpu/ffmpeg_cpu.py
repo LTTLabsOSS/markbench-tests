@@ -91,18 +91,17 @@ def main():  # pylint: disable=too-many-locals too-many-branches
 
         encoding_fps = None
         last_encoding_line = None
+        logged_encoding_duration_seconds = None
         with open(encoding_log_path, "r", encoding="utf-8") as encoding_log:
             for line in reversed(encoding_log.read().splitlines()):
-                if line.strip():
-                    last_encoding_line = line.strip()
+                last_encoding_line = line.strip() or last_encoding_line
+                frame_match = re.search(r"frame=\s?(\d+)\sfps=\s?(\d+).*elapsed=\s?(\d+:\d{2}:\d{2}\.\d+)", last_encoding_line)
+                if frame_match:
+                    encoding_fps = int(frame_match.group(2))
+                    elapsed = str(frame_match.group(3))
+                    h, m, s = elapsed.split(':')
+                    logged_encoding_duration_seconds = int(h) * 3600 + int(m) * 60 + float(s)
                     break
-        if last_encoding_line:
-            frame_match = re.search(r"frame=\s*(\d+)", last_encoding_line)
-            if frame_match:
-                total_frames = int(frame_match.group(1))
-                duration_seconds = (end_encoding_time - start_encoding_time) / 1000.0
-                if duration_seconds > 0:
-                    encoding_fps = total_frames / duration_seconds
 
         logging.info("Encoding FPS (overall): %s", encoding_fps)
 
@@ -161,7 +160,7 @@ def main():  # pylint: disable=too-many-locals too-many-branches
             "vmaf_version": VMAF_VERSION,
             "score": encoding_fps,
             "unit": "frames per second",
-            "encoding_duration": end_encoding_time - start_encoding_time,
+            "encoding_duration": logged_encoding_duration_seconds,
             "vmaf_score": vmaf_score,
             "vmaf_duration": end_time - end_encoding_time,
             "start_time": start_encoding_time,
