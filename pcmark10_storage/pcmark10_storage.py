@@ -1,6 +1,4 @@
 """UL PCMark 10 Storage test script"""
-
-# pylint: disable=no-name-in-module
 import logging
 import subprocess
 import sys
@@ -91,6 +89,7 @@ def get_arguments():
     return argies
 
 def normalize_drive_letter(drive_letter: str) -> str:
+    """Strips the drive letter to pass it to the harness"""
     drive_letter = drive_letter.strip().upper()
 
     if len(drive_letter) == 1:
