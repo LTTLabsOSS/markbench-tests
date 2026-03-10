@@ -1,0 +1,11 @@
+friendly_name = "Handbrake"
+py_script = "handbrake.py"
+executable = "HandBrakeCLI.exe"
+presentmon_enabled = false
+non_game = true
+
+[[args]]
+name = "encoder"
+type = "select"
+tooltip = "Select which preset to use"
+values = ["h264_cpu", "h265_cpu", "av1_cpu", "h264_nvenc", "h265_nvenc", "av1_nvenc", "h264_vce", "av1_vce", "h264_quicksync", "av1_quicksync"]

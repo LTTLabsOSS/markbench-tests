@@ -70,17 +70,6 @@ def get_latest_benchmark_by_version(benchmark_name: str):
     # Return the latest version
     return versions[0]
 
-
-def find_latest_log():
-    """find latest log from pugetbench"""
-    appdata_path = os.getenv('LOCALAPPDATA')
-    puget_lunch_dir = Path(appdata_path) / "com.puget.benchmark" / "csv"
-    files = [os.path.join(puget_lunch_dir, file) for file in os.listdir(
-        puget_lunch_dir) if os.path.isfile(os.path.join(puget_lunch_dir, file))]
-    latest_file = max(files, key=os.path.getmtime)
-    return Path(latest_file)
-
-
 def find_score_in_log(log_path):
     """Return a single PugetBench overall score, preferring Standard > Extended > Basic."""
     scores = {}

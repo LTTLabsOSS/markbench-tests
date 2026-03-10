@@ -1,4 +1,4 @@
-"""Cinebench 2024 test script"""
+"""Cinebench 2026 test script"""
 from argparse import ArgumentParser
 import logging
 from pathlib import Path
@@ -18,14 +18,17 @@ from harness_utils.output import (
     write_report_json
 )
 
-CINEBENCH_PATH = r"C:\Cinebench2024\Cinebench.exe"
+CINEBENCH_PATH = r"C:\Cinebench2026\Cinebench.exe"
 GPU_TEST = "g_CinebenchGpuTest=true"
 CPU_1_TEST = "g_CinebenchCpu1Test=true"
 CPU_X_TEST = "g_CinebenchCpuXTest=true"
+CPU_1SMT_TEST = "g_CinebenchCpuSMTTest=true"
 TEST_OPTIONS = {
-    "cpu-single-core": [CPU_1_TEST],
-    "cpu-multi-core": [CPU_X_TEST],
-    "cpu-both": [CPU_X_TEST, CPU_1_TEST],
+    "cpu-single-thread": [CPU_1_TEST],
+    "cpu-single-core": [CPU_1SMT_TEST],
+    "cpu-multi-thread": [CPU_X_TEST],
+    "cpu-1/x-thread": [CPU_X_TEST, CPU_1_TEST],
+    "cpu-all": [CPU_X_TEST, CPU_1SMT_TEST, CPU_1_TEST],
     "gpu": [GPU_TEST],
     "all": [GPU_TEST, CPU_X_TEST, CPU_1_TEST]
 }
@@ -52,7 +55,24 @@ formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
 console.setFormatter(formatter)
 logging.getLogger("").addHandler(console)
 
+def cpu_supports_smt() -> bool:
+    """Returns True if CPU supports SMT (hyperthreading)."""
+    try:
+        # physical cores vs logical cores
+        physical = psutil.cpu_count(logical=False)
+        logical = psutil.cpu_count(logical=True)
+        return logical > physical
+    except Exception:
+        return False
+
 test_types = TEST_OPTIONS[args.test]
+
+# If the test includes SMT but CPU has no hyperthreading, skip it
+if CPU_1SMT_TEST in test_types and not cpu_supports_smt():
+    logging.warning(
+        "CPU does not support SMT. Skipping single-core SMT test."
+    )
+    test_types = [t for t in test_types if t != CPU_1SMT_TEST]
 
 try:
     logging.info('Starting benchmark!')
@@ -105,7 +125,7 @@ try:
             logging.info("Benchmark took %.2f seconds", elapsed_test_time)
 
             report = {
-                "test": "Cinebench 2024",
+                "test": "Cinebench 2026",
                 "test_parameter": friendly_test_name(test_type),
                 "score": score,
                 "unit": "score",
