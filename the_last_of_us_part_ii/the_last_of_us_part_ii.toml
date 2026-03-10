@@ -1,0 +1,5 @@
+friendly_name = "The Last of Us Part II"
+py_script = "tlou2.py"
+executable = "tlou-ii.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true

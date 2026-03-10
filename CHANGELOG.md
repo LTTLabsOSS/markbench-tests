@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 Changes are grouped by the date they are merged to the main branch of the repository and are ordered from newest to oldest. Dates use the ISO 8601 extended calendar date format, i.e. YYYY-MM-DD.
 
+## 2025-05-13
+- Add Evolve Benchmark test harness
 ## 2025-07-15
 - Updated 7-Zip to 25.00
 - Updated Y-Cruncher to v0.8.6.9545

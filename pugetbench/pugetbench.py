@@ -1,16 +1,14 @@
 """pugetbench for creators test script"""
 import logging
-import os.path
 from pathlib import Path
-import shutil
 import sys
 from argparse import ArgumentParser
 import time
 from subprocess import Popen, PIPE, STDOUT, TimeoutExpired
 import threading
-from utils import find_latest_log, trim_to_major_minor, find_score_in_log, get_photoshop_version, get_premierepro_version, get_lightroom_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
+from pugetbench_utils import trim_to_major_minor, find_score_in_log, get_photoshop_version, get_premierepro_version, get_lightroom_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+sys.path.insert(1, str((Path(sys.path[0]) / "..").resolve()))
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
     seconds_to_milliseconds,
@@ -19,8 +17,10 @@ from harness_utils.output import (
     DEFAULT_LOGGING_FORMAT
 )
 
-script_dir = os.path.dirname(os.path.realpath(__file__))
-log_dir = os.path.join(script_dir, "run")
+script_dir = Path(__file__).resolve().parent
+log_dir = script_dir / "run"
+timestamp = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())  # e.g., 20260304_153245
+log_file_path = log_dir / f"pugetbench_{timestamp}.csv"
 setup_log_directory(log_dir)
 logging.basicConfig(filename=f'{log_dir}/harness.log',
                     format=DEFAULT_LOGGING_FORMAT,
@@ -37,36 +37,45 @@ APP_CONFIG = {
     "premierepro": {
         "label": "Adobe Premiere Pro",
         "version_func": get_premierepro_version,
+        "app_name": "Adobe Premiere Pro.exe",
         "suffix": None,
     },
     "photoshop": {
         "label": "Adobe Photoshop",
         "version_func": get_photoshop_version,
+        "app_name": "Photoshop.exe",
         "suffix": None,
     },
     "aftereffects": {
         "label": "Adobe After Effects",
         "version_func": get_aftereffects_version,
+        "app_name": "AfterFX.exe",
         "suffix": None,
     },
     "lightroom": {
         "label": "Adobe Lightroom Classic",
         "version_func": get_lightroom_version,
+        "app_name": "Lightroom.exe",
         "suffix": None,
     },
     "resolve": {
         "label": "Davinci Resolve Studio",
         "version_func": get_davinci_version,
+        "app_name": "Resolve.exe",
         "suffix": "-studio",
     },
 }
 
-def safe_terminate(process_name: str):
-    """Attempt to terminate a process but ignore any errors if it fails."""
-    try:
-        terminate_processes(process_name)
-    except Exception as e:
-        logging.info("Process '%s' could not be terminated (may not exist): %s", process_name, e)
+def safe_terminate(process_names: list[str]):
+    """Terminate multiple processes safely."""
+    for pname in process_names:
+        try:
+            terminate_processes(pname)
+        except Exception as e:
+            logging.info(
+                "Process '%s' could not be terminated (may not exist): %s",
+                pname, e
+            )
 
 def read_output(stream, log_func, error_func, error_in_output):
     """Read and log output in real-time from a stream (stdout or stderr)."""
@@ -105,7 +114,9 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         "--benchmark_version", benchmark_version,
         "--preset", "Standard",
         "--app_version", app_version,
-        "--app", application
+        "--app", application,
+        "--timeout", "2400",
+        "--copy_log", str(log_file_path)
     ]
 
     logging.info("Running benchmark command: %s", command)
@@ -121,7 +132,7 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         try:
             retcode = process.wait(timeout=2400)  # waits 2400 seconds = 40 minutes and if test takes longer timeout
         except TimeoutExpired as exc:
-            safe_terminate(EXECUTABLE_NAME)
+            safe_terminate([EXECUTABLE_NAME, APP_CONFIG[application]["app_name"]])
             raise RuntimeError("Benchmark timed out after 40 minutes. Check PugetBench logs for more info.") from exc
 
         stdout_thread.join()
@@ -131,7 +142,7 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
             raise exc
 
         if retcode != 0:
-            safe_terminate(EXECUTABLE_NAME)
+            safe_terminate([EXECUTABLE_NAME, APP_CONFIG[application]["app_name"]])
             raise RuntimeError(f"Benchmark process exited with code {retcode}")
 
         end_time = time.time()
@@ -160,19 +171,17 @@ def execute_benchmark(app: str, app_version: str, benchmark_version: str):
     """Executes the benchmark and then captures the log file."""
     start_time, end_time = run_benchmark(app, app_version, benchmark_version)
 
-    log_file = find_latest_log()
+    if not log_file_path.exists():
+        raise RuntimeError(f"Expected CSV log not found: {log_file_path}")
 
     # Check benchmark completed
-    with open(log_file, encoding="utf-8") as f:
+    with open(log_file_path, encoding="utf-8") as f:
         if "Overall Score" not in f.read():
-            raise RuntimeError(f"Benchmark did not complete correctly; expected 'Overall Score' not found in {log_file}")
+            raise RuntimeError(f"Benchmark did not complete correctly; expected 'Overall Score' not found in {log_file_path}")
 
-    score = find_score_in_log(log_file)
+    score = find_score_in_log(log_file_path)
     if score is None:
-        raise RuntimeError(f"No valid score found in log: {log_file}")
-
-    destination = Path(script_dir) / "run" / log_file.name
-    shutil.copy(log_file, destination)
+        raise RuntimeError(f"No valid score found in log: {log_file_path}")
 
     return start_time, end_time, score
 
@@ -215,7 +224,7 @@ def main():
 
         # Terminate the process only for "real" failures
         if "timed out" in msg or "Benchmark failed" in msg:
-            safe_terminate(EXECUTABLE_NAME)
+            safe_terminate([EXECUTABLE_NAME, APP_CONFIG[args.app]["app_name"]])
 
         sys.exit(1)
     except Exception as e:

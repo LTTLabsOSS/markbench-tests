@@ -1,0 +1,5 @@
+friendly_name = "Atomic Heart"
+py_script = "atomicheart.py"
+executable = "AtomicHeart-Win64-Shipping.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true

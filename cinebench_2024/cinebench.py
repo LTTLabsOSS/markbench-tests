@@ -64,6 +64,7 @@ try:
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             bufsize=1,
+            cwd=str(Path(CINEBENCH_PATH).parent),
                 universal_newlines=True) as proc:
             logging.info(
                 "Cinebench started. Waiting for setup to finish to set process priority.")
@@ -94,6 +95,11 @@ try:
                 logging.error("Could not find score in Cinebench output!")
                 sys.exit(1)
 
+            logging.info(
+                "Cinebench result [%s]: %s",
+                friendly_test_name(test_type),
+                score
+            )
             end_time = time.time()
             elapsed_test_time = round(end_time - START_TIME, 2)
             logging.info("Benchmark took %.2f seconds", elapsed_test_time)
