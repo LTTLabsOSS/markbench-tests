@@ -26,7 +26,7 @@ formatter = logging.Formatter(LOGGING_FORMAT)
 console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
-EXECUTABLE = "7zr_25.00.exe"
+EXECUTABLE = "7za_64_26.00.exe"
 ABS_EXECUTABLE_PATH = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), EXECUTABLE)
 
@@ -46,7 +46,7 @@ with Popen([COMMAND, "b", "3"], cwd=os.path.dirname(
     list_of_strings = stdout_data.decode('utf-8').splitlines()
 
     SPEED_PATTERN = r'^Avr:\s*([0-9]*)\s.*\|\s*([0-9]*)\s.*$'
-    VERSION_PATTERN = r'7-Zip \(r\) (\d+\.\d+).*'
+    VERSION_PATTERN = r'7-Zip \(a\) (\d+\.\d+) \((x\d+)\).*'
 
     VERSION = ""
     SPEED_C = ""
@@ -58,7 +58,9 @@ with Popen([COMMAND, "b", "3"], cwd=os.path.dirname(
             continue
         logging.info(line.strip())
         if '7-Zip' in line:
-            VERSION = re.match(VERSION_PATTERN, line).group(1)
+            match = re.match(VERSION_PATTERN, line)
+            if match:
+                VERSION = f"{match.group(1)} {match.group(2)}"
         if 'Avr:' in line:
             SPEED_C = re.match(SPEED_PATTERN, line).group(1)
             SPEED_D = re.match(SPEED_PATTERN, line).group(2)
