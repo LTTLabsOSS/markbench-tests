@@ -146,7 +146,7 @@ def navigate_settings(keras_service):
 
     am.take_screenshot("advanced_video_2.png", ArtifactType.CONFIG_IMAGE,
                        "second picture of advanced video settings")
-    
+
 def execute_benchmark(keras_service):
     """Starts the benchmark"""
     logging.info('Starting benchmark')
