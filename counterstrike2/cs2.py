@@ -7,7 +7,7 @@ import time
 import pyautogui as gui
 import pydirectinput as user
 import sys
-from cs2_utils import get_resolution, copy_config
+from cs2_utils import get_resolution
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
@@ -55,30 +55,30 @@ def start_game():
     """Launch the game with console enabled and FPS unlocked"""
     return exec_steam_game(STEAM_GAME_ID, game_params=["-console", "+fps_max 0"])
 
+def wait_for_word(keras_service, word, timeout=30, interval=1, why: str = ""):
+    """Function for wait for word"""
+    result = keras_service.wait_for_word(word, timeout=timeout, interval=interval)
+    if not result:
+        raise RuntimeError(f"Did not find {word} to {why}")
+    return result
+
+def look_for_word(keras_service, word, attempts=10, interval=1, why: str = ""):
+    """Function for looking for word"""
+    result = keras_service.look_for_word(word, attempts=attempts, interval=interval)
+    if not result:
+        raise RuntimeError(f"Did not find {word} to {why}.")
+    return result
 
 def console_command(command):
     """Enter a console command"""
     gui.write(command)
     user.press("enter")
 
-
-def run_benchmark(keras_service):
-    """Run cs2 benchmark"""
-    copy_config()
-    setup_start_time = int(time.time())
-    start_game()
-    am = ArtifactManager(LOG_DIR)
-    time.sleep(20)  # wait for game to load into main menu
-
-    result = keras_service.wait_for_word("play", timeout=30, interval=0.1)
-    if not result:
-        logging.info("Did not find the play menu. Did the game load?")
-        raise RuntimeError
-
+def identify_settings():
+    """Checks the resolution to click the settings cog"""
     height, width = get_resolution()
     location = None
 
-    # We check the resolution so we know which screenshot to use for the locate on screen function
     match width:
         case "1920":
             location = gui.locateOnScreen(
@@ -108,10 +108,11 @@ def run_benchmark(keras_service):
     gui.mouseUp()
     time.sleep(0.2)
 
-    result = keras_service.look_for_word(word="video", attempts=10, interval=1)
-    if not result:
-        logging.info("Did not find the video menu button. Did Keras enter settings correctly?")
-        raise RuntimeError
+def navigate_settings(keras_service):
+    """Navigates the settings menu and takes screenshots for traceability"""
+    am = ArtifactManager(LOG_DIR)
+
+    result = look_for_word(keras_service, word="video", why="find the video menu button")
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -119,16 +120,11 @@ def run_benchmark(keras_service):
     gui.mouseUp()
     time.sleep(0.2)
 
-    if keras_service.wait_for_word(word="brightness", timeout=30, interval=1) is None:
-        logging.info("Did not find the video settings menu. Did the menu get stuck?")
-        raise RuntimeError
+    wait_for_word(keras_service, word="brightness", why="find the video settings")
 
     am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings")
 
-    result = keras_service.look_for_word(word="advanced", attempts=10, interval=1)
-    if not result:
-        logging.info("Did not find the advanced video menu. Did Keras click correctly?")
-        raise RuntimeError
+    result = look_for_word(keras_service, word="advanced", why="find the advanced video menu")
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -139,39 +135,71 @@ def run_benchmark(keras_service):
     am.take_screenshot("advanced_video_1.png", ArtifactType.CONFIG_IMAGE,
                        "first picture of advanced video settings")
 
-    result = keras_service.look_for_word(word="boost", attempts=10, interval=1)
-    if not result:
-        logging.info(
-            "Did not find the keyword 'Boost' in the advanced video menu. Did Keras click correctly?")
-        raise RuntimeError
+    result = look_for_word(keras_service, word="boost", why="identify we're in the advanced video menu")
 
     gui.moveTo(result["x"], result["y"])
     time.sleep(1)
     gui.scroll(-6000000)
     time.sleep(1)
 
-    if keras_service.wait_for_word(word="particle", timeout=30, interval=1) is None:
-        logging.info(
-            "Did not find the keyword 'Particle' in advanced video menu. Did Keras scroll correctly?")
-        raise RuntimeError
+    wait_for_word(keras_service, word="particle", why="verify we scrolled correctly")
+
     am.take_screenshot("advanced_video_2.png", ArtifactType.CONFIG_IMAGE,
                        "second picture of advanced video settings")
 
+def execute_benchmark(keras_service):
+    """Starts the benchmark"""
     logging.info('Starting benchmark')
-    user.press("`")
-    time.sleep(0.5)
-    console_command(r"exec maps\de_dust2_benchmark")
-    time.sleep(1)
-    console_command("ui_playsettings_maps_workshop @workshop/3240880604/de_dust2_benchmark")
-    time.sleep(1)
-    console_command("map_workshop 3240880604 de_dust2_benchmark")
-    time.sleep(1)
-    user.press("`")
+
+    result = look_for_word(keras_service, word="play", why="click the play tab")
+
+    gui.moveTo(result["x"], result["y"])
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+    time.sleep(0.2)
+
+    result = look_for_word(keras_service, word="workshop", why="click the workshop tab")
+
+    gui.moveTo(result["x"], result["y"])
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+    time.sleep(0.2)
+
+    result = look_for_word(keras_service, word="fps", why="click the benchmark icon")
+
+    gui.moveTo(result["x"], result["y"])
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+    time.sleep(0.2)
+
+    result = look_for_word(keras_service, word="go", why="start the benchmark")
+
+    gui.moveTo(result["x"], result["y"])
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+    time.sleep(0.2)
+
+def run_benchmark(keras_service):
+    """Run cs2 benchmark"""
+    setup_start_time = int(time.time())
+    start_game()
+    am = ArtifactManager(LOG_DIR)
+    time.sleep(20)  # wait for game to load into main menu
+
+    wait_for_word(keras_service, word="play", why="verify that the game has loaded to the main menu")
+
+    identify_settings()
+
+    navigate_settings(keras_service)
+
+    execute_benchmark(keras_service)
 
     time.sleep(3)
-    if keras_service.wait_for_word(word="benchmark", timeout=30, interval=0.1) is None:
-        logging.error("Didn't see the title of the benchmark. Did the map load?")
-        raise RuntimeError
+    wait_for_word(keras_service, word="benchmark", why="verify that the benchmark has started")
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
@@ -193,16 +221,14 @@ def run_benchmark(keras_service):
     # Default fallback end time
     test_end_time = int(time.time())
 
-    result = keras_service.wait_for_word(word="console", timeout=30, interval=0.1)
-    if result is None:
-        logging.error("The console didn't open. Please check settings and try again.")
-        raise RuntimeError
+    wait_for_word(keras_service, word="console", why="verify the console has opened to show the results")
 
     test_end_time = int(time.time())
+    user.press("`")
     logging.info("The console opened. Marking end time.")
 
     # allow time for result screen to populate
-    time.sleep(8)
+    time.sleep(13)
 
     am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
     am.copy_file(Path(cfg), ArtifactType.CONFIG_TEXT, "cs2 video config")

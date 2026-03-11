@@ -1,9 +1,9 @@
 """Counter-Strike 2 test script utils"""
 import logging
 import re
-import shutil
 import sys
 from pathlib import Path
+import ctypes
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -15,6 +15,14 @@ SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 STEAM_USER_ID = get_registry_active_user()
 DEFAULT_INSTALL_PATH = Path(r"C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive")
 
+def apply_runtime_dpi_awareness():
+    """
+    Applies DPI awareness to this process and any child processes (CS2).
+    Fixes click/UI scaling issues without touching registry.
+    """
+    dpi_awareness_context_per_monitor_aware_v2 = -4
+    ctypes.windll.user32.SetProcessDpiAwarenessContext(dpi_awareness_context_per_monitor_aware_v2)
+    logging.info("Applied runtime DPI awareness to current process")
 
 def get_install_path():
     """Gets install path for Counter-Strike 2"""
@@ -22,21 +30,6 @@ def get_install_path():
     if not install_path:
         return DEFAULT_INSTALL_PATH
     return install_path
-
-
-def copy_config() -> None:
-    """Copy benchmark config to cs2 2 folder"""
-    try:
-        config_path = Path(get_install_path(), "game\\csgo\\")
-        config_path.mkdir(parents=True, exist_ok=True)
-        src_path = SCRIPT_DIRECTORY / "csgo"
-        dest_path = config_path
-        shutil.copytree(src_path, dest_path, dirs_exist_ok=True)
-        logging.info("Copying: %s -> %s", src_path, dest_path)
-    except OSError as err:
-        logging.info("Copying: %s -> %s", src_path, dest_path)
-        logging.error("Could not copy config files.")
-        raise err
 
 
 def read_config() -> list[str] | None:
