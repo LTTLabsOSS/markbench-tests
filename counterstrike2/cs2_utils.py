@@ -1,11 +1,9 @@
 """Counter-Strike 2 test script utils"""
 import logging
 import re
-import shutil
 import sys
 from pathlib import Path
 import ctypes
-import logging
 
 PARENT_DIR = str(Path(sys.path[0], ".."))
 sys.path.append(PARENT_DIR)
@@ -22,8 +20,8 @@ def apply_runtime_dpi_awareness():
     Applies DPI awareness to this process and any child processes (CS2).
     Fixes click/UI scaling issues without touching registry.
     """
-    DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 = -4
-    ctypes.windll.user32.SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2)
+    dpi_awareness_context_per_monitor_aware_v2 = -4
+    ctypes.windll.user32.SetProcessDpiAwarenessContext(dpi_awareness_context_per_monitor_aware_v2)
     logging.info("Applied runtime DPI awareness to current process")
 
 def get_install_path():
