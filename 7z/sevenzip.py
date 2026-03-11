@@ -35,22 +35,22 @@ if os.path.isfile(ABS_EXECUTABLE_PATH) is False:
         "7-Zip executable not found, downloading from network drive")
     copy_from_network_drive()
 
-COMMAND = f'{ABS_EXECUTABLE_PATH}'
-COMMAND = COMMAND.rstrip()
+command = f'{ABS_EXECUTABLE_PATH}'
+command = command.rstrip()
 t1 = time.time()
 logging.info("Starting 7-Zip benchmark! This may take a minute or so...")
-with Popen([COMMAND, "b", "3"], cwd=os.path.dirname(
+with Popen([command, "b", "3"], cwd=os.path.dirname(
     os.path.realpath(__file__)), stdout=subprocess.PIPE) as process:
 
     stdout_data, stderr = process.communicate()
     list_of_strings = stdout_data.decode('utf-8').splitlines()
 
-    SPEED_PATTERN = r'^Avr:\s*([0-9]*)\s.*\|\s*([0-9]*)\s.*$'
-    VERSION_PATTERN = r'7-Zip \(a\) (\d+\.\d+) \((x\d+)\).*'
+    speed_pattern = r'^Avr:\s*([0-9]*)\s.*\|\s*([0-9]*)\s.*$'
+    version_pattern = r'7-Zip \(a\) (\d+\.\d+) \((x\d+)\).*'
 
-    VERSION = ""
-    SPEED_C = ""
-    SPEED_D = ""
+    version = ""
+    speed_c = ""
+    speed_d = ""
 
     # Strips the newline character
     for line in list_of_strings:
@@ -58,27 +58,27 @@ with Popen([COMMAND, "b", "3"], cwd=os.path.dirname(
             continue
         logging.info(line.strip())
         if '7-Zip' in line:
-            match = re.match(VERSION_PATTERN, line)
+            match = re.match(version_pattern, line)
             if match:
-                VERSION = f"{match.group(1)} {match.group(2)}"
+                version = f"{match.group(1)} {match.group(2)}"
         if 'Avr:' in line:
-            SPEED_C = re.match(SPEED_PATTERN, line).group(1)
-            SPEED_D = re.match(SPEED_PATTERN, line).group(2)
+            speed_c = re.match(speed_pattern, line).group(1)
+            speed_d = re.match(speed_pattern, line).group(2)
 
     t2 = time.time()
     logging.info("Benchmark took %s seconds", round((t2 - t1), 3))
     result = [
         {
             "test": "7-Zip Compression",
-            "score": SPEED_C,
+            "score": speed_c,
             "unit": "KiB/s",
-            "version": VERSION.strip()
+            "version": version.strip()
         },
         {
             "test": "7-Zip Decompression",
-            "score": SPEED_D,
+            "score": speed_d,
             "unit": "KiB/s",
-            "version": VERSION.strip()
+            "version": version.strip()
         },
     ]
 
