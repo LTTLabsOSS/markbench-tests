@@ -1,7 +1,7 @@
 [project]
 name = "markbench"
 version = "0.1.0"
-requires-python = "==3.13.*"
+requires-python = "==3.11.*"
 dependencies = [
     "dxcam>=0.0.5",
     "mss>=10.1.0",
