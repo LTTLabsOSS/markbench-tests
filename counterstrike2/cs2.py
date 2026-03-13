@@ -108,9 +108,8 @@ def identify_settings():
     gui.mouseUp()
     time.sleep(0.2)
 
-def navigate_settings(keras_service):
+def navigate_settings(keras_service, am):
     """Navigates the settings menu and takes screenshots for traceability"""
-    am = ArtifactManager(LOG_DIR)
 
     result = look_for_word(keras_service, word="video", why="find the video menu button")
 
@@ -194,7 +193,7 @@ def run_benchmark(keras_service):
 
     identify_settings()
 
-    navigate_settings(keras_service)
+    navigate_settings(keras_service, am)
 
     execute_benchmark(keras_service)
 
