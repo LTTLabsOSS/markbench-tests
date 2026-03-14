@@ -4,8 +4,8 @@ import sys
 from pathlib import Path
 import os
 
-PARENT_DIR = str(Path(sys.path[0], ".."))
-sys.path.append(PARENT_DIR)
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 APPDATA = os.getenv("LOCALAPPDATA")

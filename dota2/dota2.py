@@ -7,15 +7,14 @@ import pydirectinput as user
 import sys
 from dota2_utils import get_resolution, verify_replay, copy_replay, copy_config, get_args
 
-sys.path.insert(1, str(Path(sys.path[0]).parent))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.output import (
-    setup_log_directory,
+    setup_logging,
     write_report_json,
     format_resolution,
-    seconds_to_milliseconds,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT)
+    seconds_to_milliseconds)
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
 from harness_utils.steam import exec_steam_game
@@ -28,15 +27,7 @@ PROCESS_NAME = "dota2.exe"
 STEAM_GAME_ID = 570
 
 
-setup_log_directory(str(LOG_DIRECTORY))
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+setup_logging(LOG_DIRECTORY)
 
 args = get_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
@@ -240,7 +231,7 @@ try:
         "end_time": seconds_to_milliseconds(end_time)
     }
 
-    write_report_json(str(LOG_DIRECTORY), "report.json", report)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

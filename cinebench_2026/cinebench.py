@@ -8,15 +8,13 @@ import time
 import psutil
 from cinebench_utils import friendly_test_name, get_score
 
-PARENT_DIR = str(Path(sys.path[0], ".."))
-sys.path.append(PARENT_DIR)
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.output import (
-    DEFAULT_DATE_FORMAT,
-    DEFAULT_LOGGING_FORMAT,
+    setup_logging,
     seconds_to_milliseconds,
-    write_report_json
-)
+    write_report_json)
 
 CINEBENCH_PATH = r"C:\Cinebench2026\Cinebench.exe"
 GPU_TEST = "g_CinebenchGpuTest=true"
@@ -40,20 +38,9 @@ parser.add_argument(
     choices=TEST_OPTIONS.keys())
 args = parser.parse_args()
 
-script_dir = Path(__file__).resolve().parent
-log_dir = script_dir / "run"
-log_dir.mkdir(exist_ok=True)
-log_file = log_dir / "harness.log"
-logging.basicConfig(
-    filename=log_file,
-    format=DEFAULT_LOGGING_FORMAT,
-    datefmt=DEFAULT_DATE_FORMAT,
-    level=logging.DEBUG
-)
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger("").addHandler(console)
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+setup_logging(LOG_DIRECTORY)
 
 def cpu_supports_smt() -> bool:
     """Returns True if CPU supports SMT (hyperthreading)."""
@@ -134,7 +121,7 @@ try:
             }
             session_report.append(report)
 
-    write_report_json(str(log_dir), "report.json", session_report)
+    write_report_json(LOG_DIRECTORY, "report.json", session_report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

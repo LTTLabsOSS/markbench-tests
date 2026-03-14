@@ -8,33 +8,25 @@ import os
 from utils import read_resolution, get_documents_path, find_latest_result_file
 from argparse import ArgumentParser
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.output import (
-    format_resolution, seconds_to_milliseconds, setup_log_directory, write_report_json, DEFAULT_LOGGING_FORMAT, DEFAULT_DATE_FORMAT)
+    setup_logging,
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json)
 from harness_utils.process import terminate_processes
 from harness_utils.steam import exec_steam_game, get_build_id
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY.joinpath("run")
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 STEAM_GAME_ID = 1286680
 EXECUTABLE = "Wonderlands.exe"
 
 user.FAILSAFE = False
-
-def setup_logging():
-    """default logging config"""
-    setup_log_directory(LOG_DIRECTORY)
-    logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                        format=DEFAULT_LOGGING_FORMAT,
-                        datefmt=DEFAULT_DATE_FORMAT,
-                        level=logging.DEBUG)
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
 
 
 def start_game() -> any:

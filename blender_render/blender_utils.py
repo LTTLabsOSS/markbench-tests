@@ -12,11 +12,12 @@ from dataclasses import dataclass
 # pylint: disable=no-name-in-module
 from win32api import LOWORD, HIWORD, GetFileVersionInfo
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.misc import download_file, extract_file_from_archive
 
 
-SCRIPT_DIR = Path(__file__).resolve().parent
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 
 
 @dataclass
@@ -53,7 +54,7 @@ BENCHMARK_CONFIG = {
 
 def download_scene(scene: BlenderScene) -> None:
     """download blender project to script directory, tries network drive then the internet"""
-    destination = SCRIPT_DIR.joinpath(scene.file_name)
+    destination = SCRIPT_DIRECTORY.joinpath(scene.file_name)
     if destination.exists():
         logging.info("%s scene file detected, no downloading required", scene.file_name)
         return
@@ -70,7 +71,7 @@ def download_scene(scene: BlenderScene) -> None:
         logging.info("downloading %s from internet...", scene.file_name)
         download_file(scene.download_url, destination)
         if scene.name == "bmw":
-            extract_file_from_archive(destination, "bmw27/bmw27_cpu.blend", SCRIPT_DIR)
+            extract_file_from_archive(destination, "bmw27/bmw27_cpu.blend", SCRIPT_DIRECTORY)
         if destination.exists():
             return
     except Exception as ex:
@@ -101,7 +102,7 @@ def run_blender_render(executable_path: Path, log_directory: Path, device: str,
                        benchmark: BlenderScene) -> str:
     """Execute the blender render of barbershop, returns the duration as string"""
     blend_log = log_directory.joinpath("blender.log")
-    blend_path = SCRIPT_DIR.joinpath(benchmark.file_name)
+    blend_path = SCRIPT_DIRECTORY.joinpath(benchmark.file_name)
     cmd_line = f'"{str(executable_path)}" -b -E CYCLES -y "{str(blend_path)}" -f 1 -- --cycles-device {device} --cycles-print-stats'
     with open(blend_log, 'w', encoding="utf-8") as f_obj:
         subprocess.run(cmd_line, stdout=f_obj, text=True, check=True)

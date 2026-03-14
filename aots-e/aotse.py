@@ -8,19 +8,16 @@ import glob
 import os
 from aotse_utils import read_current_resolution, find_score_in_log, delete_old_scores, get_args, replace_exe, restore_exe
 
-PARENT_DIR = str(Path(sys.path[0], ".."))
-sys.path.append(PARENT_DIR)
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.keras_service import KerasService
 from harness_utils.steam import get_build_id, exec_steam_game
 from harness_utils.output import (
-    DEFAULT_DATE_FORMAT,
-    DEFAULT_LOGGING_FORMAT,
+    setup_logging,
     seconds_to_milliseconds,
-    setup_log_directory,
     format_resolution,
-    write_report_json
-)
+    write_report_json)
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 #####
@@ -30,10 +27,10 @@ USERNAME = getpass.getuser()
 CONFIG_PATH = Path(f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Ashes of the Singularity - Escalation")
 CONFIG_FILENAME = "settings.ini"
 STEAM_GAME_ID = 507490
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR / "run"
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 EXECUTABLE = "StardockLauncher.exe"
-CONFIG_DIR = SCRIPT_DIR / "config"
+CONFIG_DIR = SCRIPT_DIRECTORY / "config"
 BENCHMARK_CONFIG = {
     "GPU_Benchmark": {
         "hardware": "GPU",
@@ -95,19 +92,11 @@ def run_benchmark():
 
     return test_start_time, test_end_time
 
-setup_log_directory(LOG_DIR)
-logging.basicConfig(filename=LOG_DIR / "harness.log",
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+setup_logging(LOG_DIRECTORY)
 
 args = get_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
-am = ArtifactManager(LOG_DIR)
+am = ArtifactManager(LOG_DIRECTORY)
 
 try:
     logging.info('Starting benchmark!')
@@ -122,7 +111,11 @@ try:
     logging.info("Score was %s", score)
 
     am.copy_file(CFG, ArtifactType.CONFIG_TEXT, "Settings file")
-    result_file = sorted(glob.glob(os.path.join(CONFIG_PATH, RESULT)), key=os.path.getmtime, reverse=True)
+    result_file = sorted(
+        CONFIG_PATH.glob(RESULT),
+        key=lambda path: path.stat().st_mtime,
+        reverse=True,
+    )
     output_file = result_file[0]
     am.copy_file(output_file, ArtifactType.CONFIG_TEXT, "Results file")
     hardware = BENCHMARK_CONFIG[args.benchmark]["hardware"]
@@ -138,7 +131,7 @@ try:
     }
 
     am.create_manifest()
-    write_report_json(LOG_DIR, "report.json", report)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

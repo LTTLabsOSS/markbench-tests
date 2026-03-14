@@ -8,28 +8,19 @@ from subprocess import Popen, PIPE, STDOUT, TimeoutExpired
 import threading
 from pugetbench_utils import trim_to_major_minor, find_score_in_log, get_photoshop_version, get_premierepro_version, get_lightroom_version, get_aftereffects_version, get_davinci_version, get_pugetbench_version, get_latest_benchmark_by_version
 
-sys.path.insert(1, str((Path(sys.path[0]) / "..").resolve()))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
+    setup_logging,
     seconds_to_milliseconds,
-    setup_log_directory,
-    write_report_json,
-    DEFAULT_LOGGING_FORMAT
-)
+    write_report_json)
 
-script_dir = Path(__file__).resolve().parent
-log_dir = script_dir / "run"
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 timestamp = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())  # e.g., 20260304_153245
-log_file_path = log_dir / f"pugetbench_{timestamp}.csv"
-setup_log_directory(log_dir)
-logging.basicConfig(filename=f'{log_dir}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt='%m-%d %H:%M',
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+LOG_FILE_PATH = LOG_DIRECTORY / f"pugetbench_{timestamp}.csv"
+setup_logging(LOG_DIRECTORY)
 
 EXECUTABLE_NAME = "PugetBench for Creators.exe"
 
@@ -116,7 +107,7 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         "--app_version", app_version,
         "--app", application,
         "--timeout", "2400",
-        "--copy_log", str(log_file_path)
+        "--copy_log", str(LOG_FILE_PATH)
     ]
 
     logging.info("Running benchmark command: %s", command)
@@ -171,17 +162,17 @@ def execute_benchmark(app: str, app_version: str, benchmark_version: str):
     """Executes the benchmark and then captures the log file."""
     start_time, end_time = run_benchmark(app, app_version, benchmark_version)
 
-    if not log_file_path.exists():
-        raise RuntimeError(f"Expected CSV log not found: {log_file_path}")
+    if not LOG_FILE_PATH.exists():
+        raise RuntimeError(f"Expected CSV log not found: {LOG_FILE_PATH}")
 
     # Check benchmark completed
-    with open(log_file_path, encoding="utf-8") as f:
+    with open(LOG_FILE_PATH, encoding="utf-8") as f:
         if "Overall Score" not in f.read():
-            raise RuntimeError(f"Benchmark did not complete correctly; expected 'Overall Score' not found in {log_file_path}")
+            raise RuntimeError(f"Benchmark did not complete correctly; expected 'Overall Score' not found in {LOG_FILE_PATH}")
 
-    score = find_score_in_log(log_file_path)
+    score = find_score_in_log(LOG_FILE_PATH)
     if score is None:
-        raise RuntimeError(f"No valid score found in log: {log_file_path}")
+        raise RuntimeError(f"No valid score found in log: {LOG_FILE_PATH}")
 
     return start_time, end_time, score
 
@@ -215,7 +206,7 @@ def main():
             "score": score
         }
 
-        write_report_json(log_dir, "report.json", report)
+        write_report_json(LOG_DIRECTORY, "report.json", report)
 
     except RuntimeError as e:
         msg = str(e)

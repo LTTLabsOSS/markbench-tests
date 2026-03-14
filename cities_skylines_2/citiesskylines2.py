@@ -10,23 +10,22 @@ import pydirectinput as user
 
 from citiesskylines2_utils import read_current_resolution, copy_launcherfiles, copy_launcherpath, copy_benchmarksave, copy_continuegame
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
+    setup_logging,
     write_report_json,
-    seconds_to_milliseconds,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT
-)
+    seconds_to_milliseconds)
 from harness_utils.steam import exec_steam_game, get_build_id
 from harness_utils.keras_service import KerasService, ScreenSplitConfig, ScreenShotDivideMethod, ScreenShotQuadrant
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.misc import mouse_scroll_n_times
 
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "cities2.exe"
 STEAM_GAME_ID = 949230
 top_left_keras = ScreenSplitConfig(
@@ -53,18 +52,6 @@ CONFIG_FULL_PATH = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
 
 user.FAILSAFE = False
 
-def setup_logging():
-    """default logging config"""
-    LOG_DIR.mkdir(exist_ok=True)
-    logging.basicConfig(filename=f'{LOG_DIR}/harness.log',
-                        format=DEFAULT_LOGGING_FORMAT,
-                        datefmt=DEFAULT_DATE_FORMAT,
-                        level=logging.DEBUG)
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
-
 
 def start_game():
     """Launch the game with no launcher or start screen"""
@@ -84,7 +71,7 @@ def run_benchmark(keras_service):
     copy_benchmarksave(save_files)
     copy_continuegame(config_files)
 
-    am = ArtifactManager(LOG_DIR)
+    am = ArtifactManager(LOG_DIRECTORY)
 
     start_game()
     setup_start_time = int(time.time())
@@ -236,12 +223,12 @@ def main():
         "version": get_build_id(STEAM_GAME_ID)
     }
 
-    write_report_json(LOG_DIR, "report.json", report)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
 
 
 if __name__ == "__main__":
     try:
-        setup_logging()
+        setup_logging(LOG_DIRECTORY)
         main()
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")

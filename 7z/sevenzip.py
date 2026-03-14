@@ -1,46 +1,36 @@
 """7-Zip test script"""
 import json
 import logging
-import os.path
+from pathlib import Path
 import re
 import sys
 import time
 from subprocess import Popen
 import subprocess
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from sevenzip_utils import copy_from_network_drive
+from harness_utils.output import setup_logging
 
-script_dir = os.path.dirname(os.path.realpath(__file__))
-log_dir = os.path.join(script_dir, "run")
-if not os.path.isdir(log_dir):
-    os.mkdir(log_dir)
-LOGGING_FORMAT = '%(asctime)s %(levelname)-s %(message)s'
-logging.basicConfig(filename=f'{log_dir}/harness.log',
-                    format=LOGGING_FORMAT,
-                    datefmt='%m-%d %H:%M',
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+setup_logging(LOG_DIRECTORY)
 
 EXECUTABLE = "7za_64_26.00.exe"
-ABS_EXECUTABLE_PATH = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), EXECUTABLE)
+ABS_EXECUTABLE_PATH = SCRIPT_DIRECTORY / EXECUTABLE
 
-if os.path.isfile(ABS_EXECUTABLE_PATH) is False:
+if ABS_EXECUTABLE_PATH.is_file() is False:
     logging.info(
         "7-Zip executable not found, downloading from network drive")
     copy_from_network_drive()
 
-command = f'{ABS_EXECUTABLE_PATH}'
+command = str(ABS_EXECUTABLE_PATH)
 command = command.rstrip()
 t1 = time.time()
 logging.info("Starting 7-Zip benchmark! This may take a minute or so...")
-with Popen([command, "b", "3"], cwd=os.path.dirname(
-    os.path.realpath(__file__)), stdout=subprocess.PIPE) as process:
+with Popen([command, "b", "3"], cwd=SCRIPT_DIRECTORY, stdout=subprocess.PIPE) as process:
 
     stdout_data, stderr = process.communicate()
     list_of_strings = stdout_data.decode('utf-8').splitlines()
@@ -82,5 +72,5 @@ with Popen([command, "b", "3"], cwd=os.path.dirname(
         },
     ]
 
-    with open(os.path.join(log_dir, "report.json"), "w", encoding="utf-8") as file:
+    with open(LOG_DIRECTORY / "report.json", "w", encoding="utf-8") as file:
         file.write(json.dumps(result))

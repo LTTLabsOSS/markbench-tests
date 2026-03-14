@@ -9,22 +9,21 @@ from pathlib import Path
 import vgamepad as vg
 from rocket_league_utils import get_resolution, copy_replay, find_epic_executable, get_args
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.output import (
-    setup_log_directory,
+    setup_logging,
     write_report_json,
     format_resolution,
-    seconds_to_milliseconds,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT)
+    seconds_to_milliseconds)
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.misc import LTTGamePadDS4, find_eg_game_version
 
-SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 USERNAME = getpass.getuser()
 CONFIG_PATH = Path(f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Rocket League\\TAGame\\Config\\TASystemSettings.ini")
 PROCESS_NAME = "rocketleague.exe"
@@ -34,16 +33,7 @@ GAMEFOLDERNAME = "rocketleague"
 am = ArtifactManager(LOG_DIRECTORY)
 gamepad = LTTGamePadDS4()
 
-setup_log_directory(LOG_DIRECTORY)
-
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+setup_logging(LOG_DIRECTORY)
 
 args = get_args()
 kerasService = KerasService(args.keras_host, args.keras_port)

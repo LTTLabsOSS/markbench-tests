@@ -8,7 +8,8 @@ import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from ffmpeg_cpu_utils import (
     copy_ffmpeg_from_network_drive,
@@ -20,31 +21,17 @@ from ffmpeg_cpu_utils import (
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.output import (
-    DEFAULT_DATE_FORMAT,
-    DEFAULT_LOGGING_FORMAT,
-    write_report_json,
-)
+    setup_logging,
+    write_report_json)
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
-LOG_DIR.mkdir(exist_ok=True)
-
-LOG_FILE = LOG_DIR / "harness.log"
-logging.basicConfig(
-    filename=LOG_FILE,
-    format=DEFAULT_LOGGING_FORMAT,
-    datefmt=DEFAULT_DATE_FORMAT,
-    level=logging.DEBUG,
-)
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+setup_logging(LOG_DIRECTORY)
 
 ENCODERS = ["h264", "av1", "h265"]
-FFMPEG_EXE_PATH = SCRIPT_DIR / "ffmpeg-8.0.1-full_build" / "bin" / "ffmpeg.exe"
+FFMPEG_EXE_PATH = SCRIPT_DIRECTORY / "ffmpeg-8.0.1-full_build" / "bin" / "ffmpeg.exe"
 FFMPEG_VERSION = "ffmpeg-8.0.1-full_build"
 VMAF_VERSION = "vmaf_v0.6.1neg"
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger("").addHandler(console)
 
 
 def main():  # pylint: disable=too-many-locals too-many-branches
@@ -70,18 +57,18 @@ def main():  # pylint: disable=too-many-locals too-many-branches
         logging.info("Starting ffmpeg_cpu benchmark...")
 
         if args.encoder == "h264":
-            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libx264 -preset slow -profile:v high -level:v 5.1 -crf 20 -c:a copy {SCRIPT_DIR}\\output.mp4"
+            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIRECTORY}\\big_buck_bunny_1080p24.y4m -c:v libx264 -preset slow -profile:v high -level:v 5.1 -crf 20 -c:a copy {SCRIPT_DIRECTORY}\\output.mp4"
         elif args.encoder == "av1":
-            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libsvtav1 -preset 7 -profile:v main -level:v 5.1 -crf 20 -c:a copy {SCRIPT_DIR}\\output.mp4"
+            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIRECTORY}\\big_buck_bunny_1080p24.y4m -c:v libsvtav1 -preset 7 -profile:v main -level:v 5.1 -crf 20 -c:a copy {SCRIPT_DIRECTORY}\\output.mp4"
         elif args.encoder == "h265":
-            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIR}\\big_buck_bunny_1080p24.y4m -c:v libx265 -preset slow -profile:v main -level:v 5.1 -crf 20 -c:a copy {SCRIPT_DIR}\\output.mp4"
+            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIRECTORY}\\big_buck_bunny_1080p24.y4m -c:v libx265 -preset slow -profile:v main -level:v 5.1 -crf 20 -c:a copy {SCRIPT_DIRECTORY}\\output.mp4"
         else:
             logging.error("Invalid encoder selection: %s", args.encoder)
             sys.exit(1)
 
         logging.info("Executing command: %s", command)
 
-        encoding_log_path = LOG_DIR / "encoding.log"
+        encoding_log_path = LOG_DIRECTORY / "encoding.log"
         with open(encoding_log_path, "w", encoding="utf-8") as encoding_log:
             logging.info("Encoding...")
             subprocess.run(command, stderr=encoding_log, check=True)
@@ -107,8 +94,8 @@ def main():  # pylint: disable=too-many-locals too-many-branches
 
         logging.info("Beginning VMAF")
 
-        source_path = SCRIPT_DIR / "big_buck_bunny_1080p24.y4m"
-        encoded_path = SCRIPT_DIR / "output.mp4"
+        source_path = SCRIPT_DIRECTORY / "big_buck_bunny_1080p24.y4m"
+        encoded_path = SCRIPT_DIRECTORY / "output.mp4"
         filter_complex = (
             f"libvmaf=model=version={VMAF_VERSION}:n_threads=10:log_path=vmafout.txt"
         )
@@ -126,7 +113,7 @@ def main():  # pylint: disable=too-many-locals too-many-branches
         logging.info("VMAF args: %s", argument_list)
 
         vmaf_score = None
-        vmaf_log_path = LOG_DIR / "vmaf.log"
+        vmaf_log_path = LOG_DIRECTORY / "vmaf.log"
         with open(vmaf_log_path, "w+", encoding="utf-8") as vmaf_log:
             logging.info("Calculating VMAF...")
             subprocess.run(
@@ -146,7 +133,7 @@ def main():  # pylint: disable=too-many-locals too-many-branches
         logging.getLogger("").removeHandler(console)
         logging.getLogger("").addHandler(console)
 
-        am = ArtifactManager(LOG_DIR)
+        am = ArtifactManager(LOG_DIRECTORY)
         am.copy_file(
             str(encoding_log_path), ArtifactType.RESULTS_TEXT, "encoding log file"
         )
@@ -166,7 +153,7 @@ def main():  # pylint: disable=too-many-locals too-many-branches
             "start_time": start_encoding_time,
             "end_time": end_time,
         }
-        write_report_json(str(LOG_DIR), "report.json", report)
+        write_report_json(LOG_DIRECTORY, "report.json", report)
     except Exception as e:
         logging.error("Something went wrong running the benchmark!")
         logging.exception(e)

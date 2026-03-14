@@ -11,16 +11,15 @@ import time
 import shutil
 from argparse import ArgumentParser
 
-PARENT_DIR = str(Path(sys.path[0], ".."))
-sys.path.append(PARENT_DIR)
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 from harness_utils.steam import get_app_install_location
 
 USERNAME = getpass.getuser()
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 STEAM_GAME_ID = 507490
 CONFIG_FILENAME = "settings.ini"
 USERNAME = getpass.getuser()

@@ -1,32 +1,23 @@
 """Recording session test script"""
 import logging
 import os
+from pathlib import Path
 import socket
 import sys
 import time
 
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.output import (
+    setup_logging,
     write_report_json,
-    setup_log_directory,
-    seconds_to_milliseconds,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT)
+    seconds_to_milliseconds)
 
-SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-LOG_DIRECTORY = os.path.join(SCRIPT_DIR, "run")
-setup_log_directory(LOG_DIRECTORY)
-
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+setup_logging(LOG_DIRECTORY)
 
 HOST = ''
 PORT = 30000

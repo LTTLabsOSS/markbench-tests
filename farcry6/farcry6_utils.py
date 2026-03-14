@@ -4,12 +4,12 @@ import xml.etree.ElementTree as ET
 
 # Corrected XML file path (use raw string r"" or double backslashes)
 username = os.getlogin()
-xml_file = rf"C:\Users\{username}\Documents\My Games\Far Cry 6\gamerprofile.xml"
+XML_FILE = rf"C:\Users\{username}\Documents\My Games\Far Cry 6\gamerprofile.xml"
 
 # Parse the XML file
 def get_resolution() -> tuple[int, int]:
     try:
-        tree = ET.parse(xml_file)
+        tree = ET.parse(XML_FILE)
         root = tree.getroot()
 
         # Find the <RenderProfile> element first
@@ -29,7 +29,7 @@ def get_resolution() -> tuple[int, int]:
         return width, height
 
     except FileNotFoundError:
-        print(f"Error: File not found -> {xml_file}")
+        print(f"Error: File not found -> {XML_FILE}")
     except ET.ParseError:
         print("Error: Failed to parse XML file")
     except ValueError as e:

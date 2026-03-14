@@ -2,33 +2,26 @@
 import json
 import logging
 import os.path
+from pathlib import Path
 import subprocess
 import sys
 import psutil
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from xz_utils import XZ_EXECUTABLE, xz_executable_exists, copy_from_network_drive, current_time_ms
+from harness_utils.output import setup_logging
 
-script_dir = os.path.dirname(os.path.realpath(__file__))
-log_dir = os.path.join(script_dir, "run")
-if not os.path.isdir(log_dir):
-    os.mkdir(log_dir)
-LOGGING_FORMAT = '%(asctime)s %(levelname)-s %(message)s'
-logging.basicConfig(filename=f'{log_dir}/harness.log',
-                    format=LOGGING_FORMAT,
-                    datefmt='%m-%d %H:%M',
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+setup_logging(LOG_DIRECTORY)
 
 if xz_executable_exists() is False:
     logging.info("Downloading xz utils")
     copy_from_network_drive()
 
-ABS_EXECUTABLE_PATH = os.path.join(script_dir, XZ_EXECUTABLE)
+ABS_EXECUTABLE_PATH = SCRIPT_DIRECTORY / XZ_EXECUTABLE
 
 scores = []
 start_time = current_time_ms()
@@ -65,5 +58,5 @@ report = {
     "per_core_score": scores
 }
 
-with open(os.path.join(log_dir, "report.json"), "w", encoding="utf-8") as report_file:
+with open(LOG_DIRECTORY / "report.json", "w", encoding="utf-8") as report_file:
     report_file.write(json.dumps(report))

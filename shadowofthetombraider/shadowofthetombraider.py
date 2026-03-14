@@ -7,16 +7,15 @@ import pydirectinput as user
 import sys
 from shadow_of_the_tomb_raider_utils import get_latest_file_report, get_resolution, get_args
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 #pylint: disable=wrong-import-position
 from harness_utils.output import (
-    setup_log_directory,
+    setup_logging,
     write_report_json,
     format_resolution,
-    seconds_to_milliseconds,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT)
+    seconds_to_milliseconds)
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService, ScreenShotDivideMethod, ScreenShotQuadrant, ScreenSplitConfig
 from harness_utils.steam import exec_steam_game, get_build_id
@@ -24,22 +23,10 @@ from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 STEAM_GAME_ID = 750920
 PROCESS_NAME = "SOTTR.exe"
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 
 user.FAILSAFE = False
-
-def setup_logging():
-    """default logging config"""
-    setup_log_directory(LOG_DIR)
-    logging.basicConfig(filename=f'{LOG_DIR}/harness.log',
-                        format=DEFAULT_LOGGING_FORMAT,
-                        datefmt=DEFAULT_DATE_FORMAT,
-                        level=logging.DEBUG)
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
 
 
 def start_game():
@@ -153,15 +140,15 @@ def run_benchmark(keras_service, am):
     }
 
     am.create_manifest()
-    write_report_json(LOG_DIR, "report.json", report)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
 
 
 def main():
     """entry point"""
-    setup_logging()
+    setup_logging(LOG_DIRECTORY)
     args = get_args()
     keras_service = KerasService(args.keras_host, args.keras_port)
-    am = ArtifactManager(LOG_DIR)
+    am = ArtifactManager(LOG_DIRECTORY)
     run_benchmark(keras_service, am)
 
 

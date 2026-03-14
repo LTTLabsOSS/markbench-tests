@@ -1,23 +1,22 @@
 """The Last of Us Part I test script"""
 import logging
 import os
+from pathlib import Path
 import time
 import sys
 import pydirectinput as user
 
 from the_last_of_us_part_i_utils import get_args, get_resolution, copy_autosave
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.keras_service import KerasService
 from harness_utils.output import (
+    setup_logging,
     format_resolution,
     seconds_to_milliseconds,
-    setup_log_directory,
-    write_report_json,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT,
-)
+    write_report_json)
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
     get_registry_active_user,
@@ -28,8 +27,8 @@ from harness_utils.misc import press_n_times
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 STEAM_GAME_ID = 1888930
-SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "tlou"
 
 user.FAILSAFE = False
@@ -245,16 +244,7 @@ def run_benchmark():
     return test_start_time, test_end_time
 
 
-setup_log_directory(LOG_DIRECTORY)
-
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+setup_logging(LOG_DIRECTORY)
 
 args = get_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
@@ -262,11 +252,15 @@ kerasService = KerasService(args.keras_host, args.keras_port)
 try:
     start_time, end_time = run_benchmark()
     steam_id = get_registry_active_user()
-    config_path = os.path.join(
-        os.environ["USERPROFILE"], "Saved Games", "The Last of Us Part I",
-        "users", str(steam_id), "screeninfo.cfg"
+    config_path = (
+        Path(os.environ["USERPROFILE"])
+        / "Saved Games"
+        / "The Last of Us Part I"
+        / "users"
+        / str(steam_id)
+        / "screeninfo.cfg"
     )
-    height, width = get_resolution(config_path)
+    height, width = get_resolution(str(config_path))
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),

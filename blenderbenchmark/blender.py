@@ -2,10 +2,11 @@
 from argparse import ArgumentParser
 import json
 import logging
-import os.path
+from pathlib import Path
 import subprocess
 from zipfile import ZipFile
 import requests
+import sys
 
 # omit the first arg which is the script name
 parser = ArgumentParser()
@@ -18,37 +19,31 @@ parser.add_argument("-v", "--version", dest="version",
 
 args = parser.parse_args()
 
-SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-log_dir = os.path.join(SCRIPT_DIR, "run")
-if not os.path.isdir(log_dir):
-    os.mkdir(log_dir)
-LOGGING_FORMAT = '%(asctime)s %(levelname)-s %(message)s'
-logging.basicConfig(filename=f'{log_dir}/harness.log',
-                    format=LOGGING_FORMAT,
-                    datefmt='%m-%d %H:%M',
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
+
+from harness_utils.output import setup_logging
+
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+setup_logging(LOG_DIRECTORY)
 
 EXECUTABLE = "benchmark-launcher-cli.exe"
-ABS_EXECUTABLE_PATH = os.path.join(SCRIPT_DIR, EXECUTABLE)
+ABS_EXECUTABLE_PATH = SCRIPT_DIRECTORY / EXECUTABLE
 
 
 def download_and_extract_cli():
     """Downloads and extracts blender benchmark CLI"""
     download_url = "https://download.blender.org/release/BlenderBenchmark2.0/launcher/benchmark-launcher-cli-3.1.0-windows.zip"
-    zip_path = os.path.join(
-        SCRIPT_DIR, "benchmark-launcher-cli-3.1.0-windows.zip")
+    zip_path = SCRIPT_DIRECTORY / "benchmark-launcher-cli-3.1.0-windows.zip"
     response = requests.get(download_url, allow_redirects=True, timeout=120)
-    with open(zip_path, 'wb') as zip_file:
+    with zip_path.open('wb') as zip_file:
         zip_file.write(response.content)
     with ZipFile(zip_path, 'r') as zip_object:
-        zip_object.extractall(path=SCRIPT_DIR)
+        zip_object.extractall(path=SCRIPT_DIRECTORY)
 
 
-if os.path.isfile(ABS_EXECUTABLE_PATH) is False:
+if ABS_EXECUTABLE_PATH.is_file() is False:
     logging.info("Downloading blender benchmark CLI")
     download_and_extract_cli()
 
@@ -130,7 +125,7 @@ for report in json_array:
     scene_report['results_json'] = report['stats']
     json_report.append(scene_report)
 
-with open(os.path.join(log_dir, "report.json"), "w", encoding="utf-8") as file:
+with open(LOG_DIRECTORY / "report.json", "w", encoding="utf-8") as file:
     file.write(json.dumps(json_report))
 
 logging.info('Test finished!')

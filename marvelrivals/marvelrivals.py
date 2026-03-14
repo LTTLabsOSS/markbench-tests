@@ -10,14 +10,14 @@ import sys
 from marvelrivals_utils import read_resolution, find_latest_benchmarkcsv
 import subprocess
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.output import (
+    setup_logging,
     write_report_json,
     format_resolution,
-    seconds_to_milliseconds,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT)
+    seconds_to_milliseconds)
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
@@ -25,8 +25,8 @@ from harness_utils.misc import mouse_scroll_n_times
 from harness_utils.steam import get_app_install_location, get_build_id
 
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 STEAM_GAME_ID = 2767030
 PROCESS_NAME = "Marvel-Win64-Shipping.exe"
 LAUNCHER_NAME = "MarvelRivals_Launcher.exe"
@@ -37,26 +37,14 @@ CFG = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
 
 user.FAILSAFE = False
 
-am = ArtifactManager(LOG_DIR)
-
-def setup_logging():
-    """default logging config"""
-    LOG_DIR.mkdir(exist_ok=True)
-    logging.basicConfig(filename=f'{LOG_DIR}/harness.log',
-                        format=DEFAULT_LOGGING_FORMAT,
-                        datefmt=DEFAULT_DATE_FORMAT,
-                        level=logging.DEBUG)
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
+am = ArtifactManager(LOG_DIRECTORY)
 
 
 
 def start_game():
     """Starts the game process"""
     game_path = get_app_install_location(STEAM_GAME_ID)
-    process_path = os.path.join(game_path, LAUNCHER_NAME)  # Full path to the executable
+    process_path = Path(game_path) / LAUNCHER_NAME
     logging.info("Starting game: %s", process_path)
     process = subprocess.Popen([process_path], cwd=game_path)  # pylint: disable=R1732
     return process
@@ -68,7 +56,7 @@ def run_benchmark(keras_service):
 
     #wait for launcher to launch then click the launch button to launch the launcher into the game that we were launching
     time.sleep(20)
-    location = gui.locateOnScreen(f"{SCRIPT_DIR}\\screenshots\\launch_button.png", confidence=0.7) #luckily this seems to be a set resolution for the button
+    location = gui.locateOnScreen(f"{SCRIPT_DIRECTORY}\\screenshots\\launch_button.png", confidence=0.7) #luckily this seems to be a set resolution for the button
     click_me = gui.center(location)
     gui.moveTo(click_me.x, click_me.y)
     gui.mouseDown()
@@ -218,12 +206,12 @@ def main():
         "game_version": get_build_id(STEAM_GAME_ID)
     }
 
-    write_report_json(LOG_DIR, "report.json", report)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
 
 
 if __name__ == "__main__":
     try:
-        setup_logging()
+        setup_logging(LOG_DIRECTORY)
         main()
     except Exception as ex:
         logging.error("something went wrong running the benchmark!")

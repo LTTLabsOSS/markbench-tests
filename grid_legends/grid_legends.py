@@ -8,23 +8,22 @@ import time
 import pydirectinput as user
 import sys
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 #pylint: disable=wrong-import-position
 from harness_utils.output import (
-    setup_log_directory,
+    setup_logging,
     write_report_json,
     format_resolution,
-    seconds_to_milliseconds,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT)
+    seconds_to_milliseconds)
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
 from harness_utils.steam import exec_steam_game, get_build_id
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "gridlegends.exe"
 STEAM_GAME_ID = 1307710
 
@@ -62,18 +61,6 @@ def get_args() -> any:
     return parser.parse_args()
 
 
-def setup_logging():
-    """default logging config"""
-    setup_log_directory(LOG_DIR)
-    logging.basicConfig(filename=f'{LOG_DIR}/harness.log',
-                        format=DEFAULT_LOGGING_FORMAT,
-                        datefmt=DEFAULT_DATE_FORMAT,
-                        level=logging.DEBUG)
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
-
 
 def start_game():
     """Launch the game"""
@@ -84,7 +71,7 @@ def run_benchmark(keras_service):
     """Run Grid Legends benchmark"""
     setup_start_time = int(time.time())
     start_game()
-    am = ArtifactManager(LOG_DIR)
+    am = ArtifactManager(LOG_DIRECTORY)
 
     time.sleep(20)  # wait for game to load to the start screen
 
@@ -182,12 +169,12 @@ def main():
         "version": get_build_id(STEAM_GAME_ID)
     }
 
-    write_report_json(LOG_DIR, "report.json", report)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
 
 
 if __name__ == "__main__":
     try:
-        setup_logging()
+        setup_logging(LOG_DIRECTORY)
         main()
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")

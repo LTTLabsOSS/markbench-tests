@@ -7,26 +7,15 @@ from pathlib import Path
 from subprocess import Popen
 from ycruncher_utils import YCRUNCHER_FOLDER_NAME, current_time_ms, download_ycruncher, ycruncher_folder_exists
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.output import write_report_json, DEFAULT_LOGGING_FORMAT, DEFAULT_DATE_FORMAT
+from harness_utils.output import setup_logging, write_report_json
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR / "run"
-EXECUTABLE_PATH = SCRIPT_DIR / YCRUNCHER_FOLDER_NAME / "y-cruncher.exe"
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+EXECUTABLE_PATH = SCRIPT_DIRECTORY / YCRUNCHER_FOLDER_NAME / "y-cruncher.exe"
 
-
-def setup_logging():
-    """Configures root logger"""
-    LOG_DIR.mkdir(exist_ok=True)
-    logging.basicConfig(filename=f'{LOG_DIR}/harness.log',
-                        format=DEFAULT_LOGGING_FORMAT,
-                        datefmt=DEFAULT_DATE_FORMAT,
-                        level=logging.DEBUG)
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
 
 
 def match_time(subject: str):
@@ -43,7 +32,7 @@ def match_tune(subject: str):
 
 def main():
     """Test script entrypoint"""
-    setup_logging()
+    setup_logging(LOG_DIRECTORY)
 
     if not ycruncher_folder_exists():
         logging.info("Downloading ycruncher")
@@ -52,7 +41,7 @@ def main():
     # omit the first arg which is the script name
     logging.info(sys.argv[1:])
 
-    arg_string = ['skip-warnings', 'bench', '1b', '-o', LOG_DIR]
+    arg_string = ['skip-warnings', 'bench', '1b', '-o', LOG_DIRECTORY]
 
     logging.info(arg_string)
     scores = []
@@ -65,7 +54,7 @@ def main():
                 logging.error("Test failed!")
                 sys.exit(exit_code)
 
-        latest_file = max(LOG_DIR.glob('*.txt'), key=lambda item: item.stat().st_ctime)
+        latest_file = max(LOG_DIRECTORY.glob('*.txt'), key=lambda item: item.stat().st_ctime)
         logging.info(latest_file)
 
         with latest_file.open(encoding="utf-8") as file:
@@ -86,7 +75,7 @@ def main():
         "test": "y-cruncher"
     }
 
-    write_report_json(LOG_DIR, "report.json", report)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
 
 
 if __name__ == "__main__":

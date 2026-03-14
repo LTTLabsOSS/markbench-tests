@@ -7,11 +7,12 @@ import shutil
 import getpass
 from pathlib import Path
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 USERNAME = getpass.getuser()
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "stellaris.exe"
 STEAM_GAME_ID = 281990
 CONFIG_LOCATION = Path(f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris")
@@ -66,7 +67,7 @@ def copy_benchmarkfiles() -> None:
     """Copy benchmark config files to config directory"""
     for file in benchmark_files:
         try:
-            src_path = SCRIPT_DIR / "settings" / file
+            src_path = SCRIPT_DIRECTORY / "settings" / file
             CONFIG_LOCATION.mkdir(parents=True, exist_ok=True)
             dest_path = CONFIG_LOCATION / file
             logging.info("copying: %s -> %s", src_path, dest_path)
@@ -102,7 +103,7 @@ def copy_benchmarksave() -> None:
     """Copy save game to saves directory"""
     try:
         benchmark_save = "August_28th_2024_Year2400.sav"
-        copy_destination = SCRIPT_DIR.joinpath(benchmark_save)
+        copy_destination = SCRIPT_DIRECTORY.joinpath(benchmark_save)
         copy_save_from_network_drive(benchmark_save, copy_destination)
         config_dest = BENCHMARK_LOCATION / benchmark_save
         delete_existing_saves()

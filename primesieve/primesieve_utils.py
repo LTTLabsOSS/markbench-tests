@@ -9,23 +9,23 @@ import requests
 PRIMESIEVE_FOLDER_NAME = "primesieve-12.3-win-x64"
 PRIMESIEVE_ZIP_NAME = "primesieve-12.3-win-x64.zip"
 
-SCRIPT_DIR = Path(os.path.dirname(os.path.realpath(__file__)))
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 
 
 def primesieve_folder_exists() -> bool:
     """Check if primesieve has been downloaded or not"""
-    return os.path.isdir(os.path.join(SCRIPT_DIR, PRIMESIEVE_FOLDER_NAME))
+    return (SCRIPT_DIRECTORY / PRIMESIEVE_FOLDER_NAME).is_dir()
 
 
 def download_primesieve():
     """Download and extract primesieve"""
     download_url = "https://github.com/kimwalisch/primesieve/releases/download/v12.3/primesieve-12.3-win-x64.zip"
-    destination = os.path.join(SCRIPT_DIR, PRIMESIEVE_ZIP_NAME)
+    destination = SCRIPT_DIRECTORY / PRIMESIEVE_ZIP_NAME
     response = requests.get(download_url, allow_redirects=True, timeout=180)
-    with open(destination, 'wb') as file:
+    with destination.open('wb') as file:
         file.write(response.content)
     with ZipFile(destination, 'r') as zip_object:
-        destination_folder = SCRIPT_DIR / PRIMESIEVE_FOLDER_NAME
+        destination_folder = SCRIPT_DIRECTORY / PRIMESIEVE_FOLDER_NAME
         zip_object.extractall(path=destination_folder)
 
 

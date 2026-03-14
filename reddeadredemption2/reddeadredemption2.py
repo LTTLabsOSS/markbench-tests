@@ -10,16 +10,14 @@ import getpass
 
 from red_dead_redemption_2_utils import get_resolution
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.output import (
+    setup_logging,
     format_resolution,
     seconds_to_milliseconds,
-    setup_log_directory,
-    write_report_json,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT,
-)
+    write_report_json)
 from harness_utils.misc import press_n_times
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
@@ -28,8 +26,8 @@ from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 STEAM_GAME_ID = 1174180
 PROCESS_NAME = "RDR2"
-SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 CONFIG_FULL_PATH = Path("C:/Users/", getpass.getuser(), "Documents", "Rockstar Games", "Red Dead Redemption 2", "Settings", "system.xml")
 
 user.FAILSAFE = False
@@ -167,16 +165,7 @@ def run_benchmark():
     return test_start_time, test_end_time
 
 
-setup_log_directory(LOG_DIRECTORY)
-
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.INFO)
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+setup_logging(LOG_DIRECTORY)
 
 parser = ArgumentParser()
 parser.add_argument("--kerasHost", dest="keras_host",

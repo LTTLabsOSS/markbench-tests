@@ -9,23 +9,21 @@ import pyautogui as gui
 import pydirectinput as user
 from twwh3_utils import read_current_resolution
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
+    setup_logging,
     format_resolution,
-    setup_log_directory,
     write_report_json,
-    seconds_to_milliseconds,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT
-)
+    seconds_to_milliseconds)
 from harness_utils.steam import get_app_install_location, get_build_id
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
-SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "Warhammer3.exe"
 STEAM_GAME_ID = 1142710
 
@@ -170,16 +168,7 @@ def run_benchmark():
     return test_start_time, test_end_time
 
 
-setup_log_directory(LOG_DIRECTORY)
-
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+setup_logging(LOG_DIRECTORY)
 
 parser = ArgumentParser()
 parser.add_argument("-s", "--benchmark", dest="benchmark",

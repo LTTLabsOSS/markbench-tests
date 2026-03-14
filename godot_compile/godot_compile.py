@@ -6,30 +6,19 @@ import re
 from pathlib import Path
 from godot_compile_utils import  convert_duration_string_to_seconds, copy_godot_source_from_network_drive, create_conda_environment, install_mingw, install_miniconda, run_conda_command
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from handbrake.handbrake_utils import current_time_ms
-from harness_utils.output import write_report_json, DEFAULT_LOGGING_FORMAT, DEFAULT_DATE_FORMAT
+from harness_utils.output import setup_logging, write_report_json
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
-
-def setup_logging():
-    """Configures root logger"""
-    LOG_DIR.mkdir(exist_ok=True)
-    logging.basicConfig(filename=f'{LOG_DIR}/harness.log',
-                        format=DEFAULT_LOGGING_FORMAT,
-                        datefmt=DEFAULT_DATE_FORMAT,
-                        level=logging.DEBUG)
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 
 
 def main():
     """test script entry point"""
-    setup_logging()
+    setup_logging(LOG_DIRECTORY)
     output = install_mingw()
     logging.info(output)
 
@@ -85,7 +74,7 @@ def main():
         "test": "Godot 4.4.1 Compile"
     }
 
-    write_report_json(LOG_DIR, "report.json", report)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
 
 if __name__ == "__main__":
     try:

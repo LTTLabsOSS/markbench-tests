@@ -9,33 +9,20 @@ from pathlib import Path
 from cdp_client import CDPClient
 from chrome_utils import get_chrome_path_from_registry, launch_chrome, get_browser_websocket_url, wait_for_ready, get_browser_version
 
-PARENT_DIR = str(Path(sys.path[0], ".."))
-sys.path.append(PARENT_DIR)
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.output import (
-    DEFAULT_DATE_FORMAT,
-    DEFAULT_LOGGING_FORMAT,
+    setup_logging,
     write_report_json,
-    seconds_to_milliseconds
-)
+    seconds_to_milliseconds)
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 INTERNAL_TIMEOUT = 900  # 15 minutes
-script_dir = Path(__file__).resolve().parent
-log_dir = script_dir / "run"
-log_dir.mkdir(exist_ok=True)
-log_file = log_dir / "harness.log"
-logging.basicConfig(
-    filename=log_file,
-    format=DEFAULT_LOGGING_FORMAT,
-    datefmt=DEFAULT_DATE_FORMAT,
-    level=logging.DEBUG
-)
-am = ArtifactManager(log_dir)
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger("").addHandler(console)
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+setup_logging(LOG_DIRECTORY)
+am = ArtifactManager(LOG_DIRECTORY)
 
 BENCHMARKS = {
     "jetstream2": {
@@ -215,7 +202,7 @@ def main():
             "end_time": seconds_to_milliseconds(end_time)
         }
 
-        write_report_json(str(log_dir), "report.json", report)
+        write_report_json(LOG_DIRECTORY, "report.json", report)
         am.take_screenshot("result.png", ArtifactType.CONFIG_IMAGE, "Screenshot of the benchmark result")
         am.create_manifest()
 

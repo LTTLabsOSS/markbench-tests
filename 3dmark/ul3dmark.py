@@ -8,16 +8,13 @@ import time
 import psutil
 from utils import get_score
 
-PARENT_DIR = str(Path(sys.path[0], ".."))
-sys.path.append(PARENT_DIR)
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.output import (
-    DEFAULT_DATE_FORMAT,
-    DEFAULT_LOGGING_FORMAT,
+    setup_logging,
     seconds_to_milliseconds,
-    setup_log_directory,
-    write_report_json
-)
+    write_report_json)
 from harness_utils.process import (
     is_process_running
 )
@@ -25,12 +22,12 @@ from harness_utils.process import (
 #####
 # Globals
 #####
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR / "run"
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 DIR_3DMARK = Path(r"C:\\Program Files\\UL\3DMark\\")
 EXECUTABLE = "3DMarkCmd.exe"
 ABS_EXECUTABLE_PATH = DIR_3DMARK / EXECUTABLE
-CONFIG_DIR = SCRIPT_DIR / "config"
+CONFIG_DIR = SCRIPT_DIRECTORY / "config"
 BENCHMARK_CONFIG = {
     "TimeSpy": {
         "config": CONFIG_DIR / "timespy.3dmdef",
@@ -58,20 +55,8 @@ BENCHMARK_CONFIG = {
     }
 }
 RESULTS_FILENAME = "myresults.xml"
-REPORT_PATH = LOG_DIR / RESULTS_FILENAME
+REPORT_PATH = LOG_DIRECTORY / RESULTS_FILENAME
 
-
-def setup_logging():
-    """setup logging"""
-    setup_log_directory(str(LOG_DIR))
-    logging.basicConfig(filename=LOG_DIR / "harness.log",
-                        format=DEFAULT_LOGGING_FORMAT,
-                        datefmt=DEFAULT_DATE_FORMAT,
-                        level=logging.DEBUG)
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
 
 
 def get_arguments():
@@ -111,7 +96,7 @@ def run_benchmark(process_name, command_to_run):
 
 
 try:
-    setup_logging()
+    setup_logging(LOG_DIRECTORY)
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.benchmark]["config"]
     cmd = create_3dmark_command(option)
@@ -145,7 +130,7 @@ try:
         "end_time": seconds_to_milliseconds(end_time)
     }
 
-    write_report_json(LOG_DIR, "report.json", report)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

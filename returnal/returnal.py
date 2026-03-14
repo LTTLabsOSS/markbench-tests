@@ -1,5 +1,6 @@
 """Returnal test script"""
 import os
+from pathlib import Path
 import logging
 import sys
 import time
@@ -7,17 +8,15 @@ import pydirectinput as user
 
 from returnal_utils import get_resolution, get_args
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.keras_service import KerasService
 from harness_utils.output import (
+    setup_logging,
     format_resolution,
     seconds_to_milliseconds,
-    setup_log_directory,
-    write_report_json,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT,
-)
+    write_report_json)
 from harness_utils.misc import remove_files, press_n_times
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
@@ -28,24 +27,35 @@ from harness_utils.steam import (
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 STEAM_GAME_ID = 1649240
-SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "Returnal"
-LOCAL_USER_SETTINGS = os.path.join(
-  os.getenv('LOCALAPPDATA'), "Returnal", "Steam",
-  "Saved", "Config", "WindowsNoEditor", "GameUserSettings.ini"
-  )
-VIDEO_PATH = os.path.join(get_steamapps_common_path(), "Returnal", "Returnal", "Content", "Movies")
+LOCAL_USER_SETTINGS = (
+    Path(os.getenv("LOCALAPPDATA"))
+    / "Returnal"
+    / "Steam"
+    / "Saved"
+    / "Config"
+    / "WindowsNoEditor"
+    / "GameUserSettings.ini"
+)
+VIDEO_PATH = (
+    Path(get_steamapps_common_path())
+    / "Returnal"
+    / "Returnal"
+    / "Content"
+    / "Movies"
+)
 
 user.FAILSAFE = False
 
 intro_videos = [
-    os.path.join(VIDEO_PATH, "Logos_PC.mp4"),
-    os.path.join(VIDEO_PATH, "Logos_PC_UW21.mp4"),
-    os.path.join(VIDEO_PATH, "Logos_PC_UW32.mp4"),
-    os.path.join(VIDEO_PATH, "Logos_Short_PC.mp4"),
-    os.path.join(VIDEO_PATH, "Logos_Short_PC_UW21.mp4"),
-    os.path.join(VIDEO_PATH, "Logos_Short_PC_UW32.mp4"),
+    VIDEO_PATH / "Logos_PC.mp4",
+    VIDEO_PATH / "Logos_PC_UW21.mp4",
+    VIDEO_PATH / "Logos_PC_UW32.mp4",
+    VIDEO_PATH / "Logos_Short_PC.mp4",
+    VIDEO_PATH / "Logos_Short_PC_UW21.mp4",
+    VIDEO_PATH / "Logos_Short_PC_UW32.mp4",
 ]
 
 def check_vram_alert(attempts: int) -> bool:
@@ -87,7 +97,7 @@ def navigate_options_menu() -> None:
 def run_benchmark() -> tuple[float]:
     """Run the benchmark"""
     logging.info("Removing intro videos")
-    remove_files(intro_videos)
+    remove_files([str(path) for path in intro_videos])
 
     logging.info("Starting game")
     exec_steam_run_command(STEAM_GAME_ID)
@@ -204,23 +214,14 @@ def run_benchmark() -> tuple[float]:
     return test_start_time, test_end_time
 
 
-setup_log_directory(LOG_DIRECTORY)
-
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+setup_logging(LOG_DIRECTORY)
 
 args = get_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
 
 try:
     start_time, end_time = run_benchmark()
-    height, width = get_resolution(LOCAL_USER_SETTINGS)
+    height, width = get_resolution(str(LOCAL_USER_SETTINGS))
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),

@@ -9,36 +9,26 @@ from alanwake2_utils import find_epic_executable, copy_save, CONFIG_PATH, get_re
 import pydirectinput as user
 import sys
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 #pylint: disable=wrong-import-position
 
 from harness_utils.output import (
-    setup_log_directory, write_report_json, DEFAULT_LOGGING_FORMAT, DEFAULT_DATE_FORMAT)
+    setup_logging,
+    write_report_json)
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.misc import press_n_times, find_eg_game_version
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY.joinpath("run")
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "alanwake2.exe"
 EXECUTABLE_PATH = find_epic_executable()
 GAME_ID = "c4763f236d08423eb47b4c3008779c84%3A93f2a8c3547846eda966cb3c152a026e%3Adc9d2e595d0e4650b35d659f90d41059?action=launch&silent=true"
 GAMEFOLDERNAME = "AlanWake2"
 
 user.FAILSAFE = False
-
-def setup_logging():
-    """default logging config"""
-    setup_log_directory(LOG_DIRECTORY)
-    logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                        format=DEFAULT_LOGGING_FORMAT,
-                        datefmt=DEFAULT_DATE_FORMAT,
-                        level=logging.DEBUG)
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
 
 
 def get_run_game_id_command(game_id: int) -> str:
@@ -161,7 +151,7 @@ try:
     parser.add_argument("--kerasPort", dest="keras_port",
                         help="Port for Keras OCR service", required=True)
     args = parser.parse_args()
-    setup_logging()
+    setup_logging(LOG_DIRECTORY)
     kerasService = KerasService(args.keras_host, args.keras_port)
     am = ArtifactManager(LOG_DIRECTORY)
     start_time, end_time = run_benchmark()

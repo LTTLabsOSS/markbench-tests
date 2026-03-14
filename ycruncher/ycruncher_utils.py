@@ -6,23 +6,23 @@ import requests
 
 YCRUNCHER_FOLDER_NAME = "y-cruncher v0.8.6.9545"
 YCRUNCHER_ZIP_NAME = "y-cruncher.v0.8.6.9545b.zip"
-SCRIPT_DIR = Path(__file__).resolve().parent
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 
 
 def ycruncher_folder_exists() -> bool:
     """Check if ycruncher has been downloaded or not"""
-    return SCRIPT_DIR.joinpath(YCRUNCHER_FOLDER_NAME).is_dir()
+    return SCRIPT_DIRECTORY.joinpath(YCRUNCHER_FOLDER_NAME).is_dir()
 
 
 def download_ycruncher():
     """Download and extract Y-Cruncher"""
     download_url = "https://github.com/Mysticial/y-cruncher/releases/download/v0.8.6.9545/y-cruncher.v0.8.6.9545b.zip"
-    destination = SCRIPT_DIR / YCRUNCHER_ZIP_NAME
+    destination = SCRIPT_DIRECTORY / YCRUNCHER_ZIP_NAME
     response = requests.get(download_url, allow_redirects=True, timeout=180)
     with open(destination, 'wb') as file:
         file.write(response.content)
     with ZipFile(destination, 'r') as zip_object:
-        zip_object.extractall(path=SCRIPT_DIR)
+        zip_object.extractall(path=SCRIPT_DIRECTORY)
 
 
 def current_time_ms():

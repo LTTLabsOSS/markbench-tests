@@ -9,7 +9,8 @@ import getpass
 
 from argparse import ArgumentParser
 
-sys.path.insert(1, str(Path(sys.path[0]).parent))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 # pylint: disable=wrong-import-position
 from harness_utils.process import terminate_processes
@@ -29,8 +30,8 @@ from harness_utils.misc import (
 
 USERNAME = getpass.getuser()
 STEAM_GAME_ID = 3159330
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR / "run"
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "ACShadows.exe"
 
 CONFIG_LOCATION = f"C:\\Users\\{USERNAME}\\Documents\\Assassin's Creed Shadows"
@@ -93,7 +94,7 @@ def move_benchmark_file():
         f"C:\\Users\\{USERNAME}\\Documents\\Assassin's Creed Shadows\\benchmark_reports")
 
     for src_path in src_dir.iterdir():
-        dest_path = LOG_DIR / src_path.name
+        dest_path = LOG_DIRECTORY / src_path.name
 
         if src_path.is_file():
             try:
@@ -164,7 +165,7 @@ def run_benchmark(keras_service):
     delete_videos()
     start_game()
     setup_start_time = int_time()
-    am = ArtifactManager(LOG_DIR)
+    am = ArtifactManager(LOG_DIRECTORY)
     time.sleep(15)
 
     if keras_service.wait_for_word(
@@ -267,12 +268,12 @@ def main():
         "end_time": seconds_to_milliseconds(endtime),
         "version": get_build_id(STEAM_GAME_ID)
     }
-    write_report_json(LOG_DIR, "report.json", report)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
 
 
 if __name__ == "__main__":
     try:
-        setup_logging(LOG_DIR)
+        setup_logging(LOG_DIRECTORY)
         main()
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")

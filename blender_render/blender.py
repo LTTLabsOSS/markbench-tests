@@ -6,25 +6,14 @@ import logging
 import sys
 import time
 
-sys.path.insert(1, str(Path(sys.path[0]).parent))
-from harness_utils.output import DEFAULT_DATE_FORMAT, DEFAULT_LOGGING_FORMAT, write_report_json, seconds_to_milliseconds
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
+from harness_utils.output import setup_logging, write_report_json, seconds_to_milliseconds
 
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 
-
-def setup_logging():
-    """default logging config"""
-    LOG_DIR.mkdir(exist_ok=True)
-    logging.basicConfig(filename=f'{LOG_DIR}/harness.log',
-                        format=DEFAULT_LOGGING_FORMAT,
-                        datefmt=DEFAULT_DATE_FORMAT,
-                        level=logging.DEBUG)
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
 
 
 VALID_DEVICES = ["CPU", "CUDA", "OPTIX", "HIP", "ONEAPI", "METAL"]
@@ -50,7 +39,7 @@ def main():
     logging.info('Starting benchmark!')
     start_time = time.time()
     score = run_blender_render(
-        executable_path, LOG_DIR, args.device.upper(), benchmark)
+        executable_path, LOG_DIRECTORY, args.device.upper(), benchmark)
     end_time = time.time()
     logging.info(
         f'Finished rendering {args.benchmark} in %d seconds',
@@ -70,12 +59,12 @@ def main():
         "end_time": seconds_to_milliseconds(end_time)
     }
 
-    write_report_json(str(LOG_DIR), "report.json", report)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
 
 
 if __name__ == "__main__":
     try:
-        setup_logging()
+        setup_logging(LOG_DIRECTORY)
         main()
     except Exception as ex:
         logging.error("something went wrong running the benchmark!")

@@ -9,33 +9,31 @@ import pyautogui as gui
 import pydirectinput as user
 from strangebrigade_utils import read_current_resolution, replace_exe, restore_exe
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.misc import remove_files, press_n_times
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
+    setup_logging,
     format_resolution,
-    setup_log_directory,
     write_report_json,
-    seconds_to_milliseconds,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT
-)
+    seconds_to_milliseconds)
 from harness_utils.steam import get_app_install_location, exec_steam_run_command, get_build_id
 from harness_utils.keras_service import KerasService, ScreenSplitConfig, ScreenShotDivideMethod, ScreenShotQuadrant
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
-SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "StrangeBrigade.exe"
 STEAM_GAME_ID = 312670
-capture_path = os.path.join(SCRIPT_DIRECTORY, "capture")
+CAPTURE_PATH = SCRIPT_DIRECTORY / "capture"
 LOCALAPPDATA = os.getenv("LOCALAPPDATA")
 CONFIG_LOCATION = f"{LOCALAPPDATA}\\Strange Brigade"
 CONFIG_FILENAME = "GraphicsOptions.ini"
 CONFIG_FULL_PATH = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
-EXE_PATH = os.path.join(get_app_install_location(STEAM_GAME_ID), "bin")
-VIDEO_PATH = os.path.join(get_app_install_location(STEAM_GAME_ID), "FMV")
+EXE_PATH = Path(get_app_install_location(STEAM_GAME_ID)) / "bin"
+VIDEO_PATH = Path(get_app_install_location(STEAM_GAME_ID)) / "FMV"
 
 top_right_quad = ScreenSplitConfig(
     divide_method=ScreenShotDivideMethod.QUADRANT,  # Choose appropriate split method
@@ -45,13 +43,13 @@ top_right_quad = ScreenSplitConfig(
 user.FAILSAFE = False
 
 intro_videos = [
-    os.path.join(VIDEO_PATH, "rebellion.webm")
+    VIDEO_PATH / "rebellion.webm"
 ]
 
 def run_benchmark():
     """Starts the benchmark"""
     logging.info(intro_videos)
-    remove_files(intro_videos)
+    remove_files([str(path) for path in intro_videos])
     replace_exe()
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int(time.time())
@@ -127,16 +125,7 @@ def run_benchmark():
     return test_start_time, test_end_time
 
 
-setup_log_directory(LOG_DIRECTORY)
-
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.INFO)
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+setup_logging(LOG_DIRECTORY)
 
 parser = ArgumentParser()
 parser.add_argument("--kerasHost", dest="keras_host",

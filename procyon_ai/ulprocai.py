@@ -17,17 +17,14 @@ from utils import (
     is_process_running,
 )
 
-PARENT_DIR = str(Path(sys.path[0], ".."))
-sys.path.append(PARENT_DIR)
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.output import (
-    DEFAULT_DATE_FORMAT,
-    DEFAULT_LOGGING_FORMAT,
+    setup_logging,
     seconds_to_milliseconds,
-    setup_log_directory,
-    write_report_json,
-)
+    write_report_json)
 from harness_utils.procyoncmd import (
     get_cuda_devices,
     get_openvino_devices,
@@ -38,8 +35,8 @@ from harness_utils.procyoncmd import (
 #####
 # Globals
 #####
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR / "run"
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 DIR_PROCYON = Path(get_install_path())
 EXECUTABLE = "ProcyonCmd.exe"
 ABS_EXECUTABLE_PATH = DIR_PROCYON / EXECUTABLE
@@ -48,7 +45,7 @@ WINML_DEVICES = get_winml_devices(ABS_EXECUTABLE_PATH)
 OPENVINO_DEVICES = get_openvino_devices(ABS_EXECUTABLE_PATH)
 CUDA_DEVICES = get_cuda_devices(ABS_EXECUTABLE_PATH)
 
-CONFIG_DIR = SCRIPT_DIR / "config"
+CONFIG_DIR = SCRIPT_DIRECTORY / "config"
 BENCHMARK_CONFIG = {
     "AMD_CPU": {
         "config": f'"{CONFIG_DIR}\\ai_computer_vision_winml_cpu.def"',
@@ -131,22 +128,8 @@ BENCHMARK_CONFIG = {
 
 
 RESULTS_FILENAME = "result.xml"
-RESULTS_XML_PATH = LOG_DIR / RESULTS_FILENAME
+RESULTS_XML_PATH = LOG_DIRECTORY / RESULTS_FILENAME
 
-
-def setup_logging():
-    """setup logging"""
-    setup_log_directory(str(LOG_DIR))
-    logging.basicConfig(
-        filename=LOG_DIR / "harness.log",
-        format=DEFAULT_LOGGING_FORMAT,
-        datefmt=DEFAULT_DATE_FORMAT,
-        level=logging.DEBUG,
-    )
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger("").addHandler(console)
 
 
 def get_arguments():
@@ -205,7 +188,7 @@ def run_benchmark(process_name, command_to_run):
 
 
 try:
-    setup_logging()
+    setup_logging(LOG_DIRECTORY)
     logging.info("Detected Windows ML Devices: %s", str(WINML_DEVICES))
     logging.info("Detected OpenVino Devices: %s", str(OPENVINO_DEVICES))
     logging.info("Detected CUDA Devices: %s", (CUDA_DEVICES))
@@ -229,7 +212,7 @@ try:
         logging.error("Could not find overall score!")
         sys.exit(1)
 
-    am = ArtifactManager(LOG_DIR)
+    am = ArtifactManager(LOG_DIRECTORY)
     am.copy_file(RESULTS_XML_PATH, ArtifactType.RESULTS_TEXT, "results xml file")
     am.create_manifest()
     end_time = time.time()
@@ -249,7 +232,7 @@ try:
         "unit": "score",
         "score": score,
     }
-    write_report_json(str(LOG_DIR), "report.json", report)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

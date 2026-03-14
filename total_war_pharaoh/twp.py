@@ -9,25 +9,23 @@ import re
 import pyautogui as gui
 import pydirectinput as user
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 #pylint: disable=wrong-import-position
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
+    setup_logging,
     format_resolution,
-    setup_log_directory,
     write_report_json,
-    seconds_to_milliseconds,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT
-)
+    seconds_to_milliseconds)
 from harness_utils.steam import get_app_install_location, get_build_id
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.misc import mouse_scroll_n_times
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "Pharaoh.exe"
 STEAM_GAME_ID = 1937780
 APPDATA = os.getenv("APPDATA")
@@ -83,7 +81,7 @@ def run_benchmark(keras_service):
     cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
     start_game()
     setup_start_time = int(time.time())
-    am = ArtifactManager(LOG_DIR)
+    am = ArtifactManager(LOG_DIRECTORY)
     time.sleep(5)
 
     result = keras_service.look_for_word("warning", attempts=10, interval=5)
@@ -202,18 +200,6 @@ def run_benchmark(keras_service):
     return test_start_time, test_end_time
 
 
-def setup_logging():
-    """setup logging"""
-    setup_log_directory(LOG_DIR)
-    logging.basicConfig(filename=f'{LOG_DIR}/harness.log',
-                        format=DEFAULT_LOGGING_FORMAT,
-                        datefmt=DEFAULT_DATE_FORMAT,
-                        level=logging.DEBUG)
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
-
 
 def main():
     """entry point"""
@@ -233,12 +219,12 @@ def main():
         "version": get_build_id(STEAM_GAME_ID)
     }
 
-    write_report_json(LOG_DIR, "report.json", report)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
 
 
 if __name__ == "__main__":
     try:
-        setup_logging()
+        setup_logging(LOG_DIRECTORY)
         main()
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")

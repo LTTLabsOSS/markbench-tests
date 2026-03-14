@@ -7,7 +7,8 @@ import logging
 import shutil
 import json
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.steam import get_app_install_location
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent

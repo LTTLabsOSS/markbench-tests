@@ -1,5 +1,6 @@
 """Forza Motorsport test script"""
 import os
+from pathlib import Path
 import logging
 import sys
 import time
@@ -7,16 +8,14 @@ import pydirectinput as user
 
 from forzams_utils import get_resolution, get_args
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.keras_service import KerasService
 from harness_utils.output import (
+    setup_logging,
     seconds_to_milliseconds,
-    setup_log_directory,
-    write_report_json,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT,
-)
+    write_report_json)
 from harness_utils.misc import press_n_times
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
@@ -27,20 +26,24 @@ from harness_utils.rtss import  start_rtss_process, copy_rtss_profile
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 STEAM_GAME_ID = 2440510
-SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
-LOCAL_USER_SETTINGS = os.path.join(
-  os.getenv('LOCALAPPDATA'), "Microsoft.ForzaMotorsport", "User_SteamLocalStorageDirectory",
-  "ConnectedStorage", "ForzaUserConfigSelections", "UserConfigSelections"
-  )
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+LOCAL_USER_SETTINGS = (
+    Path(os.getenv("LOCALAPPDATA"))
+    / "Microsoft.ForzaMotorsport"
+    / "User_SteamLocalStorageDirectory"
+    / "ConnectedStorage"
+    / "ForzaUserConfigSelections"
+    / "UserConfigSelections"
+)
 PROCESSES = ["forza_steamworks_release_final.exe", "RTSS.exe"]
 
 user.FAILSAFE = False
 
 def start_rtss():
     """Sets up the RTSS process"""
-    profile_path = os.path.join(SCRIPT_DIRECTORY, "forza_steamworks_release_final.exe.cfg")
-    copy_rtss_profile(profile_path)
+    profile_path = SCRIPT_DIRECTORY / "forza_steamworks_release_final.exe.cfg"
+    copy_rtss_profile(str(profile_path))
     return start_rtss_process()
 
 def run_benchmark() -> tuple[float]:
@@ -147,23 +150,14 @@ def run_benchmark() -> tuple[float]:
     return test_start_time, test_end_time
 
 
-setup_log_directory(LOG_DIRECTORY)
-
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+setup_logging(LOG_DIRECTORY)
 
 args = get_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
 
 try:
     start_time, end_time = run_benchmark()
-    resolution = get_resolution(LOCAL_USER_SETTINGS)
+    resolution = get_resolution(str(LOCAL_USER_SETTINGS))
     report = {
         "resolution": f"{resolution}",
         "start_time": seconds_to_milliseconds(start_time),

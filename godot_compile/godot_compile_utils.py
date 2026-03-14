@@ -8,10 +8,10 @@ from zipfile import ZipFile
 from datetime import timedelta
 
 
-SCRIPT_DIR = Path(__file__).resolve().parent
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 MINICONDA_INSTALLER = "Miniconda3-24.5.0-0-Windows-x86_64.exe"
 MINGW_ZIP = "x86_64-13.2.0-release-posix-seh-msvcrt-rt_v11-rev1.zip"
-MINGW_FOLDER = SCRIPT_DIR.joinpath("mingw64")
+MINGW_FOLDER = SCRIPT_DIRECTORY.joinpath("mingw64")
 MINICONDA_EXECUTABLE_PATH = Path("C:\\ProgramData\\miniconda3\\_conda.exe")
 CONDA_ENV_NAME = "godotbuild"
 GODOT_DIR = "godot-4.4.1-stable"
@@ -25,10 +25,10 @@ def install_mingw() -> str:
             os.environ['PATH'] = str(MINGW_FOLDER.joinpath('bin')) + os.pathsep + original_path
         return "existing mingw installation detected"
     source = Path("\\\\labs.lmg.gg\\labs\\01_Installers_Utilities\\MinGW\\").joinpath(MINGW_ZIP)
-    destination = SCRIPT_DIR.joinpath(MINGW_ZIP)
+    destination = SCRIPT_DIRECTORY.joinpath(MINGW_ZIP)
     shutil.copyfile(source, destination)
     with ZipFile(destination, 'r') as zip_object:
-        zip_object.extractall(path=SCRIPT_DIR)
+        zip_object.extractall(path=SCRIPT_DIRECTORY)
     if str(MINGW_FOLDER) not in original_path:
         os.environ['PATH'] = str(MINGW_FOLDER.joinpath('bin')) + os.pathsep + original_path
     return "installed mingw from network drive"
@@ -38,7 +38,7 @@ def copy_miniconda_from_network_drive():
     """copies miniconda installer from network drive"""
     source = Path("\\\\labs.lmg.gg\\labs\\01_Installers_Utilities\\Miniconda\\").joinpath(
         MINICONDA_INSTALLER)
-    destination = SCRIPT_DIR.joinpath(MINICONDA_INSTALLER)
+    destination = SCRIPT_DIRECTORY.joinpath(MINICONDA_INSTALLER)
     shutil.copyfile(source, destination)
 
 
@@ -54,7 +54,7 @@ def install_miniconda() -> str:
         "powershell",
         "start-process",
         "-FilePath",
-        f'"{str(SCRIPT_DIR.joinpath(MINICONDA_INSTALLER))}"',
+        f'"{str(SCRIPT_DIRECTORY.joinpath(MINICONDA_INSTALLER))}"',
         "-ArgumentList",
         '"/S"',
         "-Wait"
@@ -69,15 +69,15 @@ def install_miniconda() -> str:
 
 def copy_godot_source_from_network_drive() -> str:
     """copies godot source files from the network drive"""
-    if SCRIPT_DIR.joinpath(GODOT_DIR).is_dir():
+    if SCRIPT_DIRECTORY.joinpath(GODOT_DIR).is_dir():
         return "existing godot source directory detected"
     zip_name = f"{GODOT_DIR}.zip"
     source = Path("\\\\labs.lmg.gg\\labs\\03_ProcessingFiles\\Godot Files\\").joinpath(zip_name)
-    destination = SCRIPT_DIR.joinpath(zip_name)
+    destination = SCRIPT_DIRECTORY.joinpath(zip_name)
     shutil.copyfile(source, destination)
     with ZipFile(destination, 'r') as zip_object:
         try:
-            zip_object.extractall(path=SCRIPT_DIR)
+            zip_object.extractall(path=SCRIPT_DIRECTORY)
         except Exception as ex:
             raise Exception("error extracting godot zip") from ex
         return "godot source copied and unpacked from network drive"
@@ -121,7 +121,7 @@ def run_conda_command(conda_cmd: List[str]) -> str:
         "-n",
         "godotbuild",
         "--cwd",
-        str(SCRIPT_DIR.joinpath(GODOT_DIR)),
+        str(SCRIPT_DIRECTORY.joinpath(GODOT_DIR)),
     ] + conda_cmd
     output = subprocess.check_output(" ".join(command), stderr=subprocess.STDOUT, text=True)
     return output
