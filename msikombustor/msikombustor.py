@@ -17,14 +17,14 @@ from harness_utils.output import setup_logging, write_report_json, format_resolu
 
 INSTALL_DIR = r"C:\Program Files\Geeks3D\MSI Kombustor 4 x64"
 EXECUTABLE = "MSI-Kombustor-x64.exe"
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 
 
 def main():
     """main"""
     args = parse_args()
 
-    SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-    LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
     setup_logging(LOG_DIRECTORY)
 
     cmd = Path(INSTALL_DIR) / EXECUTABLE
