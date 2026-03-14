@@ -53,7 +53,7 @@ def find_procyon_version() -> str:
     exe_path = os.path.join(install_path, "ProcyonCmd.exe")
 
     if not os.path.exists(exe_path):
-        logging.info(f"Executable not found at {exe_path}")
+        logging.info("Executable not found at %s", exe_path)
         return None
 
     try:
@@ -78,7 +78,7 @@ def find_procyon_version() -> str:
         return version
 
     except Exception as e:
-        logging.info(f"Error retrieving version info from {exe_path}: {e}")
+        logging.info("Error retrieving version info from %s: %s", exe_path, e)
         return None  # Return None if version info retrieval fails
 
 
@@ -88,7 +88,7 @@ def find_test_version() -> str:
         "C:\\ProgramData\\UL\\Procyon\\chops\\dlc\\ai-imagegeneration-benchmark"
     )
 
-    logging.info(f"The install path for the test is {chops_path}")
+    logging.info("The install path for the test is %s", chops_path)
 
     if not chops_path:
         logging.info("Installation path not found.")
@@ -97,7 +97,7 @@ def find_test_version() -> str:
     exe_path = os.path.join(chops_path, "Handler.exe")
 
     if not os.path.exists(exe_path):
-        logging.info(f"Executable 'Handler.exe' not found at {exe_path}")
+        logging.info("Executable 'Handler.exe' not found at %s", exe_path)
         return None
 
     try:
@@ -107,5 +107,5 @@ def find_test_version() -> str:
         str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
         return win32api.GetFileVersionInfo(exe_path, str_info_path)
     except Exception as e:
-        logging.info(f"Error retrieving version info from {exe_path}: {e}")
+        logging.info("Error retrieving version info from %s: %s", exe_path, e)
         return None  # Return None if version info retrieval fails
