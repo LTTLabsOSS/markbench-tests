@@ -5,7 +5,11 @@ import time
 import pydirectinput as user
 import logging
 import sys
-from utils import read_resolution, get_documents_path, find_latest_result_file
+from tinytinaswonderland_utils import (
+    find_latest_result_file,
+    get_documents_path,
+    read_resolution,
+)
 from argparse import ArgumentParser
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
