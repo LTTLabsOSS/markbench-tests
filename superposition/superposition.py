@@ -39,17 +39,17 @@ SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 setup_logging(LOG_DIRECTORY)
 
-CMD = f"{INSTALL_DIR}\\{EXECUTABLE}"
-ARGSTR = (
+cmd = f"{INSTALL_DIR}\\{EXECUTABLE}"
+argstr = (
     f"-fullscreen 1 -mode default -api {args.api} -quality {args.preset} -iterations 1"
 )
-ARGSTR += f" -log_txt {LOG_DIRECTORY}\\log.txt"
+argstr += f" -log_txt {LOG_DIRECTORY}\\log.txt"
 
-logging.info(CMD)
-logging.info(ARGSTR)
-argies = ARGSTR.split(" ")
-CMD = CMD.rstrip()
-with Popen([CMD, *argies]) as process:
+logging.info(cmd)
+logging.info(argstr)
+argies = argstr.split(" ")
+cmd = cmd.rstrip()
+with Popen([cmd, *argies]) as process:
     EXIT_CODE = process.wait()
 
 if EXIT_CODE > 0:

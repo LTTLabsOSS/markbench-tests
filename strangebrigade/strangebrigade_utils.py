@@ -49,11 +49,11 @@ def replace_exe():
     if not os.path.exists(check_backup):
         os.rename(launcher_exe, check_backup)
         shutil.copy(vulkan_exe, launcher_exe)
-        logging.info(f"Replacing launcher file in {EXE_PATH}")
+        logging.info("Replacing launcher file in %s", EXE_PATH)
     elif os.path.exists(check_backup):
         if not os.path.exists(launcher_exe):
             shutil.copy(vulkan_exe, launcher_exe)
-            logging.info(f"Replacing launcher file in {EXE_PATH}")
+            logging.info("Replacing launcher file in %s", EXE_PATH)
         else:
             logging.info("Launcher already replaced with Vulkan exe.")
 
@@ -67,8 +67,8 @@ def restore_exe():
     elif os.path.exists(check_backup):
         if not os.path.exists(launcher_exe):
             os.rename(check_backup, launcher_exe)
-            logging.info(f"Restoring launcher file in {EXE_PATH}")
+            logging.info("Restoring launcher file in %s", EXE_PATH)
         else:
             os.remove(launcher_exe)
             os.rename(check_backup, launcher_exe)
-            logging.info(f"Restoring launcher file in {EXE_PATH}")
+            logging.info("Restoring launcher file in %s", EXE_PATH)

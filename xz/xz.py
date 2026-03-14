@@ -40,7 +40,7 @@ command = [
     "tq_dlss_explained_1080p.mp4",
 ]
 processors = [0, 1, 2, 3, 4, 5]
-COUNT = 0
+count = 0
 
 for i in range(5):
     with subprocess.Popen(
@@ -52,19 +52,19 @@ for i in range(5):
     ) as xz_proc:
         t1 = current_time_ms()
         process = psutil.Process(xz_proc.pid)
-        process.cpu_affinity([processors[COUNT]])
+        process.cpu_affinity([processors[count]])
         out, _ = xz_proc.communicate()
         t2 = current_time_ms()
         scores.append(t2 - t1)
-        COUNT += 1
+        count += 1
 end_time = current_time_ms()
 
 SCORE_SUM = 0
-CORE_COUNT = 0
+core_count = 0
 for score in scores:
-    print(f"core {CORE_COUNT} took {score} milliseconds")
+    print(f"core {core_count} took {score} milliseconds")
     SCORE_SUM += score
-    CORE_COUNT += 1
+    core_count += 1
 avg_score = round(SCORE_SUM / len(scores), 2)
 
 report = {

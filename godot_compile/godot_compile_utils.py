@@ -1,13 +1,13 @@
 """godot compile utility functions"""
 
 import os
-from pathlib import Path
 import shutil
 import subprocess
+import time
+from datetime import timedelta
+from pathlib import Path
 from typing import List
 from zipfile import ZipFile
-from datetime import timedelta
-
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 MINICONDA_INSTALLER = "Miniconda3-24.5.0-0-Windows-x86_64.exe"
@@ -153,3 +153,8 @@ def convert_duration_string_to_seconds(duration: str) -> int:
     )
 
     return round(time_obj.total_seconds())
+
+
+def current_time_ms():
+    """Get current timestamp in milliseconds since epoch"""
+    return int(time.time() * 1000)

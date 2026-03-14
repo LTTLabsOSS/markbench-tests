@@ -10,6 +10,7 @@ XML_FILE = rf"C:\Users\{username}\Documents\My Games\Far Cry 6\gamerprofile.xml"
 
 # Parse the XML file
 def get_resolution() -> tuple[int, int]:
+    """Read the configured fullscreen resolution from Far Cry 6's XML profile."""
     try:
         tree = ET.parse(XML_FILE)
         root = tree.getroot()
