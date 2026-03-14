@@ -1,13 +1,14 @@
 """Blender benchmark test script"""
 
-from argparse import ArgumentParser
 import json
 import logging
-from pathlib import Path
 import subprocess
-from zipfile import ZipFile
-import requests
 import sys
+from argparse import ArgumentParser
+from pathlib import Path
+from zipfile import ZipFile
+
+import requests
 
 # omit the first arg which is the script name
 parser = ArgumentParser()
@@ -53,8 +54,8 @@ if ABS_EXECUTABLE_PATH.is_file() is False:
 
 
 VERSION = ""
-SCENE = []
-DEVICE_TYPE = ""
+scene = []
+device_type = ""
 
 run_array = [ABS_EXECUTABLE_PATH, "blender", "download", args.version]
 process = subprocess.run(run_array, capture_output=True, text=True, check=False)
@@ -65,12 +66,12 @@ if process.returncode > 0:
     logging.error("Test failed!")
 
 if args.scene.lower() == "all":
-    SCENE = ["monster", "classroom", "junkshop"]
+    scene = ["monster", "classroom", "junkshop"]
 else:
-    SCENE = [args.scene]
+    scene = [args.scene]
 
 if args.device.lower() == "cpu":
-    DEVICE_TYPE = "CPU"
+    device_type = "CPU"
 else:
     run_array = [ABS_EXECUTABLE_PATH, "devices", "-b", args.version]
     process = subprocess.run(run_array, capture_output=True, text=True, check=False)
@@ -87,19 +88,19 @@ else:
         logging.info(process.stdout)
         logging.info(process.stderr)
         if OPTIX in process.stdout or OPTIX in process.stderr:
-            DEVICE_TYPE = OPTIX  # nvidia
+            device_type = OPTIX  # nvidia
         if CUDA in process.stdout or CUDA in process.stderr:
-            DEVICE_TYPE = CUDA  # older non rtx nvidia
+            device_type = CUDA  # older non rtx nvidia
         elif HIP in process.stdout or HIP in process.stderr:
-            DEVICE_TYPE = HIP  # amd
+            device_type = HIP  # amd
         elif ONE_API in process.stdout or ONE_API in process.stderr:
-            DEVICE_TYPE = ONE_API  # intel
+            device_type = ONE_API  # intel
 
 arg_string = ["blender", "list"]
 run_array = (
     [ABS_EXECUTABLE_PATH, "benchmark"]
-    + SCENE
-    + ["-b", args.version, "--device-type", DEVICE_TYPE, "--json"]
+    + scene
+    + ["-b", args.version, "--device-type", device_type, "--json"]
 )
 logging.info("Running with arguments %s", run_array)
 process = subprocess.run(run_array, capture_output=True, text=True, check=False)
@@ -121,7 +122,7 @@ for report in json_array:
         "score": round(report["stats"]["samples_per_minute"], 2),
         "unit": "samples per minute",
         "device": report["device_info"]["compute_devices"][0]["name"],
-        "device_type": DEVICE_TYPE,
+        "device_type": device_type,
     }
 
     logging.info(json.dumps(scene_report, indent=2))
