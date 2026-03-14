@@ -1,4 +1,5 @@
 """alan wake 2 test script"""
+
 from argparse import ArgumentParser
 import logging
 from pathlib import Path
@@ -10,11 +11,9 @@ import sys
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
-#pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position
 
-from harness_utils.output import (
-    setup_logging,
-    write_report_json)
+from harness_utils.output import setup_logging, write_report_json
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
@@ -71,34 +70,59 @@ def run_benchmark():
     if kerasService.wait_for_word(word="house", timeout=10, interval=0.5):
         user.press("esc")
 
-    #Navigating main menu:
+    # Navigating main menu:
     is_load_present = kerasService.look_for_word("load", interval=1, attempts=5)
     if is_load_present is None:
-        raise ValueError("Load game option does not exist. Did the save get copied correctly?")
+        raise ValueError(
+            "Load game option does not exist. Did the save get copied correctly?"
+        )
 
     logging.info("Navigating to options to get some screenshots")
     press_n_times("down", 4, 0.2)
     user.press("enter")
     time.sleep(0.2)
     if kerasService.wait_for_word(word="graphics", timeout=60, interval=0.5) is None:
-        logging.error("Graphics options not available. Did it navigate to the options correctly?")
+        logging.error(
+            "Graphics options not available. Did it navigate to the options correctly?"
+        )
         sys.exit(1)
     press_n_times("e", 2, 0.2)
     if kerasService.wait_for_word(word="quality", timeout=60, interval=0.5) is None:
-        logging.error("Did not see quality preset. Did it navigate to graphics correctly?")
+        logging.error(
+            "Did not see quality preset. Did it navigate to graphics correctly?"
+        )
         sys.exit(1)
-    am.take_screenshot("graphics1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of graphics settings")
+    am.take_screenshot(
+        "graphics1.png",
+        ArtifactType.CONFIG_IMAGE,
+        "first screenshot of graphics settings",
+    )
     time.sleep(0.2)
     press_n_times("down", 19, 0.2)
     if kerasService.wait_for_word(word="terrain", timeout=60, interval=0.5) is None:
-        logging.error("Did not see Terrain Quality. Did it navigate to graphics correctly?")
+        logging.error(
+            "Did not see Terrain Quality. Did it navigate to graphics correctly?"
+        )
         sys.exit(1)
-    am.take_screenshot("graphics2.png", ArtifactType.CONFIG_IMAGE, "second screenshot of graphics settings")
+    am.take_screenshot(
+        "graphics2.png",
+        ArtifactType.CONFIG_IMAGE,
+        "second screenshot of graphics settings",
+    )
     press_n_times("down", 10, 0.2)
-    if kerasService.wait_for_word(word="transparency", timeout=60, interval=0.5) is None:
-        logging.error("Did not see Transparency. Did it navigate to graphics correctly?")
+    if (
+        kerasService.wait_for_word(word="transparency", timeout=60, interval=0.5)
+        is None
+    ):
+        logging.error(
+            "Did not see Transparency. Did it navigate to graphics correctly?"
+        )
         sys.exit(1)
-    am.take_screenshot("graphics3.png", ArtifactType.CONFIG_IMAGE, "third screenshot of graphics settings")
+    am.take_screenshot(
+        "graphics3.png",
+        ArtifactType.CONFIG_IMAGE,
+        "third screenshot of graphics settings",
+    )
     time.sleep(0.2)
     user.press("esc")
     time.sleep(0.2)
@@ -108,9 +132,11 @@ def run_benchmark():
     user.press("enter")
     time.sleep(2)
 
-    #Loading the save
+    # Loading the save
     if kerasService.wait_for_word(word="heart", timeout=60, interval=0.5) is None:
-        logging.error("Heart not showing in loadable games. Did the save get copied correctly?")
+        logging.error(
+            "Heart not showing in loadable games. Did the save get copied correctly?"
+        )
         sys.exit(1)
 
     press_n_times("right", 3, 0.2)
@@ -120,7 +146,7 @@ def run_benchmark():
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
 
-    #Starting the benchmark:
+    # Starting the benchmark:
     if kerasService.wait_for_word(word="recap", timeout=60, interval=0.5) is None:
         logging.error("Didn't see the word recap. Did the save game load?")
         sys.exit(1)
@@ -145,10 +171,18 @@ def run_benchmark():
 
 try:
     parser = ArgumentParser()
-    parser.add_argument("--kerasHost", dest="keras_host",
-                        help="Host for Keras OCR service", required=True)
-    parser.add_argument("--kerasPort", dest="keras_port",
-                        help="Port for Keras OCR service", required=True)
+    parser.add_argument(
+        "--kerasHost",
+        dest="keras_host",
+        help="Host for Keras OCR service",
+        required=True,
+    )
+    parser.add_argument(
+        "--kerasPort",
+        dest="keras_port",
+        help="Port for Keras OCR service",
+        required=True,
+    )
     args = parser.parse_args()
     setup_logging(LOG_DIRECTORY)
     kerasService = KerasService(args.keras_host, args.keras_port)
@@ -159,7 +193,7 @@ try:
         "resolution": f"{width}x{height}",
         "start_time": round((start_time * 1000)),
         "end_time": round((end_time * 1000)),
-        "game_version": find_eg_game_version(GAMEFOLDERNAME)
+        "game_version": find_eg_game_version(GAMEFOLDERNAME),
     }
 
     am.create_manifest()

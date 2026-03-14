@@ -16,7 +16,8 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.output import (
     setup_logging,
     seconds_to_milliseconds,
-    write_report_json)
+    write_report_json,
+)
 from harness_utils.process import is_process_running
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -25,7 +26,6 @@ EVOLVE_DIR = Path(r"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Evolve")
 EXECUTABLE = "evolve.exe"
 EXECUTABLE_PATH = EVOLVE_DIR / EXECUTABLE
 RESULTS_FILE = LOG_DIRECTORY / "evolve-results.csv"
-
 
 
 TRACE_MODES = ["inline", "pipeline", "work-graph"]

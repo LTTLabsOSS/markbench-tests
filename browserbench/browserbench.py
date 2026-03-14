@@ -1,4 +1,5 @@
 """Multi-Benchmark Browser Harness"""
+
 import argparse
 import logging
 import subprocess
@@ -7,7 +8,13 @@ import time
 from pathlib import Path
 
 from cdp_client import CDPClient
-from chrome_utils import get_chrome_path_from_registry, launch_chrome, get_browser_websocket_url, wait_for_ready, get_browser_version
+from chrome_utils import (
+    get_chrome_path_from_registry,
+    launch_chrome,
+    get_browser_websocket_url,
+    wait_for_ready,
+    get_browser_version,
+)
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -15,7 +22,8 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.output import (
     setup_logging,
     write_report_json,
-    seconds_to_milliseconds)
+    seconds_to_milliseconds,
+)
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 INTERNAL_TIMEOUT = 900  # 15 minutes
@@ -35,7 +43,7 @@ BENCHMARKS = {
                 return el ? parseFloat(el.innerText) : null;
             })();
         """,
-        "version": "2.2"
+        "version": "2.2",
     },
     "speedometer": {
         "url": "https://browserbench.org/Speedometer3.1/",
@@ -47,7 +55,7 @@ BENCHMARKS = {
                 return el ? parseFloat(el.innerText) : null;
             })();
         """,
-        "version": "3.1"
+        "version": "3.1",
     },
     "motionmark": {
         "url": "https://browserbench.org/MotionMark1.3.1/",
@@ -62,7 +70,7 @@ BENCHMARKS = {
                 return isNaN(num) ? null : num;
             })();
         """,
-        "version": "1.3.1"
+        "version": "1.3.1",
     },
     "kraken": {
         "landing_url": "https://mozilla.github.io/krakenbenchmark.mozilla.org/",
@@ -79,7 +87,7 @@ BENCHMARKS = {
                 return match ? parseFloat(match[1]) : null;
             })();
         """,
-        "version": "1.1"
+        "version": "1.1",
     },
     "webxprt4": {
         "url": "https://www.principledtechnologies.com/benchmarkxprt/webxprt/2021/wx4_build_3_7_3/",
@@ -94,7 +102,7 @@ BENCHMARKS = {
                 return isNaN(num) ? null : num;
             })();
         """,
-        "version": "wx4_build_3.7.3"
+        "version": "wx4_build_3.7.3",
     },
     "webxprt5": {
         "url": "https://www.principledtechnologies.com/wx5/",
@@ -108,13 +116,15 @@ BENCHMARKS = {
                 return isNaN(num) ? null : num;
             })();
         """,
-        "version": "5.0"
-    }
+        "version": "5.0",
+    },
 }
+
 
 def start_benchmark(client: CDPClient, start_expr: str):
     """Starts the benchmark once loaded"""
     client.call("Runtime.evaluate", {"expression": start_expr})
+
 
 def wait_for_score(client: CDPClient, score_expr: str) -> float:
     """Looking for score of the benchmark, times out after 15 minutes"""
@@ -127,12 +137,17 @@ def wait_for_score(client: CDPClient, score_expr: str) -> float:
         time.sleep(3)
     raise TimeoutError("Benchmark did not finish in time")
 
+
 def main():
     """Running the benchmark"""
 
     parser = argparse.ArgumentParser(description="Browser benchmark harness")
-    parser.add_argument("--benchmark", choices=BENCHMARKS.keys(), required=True,
-                        help="Which benchmark to run")
+    parser.add_argument(
+        "--benchmark",
+        choices=BENCHMARKS.keys(),
+        required=True,
+        help="Which benchmark to run",
+    )
     args = parser.parse_args()
     bench = BENCHMARKS[args.benchmark]
 
@@ -154,7 +169,9 @@ def main():
         if args.benchmark == "kraken":
             # Wait for landing page link
             wait_for_ready(client, bench["wait_expr_landing"])
-            logging.info("Kraken landing page ready. Pausing 10s before clicking 'Begin'...")
+            logging.info(
+                "Kraken landing page ready. Pausing 10s before clicking 'Begin'..."
+            )
             time.sleep(10)
 
             # Click Begin link
@@ -177,7 +194,6 @@ def main():
             wait_for_ready(client, bench["wait_expr"])
             time.sleep(10)  # settle
 
-
             start_time = time.time()
             start_benchmark(client, bench["start_expr"])
             unit = "score"
@@ -199,11 +215,15 @@ def main():
             "unit": unit,
             "browser_version": browser_version,
             "start_time": seconds_to_milliseconds(start_time),
-            "end_time": seconds_to_milliseconds(end_time)
+            "end_time": seconds_to_milliseconds(end_time),
         }
 
         write_report_json(LOG_DIRECTORY, "report.json", report)
-        am.take_screenshot("result.png", ArtifactType.CONFIG_IMAGE, "Screenshot of the benchmark result")
+        am.take_screenshot(
+            "result.png",
+            ArtifactType.CONFIG_IMAGE,
+            "Screenshot of the benchmark result",
+        )
         am.create_manifest()
 
         time.sleep(15)

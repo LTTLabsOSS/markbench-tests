@@ -21,7 +21,8 @@ from harness_utils.output import (
     setup_logging,
     format_resolution,
     write_report_json,
-    seconds_to_milliseconds)
+    seconds_to_milliseconds,
+)
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.misc import press_n_times, mouse_scroll_n_times
@@ -38,7 +39,7 @@ user.FAILSAFE = False
 
 
 def start_game():
-    subprocess.run(f'start uplay://launch/{GAME_ID}/0', shell=True, check=True)
+    subprocess.run(f"start uplay://launch/{GAME_ID}/0", shell=True, check=True)
 
 
 def skip_logo_screens() -> None:
@@ -106,10 +107,13 @@ def run_benchmark():
     result = kerasService.look_for_word("adapter", attempts=10, interval=1)
     if not result:
         logging.info(
-            "Did not find the Video Adapter setting in the monitor options. Did keras navigate wrong?")
+            "Did not find the Video Adapter setting in the monitor options. Did keras navigate wrong?"
+        )
         sys.exit(1)
 
-    am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings")
+    am.take_screenshot(
+        "video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings"
+    )
 
     time.sleep(2)
 
@@ -118,10 +122,13 @@ def run_benchmark():
     result = kerasService.look_for_word("filtering", attempts=10, interval=1)
     if not result:
         logging.info(
-            "Did not find the Texture Filtering setting in the quality options. Did keras navigate wrong?")
+            "Did not find the Texture Filtering setting in the quality options. Did keras navigate wrong?"
+        )
         sys.exit(1)
 
-    am.take_screenshot("quality1.png", ArtifactType.CONFIG_IMAGE, "1st picture of quality settings")
+    am.take_screenshot(
+        "quality1.png", ArtifactType.CONFIG_IMAGE, "1st picture of quality settings"
+    )
 
     time.sleep(2)
 
@@ -130,10 +137,13 @@ def run_benchmark():
     result = kerasService.look_for_word("shading", attempts=10, interval=1)
     if not result:
         logging.info(
-            "Did not find the FidelityFX Variable Shading setting in the quality options. Did keras navigate wrong?")
+            "Did not find the FidelityFX Variable Shading setting in the quality options. Did keras navigate wrong?"
+        )
         sys.exit(1)
 
-    am.take_screenshot("quality2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of quality settings")
+    am.take_screenshot(
+        "quality2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of quality settings"
+    )
 
     time.sleep(2)
 
@@ -142,10 +152,13 @@ def run_benchmark():
     result = kerasService.look_for_word("lock", attempts=10, interval=1)
     if not result:
         logging.info(
-            "Did not find the Enable Framerate Lock setting in the advanced options. Did keras navigate wrong?")
+            "Did not find the Enable Framerate Lock setting in the advanced options. Did keras navigate wrong?"
+        )
         sys.exit(1)
 
-    am.take_screenshot("advanced.png", ArtifactType.CONFIG_IMAGE, "picture of advanced settings")
+    am.take_screenshot(
+        "advanced.png", ArtifactType.CONFIG_IMAGE, "picture of advanced settings"
+    )
 
     # starting the benchmark
     time.sleep(2)
@@ -155,7 +168,9 @@ def run_benchmark():
 
     result = kerasService.look_for_word("toggle", attempts=10, interval=1)
     if not result:
-        logging.info("Did not find the toggle ui button in the lower right. Did the benchmark crash?")
+        logging.info(
+            "Did not find the toggle ui button in the lower right. Did the benchmark crash?"
+        )
         sys.exit(1)
     test_start_time = int(time.time())
 
@@ -185,10 +200,12 @@ def run_benchmark():
 setup_logging(LOG_DIRECTORY)
 
 parser = ArgumentParser()
-parser.add_argument("--kerasHost", dest="keras_host",
-                    help="Host for Keras OCR service", required=True)
-parser.add_argument("--kerasPort", dest="keras_port",
-                    help="Port for Keras OCR service", required=True)
+parser.add_argument(
+    "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
+)
+parser.add_argument(
+    "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
+)
 args = parser.parse_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
 
@@ -199,7 +216,7 @@ try:
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(test_start_time),
         "end_time": seconds_to_milliseconds(test_end_time),
-        "version": "unknown"
+        "version": "unknown",
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)

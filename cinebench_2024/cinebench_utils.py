@@ -1,7 +1,9 @@
 """Utility functions for Cinebench 2024 test script"""
+
 import re
 
 SCORE_PATTERN = re.compile(r"^CB (\d+\.\d+) \(.+\)$")
+
 
 def get_score(output: str) -> str | None:
     """Finds score pattern from output string"""
@@ -22,4 +24,3 @@ def friendly_test_name(test: str) -> str:
     if test == "g_CinebenchGpuTest=true":
         return "Cinebench 2024 GPU"
     return test
-    

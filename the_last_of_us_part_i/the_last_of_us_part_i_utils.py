@@ -1,4 +1,5 @@
 """Utility functions for The Last of Us Part I test script"""
+
 from argparse import ArgumentParser
 import ctypes
 import re
@@ -16,13 +17,22 @@ USERFOLDER = os.environ["USERPROFILE"]
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 TLOU_SAVE = SCRIPT_DIRECTORY.joinpath("SAVEFILE0A")
 
+
 def get_args() -> any:
     """Get command line arg values"""
     parser = ArgumentParser()
     parser.add_argument(
-        "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True)
+        "--kerasHost",
+        dest="keras_host",
+        help="Host for Keras OCR service",
+        required=True,
+    )
     parser.add_argument(
-        "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True)
+        "--kerasPort",
+        dest="keras_port",
+        help="Port for Keras OCR service",
+        required=True,
+    )
     return parser.parse_args()
 
 
@@ -120,13 +130,13 @@ def copy_autosave():
     src_autosave_dir = Path(TLOU_SAVE)
     steam_user_id = str(get_registry_active_user())
     dest_savedata_dir = Path(
-    USERFOLDER,
-    "Saved Games",
-    "The Last of Us Part I",
-    "users",
-    steam_user_id,
-    "SaveData",
-)
+        USERFOLDER,
+        "Saved Games",
+        "The Last of Us Part I",
+        "users",
+        steam_user_id,
+        "SaveData",
+    )
 
     if not src_autosave_dir.exists():
         raise FileNotFoundError(f"Source autosave folder not found: {src_autosave_dir}")

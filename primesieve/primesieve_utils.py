@@ -1,4 +1,5 @@
 """collection of functions to assist in running of primesieve test script"""
+
 from pathlib import Path
 import time
 from zipfile import ZipFile
@@ -21,9 +22,9 @@ def download_primesieve():
     download_url = "https://github.com/kimwalisch/primesieve/releases/download/v12.3/primesieve-12.3-win-x64.zip"
     destination = SCRIPT_DIRECTORY / PRIMESIEVE_ZIP_NAME
     response = requests.get(download_url, allow_redirects=True, timeout=180)
-    with destination.open('wb') as file:
+    with destination.open("wb") as file:
         file.write(response.content)
-    with ZipFile(destination, 'r') as zip_object:
+    with ZipFile(destination, "r") as zip_object:
         destination_folder = SCRIPT_DIRECTORY / PRIMESIEVE_FOLDER_NAME
         zip_object.extractall(path=destination_folder)
 

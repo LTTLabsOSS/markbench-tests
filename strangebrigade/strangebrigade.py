@@ -1,4 +1,5 @@
 """Strange Brigade test script"""
+
 from argparse import ArgumentParser
 import logging
 import os
@@ -18,9 +19,19 @@ from harness_utils.output import (
     setup_logging,
     format_resolution,
     write_report_json,
-    seconds_to_milliseconds)
-from harness_utils.steam import get_app_install_location, exec_steam_run_command, get_build_id
-from harness_utils.keras_service import KerasService, ScreenSplitConfig, ScreenShotDivideMethod, ScreenShotQuadrant
+    seconds_to_milliseconds,
+)
+from harness_utils.steam import (
+    get_app_install_location,
+    exec_steam_run_command,
+    get_build_id,
+)
+from harness_utils.keras_service import (
+    KerasService,
+    ScreenSplitConfig,
+    ScreenShotDivideMethod,
+    ScreenShotQuadrant,
+)
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -37,14 +48,13 @@ VIDEO_PATH = Path(get_app_install_location(STEAM_GAME_ID)) / "FMV"
 
 top_right_quad = ScreenSplitConfig(
     divide_method=ScreenShotDivideMethod.QUADRANT,  # Choose appropriate split method
-    quadrant=ScreenShotQuadrant.TOP_RIGHT  # Choose the correct quadrant
+    quadrant=ScreenShotQuadrant.TOP_RIGHT,  # Choose the correct quadrant
 )
 
 user.FAILSAFE = False
 
-intro_videos = [
-    VIDEO_PATH / "rebellion.webm"
-]
+intro_videos = [VIDEO_PATH / "rebellion.webm"]
+
 
 def run_benchmark():
     """Starts the benchmark"""
@@ -75,10 +85,14 @@ def run_benchmark():
 
     result = kerasService.look_for_word_vulkan("customise", attempts=10, interval=1)
     if not result:
-        logging.info("Did not find the customize graphics detail option. Did navigate correctly?")
+        logging.info(
+            "Did not find the customize graphics detail option. Did navigate correctly?"
+        )
         sys.exit(1)
 
-    am.take_screenshot_vulkan("display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings")
+    am.take_screenshot_vulkan(
+        "display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings"
+    )
 
     time.sleep(0.5)
     user.press("escape")
@@ -89,7 +103,9 @@ def run_benchmark():
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
-    result = kerasService.wait_for_word_vulkan("strange", interval=0.5, timeout=100, split_config=top_right_quad)
+    result = kerasService.wait_for_word_vulkan(
+        "strange", interval=0.5, timeout=100, split_config=top_right_quad
+    )
     if not result:
         logging.info("Could not find FPS. Unable to mark start time!")
         sys.exit(1)
@@ -101,7 +117,8 @@ def run_benchmark():
     result = kerasService.wait_for_word_vulkan("confirm", interval=0.2, timeout=250)
     if not result:
         logging.info(
-            "Results screen was not found! Did harness not wait long enough? Or test was too long?")
+            "Results screen was not found! Did harness not wait long enough? Or test was too long?"
+        )
         sys.exit(1)
 
     test_end_time = int(time.time()) - 1
@@ -109,8 +126,12 @@ def run_benchmark():
     # Wait 5 seconds for benchmark info
     time.sleep(5)
 
-    am.take_screenshot_vulkan("result.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
-    am.copy_file(Path(CONFIG_FULL_PATH), ArtifactType.RESULTS_TEXT, "preferences.script.txt")
+    am.take_screenshot_vulkan(
+        "result.png", ArtifactType.RESULTS_IMAGE, "benchmark results"
+    )
+    am.copy_file(
+        Path(CONFIG_FULL_PATH), ArtifactType.RESULTS_TEXT, "preferences.script.txt"
+    )
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
@@ -128,10 +149,12 @@ def run_benchmark():
 setup_logging(LOG_DIRECTORY)
 
 parser = ArgumentParser()
-parser.add_argument("--kerasHost", dest="keras_host",
-                    help="Host for Keras OCR service", required=True)
-parser.add_argument("--kerasPort", dest="keras_port",
-                    help="Port for Keras OCR service", required=True)
+parser.add_argument(
+    "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
+)
+parser.add_argument(
+    "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
+)
 args = parser.parse_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
 
@@ -142,7 +165,7 @@ try:
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(endtime),
-        "version": get_build_id(STEAM_GAME_ID)
+        "version": get_build_id(STEAM_GAME_ID),
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)

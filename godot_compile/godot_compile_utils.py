@@ -1,4 +1,5 @@
 """godot compile utility functions"""
+
 import os
 from pathlib import Path
 import shutil
@@ -19,25 +20,32 @@ GODOT_DIR = "godot-4.4.1-stable"
 
 def install_mingw() -> str:
     """copies mingw from the network drive and adds to path"""
-    original_path = os.environ.get('PATH', '')
+    original_path = os.environ.get("PATH", "")
     if MINGW_FOLDER.is_dir():
         if str(MINGW_FOLDER) not in original_path:
-            os.environ['PATH'] = str(MINGW_FOLDER.joinpath('bin')) + os.pathsep + original_path
+            os.environ["PATH"] = (
+                str(MINGW_FOLDER.joinpath("bin")) + os.pathsep + original_path
+            )
         return "existing mingw installation detected"
-    source = Path("\\\\labs.lmg.gg\\labs\\01_Installers_Utilities\\MinGW\\").joinpath(MINGW_ZIP)
+    source = Path("\\\\labs.lmg.gg\\labs\\01_Installers_Utilities\\MinGW\\").joinpath(
+        MINGW_ZIP
+    )
     destination = SCRIPT_DIRECTORY.joinpath(MINGW_ZIP)
     shutil.copyfile(source, destination)
-    with ZipFile(destination, 'r') as zip_object:
+    with ZipFile(destination, "r") as zip_object:
         zip_object.extractall(path=SCRIPT_DIRECTORY)
     if str(MINGW_FOLDER) not in original_path:
-        os.environ['PATH'] = str(MINGW_FOLDER.joinpath('bin')) + os.pathsep + original_path
+        os.environ["PATH"] = (
+            str(MINGW_FOLDER.joinpath("bin")) + os.pathsep + original_path
+        )
     return "installed mingw from network drive"
 
 
 def copy_miniconda_from_network_drive():
     """copies miniconda installer from network drive"""
-    source = Path("\\\\labs.lmg.gg\\labs\\01_Installers_Utilities\\Miniconda\\").joinpath(
-        MINICONDA_INSTALLER)
+    source = Path(
+        "\\\\labs.lmg.gg\\labs\\01_Installers_Utilities\\Miniconda\\"
+    ).joinpath(MINICONDA_INSTALLER)
     destination = SCRIPT_DIRECTORY.joinpath(MINICONDA_INSTALLER)
     shutil.copyfile(source, destination)
 
@@ -57,13 +65,15 @@ def install_miniconda() -> str:
         f'"{str(SCRIPT_DIRECTORY.joinpath(MINICONDA_INSTALLER))}"',
         "-ArgumentList",
         '"/S"',
-        "-Wait"
+        "-Wait",
     ]
     try:
         output = subprocess.check_output(command, stderr=subprocess.PIPE, text=True)
     except Exception as err:
         command_string = " ".join(command)
-        raise Exception(f"could not install miniconda using command {command_string}") from err
+        raise Exception(
+            f"could not install miniconda using command {command_string}"
+        ) from err
     return output
 
 
@@ -72,10 +82,12 @@ def copy_godot_source_from_network_drive() -> str:
     if SCRIPT_DIRECTORY.joinpath(GODOT_DIR).is_dir():
         return "existing godot source directory detected"
     zip_name = f"{GODOT_DIR}.zip"
-    source = Path("\\\\labs.lmg.gg\\labs\\03_ProcessingFiles\\Godot Files\\").joinpath(zip_name)
+    source = Path("\\\\labs.lmg.gg\\labs\\03_ProcessingFiles\\Godot Files\\").joinpath(
+        zip_name
+    )
     destination = SCRIPT_DIRECTORY.joinpath(zip_name)
     shutil.copyfile(source, destination)
-    with ZipFile(destination, 'r') as zip_object:
+    with ZipFile(destination, "r") as zip_object:
         try:
             zip_object.extractall(path=SCRIPT_DIRECTORY)
         except Exception as ex:
@@ -85,14 +97,14 @@ def copy_godot_source_from_network_drive() -> str:
 
 def check_conda_environment_exists() -> bool:
     """check if godotbuild environment exists"""
-    command = [
-        str(MINICONDA_EXECUTABLE_PATH),
-        "list",
-        "-n",
-        CONDA_ENV_NAME
-    ]
-    process = subprocess.run(" ".join(command), stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE, text=True, check=False)
+    command = [str(MINICONDA_EXECUTABLE_PATH), "list", "-n", CONDA_ENV_NAME]
+    process = subprocess.run(
+        " ".join(command),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
     if process.returncode == 1:
         return False
     return True
@@ -107,9 +119,11 @@ def create_conda_environment() -> str:
         "create",
         "-n",
         CONDA_ENV_NAME,
-        "python=3.11"
+        "python=3.11",
     ]
-    output = subprocess.check_output(" ".join(command), stderr=subprocess.STDOUT, text=True)
+    output = subprocess.check_output(
+        " ".join(command), stderr=subprocess.STDOUT, text=True
+    )
     return output
 
 
@@ -123,16 +137,19 @@ def run_conda_command(conda_cmd: List[str]) -> str:
         "--cwd",
         str(SCRIPT_DIRECTORY.joinpath(GODOT_DIR)),
     ] + conda_cmd
-    output = subprocess.check_output(" ".join(command), stderr=subprocess.STDOUT, text=True)
+    output = subprocess.check_output(
+        " ".join(command), stderr=subprocess.STDOUT, text=True
+    )
     return output
 
 
 def convert_duration_string_to_seconds(duration: str) -> int:
     """convert duration in HH:MM:SS.xxx format to total seconds"""
     time_obj = timedelta(
-        hours=int(duration.split(':')[0]),
-        minutes=int(duration.split(':')[1]),
-        seconds=float(duration.split('.')[0].split(':')[2]),
-        milliseconds=int(float('0.' + duration.split('.')[1]) * 1000))
+        hours=int(duration.split(":")[0]),
+        minutes=int(duration.split(":")[1]),
+        seconds=float(duration.split(".")[0].split(":")[2]),
+        milliseconds=int(float("0." + duration.split(".")[1]) * 1000),
+    )
 
     return round(time_obj.total_seconds())

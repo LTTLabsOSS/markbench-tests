@@ -1,4 +1,5 @@
 """F1 24 test script"""
+
 import logging
 from argparse import ArgumentParser
 import os.path
@@ -12,7 +13,11 @@ from f1_24_utils import get_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.steam import exec_steam_run_command, get_app_install_location, get_build_id
+from harness_utils.steam import (
+    exec_steam_run_command,
+    get_app_install_location,
+    get_build_id,
+)
 from harness_utils.keras_service import KerasService
 from harness_utils.misc import remove_files, press_n_times
 from harness_utils.process import terminate_processes
@@ -20,7 +25,8 @@ from harness_utils.output import (
     setup_logging,
     format_resolution,
     seconds_to_milliseconds,
-    write_report_json)
+    write_report_json,
+)
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -35,10 +41,7 @@ CONFIG_FILENAME = "hardware_settings_config.xml"
 CONFIG = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
 BENCHMARK_RESULTS_PATH = f"C:\\Users\\{username}\\Documents\\My Games\\F1 24\\benchmark"
 
-intro_videos = [
-    VIDEO_PATH / "attract.bk2",
-    VIDEO_PATH / "cm_f1_sting.bk2"
-]
+intro_videos = [VIDEO_PATH / "attract.bk2", VIDEO_PATH / "cm_f1_sting.bk2"]
 user.FAILSAFE = False
 
 
@@ -51,6 +54,7 @@ def find_latest_result_file(base_path):
         if path.is_file() and re.search(pattern, path.name, re.IGNORECASE)
     ]
     return max(result_files, key=lambda path: path.stat().st_mtime)
+
 
 def find_settings() -> any:
     """Look for and enter settings"""
@@ -103,6 +107,7 @@ def navigate_startup():
         user.press("enter")
         time.sleep(2)
 
+
 def offline_menu():
     """Navigateout of the offline menu"""
     result = kerasService.wait_for_word("signed", timeout=50)
@@ -110,6 +115,8 @@ def offline_menu():
         logging.info("Didn't find the keyword 'signed'")
         return
     user.press("enter")
+
+
 def run_benchmark():
     """Runs the actual benchmark."""
     remove_files([str(path) for path in intro_videos])
@@ -134,7 +141,7 @@ def run_benchmark():
     press_n_times("down", 6, 0.2)
     user.press("enter")
     time.sleep(2)
-    #find_settings()
+    # find_settings()
     find_graphics()
 
     # Navigate to video settings
@@ -144,29 +151,45 @@ def run_benchmark():
 
     result = kerasService.wait_for_word("vsync", interval=3, timeout=60)
     if not result:
-        logging.info("Didn't find the keyword 'vsync'. Did the program navigate to the video mode menu correctly?")
+        logging.info(
+            "Didn't find the keyword 'vsync'. Did the program navigate to the video mode menu correctly?"
+        )
         sys.exit(1)
     press_n_times("down", 18, 0.2)
 
-    am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings menu")
+    am.take_screenshot(
+        "video.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings menu"
+    )
     user.press("esc")
     time.sleep(0.2)
 
     result = kerasService.wait_for_word("steering", interval=3, timeout=60)
     if not result:
-        logging.info("Didn't find the keyword 'steering'. Did the program exit the video mode menu correctly?")
+        logging.info(
+            "Didn't find the keyword 'steering'. Did the program exit the video mode menu correctly?"
+        )
         sys.exit(1)
 
     # Navigate through graphics settings and take screenshots of all settings contained within
-    am.take_screenshot("graphics_1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of graphics settings")
+    am.take_screenshot(
+        "graphics_1.png",
+        ArtifactType.CONFIG_IMAGE,
+        "first screenshot of graphics settings",
+    )
     press_n_times("down", 29, 0.2)
 
     result = kerasService.wait_for_word("chromatic", interval=3, timeout=60)
     if not result:
-        logging.info("Didn't find the keyword 'chromatic'. Did we navigate the menu correctly?")
+        logging.info(
+            "Didn't find the keyword 'chromatic'. Did we navigate the menu correctly?"
+        )
         sys.exit(1)
 
-    am.take_screenshot("graphics_2.png", ArtifactType.CONFIG_IMAGE, "second screenshot of graphics settings")
+    am.take_screenshot(
+        "graphics_2.png",
+        ArtifactType.CONFIG_IMAGE,
+        "second screenshot of graphics settings",
+    )
     press_n_times("up", 28, 0.2)
     user.press("enter")
     time.sleep(0.2)
@@ -176,7 +199,9 @@ def run_benchmark():
         logging.info("Didn't find weather!")
         sys.exit(1)
 
-    am.take_screenshot("benchmark.png", ArtifactType.CONFIG_IMAGE, "screenshot of benchmark settings")
+    am.take_screenshot(
+        "benchmark.png", ArtifactType.CONFIG_IMAGE, "screenshot of benchmark settings"
+    )
 
     press_n_times("down", 6, 0.2)
     user.press("enter")
@@ -208,17 +233,23 @@ def run_benchmark():
 
     result = kerasService.wait_for_word("results", interval=3, timeout=90)
     if not result:
-        logging.info("Results screen was not found!" +
-            "Did harness not wait long enough? Or test was too long?")
+        logging.info(
+            "Results screen was not found!"
+            + "Did harness not wait long enough? Or test was too long?"
+        )
         sys.exit(1)
     logging.info("Results screen was found! Finishing benchmark.")
     results_file = find_latest_result_file(BENCHMARK_RESULTS_PATH)
-    am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "screenshot of results")
+    am.take_screenshot(
+        "result.png", ArtifactType.RESULTS_IMAGE, "screenshot of results"
+    )
     am.copy_file(CONFIG, ArtifactType.CONFIG_TEXT, "config file")
     am.copy_file(results_file, ArtifactType.RESULTS_TEXT, "benchmark results xml file")
 
     if test_end_time is None:
-        logging.info("Loading screen end time not found. Using results screen fallback time.")
+        logging.info(
+            "Loading screen end time not found. Using results screen fallback time."
+        )
         test_end_time = int(time.time())
 
     elapsed_test_time = round(test_end_time - test_start_time, 2)
@@ -249,7 +280,7 @@ try:
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
-        "version": get_build_id(STEAM_GAME_ID)
+        "version": get_build_id(STEAM_GAME_ID),
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)

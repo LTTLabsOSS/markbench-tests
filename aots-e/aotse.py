@@ -1,10 +1,18 @@
 """Ashes of the Singularity: Escalation test script"""
+
 import logging
 from pathlib import Path
 import sys
 import time
 import getpass
-from aotse_utils import read_current_resolution, find_score_in_log, delete_old_scores, get_args, replace_exe, restore_exe
+from aotse_utils import (
+    read_current_resolution,
+    find_score_in_log,
+    delete_old_scores,
+    get_args,
+    replace_exe,
+    restore_exe,
+)
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -15,14 +23,17 @@ from harness_utils.output import (
     setup_logging,
     seconds_to_milliseconds,
     format_resolution,
-    write_report_json)
+    write_report_json,
+)
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 #####
 ### Globals
 #####
 USERNAME = getpass.getuser()
-CONFIG_PATH = Path(f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Ashes of the Singularity - Escalation")
+CONFIG_PATH = Path(
+    f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Ashes of the Singularity - Escalation"
+)
 CONFIG_FILENAME = "settings.ini"
 STEAM_GAME_ID = 507490
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -34,25 +45,27 @@ BENCHMARK_CONFIG = {
         "hardware": "GPU",
         "config": "benchfinal",
         "score_name": "Avg Framerate:",
-        "test_name": "Ashes of the Singularity: Escalation GPU Benchmark"
+        "test_name": "Ashes of the Singularity: Escalation GPU Benchmark",
     },
     "CPU_Benchmark": {
         "hardware": "CPU",
         "config": "CPUbench",
         "score_name": r"CPU frame rate \(estimated if not GPU bound\):",
-        "test_name": "Ashes of the Singularity: Escalation CPU Benchmark"
-    }
+        "test_name": "Ashes of the Singularity: Escalation CPU Benchmark",
+    },
 }
 CFG = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
+
 
 def start_game():
     """Launch the game with no launcher or start screen"""
     test_option = BENCHMARK_CONFIG[args.benchmark]["config"]
     return exec_steam_game(STEAM_GAME_ID, game_params=["-benchmark", f"{test_option}"])
 
+
 def run_benchmark():
     """Start the benchmark"""
-     # Start game via Steam and enter fullscreen mode
+    # Start game via Steam and enter fullscreen mode
     setup_start_time = time.time()
     replace_exe()
     start_game()
@@ -90,6 +103,7 @@ def run_benchmark():
 
     return test_start_time, test_end_time
 
+
 setup_logging(LOG_DIRECTORY)
 
 args = get_args()
@@ -97,8 +111,8 @@ kerasService = KerasService(args.keras_host, args.keras_port)
 am = ArtifactManager(LOG_DIRECTORY)
 
 try:
-    logging.info('Starting benchmark!')
-    RESULT="Output_*_*_*_*.txt"
+    logging.info("Starting benchmark!")
+    RESULT = "Output_*_*_*_*.txt"
     delete_old_scores(RESULT)
     start_time, end_time = run_benchmark()
     score = find_score_in_log(BENCHMARK_CONFIG[args.benchmark]["score_name"], RESULT)
@@ -125,7 +139,7 @@ try:
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
-        "version": get_build_id(STEAM_GAME_ID)
+        "version": get_build_id(STEAM_GAME_ID),
     }
 
     am.create_manifest()

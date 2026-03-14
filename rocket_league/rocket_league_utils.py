@@ -1,4 +1,5 @@
 """Rocket League test utils"""
+
 from argparse import ArgumentParser
 import winreg
 import getpass
@@ -10,19 +11,29 @@ from pathlib import Path
 USERNAME = getpass.getuser()
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 REPLAY_LOCATION = Path(
-    f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Rocket League\\TAGame\\Demos")
+    f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Rocket League\\TAGame\\Demos"
+)
 CONFIG_PATH = Path(
-    f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Rocket League\\TAGame\\Config\\TASystemSettings.ini")
+    f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Rocket League\\TAGame\\Config\\TASystemSettings.ini"
+)
 DEFAULT_EXECUTABLE_NAME = "EpicGamesLauncher.exe"
 
 
 def get_args() -> any:
     """Returns command line arg values"""
     parser = ArgumentParser()
-    parser.add_argument("--kerasHost", dest="keras_host",
-                        help="Host for Keras OCR service", required=True)
-    parser.add_argument("--kerasPort", dest="keras_port",
-                        help="Port for Keras OCR service", required=True)
+    parser.add_argument(
+        "--kerasHost",
+        dest="keras_host",
+        help="Host for Keras OCR service",
+        required=True,
+    )
+    parser.add_argument(
+        "--kerasPort",
+        dest="keras_port",
+        help="Port for Keras OCR service",
+        required=True,
+    )
     return parser.parse_args()
 
 
@@ -41,7 +52,7 @@ def get_resolution():
                 height = height_match.group(1)
             if width_match is not None:
                 width = width_match.group(1)
-            if height != 0 and width !=0:
+            if height != 0 and width != 0:
                 return (height, width)
     return (height, width)
 
@@ -63,10 +74,11 @@ def copy_replay() -> None:
 
 def find_epic_executable() -> any:
     """Get path to Epic Games Executable"""
-    reg_path = r'Software\Epic Games\EOS'
+    reg_path = r"Software\Epic Games\EOS"
     try:
-        registry_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0,
-                                      winreg.KEY_READ)
+        registry_key = winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER, reg_path, 0, winreg.KEY_READ
+        )
         value, _ = winreg.QueryValueEx(registry_key, "ModSdkCommand")
         winreg.CloseKey(registry_key)
         return value

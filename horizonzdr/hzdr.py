@@ -1,4 +1,5 @@
 """Horizon Zero Dawn Remastered test script"""
+
 from pathlib import Path
 import logging
 import sys
@@ -16,13 +17,14 @@ from harness_utils.output import (
     setup_logging,
     format_resolution,
     seconds_to_milliseconds,
-    write_report_json)
+    write_report_json,
+)
 from harness_utils.misc import remove_files
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
-  exec_steam_run_command,
-  get_steamapps_common_path,
-  get_build_id
+    exec_steam_run_command,
+    get_steamapps_common_path,
+    get_build_id,
 )
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
@@ -48,7 +50,7 @@ intro_videos = [
     VIDEO_PATH / "sony_studios_reel.bk2",
     VIDEO_PATH / "nixxes_logo.bk2",
     VIDEO_PATH / "Logo.bk2",
-    VIDEO_PATH / "guerilla_logo.bk2"
+    VIDEO_PATH / "guerilla_logo.bk2",
 ]
 
 
@@ -77,7 +79,6 @@ def run_benchmark() -> tuple[float]:
     user.press("enter")
     time.sleep(0.5)
 
-
     if kerasService.wait_for_word(word="language", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
@@ -89,7 +90,9 @@ def run_benchmark() -> tuple[float]:
     if kerasService.wait_for_word(word="monitor", timeout=30, interval=1) is None:
         logging.info("Did not find the display settings menu. Did the menu get stuck?")
         sys.exit(1)
-    am.take_screenshot("display1.png", ArtifactType.CONFIG_IMAGE, "1st picture of display settings")
+    am.take_screenshot(
+        "display1.png", ArtifactType.CONFIG_IMAGE, "1st picture of display settings"
+    )
 
     user.press("up")
     time.sleep(0.5)
@@ -97,7 +100,9 @@ def run_benchmark() -> tuple[float]:
     if kerasService.wait_for_word(word="upscale", timeout=30, interval=1) is None:
         logging.info("Did not find the upscale settings. Did the menu not scroll?")
         sys.exit(1)
-    am.take_screenshot("display2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of display settings")
+    am.take_screenshot(
+        "display2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of display settings"
+    )
 
     # Navigate to graphics menu
     user.press("e")
@@ -106,7 +111,9 @@ def run_benchmark() -> tuple[float]:
     if kerasService.wait_for_word(word="preset", timeout=30, interval=1) is None:
         logging.info("Did not find the graphics settings menu. Did the menu get stuck?")
         sys.exit(1)
-    am.take_screenshot("graphics1.png", ArtifactType.CONFIG_IMAGE, "1st picture of graphics settings")
+    am.take_screenshot(
+        "graphics1.png", ArtifactType.CONFIG_IMAGE, "1st picture of graphics settings"
+    )
 
     user.press("up")
     time.sleep(0.5)
@@ -114,7 +121,9 @@ def run_benchmark() -> tuple[float]:
     if kerasService.wait_for_word(word="sharpness", timeout=30, interval=1) is None:
         logging.info("Did not find the sharpness settings. Did the menu not scroll?")
         sys.exit(1)
-    am.take_screenshot("graphics2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of graphics settings")
+    am.take_screenshot(
+        "graphics2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of graphics settings"
+    )
 
     # Launch the benchmark
     user.press("tab")
@@ -126,7 +135,9 @@ def run_benchmark() -> tuple[float]:
     logging.info("Setup took %s seconds", elapsed_setup_time)
 
     if kerasService.wait_for_word(word="continue", timeout=120, interval=1) is None:
-        logging.info("Did not find the continue button. Did the game not finish loading?")
+        logging.info(
+            "Did not find the continue button. Did the game not finish loading?"
+        )
         sys.exit(1)
 
     user.press("enter")
@@ -138,13 +149,17 @@ def run_benchmark() -> tuple[float]:
 
     # Wait for results screen to display info
     if kerasService.wait_for_word(word="results", timeout=20, interval=0.1) is None:
-        logging.info("Did not find the results screen. Did the game not finish the benchmark?")
+        logging.info(
+            "Did not find the results screen. Did the game not finish the benchmark?"
+        )
         sys.exit(1)
 
     test_end_time = round(int(time.time()))
     # Give results screen time to fill out, then save screenshot and config file
     time.sleep(2)
-    am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "screenshot of benchmark result")
+    am.take_screenshot(
+        "result.png", ArtifactType.RESULTS_IMAGE, "screenshot of benchmark result"
+    )
     process_registry_file(hive, SUBKEY, str(INPUT_FILE), str(CONFIG_FILE))
     am.copy_file(CONFIG_FILE, ArtifactType.CONFIG_TEXT, "config file")
 
@@ -169,7 +184,7 @@ try:
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
-        "version": get_build_id(STEAM_GAME_ID)
+        "version": get_build_id(STEAM_GAME_ID),
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)

@@ -1,4 +1,5 @@
 """Recording session test script"""
+
 import logging
 from pathlib import Path
 import socket
@@ -12,13 +13,14 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.output import (
     setup_logging,
     write_report_json,
-    seconds_to_milliseconds)
+    seconds_to_milliseconds,
+)
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 setup_logging(LOG_DIRECTORY)
 
-HOST = ''
+HOST = ""
 PORT = 30000
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 start_time = time.time()
@@ -36,9 +38,8 @@ while True:
         stop_time = time.time()
         report = {
             "start_time": seconds_to_milliseconds(start_time),
-            "end_time": seconds_to_milliseconds(stop_time)
+            "end_time": seconds_to_milliseconds(stop_time),
         }
 
         write_report_json(LOG_DIRECTORY, "report.json", report)
         sys.exit(0)
-        

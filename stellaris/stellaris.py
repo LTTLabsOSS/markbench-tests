@@ -1,4 +1,5 @@
 """Stellaris test script"""
+
 from argparse import ArgumentParser
 import logging
 import os
@@ -8,7 +9,12 @@ import sys
 import pyautogui as gui
 import pydirectinput as user
 
-from stellaris_utils import read_current_resolution, copy_benchmarkfiles, copy_benchmarksave, find_score_in_log
+from stellaris_utils import (
+    read_current_resolution,
+    copy_benchmarkfiles,
+    copy_benchmarksave,
+    find_score_in_log,
+)
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -18,7 +24,8 @@ from harness_utils.output import (
     setup_logging,
     format_resolution,
     write_report_json,
-    seconds_to_milliseconds)
+    seconds_to_milliseconds,
+)
 from harness_utils.steam import get_app_install_location
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
@@ -32,10 +39,9 @@ STEAM_GAME_ID = 281990
 user.FAILSAFE = False
 
 
-
 def start_game():
     """Starts the game process"""
-    cmd_string = f"start /D \"{get_app_install_location(STEAM_GAME_ID)}\" {PROCESS_NAME}"
+    cmd_string = f'start /D "{get_app_install_location(STEAM_GAME_ID)}" {PROCESS_NAME}'
     logging.info(cmd_string)
     return os.system(cmd_string)
 
@@ -67,12 +73,16 @@ def run_benchmark(keras_host, keras_port):
 
     result = keras_service.wait_for_word("credits", interval=0.5, timeout=100)
     if not result:
-        logging.info("Could not find the paused notification. Unable to mark start time!")
+        logging.info(
+            "Could not find the paused notification. Unable to mark start time!"
+        )
         sys.exit(1)
 
     result = keras_service.look_for_word("settings", attempts=10, interval=1)
     if not result:
-        logging.info("Did not find the settings button. Is there something wrong on the screen?")
+        logging.info(
+            "Did not find the settings button. Is there something wrong on the screen?"
+        )
         sys.exit(1)
 
     gui.moveTo(result["x"], result["y"])
@@ -88,7 +98,9 @@ def run_benchmark(keras_host, keras_port):
 
     result = keras_service.look_for_word("load", attempts=10, interval=1)
     if not result:
-        logging.info("Did not find the load save menu. Is there something wrong on the screen?")
+        logging.info(
+            "Did not find the load save menu. Is there something wrong on the screen?"
+        )
         sys.exit(1)
 
     gui.moveTo(result["x"], result["y"])
@@ -100,7 +112,9 @@ def run_benchmark(keras_host, keras_port):
 
     result = keras_service.look_for_word("latest", attempts=10, interval=1)
     if not result:
-        logging.info("Did not find the load latest save button. Did keras click correctly?")
+        logging.info(
+            "Did not find the load latest save button. Did keras click correctly?"
+        )
         sys.exit(1)
 
     gui.moveTo(result["x"], result["y"])
@@ -112,7 +126,9 @@ def run_benchmark(keras_host, keras_port):
 
     result = keras_service.wait_for_word("paused", interval=0.5, timeout=100)
     if not result:
-        logging.info("Could not find the paused notification. Unable to mark start time!")
+        logging.info(
+            "Could not find the paused notification. Unable to mark start time!"
+        )
         sys.exit(1)
 
     result = keras_service.look_for_word("overview", attempts=10, interval=1)
@@ -123,7 +139,7 @@ def run_benchmark(keras_host, keras_port):
     gui.moveTo(result["x"], result["y"])
 
     time.sleep(2)
-    logging.info('Starting benchmark')
+    logging.info("Starting benchmark")
     user.press("`")
     time.sleep(0.5)
     console_command("run benchmark.ini")
@@ -138,7 +154,8 @@ def run_benchmark(keras_host, keras_port):
     result = keras_service.wait_for_word("finished", interval=0.2, timeout=250)
     if not result:
         logging.info(
-            "Results screen was not found! Did harness not wait long enough? Or test was too long?")
+            "Results screen was not found! Did harness not wait long enough? Or test was too long?"
+        )
         sys.exit(1)
 
     test_end_time = int(time.time())
@@ -162,13 +179,23 @@ def run_benchmark(keras_host, keras_port):
 def main():
     """entry point to test script"""
     parser = ArgumentParser()
-    parser.add_argument("--kerasHost", dest="keras_host",
-                        help="Host for Keras OCR service", required=True)
-    parser.add_argument("--kerasPort", dest="keras_port",
-                        help="Port for Keras OCR service", required=True)
+    parser.add_argument(
+        "--kerasHost",
+        dest="keras_host",
+        help="Host for Keras OCR service",
+        required=True,
+    )
+    parser.add_argument(
+        "--kerasPort",
+        dest="keras_port",
+        help="Port for Keras OCR service",
+        required=True,
+    )
     args = parser.parse_args()
 
-    test_start_time, test_end_time, score = run_benchmark(args.keras_host, args.keras_port)
+    test_start_time, test_end_time, score = run_benchmark(
+        args.keras_host, args.keras_port
+    )
     height, width = read_current_resolution()
     report = {
         "resolution": format_resolution(width, height),
@@ -176,7 +203,7 @@ def main():
         "end_time": seconds_to_milliseconds(test_end_time),
         "test": "Stellaris",
         "unit": "Seconds",
-        "score": score
+        "score": score,
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)

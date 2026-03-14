@@ -13,9 +13,7 @@ def setup_log_directory(log_dir: str | Path) -> None:
     Path(log_dir).mkdir(exist_ok=True)
 
 
-def write_report_json(
-    log_dir: str | Path, report_name: str, report_json: dict
-) -> None:
+def write_report_json(log_dir: str | Path, report_name: str, report_json: dict) -> None:
     """Writes the json output of a harness to the log directory"""
     with Path(log_dir, report_name).open("w", encoding="utf-8") as file:
         file.write(json.dumps(report_json))

@@ -1,10 +1,12 @@
 """Far Cry 6 utilities for test script"""
+
 import os
 import xml.etree.ElementTree as ET
 
 # Corrected XML file path (use raw string r"" or double backslashes)
 username = os.getlogin()
 XML_FILE = rf"C:\Users\{username}\Documents\My Games\Far Cry 6\gamerprofile.xml"
+
 
 # Parse the XML file
 def get_resolution() -> tuple[int, int]:

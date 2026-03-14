@@ -1,4 +1,5 @@
 """Forza Horizon 5 test script"""
+
 from argparse import ArgumentParser
 import logging
 import os
@@ -16,10 +17,11 @@ from harness_utils.output import (
     setup_logging,
     format_resolution,
     seconds_to_milliseconds,
-    write_report_json)
+    write_report_json,
+)
 from harness_utils.process import terminate_processes
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.rtss import  start_rtss_process, copy_rtss_profile
+from harness_utils.rtss import start_rtss_process, copy_rtss_profile
 from harness_utils.steam import exec_steam_run_command
 from harness_utils.keras_service import KerasService
 from harness_utils.misc import press_n_times
@@ -36,6 +38,7 @@ CONFIG_FILENAME = "UserConfigSelections"
 PROCESSES = ["ForzaHorizon5.exe", "RTSS.exe"]
 
 user.FAILSAFE = False
+
 
 def start_rtss():
     """Sets up the RTSS process"""
@@ -79,9 +82,9 @@ def run_benchmark():
     gui.mouseUp()
     am.take_screenshot("Video_pt.png", ArtifactType.CONFIG_IMAGE, "Video menu")
     time.sleep(0.2)
-    press_n_times("down",19,0.1)
+    press_n_times("down", 19, 0.1)
     am.take_screenshot("Video_pt2.png", ArtifactType.CONFIG_IMAGE, "Video menu2")
-    press_n_times("down",5,0.1)
+    press_n_times("down", 5, 0.1)
     am.take_screenshot("Video_pt3.png", ArtifactType.CONFIG_IMAGE, "Video menu3")
     time.sleep(0.2)
     user.press("escape")
@@ -101,7 +104,7 @@ def run_benchmark():
     time.sleep(0.2)
     am.take_screenshot("graphics_pt.png", ArtifactType.CONFIG_IMAGE, "graphics menu")
     time.sleep(0.2)
-    press_n_times("down",16,0.1)
+    press_n_times("down", 16, 0.1)
     am.take_screenshot("graphics_pt2.png", ArtifactType.CONFIG_IMAGE, "graphics menu2")
     time.sleep(0.1)
     user.press("down")
@@ -131,7 +134,7 @@ def run_benchmark():
 
     test_start_time = int(time.time())
 
-    time.sleep(95) # wait for benchmark to finish 95 seconds
+    time.sleep(95)  # wait for benchmark to finish 95 seconds
 
     result = kerasService.wait_for_word("results", timeout=25)
     if not result:
@@ -149,10 +152,12 @@ def run_benchmark():
 setup_logging(LOG_DIRECTORY)
 
 parser = ArgumentParser()
-parser.add_argument("--kerasHost", dest="keras_host",
-                    help="Host for Keras OCR service", required=True)
-parser.add_argument("--kerasPort", dest="keras_port",
-                    help="Port for Keras OCR service", required=True)
+parser.add_argument(
+    "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
+)
+parser.add_argument(
+    "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
+)
 args = parser.parse_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
 am = ArtifactManager(LOG_DIRECTORY)
@@ -163,7 +168,7 @@ try:
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time)
+        "end_time": seconds_to_milliseconds(end_time),
     }
     am.create_manifest()
     write_report_json(LOG_DIRECTORY, "report.json", report)

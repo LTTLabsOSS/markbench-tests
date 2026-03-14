@@ -1,4 +1,5 @@
 """Returnal test script"""
+
 import os
 from pathlib import Path
 import logging
@@ -16,13 +17,14 @@ from harness_utils.output import (
     setup_logging,
     format_resolution,
     seconds_to_milliseconds,
-    write_report_json)
+    write_report_json,
+)
 from harness_utils.misc import remove_files, press_n_times
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
-  exec_steam_run_command,
-  get_steamapps_common_path,
-  get_build_id
+    exec_steam_run_command,
+    get_steamapps_common_path,
+    get_build_id,
 )
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
@@ -40,11 +42,7 @@ LOCAL_USER_SETTINGS = (
     / "GameUserSettings.ini"
 )
 VIDEO_PATH = (
-    Path(get_steamapps_common_path())
-    / "Returnal"
-    / "Returnal"
-    / "Content"
-    / "Movies"
+    Path(get_steamapps_common_path()) / "Returnal" / "Returnal" / "Content" / "Movies"
 )
 
 user.FAILSAFE = False
@@ -57,6 +55,7 @@ intro_videos = [
     VIDEO_PATH / "Logos_Short_PC_UW21.mp4",
     VIDEO_PATH / "Logos_Short_PC_UW32.mp4",
 ]
+
 
 def check_vram_alert(attempts: int) -> bool:
     """Look for VRAM alert in menu"""
@@ -132,7 +131,9 @@ def run_benchmark() -> tuple[float]:
     if kerasService.wait_for_word(word="aspect", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
-    am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings")
+    am.take_screenshot(
+        "video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings"
+    )
 
     # Navigate to graphics menu
     user.press("e")
@@ -141,7 +142,11 @@ def run_benchmark() -> tuple[float]:
     if kerasService.wait_for_word(word="vsync", timeout=30, interval=1) is None:
         logging.info("Did not find the graphics settings menu. Did the menu get stuck?")
         sys.exit(1)
-    am.take_screenshot("graphics_1.png", ArtifactType.CONFIG_IMAGE, "first picture of graphics settings")
+    am.take_screenshot(
+        "graphics_1.png",
+        ArtifactType.CONFIG_IMAGE,
+        "first picture of graphics settings",
+    )
 
     # We check for a keyword that indicates DLSS is active because this changes how we navigate the menu
     if kerasService.wait_for_word(word="sharpness", timeout=10, interval=1) is None:
@@ -154,17 +159,29 @@ def run_benchmark() -> tuple[float]:
         press_n_times("down", 17, 0.2)
 
     if kerasService.wait_for_word(word="volumetric", timeout=30, interval=1) is None:
-        logging.info("Did not find the keyword 'volumetric'. Did the the menu scroll correctly?")
+        logging.info(
+            "Did not find the keyword 'volumetric'. Did the the menu scroll correctly?"
+        )
         sys.exit(1)
-    am.take_screenshot("graphics_2.png", ArtifactType.CONFIG_IMAGE, "second picture of graphics settings")
+    am.take_screenshot(
+        "graphics_2.png",
+        ArtifactType.CONFIG_IMAGE,
+        "second picture of graphics settings",
+    )
 
     # Scroll down graphics menu
     press_n_times("down", 15, 0.2)
 
     if kerasService.wait_for_word(word="hdr", timeout=30, interval=1) is None:
-        logging.info("Did not find the keyword 'hdr'. Did the the menu scroll correctly?")
+        logging.info(
+            "Did not find the keyword 'hdr'. Did the the menu scroll correctly?"
+        )
         sys.exit(1)
-    am.take_screenshot("graphics_3.png", ArtifactType.CONFIG_IMAGE, "third picture of graphics settings")
+    am.take_screenshot(
+        "graphics_3.png",
+        ArtifactType.CONFIG_IMAGE,
+        "third picture of graphics settings",
+    )
 
     # Launch the benchmark
     user.keyDown("tab")
@@ -177,8 +194,7 @@ def run_benchmark() -> tuple[float]:
 
     result = kerasService.wait_for_word("performance", interval=0.2, timeout=30)
     if not result:
-        logging.info(
-            "Performance graph was not found! Could not mark the start time.")
+        logging.info("Performance graph was not found! Could not mark the start time.")
         sys.exit(1)
 
     test_start_time = int(time.time())
@@ -189,20 +205,22 @@ def run_benchmark() -> tuple[float]:
     # Wait for results screen to display info
     result = kerasService.wait_for_word("lost", interval=0.1, timeout=11)
     if not result:
-        logging.info(
-            "Didn't see signal lost. Could not mark the proper end time!")
+        logging.info("Didn't see signal lost. Could not mark the proper end time!")
 
     test_end_time = round(int(time.time()) - 2)
 
     result = kerasService.wait_for_word("benchmark", interval=0.5, timeout=15)
     if not result:
         logging.info(
-            "Results screen was not found! Did harness not wait long enough? Or test was too long?")
+            "Results screen was not found! Did harness not wait long enough? Or test was too long?"
+        )
         sys.exit(1)
 
     # Give results screen time to fill out, then save screenshot and config file
     time.sleep(2)
-    am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "screenshot of benchmark result")
+    am.take_screenshot(
+        "result.png", ArtifactType.RESULTS_IMAGE, "screenshot of benchmark result"
+    )
     am.copy_file(LOCAL_USER_SETTINGS, ArtifactType.CONFIG_TEXT, "config file")
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
@@ -226,7 +244,7 @@ try:
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
-        "version": get_build_id(STEAM_GAME_ID)
+        "version": get_build_id(STEAM_GAME_ID),
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)

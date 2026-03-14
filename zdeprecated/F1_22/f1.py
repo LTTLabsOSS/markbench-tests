@@ -1,4 +1,5 @@
 """F1 22 Test script"""
+
 import logging
 import sys
 from pathlib import Path
@@ -16,7 +17,8 @@ from harness_utils.output import (
     setup_logging,
     format_resolution,
     seconds_to_milliseconds,
-    write_report_json)
+    write_report_json,
+)
 from harness_utils.misc import remove_files
 from harness_utils.process import terminate_processes
 

@@ -19,9 +19,7 @@ from ffmpeg_cpu_utils import (
 )
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.output import (
-    setup_logging,
-    write_report_json)
+from harness_utils.output import setup_logging, write_report_json
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
@@ -81,12 +79,17 @@ def main():  # pylint: disable=too-many-locals too-many-branches
         with open(encoding_log_path, "r", encoding="utf-8") as encoding_log:
             for line in reversed(encoding_log.read().splitlines()):
                 last_encoding_line = line.strip() or last_encoding_line
-                frame_match = re.search(r"frame=\s?(\d+)\sfps=\s?(\d+).*elapsed=\s?(\d+:\d{2}:\d{2}\.\d+)", last_encoding_line)
+                frame_match = re.search(
+                    r"frame=\s?(\d+)\sfps=\s?(\d+).*elapsed=\s?(\d+:\d{2}:\d{2}\.\d+)",
+                    last_encoding_line,
+                )
                 if frame_match:
                     encoding_fps = int(frame_match.group(2))
                     elapsed = str(frame_match.group(3))
-                    h, m, s = elapsed.split(':')
-                    logged_encoding_duration_seconds = int(h) * 3600 + int(m) * 60 + float(s)
+                    h, m, s = elapsed.split(":")
+                    logged_encoding_duration_seconds = (
+                        int(h) * 3600 + int(m) * 60 + float(s)
+                    )
                     break
 
         logging.info("Encoding FPS (overall): %s", encoding_fps)
@@ -128,9 +131,6 @@ def main():  # pylint: disable=too-many-locals too-many-branches
                     break
         end_time = current_time_ms()
         logging.info("VMAF score: %s", vmaf_score)
-
-        logging.getLogger("").removeHandler(console)
-        logging.getLogger("").addHandler(console)
 
         am = ArtifactManager(LOG_DIRECTORY)
         am.copy_file(

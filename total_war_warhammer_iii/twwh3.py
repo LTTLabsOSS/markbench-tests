@@ -1,4 +1,5 @@
 """Total War: Warhammer III test script"""
+
 from argparse import ArgumentParser
 import logging
 import os
@@ -17,7 +18,8 @@ from harness_utils.output import (
     setup_logging,
     format_resolution,
     write_report_json,
-    seconds_to_milliseconds)
+    seconds_to_milliseconds,
+)
 from harness_utils.steam import get_app_install_location, get_build_id
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
@@ -37,7 +39,7 @@ user.FAILSAFE = False
 
 def start_game():
     """Starts the game process"""
-    cmd_string = f"start /D \"{get_app_install_location(STEAM_GAME_ID)}\" {PROCESS_NAME}"
+    cmd_string = f'start /D "{get_app_install_location(STEAM_GAME_ID)}" {PROCESS_NAME}'
     logging.info(cmd_string)
     return os.system(cmd_string)
 
@@ -90,7 +92,9 @@ def run_benchmark():
     gui.mouseUp()
     time.sleep(2)
 
-    am.take_screenshot("main.png", ArtifactType.CONFIG_IMAGE, "picture of basic settings")
+    am.take_screenshot(
+        "main.png", ArtifactType.CONFIG_IMAGE, "picture of basic settings"
+    )
 
     result = kerasService.look_for_word("ad", attempts=10, interval=1)
     if not result:
@@ -104,7 +108,9 @@ def run_benchmark():
     gui.mouseUp()
     time.sleep(0.5)
 
-    am.take_screenshot("advanced.png", ArtifactType.CONFIG_IMAGE, "picture of advanced settings")
+    am.take_screenshot(
+        "advanced.png", ArtifactType.CONFIG_IMAGE, "picture of advanced settings"
+    )
 
     result = kerasService.look_for_word("bench", attempts=10, interval=1)
     if not result:
@@ -139,14 +145,15 @@ def run_benchmark():
     test_start_time = int(time.time())
 
     if args.benchmark != "battle":
-        time.sleep(65) # Wait time for MOM benchmark
+        time.sleep(65)  # Wait time for MOM benchmark
     else:
         time.sleep(100)  # Wait time for battle benchmark
 
     result = kerasService.wait_for_word("summary", interval=0.2, timeout=250)
     if not result:
         logging.info(
-            "Results screen was not found! Did harness not wait long enough? Or test was too long?")
+            "Results screen was not found! Did harness not wait long enough? Or test was too long?"
+        )
         sys.exit(1)
 
     test_end_time = int(time.time()) - 1
@@ -155,7 +162,9 @@ def run_benchmark():
     time.sleep(5)
 
     am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
-    am.copy_file(Path(CONFIG_FULL_PATH), ArtifactType.RESULTS_TEXT, "preferences.script.txt")
+    am.copy_file(
+        Path(CONFIG_FULL_PATH), ArtifactType.RESULTS_TEXT, "preferences.script.txt"
+    )
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
@@ -171,12 +180,20 @@ def run_benchmark():
 setup_logging(LOG_DIRECTORY)
 
 parser = ArgumentParser()
-parser.add_argument("-s", "--benchmark", dest="benchmark",
-                    help="Benchmark Scene", metavar="benchmark", required=True)
-parser.add_argument("--kerasHost", dest="keras_host",
-                    help="Host for Keras OCR service", required=True)
-parser.add_argument("--kerasPort", dest="keras_port",
-                    help="Port for Keras OCR service", required=True)
+parser.add_argument(
+    "-s",
+    "--benchmark",
+    dest="benchmark",
+    help="Benchmark Scene",
+    metavar="benchmark",
+    required=True,
+)
+parser.add_argument(
+    "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
+)
+parser.add_argument(
+    "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
+)
 args = parser.parse_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
 
@@ -187,7 +204,7 @@ try:
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(endtime),
-        "version": get_build_id(STEAM_GAME_ID)
+        "version": get_build_id(STEAM_GAME_ID),
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)

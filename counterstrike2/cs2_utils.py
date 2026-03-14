@@ -1,4 +1,5 @@
 """Counter-Strike 2 test script utils"""
+
 import logging
 import re
 import sys
@@ -8,12 +9,19 @@ import ctypes
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.steam import get_app_install_location, get_registry_active_user, get_steam_folder_path
+from harness_utils.steam import (
+    get_app_install_location,
+    get_registry_active_user,
+    get_steam_folder_path,
+)
 
 STEAM_GAME_ID = 730
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 STEAM_USER_ID = get_registry_active_user()
-DEFAULT_INSTALL_PATH = Path(r"C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive")
+DEFAULT_INSTALL_PATH = Path(
+    r"C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive"
+)
+
 
 def apply_runtime_dpi_awareness():
     """
@@ -21,8 +29,11 @@ def apply_runtime_dpi_awareness():
     Fixes click/UI scaling issues without touching registry.
     """
     dpi_awareness_context_per_monitor_aware_v2 = -4
-    ctypes.windll.user32.SetProcessDpiAwarenessContext(dpi_awareness_context_per_monitor_aware_v2)
+    ctypes.windll.user32.SetProcessDpiAwarenessContext(
+        dpi_awareness_context_per_monitor_aware_v2
+    )
     logging.info("Applied runtime DPI awareness to current process")
+
 
 def get_install_path():
     """Gets install path for Counter-Strike 2"""
@@ -34,13 +45,25 @@ def get_install_path():
 
 def read_config() -> list[str] | None:
     """Looks for config file and returns contents if found"""
-    userdata_path = Path(get_steam_folder_path(), "userdata", str(STEAM_USER_ID), str(STEAM_GAME_ID), "local", "cfg", "cs2_video.txt")
+    userdata_path = Path(
+        get_steam_folder_path(),
+        "userdata",
+        str(STEAM_USER_ID),
+        str(STEAM_GAME_ID),
+        "local",
+        "cfg",
+        "cs2_video.txt",
+    )
     install_path = Path(get_install_path(), "game", "csgo", "cfg", "video.txt")
     try:
         with open(userdata_path, encoding="utf-8") as f:
             return f.readlines()
     except OSError:
-        logging.error("Did not find config file at path %s. Trying path %s", userdata_path, install_path)
+        logging.error(
+            "Did not find config file at path %s. Trying path %s",
+            userdata_path,
+            install_path,
+        )
     try:
         with open(install_path, encoding="utf-8") as f:
             return f.readlines()
@@ -68,6 +91,6 @@ def get_resolution():
             height = height_match.group(1)
         if width_match is not None:
             width = width_match.group(1)
-        if height != 0 and width !=0:
+        if height != 0 and width != 0:
             return (height, width)
     return (height, width)

@@ -1,10 +1,12 @@
 """Utility functions for Total War: Warhammer III test script"""
+
 import os
 import re
 import logging
 import sys
 import shutil
 from pathlib import Path
+
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
@@ -18,6 +20,7 @@ PROCESS_NAME = "StrangeBrigade.exe"
 LOCALAPPDATA = os.getenv("LOCALAPPDATA")
 CONFIG_LOCATION = f"{LOCALAPPDATA}\\Strange Brigade"
 CONFIG_FILENAME = "GraphicsOptions.ini"
+
 
 def read_current_resolution():
     """Reads resolutions settings from local game file"""
@@ -37,9 +40,9 @@ def read_current_resolution():
                 width_value = width_match.group(1)
     return (height_value, width_value)
 
+
 def replace_exe():
-    """Replaces the Strange Brigade launcher exe with the Vulkan exe for immediate launching
-    """
+    """Replaces the Strange Brigade launcher exe with the Vulkan exe for immediate launching"""
     check_backup = Path(f"{EXE_PATH}\\StrangeBrigade_launcher.exe")
     launcher_exe = Path(f"{EXE_PATH}\\StrangeBrigade.exe")
     vulkan_exe = Path(f"{EXE_PATH}\\StrangeBrigade_Vulkan.exe")
@@ -54,9 +57,9 @@ def replace_exe():
         else:
             logging.info("Launcher already replaced with Vulkan exe.")
 
+
 def restore_exe():
-    """Restores the launcher exe back to the original exe name to close the loop.
-    """
+    """Restores the launcher exe back to the original exe name to close the loop."""
     check_backup = Path(f"{EXE_PATH}\\StrangeBrigade_launcher.exe")
     launcher_exe = Path(f"{EXE_PATH}\\StrangeBrigade.exe")
     if not os.path.exists(check_backup):

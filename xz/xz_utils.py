@@ -19,7 +19,9 @@ def copy_from_network_drive():
     destination = SCRIPT_DIRECTORY / XZ_EXECUTABLE
     shutil.copyfile(source, destination)
 
-    source = r"\\labs.lmg.gg\labs\03_ProcessingFiles\Compression\tq_dlss_explained_1080p.mp4"
+    source = (
+        r"\\labs.lmg.gg\labs\03_ProcessingFiles\Compression\tq_dlss_explained_1080p.mp4"
+    )
     destination = SCRIPT_DIRECTORY / "tq_dlss_explained_1080p.mp4"
     shutil.copyfile(source, destination)
 

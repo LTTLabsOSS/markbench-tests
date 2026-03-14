@@ -1,23 +1,34 @@
 """Shadow of the Tomb Raider test script"""
+
 import logging
 import os
 from pathlib import Path
 import time
 import pydirectinput as user
 import sys
-from shadow_of_the_tomb_raider_utils import get_latest_file_report, get_resolution, get_args
+from shadow_of_the_tomb_raider_utils import (
+    get_latest_file_report,
+    get_resolution,
+    get_args,
+)
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-#pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position
 from harness_utils.output import (
     setup_logging,
     write_report_json,
     format_resolution,
-    seconds_to_milliseconds)
+    seconds_to_milliseconds,
+)
 from harness_utils.process import terminate_processes
-from harness_utils.keras_service import KerasService, ScreenShotDivideMethod, ScreenShotQuadrant, ScreenSplitConfig
+from harness_utils.keras_service import (
+    KerasService,
+    ScreenShotDivideMethod,
+    ScreenShotQuadrant,
+    ScreenSplitConfig,
+)
 from harness_utils.steam import exec_steam_game, get_build_id
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
@@ -44,11 +55,15 @@ def run_benchmark(keras_service, am):
         user.press("enter")
 
     ss_config = ScreenSplitConfig(
-        divide_method=ScreenShotDivideMethod.HORIZONTAL,
-        quadrant=ScreenShotQuadrant.TOP
+        divide_method=ScreenShotDivideMethod.HORIZONTAL, quadrant=ScreenShotQuadrant.TOP
     )
 
-    if keras_service.wait_for_word(word="options", timeout=30, interval=1, split_config=ss_config) is None:
+    if (
+        keras_service.wait_for_word(
+            word="options", timeout=30, interval=1, split_config=ss_config
+        )
+        is None
+    ):
         logging.info("Did not find the options menu. Did the game launch correctly?")
         sys.exit(1)
 
@@ -79,10 +94,14 @@ def run_benchmark(keras_service, am):
     time.sleep(1)
 
     if keras_service.wait_for_word(word="benchmark", timeout=30, interval=1) is None:
-        logging.info("Did not find the benchmark option on the screen. Did the menu get stuck?")
+        logging.info(
+            "Did not find the benchmark option on the screen. Did the menu get stuck?"
+        )
         sys.exit(1)
 
-    am.take_screenshot("display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings")
+    am.take_screenshot(
+        "display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings"
+    )
 
     # press up until we have DISPLAY highlighted so we can flip to the graphics tab
     for _ in range(21):
@@ -90,7 +109,9 @@ def run_benchmark(keras_service, am):
         time.sleep(0.2)
 
     user.press("right")
-    am.take_screenshot("graphics.png", ArtifactType.CONFIG_IMAGE, "picture of graphics settings")
+    am.take_screenshot(
+        "graphics.png", ArtifactType.CONFIG_IMAGE, "picture of graphics settings"
+    )
 
     user.press("r")
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
@@ -108,7 +129,9 @@ def run_benchmark(keras_service, am):
 
     result = keras_service.wait_for_word(word="tomb", timeout=10, interval=0.1)
     if result is None:
-        logging.error("Unable to find the loading screen. Using default end time value.")
+        logging.error(
+            "Unable to find the loading screen. Using default end time value."
+        )
     else:
         test_end_time = int(time.time())
 
@@ -125,10 +148,16 @@ def run_benchmark(keras_service, am):
     am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
 
     username = os.getlogin()
-    game_document_dir = Path(f"C:\\Users\\{username}\\Documents\\Shadow of the Tomb Raider")
+    game_document_dir = Path(
+        f"C:\\Users\\{username}\\Documents\\Shadow of the Tomb Raider"
+    )
     game_log = game_document_dir.joinpath("Shadow of the Tomb Raider.log")
     am.copy_file(Path(game_log), ArtifactType.RESULTS_TEXT, "game log")
-    am.copy_file(get_latest_file_report(game_document_dir), ArtifactType.RESULTS_TEXT, "benchmark result")
+    am.copy_file(
+        get_latest_file_report(game_document_dir),
+        ArtifactType.RESULTS_TEXT,
+        "benchmark result",
+    )
 
     terminate_processes(PROCESS_NAME)
     height, width = get_resolution()
@@ -136,7 +165,7 @@ def run_benchmark(keras_service, am):
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(test_start_time),
         "end_time": seconds_to_milliseconds(test_end_time),
-        "version": get_build_id(STEAM_GAME_ID)
+        "version": get_build_id(STEAM_GAME_ID),
     }
 
     am.create_manifest()

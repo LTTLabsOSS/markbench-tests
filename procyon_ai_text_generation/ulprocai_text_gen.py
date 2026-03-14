@@ -24,7 +24,8 @@ from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.output import (
     setup_logging,
     seconds_to_milliseconds,
-    write_report_json)
+    write_report_json,
+)
 
 #####
 # Globals
@@ -110,7 +111,6 @@ BENCHMARK_CONFIG = {
 
 RESULTS_FILENAME = "result.xml"
 RESULTS_XML_PATH = LOG_DIRECTORY / RESULTS_FILENAME
-
 
 
 def get_arguments():

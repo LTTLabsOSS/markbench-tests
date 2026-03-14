@@ -1,4 +1,5 @@
 """Cinebench 2024 test script"""
+
 from argparse import ArgumentParser
 import logging
 from pathlib import Path
@@ -14,7 +15,8 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.output import (
     setup_logging,
     seconds_to_milliseconds,
-    write_report_json)
+    write_report_json,
+)
 
 CINEBENCH_PATH = r"C:\Cinebench2024\Cinebench.exe"
 GPU_TEST = "g_CinebenchGpuTest=true"
@@ -25,14 +27,19 @@ TEST_OPTIONS = {
     "cpu-multi-core": [CPU_X_TEST],
     "cpu-both": [CPU_X_TEST, CPU_1_TEST],
     "gpu": [GPU_TEST],
-    "all": [GPU_TEST, CPU_X_TEST, CPU_1_TEST]
+    "all": [GPU_TEST, CPU_X_TEST, CPU_1_TEST],
 }
 DURATION_OPTION = "g_CinebenchMinimumTestDuration=1"
 
 parser = ArgumentParser()
 parser.add_argument(
-    "-t", "--test", dest="test", help="Cinebench test type", required=True,
-    choices=TEST_OPTIONS.keys())
+    "-t",
+    "--test",
+    dest="test",
+    help="Cinebench test type",
+    required=True,
+    choices=TEST_OPTIONS.keys(),
+)
 args = parser.parse_args()
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -42,7 +49,7 @@ setup_logging(LOG_DIRECTORY)
 test_types = TEST_OPTIONS[args.test]
 
 try:
-    logging.info('Starting benchmark!')
+    logging.info("Starting benchmark!")
     session_report = []
     for test_type in test_types:
         setup_start_time = time.time()
@@ -52,21 +59,22 @@ try:
             stderr=subprocess.STDOUT,
             bufsize=1,
             cwd=str(Path(CINEBENCH_PATH).parent),
-                universal_newlines=True) as proc:
+            universal_newlines=True,
+        ) as proc:
             logging.info(
-                "Cinebench started. Waiting for setup to finish to set process priority.")
+                "Cinebench started. Waiting for setup to finish to set process priority."
+            )
             START_TIME = 0
             if proc.stdout is None:
                 logging.error("Cinebench process did not start correctly!")
                 sys.exit(1)
             for line in proc.stdout:
                 if "BEFORERENDERING" in line:
-                    elapsed_setup_time = round(
-                        time.time() - setup_start_time, 2)
+                    elapsed_setup_time = round(time.time() - setup_start_time, 2)
                     logging.info("Setup took %.2f seconds", elapsed_setup_time)
                     logging.info(
-                        "Setting Cinebench process priority to high (PID: %s)",
-                        proc.pid)
+                        "Setting Cinebench process priority to high (PID: %s)", proc.pid
+                    )
                     process = psutil.Process(proc.pid)
                     process.nice(psutil.HIGH_PRIORITY_CLASS)
                     START_TIME = time.time()
@@ -74,8 +82,7 @@ try:
             out, _ = proc.communicate()
 
             if proc.returncode > 0:
-                logging.warning(
-                    "Cinebench exited with return code %d", proc.returncode)
+                logging.warning("Cinebench exited with return code %d", proc.returncode)
 
             score = get_score(out)
             if score is None:
@@ -83,9 +90,7 @@ try:
                 sys.exit(1)
 
             logging.info(
-                "Cinebench result [%s]: %s",
-                friendly_test_name(test_type),
-                score
+                "Cinebench result [%s]: %s", friendly_test_name(test_type), score
             )
             end_time = time.time()
             elapsed_test_time = round(end_time - START_TIME, 2)
@@ -97,7 +102,7 @@ try:
                 "score": score,
                 "unit": "score",
                 "start_time": seconds_to_milliseconds(START_TIME),
-                "end_time": seconds_to_milliseconds(end_time)
+                "end_time": seconds_to_milliseconds(end_time),
             }
             session_report.append(report)
 

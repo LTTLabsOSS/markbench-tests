@@ -1,4 +1,5 @@
 """Collection of functions to assist in running of ycruncher test script"""
+
 import time
 from zipfile import ZipFile
 from pathlib import Path
@@ -19,9 +20,9 @@ def download_ycruncher():
     download_url = "https://github.com/Mysticial/y-cruncher/releases/download/v0.8.6.9545/y-cruncher.v0.8.6.9545b.zip"
     destination = SCRIPT_DIRECTORY / YCRUNCHER_ZIP_NAME
     response = requests.get(download_url, allow_redirects=True, timeout=180)
-    with open(destination, 'wb') as file:
+    with open(destination, "wb") as file:
         file.write(response.content)
-    with ZipFile(destination, 'r') as zip_object:
+    with ZipFile(destination, "r") as zip_object:
         zip_object.extractall(path=SCRIPT_DIRECTORY)
 
 
