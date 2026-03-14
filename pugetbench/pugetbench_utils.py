@@ -1,15 +1,17 @@
 """utils file for pugetbench harness"""
+
 import re
 import os
 from pathlib import Path
 import win32api
 import csv
 
+
 def trim_to_major_minor(version: str | None) -> str | None:
     """Trims the versioning into major.minor."""
     if version is None:
         return None
-     # Match major.minor at the start
+    # Match major.minor at the start
     match = re.match(r"(\d+)\.(\d+)", version)
     if not match:
         return version  # fallback if unrecognized
@@ -22,9 +24,10 @@ def trim_to_major_minor(version: str | None) -> str | None:
 
     return major_minor
 
+
 def get_latest_benchmark_by_version(benchmark_name: str):
     """Get the latest benchmark version, prioritizing beta if it's newer."""
-    valid_names = ['photoshop', 'premierepro', 'aftereffects', 'lightroom', 'resolve']
+    valid_names = ["photoshop", "premierepro", "aftereffects", "lightroom", "resolve"]
     if benchmark_name not in valid_names:
         raise ValueError("Invalid benchmark name")
 
@@ -33,12 +36,16 @@ def get_latest_benchmark_by_version(benchmark_name: str):
         raise ValueError("Could not find benchmark directory in appdata")
 
     # Find relevant benchmark files
-    benchmark_files = [f for f in os.listdir(benchmark_json_dir) if f.startswith(f"{benchmark_name}-benchmark-")]
+    benchmark_files = [
+        f
+        for f in os.listdir(benchmark_json_dir)
+        if f.startswith(f"{benchmark_name}-benchmark-")
+    ]
 
     if not benchmark_files:
         raise ValueError("No valid benchmark versions found.")
 
-    version_pattern = re.compile(r'-(\d+)\.(\d+)\.(\d+)(-beta)?\.json$')
+    version_pattern = re.compile(r"-(\d+)\.(\d+)\.(\d+)(-beta)?\.json$")
 
     def extract_version(filename):
         """Extracts numeric version and beta flag from filename."""
@@ -70,11 +77,12 @@ def get_latest_benchmark_by_version(benchmark_name: str):
     # Return the latest version
     return versions[0]
 
+
 def find_score_in_log(log_path):
     """Return a single PugetBench overall score, preferring Standard > Extended > Basic."""
     scores = {}
 
-    with open(log_path, newline='', encoding="utf-8") as f:
+    with open(log_path, newline="", encoding="utf-8") as f:
         reader = csv.reader(f)
 
         for row in reader:
@@ -120,7 +128,7 @@ def get_photoshop_version() -> tuple[str, str]:
     # Look for Adobe Photoshop folders
     possible_versions = sorted(
         [d for d in os.listdir(base_path) if "Adobe Photoshop" in d],
-        reverse=True  # Prioritize newer versions
+        reverse=True,  # Prioritize newer versions
     )
 
     for folder in possible_versions:
@@ -130,7 +138,9 @@ def get_photoshop_version() -> tuple[str, str]:
                 lang, codepage = win32api.GetFileVersionInfo(
                     exe_path, "\\VarFileInfo\\Translation"
                 )[0]
-                str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
+                str_info_path = (
+                    f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
+                )
                 full_version = win32api.GetFileVersionInfo(exe_path, str_info_path)
 
                 # Trim to major.minor
@@ -141,6 +151,7 @@ def get_photoshop_version() -> tuple[str, str]:
                 print(f"Error reading version from {exe_path}: {e}")
 
     return None, None
+
 
 def get_aftereffects_version() -> tuple[str, str]:
     """Get the installed Adobe After Effects version string, prioritizing Beta versions."""
@@ -155,7 +166,7 @@ def get_aftereffects_version() -> tuple[str, str]:
     possible_versions = sorted(
         [d for d in os.listdir(base_path) if "Adobe After Effects" in d],
         key=lambda x: ("Beta" not in x, x),  # Beta prioritized
-        reverse=True  # Ensures newer versions come first
+        reverse=True,  # Ensures newer versions come first
     )
 
     for folder in possible_versions:
@@ -167,11 +178,15 @@ def get_aftereffects_version() -> tuple[str, str]:
             exe_path = os.path.join(support_files_path, exe_name)
             if os.path.exists(exe_path):
                 try:
-                    info = win32api.GetFileVersionInfo(exe_path, "\\VarFileInfo\\Translation")
+                    info = win32api.GetFileVersionInfo(
+                        exe_path, "\\VarFileInfo\\Translation"
+                    )
                     if info:
                         lang, codepage = info[0]
                         str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
-                        full_version = str(win32api.GetFileVersionInfo(exe_path, str_info_path))
+                        full_version = str(
+                            win32api.GetFileVersionInfo(exe_path, str_info_path)
+                        )
 
                         # Trim to major.minor
                         major_minor = trim_to_major_minor(full_version)
@@ -195,7 +210,7 @@ def get_premierepro_version() -> tuple[str, str]:
     # Look for Adobe Premiere Pro folders
     possible_versions = sorted(
         [d for d in os.listdir(base_path) if "Adobe Premiere Pro" in d],
-        reverse=True  # Prioritize newer versions
+        reverse=True,  # Prioritize newer versions
     )
 
     for folder in possible_versions:
@@ -205,7 +220,9 @@ def get_premierepro_version() -> tuple[str, str]:
                 lang, codepage = win32api.GetFileVersionInfo(
                     exe_path, "\\VarFileInfo\\Translation"
                 )[0]
-                str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
+                str_info_path = (
+                    f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
+                )
                 full_version = win32api.GetFileVersionInfo(exe_path, str_info_path)
 
                 # Trim to major.minor
@@ -216,6 +233,7 @@ def get_premierepro_version() -> tuple[str, str]:
                 print(f"Error reading version from {exe_path}: {e}")
 
     return None, None
+
 
 def get_lightroom_version() -> tuple[str, str]:
     """Get the current installed Adobe Lightroom Classic version string."""
@@ -229,7 +247,7 @@ def get_lightroom_version() -> tuple[str, str]:
     # Look for Adobe Lightroom Classic folders
     possible_versions = sorted(
         [d for d in os.listdir(base_path) if "Adobe Lightroom Classic" in d],
-        reverse=True  # Prioritize newer versions
+        reverse=True,  # Prioritize newer versions
     )
 
     for folder in possible_versions:
@@ -239,7 +257,9 @@ def get_lightroom_version() -> tuple[str, str]:
                 lang, codepage = win32api.GetFileVersionInfo(
                     exe_path, "\\VarFileInfo\\Translation"
                 )[0]
-                str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
+                str_info_path = (
+                    f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
+                )
                 full_version = win32api.GetFileVersionInfo(exe_path, str_info_path)
 
                 # Trim to major.minor
@@ -262,7 +282,7 @@ def get_davinci_version() -> tuple[str, str]:
     try:
         lang, codepage = win32api.GetFileVersionInfo(
             path, "\\VarFileInfo\\Translation"
-            )[0]
+        )[0]
         str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
         full_version = win32api.GetFileVersionInfo(path, str_info_path)
 
@@ -275,12 +295,14 @@ def get_davinci_version() -> tuple[str, str]:
         print(f"Error reading version from {path}: {e}")
         return None, None
 
+
 def get_pugetbench_version() -> str:
     """Get the current installed PugetBench version string."""
     path = "C:\\Program Files\\PugetBench for Creators\\PugetBench for Creators.exe"
     try:
         lang, codepage = win32api.GetFileVersionInfo(
-            path, "\\VarFileInfo\\Translation")[0]
+            path, "\\VarFileInfo\\Translation"
+        )[0]
         str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
         return win32api.GetFileVersionInfo(path, str_info_path)
     except Exception as e:

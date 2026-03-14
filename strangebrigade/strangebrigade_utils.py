@@ -1,11 +1,14 @@
 """Utility functions for Total War: Warhammer III test script"""
+
 import os
 import re
 import logging
 import sys
 import shutil
 from pathlib import Path
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.steam import get_app_install_location
 
@@ -17,6 +20,7 @@ PROCESS_NAME = "StrangeBrigade.exe"
 LOCALAPPDATA = os.getenv("LOCALAPPDATA")
 CONFIG_LOCATION = f"{LOCALAPPDATA}\\Strange Brigade"
 CONFIG_FILENAME = "GraphicsOptions.ini"
+
 
 def read_current_resolution():
     """Reads resolutions settings from local game file"""
@@ -36,35 +40,35 @@ def read_current_resolution():
                 width_value = width_match.group(1)
     return (height_value, width_value)
 
+
 def replace_exe():
-    """Replaces the Strange Brigade launcher exe with the Vulkan exe for immediate launching
-    """
+    """Replaces the Strange Brigade launcher exe with the Vulkan exe for immediate launching"""
     check_backup = Path(f"{EXE_PATH}\\StrangeBrigade_launcher.exe")
     launcher_exe = Path(f"{EXE_PATH}\\StrangeBrigade.exe")
     vulkan_exe = Path(f"{EXE_PATH}\\StrangeBrigade_Vulkan.exe")
     if not os.path.exists(check_backup):
         os.rename(launcher_exe, check_backup)
         shutil.copy(vulkan_exe, launcher_exe)
-        logging.info(f"Replacing launcher file in {EXE_PATH}")
+        logging.info("Replacing launcher file in %s", EXE_PATH)
     elif os.path.exists(check_backup):
         if not os.path.exists(launcher_exe):
             shutil.copy(vulkan_exe, launcher_exe)
-            logging.info(f"Replacing launcher file in {EXE_PATH}")
+            logging.info("Replacing launcher file in %s", EXE_PATH)
         else:
             logging.info("Launcher already replaced with Vulkan exe.")
 
+
 def restore_exe():
-    """Restores the launcher exe back to the original exe name to close the loop.
-    """
+    """Restores the launcher exe back to the original exe name to close the loop."""
     check_backup = Path(f"{EXE_PATH}\\StrangeBrigade_launcher.exe")
     launcher_exe = Path(f"{EXE_PATH}\\StrangeBrigade.exe")
     if not os.path.exists(check_backup):
-        logging.info(f"Launcher already restored or file does not exist.")
+        logging.info("Launcher already restored or file does not exist.")
     elif os.path.exists(check_backup):
         if not os.path.exists(launcher_exe):
             os.rename(check_backup, launcher_exe)
-            logging.info(f"Restoring launcher file in {EXE_PATH}")
+            logging.info("Restoring launcher file in %s", EXE_PATH)
         else:
             os.remove(launcher_exe)
             os.rename(check_backup, launcher_exe)
-            logging.info(f"Restoring launcher file in {EXE_PATH}")
+            logging.info("Restoring launcher file in %s", EXE_PATH)

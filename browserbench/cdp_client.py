@@ -1,10 +1,12 @@
 """CDP Client Functions"""
+
 import socket
 import json
 import base64
 import os
 import struct
 from urllib.parse import urlparse
+
 
 class CDPClient:
     """Minimal Chrome DevTools Protocol WebSocket client (stdlib only)."""

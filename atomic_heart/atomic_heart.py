@@ -1,78 +1,99 @@
 """Atomic Heart test script"""
-from argparse import ArgumentParser
+
 import logging
 import os
-import time
 import sys
+import time
+from argparse import ArgumentParser
+from pathlib import Path
+
 import pydirectinput as user
-from utils import read_resolution
+from atomic_heart_utils import read_resolution
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.steam import exec_steam_run_command, get_app_install_location, get_build_id
-from harness_utils.misc import remove_files, press_n_times
-from harness_utils.process import terminate_processes
+from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.keras_service import KerasService
+from harness_utils.misc import press_n_times, remove_files
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
-    setup_log_directory,
+    setup_logging,
     write_report_json,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT,
 )
-from harness_utils.keras_service import KerasService
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.process import terminate_processes
+from harness_utils.steam import (
+    exec_steam_run_command,
+    get_app_install_location,
+    get_build_id,
+)
 
-SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 APPDATA = os.getenv("LOCALAPPDATA")
 CONFIG_LOCATION = f"{APPDATA}\\AtomicHeart\\Saved\\Config\\WindowsNoEditor"
 CONFIG_FILENAME = "GameUserSettings.ini"
 CONFIG_FULL_PATH = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
 PROCESS_NAME = "AtomicHeart"
 STEAM_GAME_ID = 668580
-VIDEO_PATH = os.path.join(
-    get_app_install_location(STEAM_GAME_ID), "AtomicHeart", "Content", "Movies")
+VIDEO_PATH = (
+    Path(get_app_install_location(STEAM_GAME_ID)) / "AtomicHeart" / "Content" / "Movies"
+)
 
 intro_videos = [
-    os.path.join(VIDEO_PATH, "Launch_4k_60FPS_PS5.mp4"),
-    os.path.join(VIDEO_PATH, "Launch_4k_60FPS_XboxXS.mp4"),
-    os.path.join(VIDEO_PATH, "Launch_FHD_30FPS_PS4.mp4"),
-    os.path.join(VIDEO_PATH, "Launch_FHD_30FPS_XboxOne.mp4"),
-    os.path.join(VIDEO_PATH, "Launch_FHD_60FPS_PC_Steam.mp4")
+    VIDEO_PATH / "Launch_4k_60FPS_PS5.mp4",
+    VIDEO_PATH / "Launch_4k_60FPS_XboxXS.mp4",
+    VIDEO_PATH / "Launch_FHD_30FPS_PS4.mp4",
+    VIDEO_PATH / "Launch_FHD_30FPS_XboxOne.mp4",
+    VIDEO_PATH / "Launch_FHD_60FPS_PC_Steam.mp4",
 ]
 
 user.FAILSAFE = False
+
 
 def navigate_game_menus(am: ArtifactManager):
     """Navigate in game menus and take screenshots where appropriate"""
     result = kerasService.wait_for_word("vsync", timeout=25)
     if not result:
-        logging.info("Did not see display menu. Did we navigate to the options correctly?")
+        logging.info(
+            "Did not see display menu. Did we navigate to the options correctly?"
+        )
         sys.exit(1)
-    am.take_screenshot("display.png", ArtifactType.CONFIG_IMAGE, "screenshot of the display settings")
+    am.take_screenshot(
+        "display.png", ArtifactType.CONFIG_IMAGE, "screenshot of the display settings"
+    )
 
     user.press("e")
     time.sleep(0.5)
     result = kerasService.wait_for_word("dlss", timeout=25)
     if not result:
-        logging.info("Did not see the top of quality menu. Did we navigate to the quality menu correctly?")
+        logging.info(
+            "Did not see the top of quality menu. Did we navigate to the quality menu correctly?"
+        )
         sys.exit(1)
-    am.take_screenshot("quality_1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of quality menu")
+    am.take_screenshot(
+        "quality_1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of quality menu"
+    )
 
     user.press("w")
     time.sleep(0.5)
     result = kerasService.wait_for_word("vegetation", timeout=25)
     if not result:
-        logging.info("Did not see the bottom of quality menu. Did we scroll the quality menu correctly?")
+        logging.info(
+            "Did not see the bottom of quality menu. Did we scroll the quality menu correctly?"
+        )
         sys.exit(1)
-    am.take_screenshot("quality_2.png", ArtifactType.CONFIG_IMAGE, "second screenshot of quality menu")
+    am.take_screenshot(
+        "quality_2.png", ArtifactType.CONFIG_IMAGE, "second screenshot of quality menu"
+    )
     user.press("esc")
     time.sleep(0.5)
 
+
 def run_benchmark():
     """Starts the benchmark"""
-    remove_files(intro_videos)
+    remove_files([str(path) for path in intro_videos])
     exec_steam_run_command(STEAM_GAME_ID)
     am = ArtifactManager(LOG_DIRECTORY)
     setup_start_time = int(time.time())
@@ -127,7 +148,9 @@ def run_benchmark():
     # This is for the loading screen continue
     result = kerasService.wait_for_word("continue", interval=1, timeout=80)
     if not result:
-        logging.info("Did not see the option to continue. Check settings and try again.")
+        logging.info(
+            "Did not see the option to continue. Check settings and try again."
+        )
         sys.exit(1)
 
     logging.info("Continue found. Starting opening scene benchmark.")
@@ -143,7 +166,7 @@ def run_benchmark():
 
     test_start_time = int(time.time())
 
-    time.sleep(216) # Wait for benchmark till the end time
+    time.sleep(216)  # Wait for benchmark till the end time
 
     result = kerasService.wait_for_word("83", interval=0.5, timeout=250)
     if not result:
@@ -152,11 +175,13 @@ def run_benchmark():
 
     test_end_time = int(time.time())
 
-    time.sleep(13) # wait for No Rest For the Wicked Quest
+    time.sleep(13)  # wait for No Rest For the Wicked Quest
 
     result = kerasService.wait_for_word("wicked", interval=1, timeout=250)
     if not result:
-        logging.info("Wicked was not found! Did harness not wait long enough? Or test was too long?")
+        logging.info(
+            "Wicked was not found! Did harness not wait long enough? Or test was too long?"
+        )
         sys.exit(1)
 
     logging.info("Wicked found. Ending Benchmark.")
@@ -172,22 +197,15 @@ def run_benchmark():
     return test_start_time, test_end_time
 
 
-setup_log_directory(LOG_DIRECTORY)
-
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+setup_logging(LOG_DIRECTORY)
 
 parser = ArgumentParser()
-parser.add_argument("--kerasHost", dest="keras_host",
-                    help="Host for Keras OCR service", required=True)
-parser.add_argument("--kerasPort", dest="keras_port",
-                    help="Port for Keras OCR service", required=True)
+parser.add_argument(
+    "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
+)
+parser.add_argument(
+    "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
+)
 args = parser.parse_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
 
@@ -198,7 +216,7 @@ try:
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
-        "version": get_build_id(STEAM_GAME_ID)
+        "version": get_build_id(STEAM_GAME_ID),
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)

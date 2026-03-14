@@ -1,4 +1,5 @@
 """UL Procyon Computer Vision test utils"""
+
 from pathlib import Path
 import psutil
 import winreg
@@ -9,20 +10,22 @@ import sys
 from argparse import ArgumentParser
 import logging
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR / "run"
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+
 
 def is_process_running(process_name):
     """check if given process is running"""
-    for process in psutil.process_iter(['pid', 'name']):
-        if process.info['name'] == process_name:
+    for process in psutil.process_iter(["pid", "name"]):
+        if process.info["name"] == process_name:
             return process
     return None
+
 
 def find_score_in_xml():
     """Reads score from local game log"""
     score_pattern = re.compile(r"<AIOverallScore>(\d+)")
-    cfg = f"{LOG_DIR}\\result.xml"
+    cfg = f"{LOG_DIRECTORY}\\result.xml"
     score_value = 0
     with open(cfg, encoding="utf-8") as file:
         lines = file.readlines()
@@ -32,17 +35,19 @@ def find_score_in_xml():
                 score_value = score_match.group(1)
     return score_value
 
+
 def get_install_path() -> str:
     """Gets the path to the Procyon installation directory from the Procyon registry key"""
     reg_path = r"Software\UL\Procyon"
     reg_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0, winreg.KEY_READ)
-    value, _  = winreg.QueryValueEx(reg_key, "InstallDir")
+    value, _ = winreg.QueryValueEx(reg_key, "InstallDir")
     return value
+
 
 def find_procyon_version() -> str:
     """Gets the version of an executable located in the install path."""
     install_path = get_install_path()
-    
+
     if not install_path:
         logging.info("Installation path not found.")
         return None
@@ -77,12 +82,16 @@ def find_procyon_version() -> str:
     except Exception as e:
         logging.info(f"Error retrieving version info from {exe_path}: {e}")
         return None  # Return None if version info retrieval fails
-    
+
+
 def find_test_version() -> str:
     """Gets the version of an executable located in the chops path."""
     parser = ArgumentParser()
     parser.add_argument(
-        "--engine", dest="engine", help="The engine used to run the AI CV", required=True
+        "--engine",
+        dest="engine",
+        help="The engine used to run the AI CV",
+        required=True,
     )
     args = parser.parse_args()
     apps = [
@@ -94,7 +103,7 @@ def find_test_version() -> str:
         "Intel_GPU1",
         "Intel_NPU",
         "NVIDIA_GPU",
-        "Qualcomm_HTP"
+        "Qualcomm_HTP",
     ]
 
     if args.engine is None or args.engine not in apps:
@@ -142,10 +151,11 @@ def find_test_version() -> str:
         return None
 
     try:
-        lang, codepage = win32api.GetFileVersionInfo(exe_path, "\\VarFileInfo\\Translation")[0]
+        lang, codepage = win32api.GetFileVersionInfo(
+            exe_path, "\\VarFileInfo\\Translation"
+        )[0]
         str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
         return win32api.GetFileVersionInfo(exe_path, str_info_path)
     except Exception as e:
         logging.info(f"Error retrieving version info from {exe_path}: {e}")
         return None  # Return None if version info retrieval fails
-    

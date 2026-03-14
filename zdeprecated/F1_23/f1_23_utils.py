@@ -1,4 +1,5 @@
 """Utility functions supporting F1 23 test script."""
+
 import os
 import re
 

@@ -1,6 +1,8 @@
 """3dmark test utils"""
+
 from pathlib import Path
 import xml.etree.ElementTree as ET
+
 
 def get_score(element_name, xml_path):
     """fetch the score from the xml report"""
@@ -12,6 +14,7 @@ def get_score(element_name, xml_path):
         raise ValueError("Could not find a score in the XML report")
 
     return found_elements[0].text
+
 
 if __name__ == "__main__":
     script_dir = Path(__file__).resolve().parent

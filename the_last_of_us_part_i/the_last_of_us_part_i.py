@@ -1,22 +1,23 @@
 """The Last of Us Part I test script"""
+
 import logging
 import os
+from pathlib import Path
 import time
 import sys
 import pydirectinput as user
 
 from the_last_of_us_part_i_utils import get_args, get_resolution, copy_autosave
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.keras_service import KerasService
 from harness_utils.output import (
+    setup_logging,
     format_resolution,
     seconds_to_milliseconds,
-    setup_log_directory,
     write_report_json,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT,
 )
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
@@ -28,8 +29,8 @@ from harness_utils.misc import press_n_times
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 STEAM_GAME_ID = 1888930
-SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "tlou"
 
 user.FAILSAFE = False
@@ -40,7 +41,7 @@ def take_screenshots(am: ArtifactManager) -> None:
 
     logging.info("Taking screenshots of benchmark settings")
 
-    #navigating to the display menu
+    # navigating to the display menu
     result = kerasService.wait_for_word("options", interval=3, timeout=60)
     if not result:
         logging.info("Did not see main menu. Did something mess up?")
@@ -50,97 +51,133 @@ def take_screenshots(am: ArtifactManager) -> None:
 
     result = kerasService.wait_for_word("display", interval=3, timeout=60)
     if not result:
-        logging.info("Did not see options menu (looking for display). Did something mess up?")
+        logging.info(
+            "Did not see options menu (looking for display). Did something mess up?"
+        )
         sys.exit(1)
     press_n_times("s", 4, 0.2)
     user.press("enter")
 
-    #taking the display menu screenshots
+    # taking the display menu screenshots
     result = kerasService.wait_for_word("aspect", interval=3, timeout=60)
     if not result:
         logging.info("Did not see aspect ratio setting. Did something mess up?")
         sys.exit(1)
-    am.take_screenshot("video1.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings1")
+    am.take_screenshot(
+        "video1.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings1"
+    )
     press_n_times("s", 14, 0.2)
 
     result = kerasService.wait_for_word("safezone", interval=3, timeout=60)
     if not result:
         logging.info("Did not see safezone scale setting. Did something mess up?")
         sys.exit(1)
-    am.take_screenshot("video2.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings2")
+    am.take_screenshot(
+        "video2.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings2"
+    )
     press_n_times("s", 7, 0.2)
 
     result = kerasService.wait_for_word("gore", interval=3, timeout=60)
     if not result:
         logging.info("Did not see gore setting. Did something mess up?")
         sys.exit(1)
-    am.take_screenshot("video3.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings3")
+    am.take_screenshot(
+        "video3.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings3"
+    )
 
-    #navigating to the graphics menu
+    # navigating to the graphics menu
     user.press("backspace")
     result = kerasService.wait_for_word("graphics", interval=3, timeout=60)
     if not result:
-        logging.info("Did not see options menu (looking for graphics). Did something mess up?")
+        logging.info(
+            "Did not see options menu (looking for graphics). Did something mess up?"
+        )
         sys.exit(1)
     user.press("s")
     user.press("enter")
 
-    #taking the graphics screenshots
+    # taking the graphics screenshots
     result = kerasService.wait_for_word("preset", interval=3, timeout=60)
     if not result:
         logging.info("Did not see graphics preset setting. Did something mess up?")
         sys.exit(1)
-    am.take_screenshot("graphics1.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings1")
+    am.take_screenshot(
+        "graphics1.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings1"
+    )
     press_n_times("s", 10, 0.2)
 
     result = kerasService.wait_for_word("sampling", interval=3, timeout=60)
     if not result:
-        logging.info("Did not see texture sampling quality setting. Did something mess up?")
+        logging.info(
+            "Did not see texture sampling quality setting. Did something mess up?"
+        )
         sys.exit(1)
-    am.take_screenshot("graphics2.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings2")
+    am.take_screenshot(
+        "graphics2.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings2"
+    )
     press_n_times("s", 7, 0.2)
 
     result = kerasService.wait_for_word("point", interval=3, timeout=60)
     if not result:
-        logging.info("Did not see point lights shadow resolution setting. Did something mess up?")
+        logging.info(
+            "Did not see point lights shadow resolution setting. Did something mess up?"
+        )
         sys.exit(1)
-    am.take_screenshot("graphics3.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings3")
+    am.take_screenshot(
+        "graphics3.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings3"
+    )
     press_n_times("s", 8, 0.2)
 
     result = kerasService.wait_for_word("tracing", interval=3, timeout=60)
     if not result:
-        logging.info("Did not see screen space cone tracing setting. Did something mess up?")
+        logging.info(
+            "Did not see screen space cone tracing setting. Did something mess up?"
+        )
         sys.exit(1)
-    am.take_screenshot("graphics4.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings4")
+    am.take_screenshot(
+        "graphics4.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings4"
+    )
     press_n_times("s", 7, 0.2)
 
     result = kerasService.wait_for_word("scattering", interval=3, timeout=60)
     if not result:
-        logging.info("Did not see screen space sub-surface scattering setting. Did something mess up?")
+        logging.info(
+            "Did not see screen space sub-surface scattering setting. Did something mess up?"
+        )
         sys.exit(1)
-    am.take_screenshot("graphics5.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings5")
+    am.take_screenshot(
+        "graphics5.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings5"
+    )
     press_n_times("s", 6, 0.2)
 
     result = kerasService.wait_for_word("bloom", interval=3, timeout=60)
     if not result:
         logging.info("Did not see bloom resolution setting. Did something mess up?")
         sys.exit(1)
-    am.take_screenshot("graphics6.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings6")
+    am.take_screenshot(
+        "graphics6.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings6"
+    )
     press_n_times("s", 6, 0.2)
 
     result = kerasService.wait_for_word("ambient", interval=3, timeout=60)
     if not result:
-        logging.info("Did not see ambient character density setting. Did something mess up?")
+        logging.info(
+            "Did not see ambient character density setting. Did something mess up?"
+        )
         sys.exit(1)
-    am.take_screenshot("graphics7.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings7")
+    am.take_screenshot(
+        "graphics7.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings7"
+    )
     time.sleep(0.5)
 
-    #navigating back to main menu
+    # navigating back to main menu
     press_n_times("backspace", 2, 0.2)
 
     result = kerasService.wait_for_word("behind", interval=3, timeout=60)
     if not result:
-        logging.info("Did not see main menu after taking the graphics screenshots. Did something mess up?")
+        logging.info(
+            "Did not see main menu after taking the graphics screenshots. Did something mess up?"
+        )
         sys.exit(1)
 
 
@@ -154,7 +191,7 @@ def navigate_main_menu(am: ArtifactManager) -> None:
     time.sleep(0.5)
     take_screenshots(am)
 
-    #navigating to the load menu
+    # navigating to the load menu
     press_n_times("w", 2, 0.2)
     user.press("space")
     time.sleep(0.5)
@@ -172,10 +209,12 @@ def navigate_main_menu(am: ArtifactManager) -> None:
     # Verify in the load section
     result = kerasService.wait_for_word("hometown", interval=3, timeout=60)
     if not result:
-        logging.info("Did not saves to load. Did something mess up? Or did you forget to delete the saves?")
+        logging.info(
+            "Did not saves to load. Did something mess up? Or did you forget to delete the saves?"
+        )
         sys.exit(1)
 
-    #load the save
+    # load the save
     user.press("space")
     time.sleep(0.5)
 
@@ -245,16 +284,7 @@ def run_benchmark():
     return test_start_time, test_end_time
 
 
-setup_log_directory(LOG_DIRECTORY)
-
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+setup_logging(LOG_DIRECTORY)
 
 args = get_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
@@ -262,15 +292,19 @@ kerasService = KerasService(args.keras_host, args.keras_port)
 try:
     start_time, end_time = run_benchmark()
     steam_id = get_registry_active_user()
-    config_path = os.path.join(
-        os.environ["USERPROFILE"], "Saved Games", "The Last of Us Part I",
-        "users", str(steam_id), "screeninfo.cfg"
+    config_path = (
+        Path(os.environ["USERPROFILE"])
+        / "Saved Games"
+        / "The Last of Us Part I"
+        / "users"
+        / str(steam_id)
+        / "screeninfo.cfg"
     )
-    height, width = get_resolution(config_path)
+    height, width = get_resolution(str(config_path))
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time)
+        "end_time": seconds_to_milliseconds(end_time),
     }
     write_report_json(LOG_DIRECTORY, "report.json", report)
 

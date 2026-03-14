@@ -1,4 +1,5 @@
 """UL Procyon AI Text Generation test utils"""
+
 from pathlib import Path
 import psutil
 import winreg
@@ -7,14 +8,14 @@ import os
 import win32api
 import logging
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR / "run"
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 
 
 def is_process_running(process_name):
     """check if given process is running"""
-    for process in psutil.process_iter(['pid', 'name']):
-        if process.info['name'] == process_name:
+    for process in psutil.process_iter(["pid", "name"]):
+        if process.info["name"] == process_name:
             return process
     return None
 
@@ -22,7 +23,7 @@ def is_process_running(process_name):
 def regex_find_score_in_xml(result_regex):
     """Reads score from local game log"""
     score_pattern = re.compile(result_regex)
-    cfg = f"{LOG_DIR}\\result.xml"
+    cfg = f"{LOG_DIRECTORY}\\result.xml"
     score_value = 0
     with open(cfg, encoding="utf-8") as file:
         lines = file.readlines()
@@ -36,8 +37,7 @@ def regex_find_score_in_xml(result_regex):
 def get_install_path() -> str:
     """Gets the path to the Steam installation directory from the SteamPath registry key"""
     reg_path = r"Software\UL\Procyon"
-    reg_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                             reg_path, 0, winreg.KEY_READ)
+    reg_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0, winreg.KEY_READ)
     value, _ = winreg.QueryValueEx(reg_key, "InstallDir")
     return value
 
@@ -84,7 +84,9 @@ def find_procyon_version() -> str:
 
 def find_test_version() -> str:
     """Gets the version of an executable located in the chops path."""
-    chops_path = "C:\\ProgramData\\UL\\Procyon\\chops\\dlc\\ai-textgeneration-benchmark\\x64"
+    chops_path = (
+        "C:\\ProgramData\\UL\\Procyon\\chops\\dlc\\ai-textgeneration-benchmark\\x64"
+    )
 
     logging.info("The install path for the test is %s", chops_path)
 
@@ -100,7 +102,8 @@ def find_test_version() -> str:
 
     try:
         lang, codepage = win32api.GetFileVersionInfo(
-            exe_path, "\\VarFileInfo\\Translation")[0]
+            exe_path, "\\VarFileInfo\\Translation"
+        )[0]
         str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
         return str(win32api.GetFileVersionInfo(exe_path, str_info_path))
     except Exception as e:

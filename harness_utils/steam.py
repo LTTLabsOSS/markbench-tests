@@ -1,4 +1,5 @@
 """Utility functions related to using Steam for running games."""
+
 import logging
 import winreg
 from subprocess import Popen
@@ -15,7 +16,7 @@ def get_steam_folder_path() -> str:
     """Gets the path to the Steam installation directory from the SteamPath registry key"""
     reg_path = r"Software\Valve\Steam"
     reg_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0, winreg.KEY_READ)
-    value, _  = winreg.QueryValueEx(reg_key, "SteamPath")
+    value, _ = winreg.QueryValueEx(reg_key, "SteamPath")
     return value
 
 
@@ -23,7 +24,7 @@ def get_steam_exe_path() -> str:
     """Gets the path to the Steam executable from the SteamExe registry key"""
     reg_path = r"Software\Valve\Steam"
     reg_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0, winreg.KEY_READ)
-    value, _  = winreg.QueryValueEx(reg_key, "SteamExe")
+    value, _ = winreg.QueryValueEx(reg_key, "SteamExe")
     return value
 
 
@@ -40,14 +41,18 @@ def get_registry_active_user() -> int:
     """
     reg_path = r"Software\Valve\Steam\ActiveProcess"
     reg_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0, winreg.KEY_READ)
-    value, _  = winreg.QueryValueEx(reg_key, "ActiveUser")
+    value, _ = winreg.QueryValueEx(reg_key, "ActiveUser")
     return value
 
 
 def get_app_install_location(app_id: int) -> str:
     """Given the Steam App ID, Gets the install directory from the Windows Registry"""
-    reg_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App " + str(app_id)
-    registry_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, reg_path, 0, winreg.KEY_READ)
+    reg_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App " + str(
+        app_id
+    )
+    registry_key = winreg.OpenKey(
+        winreg.HKEY_LOCAL_MACHINE, reg_path, 0, winreg.KEY_READ
+    )
     value, _ = winreg.QueryValueEx(registry_key, "InstallLocation")
     winreg.CloseKey(registry_key)
     return value
@@ -81,13 +86,19 @@ def exec_steam_game(game_id: int, steam_path=None, game_params=None) -> Popen:
     logging.info(", ".join(command))
     return Popen(command)
 
+
 def get_build_id(game_id: int) -> str:
     """Gets the build ID of a game from the Steam installation directory"""
-    game_folder = Path(get_app_install_location(game_id)) / "../" / "../" / f"appmanifest_{game_id}.acf"
+    game_folder = (
+        Path(get_app_install_location(game_id))
+        / "../"
+        / "../"
+        / f"appmanifest_{game_id}.acf"
+    )
     if not game_folder.exists():
         logging.warning("Game folder not found when looking for game version")
         return None
-    with open(game_folder, 'r', encoding='utf-8') as file:
+    with open(game_folder, "r", encoding="utf-8") as file:
         data = file.read()
     buildid_match = re.search(r'"buildid"\s*"(\d+)"', data)
     if buildid_match is not None:
