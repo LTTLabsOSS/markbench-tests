@@ -1,6 +1,5 @@
 """Test script for y-cruncher"""
 import logging
-import os
 import sys
 import re
 from pathlib import Path

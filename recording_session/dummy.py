@@ -1,6 +1,5 @@
 """Recording session test script"""
 import logging
-import os
 from pathlib import Path
 import socket
 import sys

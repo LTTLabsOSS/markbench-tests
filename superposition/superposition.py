@@ -3,7 +3,6 @@ from argparse import ArgumentParser
 from subprocess import Popen
 import json
 import re
-import os
 from pathlib import Path
 import logging
 import sys

@@ -1,7 +1,6 @@
 """test script for handbrake encoding tests"""
 
 import logging
-import os
 import re
 import subprocess
 import sys

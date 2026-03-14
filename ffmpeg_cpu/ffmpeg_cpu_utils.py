@@ -1,6 +1,5 @@
 """utility functions for running ffmpeg tests"""
 
-import os
 import shutil
 import time
 from pathlib import Path

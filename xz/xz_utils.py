@@ -1,6 +1,5 @@
 """utility functions for xz test script"""
 
-import os
 from pathlib import Path
 import time
 import shutil

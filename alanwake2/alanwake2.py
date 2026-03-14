@@ -1,7 +1,6 @@
 """alan wake 2 test script"""
 from argparse import ArgumentParser
 import logging
-import os
 from pathlib import Path
 import time
 from subprocess import Popen

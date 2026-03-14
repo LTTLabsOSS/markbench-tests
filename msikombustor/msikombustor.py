@@ -1,6 +1,5 @@
 """MSI Kombustor test script"""
 from subprocess import Popen
-import logging
 import sys
 from pathlib import Path
 from msi_kombustor_utils import (

@@ -1,7 +1,6 @@
 """Test script for primesieve"""
 import json
 import logging
-import os.path
 from pathlib import Path
 import subprocess
 import sys

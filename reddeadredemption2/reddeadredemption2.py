@@ -1,7 +1,6 @@
 """Red Dead Redemption 2 test script"""
 from argparse import ArgumentParser
 import logging
-import os
 import time
 import sys
 import pydirectinput as user

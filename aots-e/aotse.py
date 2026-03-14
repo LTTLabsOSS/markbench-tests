@@ -4,8 +4,6 @@ from pathlib import Path
 import sys
 import time
 import getpass
-import glob
-import os
 from aotse_utils import read_current_resolution, find_score_in_log, delete_old_scores, get_args, replace_exe, restore_exe
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)

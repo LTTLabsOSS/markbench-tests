@@ -1,5 +1,4 @@
 """Horizon Zero Dawn Remastered test script"""
-import os
 from pathlib import Path
 import logging
 import sys

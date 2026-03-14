@@ -1,7 +1,6 @@
 """Black Myth Wukong test script"""
 from argparse import ArgumentParser
 import logging
-import os
 from pathlib import Path
 import time
 import sys

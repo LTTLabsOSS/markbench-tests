@@ -1,6 +1,5 @@
 """test script for handbrake encoding tests"""
 from argparse import ArgumentParser
-import os
 import re
 from handbrake_utils import HANDBRAKE_EXECUTABLE, current_time_ms, handbrake_present, is_video_source_present, copy_video_source, copy_handbrake_from_network_drive
 import logging

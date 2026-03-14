@@ -1,6 +1,5 @@
 """utility functions for running handbrake tests"""
 
-import os
 from pathlib import Path
 import time
 import shutil

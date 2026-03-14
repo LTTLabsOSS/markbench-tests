@@ -6,7 +6,6 @@ import logging
 import re
 import shutil
 from pathlib import Path
-import json
 
 USERNAME = getpass.getuser()
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent

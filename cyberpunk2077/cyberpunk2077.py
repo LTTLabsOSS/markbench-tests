@@ -2,7 +2,6 @@
 import time
 import logging
 import sys
-import os
 from pathlib import Path
 import pydirectinput as user
 from cyberpunk_utils import copy_no_intro_mod, get_args, read_current_resolution

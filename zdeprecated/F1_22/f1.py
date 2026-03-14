@@ -1,7 +1,6 @@
 """F1 22 Test script"""
 import logging
 import sys
-import os.path
 from pathlib import Path
 import time
 import pydirectinput as user

@@ -1,6 +1,5 @@
 """Rocket League test script"""
 import logging
-import os
 import time
 from subprocess import Popen
 import sys

@@ -1,6 +1,5 @@
 """godot compile test script"""
 import logging
-import os
 import sys
 import re
 from pathlib import Path

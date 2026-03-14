@@ -60,7 +60,7 @@ def restore_exe():
     check_backup = Path(f"{EXE_PATH}\\StrangeBrigade_launcher.exe")
     launcher_exe = Path(f"{EXE_PATH}\\StrangeBrigade.exe")
     if not os.path.exists(check_backup):
-        logging.info(f"Launcher already restored or file does not exist.")
+        logging.info("Launcher already restored or file does not exist.")
     elif os.path.exists(check_backup):
         if not os.path.exists(launcher_exe):
             os.rename(check_backup, launcher_exe)
