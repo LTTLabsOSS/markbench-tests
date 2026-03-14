@@ -1,5 +1,5 @@
 friendly_name: "Atomic Heart"
-executable: "atomicheart.py"
+executable: "atomic_heart.py"
 process_name: "AtomicHeart-Win64-Shipping.exe"
 output_dir: "run"
 options:
