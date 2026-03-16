@@ -110,33 +110,18 @@ def find_test_version() -> str:
         logging.info("unrecognized option for program")
         sys.exit(1)
 
-    if args.engine == "AMD_CPU":
-        folder = "aibenchmark-winml-test"
-        exe = "WinML.exe"
-    if args.engine == "AMD_GPU0":
-        folder = "aibenchmark-winml-test"
-        exe = "WinML.exe"
-    if args.engine == "AMD_GPU1":
-        folder = "aibenchmark-winml-test"
-        exe = "WinML.exe"
-    if args.engine == "Intel_CPU":
-        folder = "aibenchmark-openvino-test"
-        exe = "OpenVino.exe"
-    if args.engine == "Intel_GPU0":
-        folder = "aibenchmark-openvino-test"
-        exe = "OpenVino.exe"
-    if args.engine == "Intel_GPU1":
-        folder = "aibenchmark-openvino-test"
-        exe = "OpenVino.exe"
-    if args.engine == "Intel_NPU":
-        folder = "aibenchmark-openvino-test"
-        exe = "OpenVino.exe"
-    if args.engine == "NVIDIA_GPU":
-        folder = "aibenchmark-tensorrt-test"
-        exe = "TensorRT.exe"
-    if args.engine == "Qualcomm_HTP":
-        folder = "aibenchmark-snpe-test"
-        exe = "SNPE.exe"
+    engine_config = {
+        "AMD_CPU": ("aibenchmark-winml-test", "WinML.exe"),
+        "AMD_GPU0": ("aibenchmark-winml-test", "WinML.exe"),
+        "AMD_GPU1": ("aibenchmark-winml-test", "WinML.exe"),
+        "Intel_CPU": ("aibenchmark-openvino-test", "OpenVino.exe"),
+        "Intel_GPU0": ("aibenchmark-openvino-test", "OpenVino.exe"),
+        "Intel_GPU1": ("aibenchmark-openvino-test", "OpenVino.exe"),
+        "Intel_NPU": ("aibenchmark-openvino-test", "OpenVino.exe"),
+        "NVIDIA_GPU": ("aibenchmark-tensorrt-test", "TensorRT.exe"),
+        "Qualcomm_HTP": ("aibenchmark-snpe-test", "SNPE.exe"),
+    }
+    folder, exe = engine_config[args.engine]
 
     chops_path = f"C:\\ProgramData\\UL\\Procyon\\chops\\dlc\\{folder}\\x64"
 

@@ -113,7 +113,7 @@ def main():
 
         logging.info("starting benchmark, this may take a few minutes")
         logging.info(
-            "you can ensure the test is running by checking that cpu usage is 100% in task manager"
+            "you can ensure the test is running by checking that cpu usage is 100%% in task manager"
         )
         execute_me = f"{SCRIPT_DIRECTORY}\\{HANDBRAKE_EXECUTABLE}"
         start_time = current_time_ms()

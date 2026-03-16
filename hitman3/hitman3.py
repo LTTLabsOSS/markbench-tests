@@ -45,17 +45,17 @@ def benchmark_check():
     """Return the benchmark name and expected runtime for the selected scene."""
     benchmark_id = get_benchmark_name(str(CONFIG_FILE))
     if benchmark_id == 0:
-        benchmark_name = "Hitman World of Assassination: Dubai"
+        selected_benchmark_name = "Hitman World of Assassination: Dubai"
         benchmark_time = 102
     elif benchmark_id == 1:
-        benchmark_name = "Hitman World of Assassination: Dartmoor"
+        selected_benchmark_name = "Hitman World of Assassination: Dartmoor"
         benchmark_time = 140
     else:
         raise ValueError(
             "Could not determine the benchmark. Is there an error in the registry?"
         )
 
-    return benchmark_name, benchmark_time
+    return selected_benchmark_name, benchmark_time
 
 
 def run_benchmark():
@@ -64,7 +64,7 @@ def run_benchmark():
     am = ArtifactManager(LOG_DIRECTORY)
     process_registry_file(hive, SUBKEY, str(INPUT_FILE), str(CONFIG_FILE))
     am.copy_file(CONFIG_FILE, ArtifactType.CONFIG_TEXT, "config file")
-    benchmark_name, benchmark_time = benchmark_check()
+    selected_benchmark_name, benchmark_time = benchmark_check()
     exec_steam_run_command(STEAM_GAME_ID)
 
     time.sleep(2)
@@ -110,7 +110,7 @@ def run_benchmark():
         )
         raise RuntimeError("Benchmark failed.")
 
-    test_start_time = int(time.time())
+    benchmark_start_time = int(time.time())
 
     time.sleep(
         benchmark_time
@@ -121,21 +121,21 @@ def run_benchmark():
         logging.info("Did not find the overall FPS score. Did the benchmark crash?")
         raise RuntimeError("Benchmark failed.")
 
-    test_end_time = int(time.time()) - 1
-    elapsed_test_time = round(test_end_time - test_start_time, 2)
+    benchmark_end_time = int(time.time()) - 1
+    elapsed_test_time = round(benchmark_end_time - benchmark_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
     time.sleep(1)
 
-    for proc in psutil.process_iter():
+    for process in psutil.process_iter():
         try:
-            if proc.name() in PROCESS_NAMES:
-                proc.terminate()
+            if process.name() in PROCESS_NAMES:
+                process.terminate()
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass  # Ignore processes that no longer exist or cannot be accessed
 
     am.create_manifest()
-    return test_start_time, test_end_time, benchmark_name
+    return benchmark_start_time, benchmark_end_time, selected_benchmark_name
 
 
 setup_logging(LOG_DIRECTORY)
