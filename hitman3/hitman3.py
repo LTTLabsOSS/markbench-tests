@@ -42,6 +42,7 @@ SUBKEY = r"SOFTWARE\\IO Interactive\\HITMAN3"
 
 
 def benchmark_check():
+    """Return the benchmark name and expected runtime for the selected scene."""
     benchmark_id = get_benchmark_name(str(CONFIG_FILE))
     if benchmark_id == 0:
         benchmark_name = "Hitman World of Assassination: Dubai"
@@ -58,6 +59,7 @@ def benchmark_check():
 
 
 def run_benchmark():
+    """Run the benchmark flow, capture artifacts, and return timing data."""
     setup_start_time = int(time.time())
     am = ArtifactManager(LOG_DIRECTORY)
     process_registry_file(hive, SUBKEY, str(INPUT_FILE), str(CONFIG_FILE))
@@ -166,4 +168,4 @@ except Exception as e:
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass  # Ignore processes that no longer exist or cannot be accessed
 
-    exit(1)
+    sys.exit(1)
