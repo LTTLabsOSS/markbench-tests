@@ -1,4 +1,5 @@
 """Atomic Heart utility functions"""
+
 import os
 import re
 

@@ -1,35 +1,35 @@
 """F1 22 Test script"""
+
 import logging
 import sys
-import os.path
+from pathlib import Path
 import time
 import pydirectinput as user
 from f1_22_utils import get_args
 from f1_22_utils import get_resolution
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.keras_service import KerasService
 from harness_utils.steam import exec_steam_run_command, get_steamapps_common_path
 from harness_utils.output import (
+    setup_logging,
     format_resolution,
     seconds_to_milliseconds,
-    setup_log_directory,
     write_report_json,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT,
 )
 from harness_utils.misc import remove_files
 from harness_utils.process import terminate_processes
 
-SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 STEAM_GAME_ID = 1692250
-VIDEO_PATH = os.path.join(get_steamapps_common_path(), "videos")
+VIDEO_PATH = Path(get_steamapps_common_path()) / "videos"
 
 intro_videos = [
-    os.path.join(VIDEO_PATH, "attract.bk2"),
-    os.path.join(VIDEO_PATH, "cm_f1_sting.bk2"),
+    VIDEO_PATH / "attract.bk2",
+    VIDEO_PATH / "cm_f1_sting.bk2",
 ]
 
 
@@ -100,7 +100,7 @@ def navigate_menu():
 def run_benchmark():
     """Runs the actual benchmark."""
     setup_start_time = time.time()
-    remove_files(intro_videos)
+    remove_files([str(path) for path in intro_videos])
     exec_steam_run_command(STEAM_GAME_ID)
 
     time.sleep(20)
@@ -144,18 +144,7 @@ def run_benchmark():
     return test_start_time, test_end_time
 
 
-setup_log_directory(LOG_DIRECTORY)
-
-logging.basicConfig(
-    filename=f"{LOG_DIRECTORY}/harness.log",
-    format=DEFAULT_LOGGING_FORMAT,
-    datefmt=DEFAULT_DATE_FORMAT,
-    level=logging.DEBUG,
-)
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger("").addHandler(console)
+setup_logging(LOG_DIRECTORY)
 
 args = get_args()
 kerasService = KerasService(args.keras_host, args.keras_port)

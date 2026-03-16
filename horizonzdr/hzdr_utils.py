@@ -1,4 +1,5 @@
 """Utility functions supporting Horizon Zero Dawn Remastered test script."""
+
 from argparse import ArgumentParser
 import re
 import winreg
@@ -9,16 +10,18 @@ def export_registry_key(hive, subkey, input_file):
     """Exports a registry key for interpretation."""
     try:
         if not os.path.exists(input_file):
-            with open(input_file, 'w',  encoding="utf-8") as file:
+            with open(input_file, "w", encoding="utf-8") as file:
                 file.write("")
-        with winreg.OpenKey(hive,subkey) as reg_key:
-            with open(input_file, 'w',  encoding="utf-8") as reg_file:
+        with winreg.OpenKey(hive, subkey) as reg_key:
+            with open(input_file, "w", encoding="utf-8") as reg_file:
                 reg_file.write("Windows Registry Editor Version 5.00\n\n")
                 reg_file.write(f"[{subkey}]\n")
                 try:
                     index = 0
                     while True:
-                        value_name, value_data, value_type = winreg.EnumValue(reg_key, index)
+                        value_name, value_data, value_type = winreg.EnumValue(
+                            reg_key, index
+                        )
                         if value_type == winreg.REG_DWORD:
                             value_data = f"dword:{value_data:08x}"
                         elif value_type == winreg.REG_SZ:
@@ -34,19 +37,21 @@ def export_registry_key(hive, subkey, input_file):
     except OSError as e:
         print(f"Failed to open the registry key: {e}")
 
+
 def convert_dword_to_decimal(dword_hex):
     """Converts a dword key value to decimal numbers."""
     return int(dword_hex, 16)
 
+
 def process_registry_file(hive, subkey, input_file, config_file):
     """Processes the exported registry file and converts it to readable text."""
     export_registry_key(hive, subkey, input_file)
-    with open(input_file, 'r',  encoding="utf-8") as file:
+    with open(input_file, "r", encoding="utf-8") as file:
         lines = file.readlines()
 
     modified_lines = []
 
-    dword_pattern = re.compile(r'^(\"[^\"]+\")=dword:([0-9a-fA-F]+)', re.IGNORECASE)
+    dword_pattern = re.compile(r"^(\"[^\"]+\")=dword:([0-9a-fA-F]+)", re.IGNORECASE)
 
     for line in lines:
         match = dword_pattern.search(line)
@@ -54,13 +59,12 @@ def process_registry_file(hive, subkey, input_file, config_file):
             key = match.group(1)
             hex_value = match.group(2)
             decimal_value = convert_dword_to_decimal(hex_value)
-            modified_line = f'{key}={decimal_value}\n'
+            modified_line = f"{key}={decimal_value}\n"
             modified_lines.append(modified_line)
         else:
             modified_lines.append(line)
-    with open(config_file, 'w',  encoding="utf-8") as file:
+    with open(config_file, "w", encoding="utf-8") as file:
         file.writelines(modified_lines)
-
 
 
 def get_resolution(config_file: str) -> tuple[int]:
@@ -83,11 +87,20 @@ def get_resolution(config_file: str) -> tuple[int]:
 
     return (height, width)
 
+
 def get_args() -> any:
     """Get command line arguments"""
     parser = ArgumentParser()
     parser.add_argument(
-        "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True)
+        "--kerasHost",
+        dest="keras_host",
+        help="Host for Keras OCR service",
+        required=True,
+    )
     parser.add_argument(
-        "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True)
+        "--kerasPort",
+        dest="keras_port",
+        help="Port for Keras OCR service",
+        required=True,
+    )
     return parser.parse_args()

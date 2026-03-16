@@ -10,37 +10,22 @@ from pathlib import Path
 
 import psutil
 
-sys.path.insert(1, str((Path(sys.path[0]) / "..").resolve()))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.output import (
-    DEFAULT_DATE_FORMAT,
-    DEFAULT_LOGGING_FORMAT,
+    setup_logging,
     seconds_to_milliseconds,
     write_report_json,
 )
 from harness_utils.process import is_process_running
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR / "run"
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 EVOLVE_DIR = Path(r"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Evolve")
 EXECUTABLE = "evolve.exe"
 EXECUTABLE_PATH = EVOLVE_DIR / EXECUTABLE
-RESULTS_FILE = LOG_DIR / "evolve-results.csv"
-
-
-def setup_logging():
-    """default logging config"""
-    LOG_DIR.mkdir(exist_ok=True)
-    logging.basicConfig(
-        filename=f"{LOG_DIR}/harness.log",
-        format=DEFAULT_LOGGING_FORMAT,
-        datefmt=DEFAULT_DATE_FORMAT,
-        level=logging.DEBUG,
-    )
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger("").addHandler(console)
+RESULTS_FILE = LOG_DIRECTORY / "evolve-results.csv"
 
 
 TRACE_MODES = ["inline", "pipeline", "work-graph"]
@@ -90,7 +75,7 @@ def launch_evolve(resolution, renderer, trace_mode, preset):
 
 def main():
     """a doc string"""
-    setup_logging()
+    setup_logging(LOG_DIRECTORY)
     parser = ArgumentParser()
 
     parser.add_argument(
@@ -152,7 +137,7 @@ def main():
         "Energy": scores["Energy"],
     }
 
-    write_report_json(str(LOG_DIR), "report.json", report)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
 
 
 if __name__ == "__main__":

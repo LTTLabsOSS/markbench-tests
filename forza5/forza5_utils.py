@@ -1,4 +1,5 @@
 """Utility functions for Forza Horizon 5 test script"""
+
 import re
 
 

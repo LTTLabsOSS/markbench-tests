@@ -1,4 +1,5 @@
 """Grid Legends test script"""
+
 from argparse import ArgumentParser
 import logging
 import os
@@ -8,32 +9,35 @@ import time
 import pydirectinput as user
 import sys
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
-#pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position
 from harness_utils.output import (
-    setup_log_directory,
+    setup_logging,
     write_report_json,
     format_resolution,
     seconds_to_milliseconds,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT)
+)
 from harness_utils.process import terminate_processes
 from harness_utils.keras_service import KerasService
 from harness_utils.steam import exec_steam_game, get_build_id
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "gridlegends.exe"
 STEAM_GAME_ID = 1307710
 
 username = os.getlogin()
-CONFIG_PATH = f"C:\\Users\\{username}\\Documents\\My Games\\GRID Legends\\hardwaresettings"
+CONFIG_PATH = (
+    f"C:\\Users\\{username}\\Documents\\My Games\\GRID Legends\\hardwaresettings"
+)
 CONFIG_FILENAME = "hardware_settings_config.xml"
 CONFIG_FULL_PATH = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
 
 user.FAILSAFE = False
+
 
 def get_resolution() -> tuple[int]:
     """Gets resolution width and height from local xml file created by game."""
@@ -55,24 +59,19 @@ def get_resolution() -> tuple[int]:
 def get_args() -> any:
     """Returns command line arg values"""
     parser = ArgumentParser()
-    parser.add_argument("--kerasHost", dest="keras_host",
-                        help="Host for Keras OCR service", required=True)
-    parser.add_argument("--kerasPort", dest="keras_port",
-                        help="Port for Keras OCR service", required=True)
+    parser.add_argument(
+        "--kerasHost",
+        dest="keras_host",
+        help="Host for Keras OCR service",
+        required=True,
+    )
+    parser.add_argument(
+        "--kerasPort",
+        dest="keras_port",
+        help="Port for Keras OCR service",
+        required=True,
+    )
     return parser.parse_args()
-
-
-def setup_logging():
-    """default logging config"""
-    setup_log_directory(LOG_DIR)
-    logging.basicConfig(filename=f'{LOG_DIR}/harness.log',
-                        format=DEFAULT_LOGGING_FORMAT,
-                        datefmt=DEFAULT_DATE_FORMAT,
-                        level=logging.DEBUG)
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
 
 
 def start_game():
@@ -84,7 +83,7 @@ def run_benchmark(keras_service):
     """Run Grid Legends benchmark"""
     setup_start_time = int(time.time())
     start_game()
-    am = ArtifactManager(LOG_DIR)
+    am = ArtifactManager(LOG_DIRECTORY)
 
     time.sleep(20)  # wait for game to load to the start screen
 
@@ -92,7 +91,7 @@ def run_benchmark(keras_service):
         logging.error("Game didn't load to start screen. Did the game load?")
         sys.exit(1)
 
-    logging.info('Game started. Entering main menu')
+    logging.info("Game started. Entering main menu")
     time.sleep(4)
     user.press("enter")
     time.sleep(2)
@@ -102,7 +101,7 @@ def run_benchmark(keras_service):
         logging.error("Game didn't load to main menu. Check settings and try again.")
         sys.exit(1)
 
-    logging.info('Starting benchmark')
+    logging.info("Starting benchmark")
     user.press("f3")
     time.sleep(0.2)
     user.press("right")
@@ -115,23 +114,37 @@ def run_benchmark(keras_service):
     if keras_service.wait_for_word(word="basic", timeout=30, interval=0.1) is None:
         logging.error("Didn't basic video options. Did the menu navigate correctly?")
         sys.exit(1)
-    am.take_screenshot("basic.png", ArtifactType.CONFIG_IMAGE, "picture of basic settings")
+    am.take_screenshot(
+        "basic.png", ArtifactType.CONFIG_IMAGE, "picture of basic settings"
+    )
 
     user.press("f3")
     time.sleep(0.2)
 
     if keras_service.wait_for_word(word="benchmark", timeout=30, interval=0.1) is None:
-        logging.error("Didn't reach advanced video options. Did the menu navigate correctly?")
+        logging.error(
+            "Didn't reach advanced video options. Did the menu navigate correctly?"
+        )
         sys.exit(1)
-    am.take_screenshot("advanced_1.png", ArtifactType.CONFIG_IMAGE, "first picture of advanced settings")
+    am.take_screenshot(
+        "advanced_1.png",
+        ArtifactType.CONFIG_IMAGE,
+        "first picture of advanced settings",
+    )
 
     user.press("up")
     time.sleep(0.2)
 
     if keras_service.wait_for_word(word="shading", timeout=30, interval=0.1) is None:
-        logging.error("Didn't reach bottom of advanced video settings. Did the menu navigate correctly?")
+        logging.error(
+            "Didn't reach bottom of advanced video settings. Did the menu navigate correctly?"
+        )
         sys.exit(1)
-    am.take_screenshot("advanced_2.png", ArtifactType.CONFIG_IMAGE, "second picture of advanced settings")
+    am.take_screenshot(
+        "advanced_2.png",
+        ArtifactType.CONFIG_IMAGE,
+        "second picture of advanced settings",
+    )
 
     user.press("down")
     time.sleep(0.2)
@@ -150,7 +163,9 @@ def run_benchmark(keras_service):
     time.sleep(136)
     # TODO -> Mark benchmark start time using video OCR by looking for a players name
     if keras_service.wait_for_word(word="results", timeout=30, interval=0.1) is None:
-        logging.error("Didn't see results screen for the benchmark. Could not mark start time! Did the benchmark crash?")
+        logging.error(
+            "Didn't see results screen for the benchmark. Could not mark start time! Did the benchmark crash?"
+        )
         sys.exit(1)
 
     test_end_time = int(time.time()) - 2
@@ -179,15 +194,15 @@ def main():
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
-        "version": get_build_id(STEAM_GAME_ID)
+        "version": get_build_id(STEAM_GAME_ID),
     }
 
-    write_report_json(LOG_DIR, "report.json", report)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
 
 
 if __name__ == "__main__":
     try:
-        setup_logging()
+        setup_logging(LOG_DIRECTORY)
         main()
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")

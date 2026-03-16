@@ -1,4 +1,5 @@
 """Total War: Warhammer III test script"""
+
 from argparse import ArgumentParser
 import logging
 import os
@@ -9,25 +10,24 @@ import re
 import pyautogui as gui
 import pydirectinput as user
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
-#pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position
 from harness_utils.process import terminate_processes
 from harness_utils.output import (
+    setup_logging,
     format_resolution,
-    setup_log_directory,
     write_report_json,
     seconds_to_milliseconds,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT
 )
 from harness_utils.steam import get_app_install_location, get_build_id
 from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.misc import mouse_scroll_n_times
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "Pharaoh.exe"
 STEAM_GAME_ID = 1937780
 APPDATA = os.getenv("APPDATA")
@@ -58,7 +58,7 @@ def read_current_resolution():
 
 def start_game():
     """Starts the game process"""
-    cmd_string = f"start /D \"{get_app_install_location(STEAM_GAME_ID)}\" {PROCESS_NAME}"
+    cmd_string = f'start /D "{get_app_install_location(STEAM_GAME_ID)}" {PROCESS_NAME}'
     logging.info(cmd_string)
     return os.system(cmd_string)
 
@@ -83,7 +83,7 @@ def run_benchmark(keras_service):
     cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
     start_game()
     setup_start_time = int(time.time())
-    am = ArtifactManager(LOG_DIR)
+    am = ArtifactManager(LOG_DIRECTORY)
     time.sleep(5)
 
     result = keras_service.look_for_word("warning", attempts=10, interval=5)
@@ -109,12 +109,16 @@ def run_benchmark(keras_service):
         logging.info("Did not find the main menu. Did Keras click correctly?")
         sys.exit(1)
 
-    am.take_screenshot("main.png", ArtifactType.CONFIG_IMAGE, "screenshot of main settings menu")
+    am.take_screenshot(
+        "main.png", ArtifactType.CONFIG_IMAGE, "screenshot of main settings menu"
+    )
     time.sleep(0.5)
 
     result = keras_service.look_for_word("advanced", attempts=10, interval=1)
     if not result:
-        logging.info("Did not find the advanced options menu. Did the game navigate to options correctly?")
+        logging.info(
+            "Did not find the advanced options menu. Did the game navigate to options correctly?"
+        )
         sys.exit(1)
 
     gui.moveTo(result["x"], result["y"])
@@ -124,15 +128,23 @@ def run_benchmark(keras_service):
     gui.mouseUp()
 
     if keras_service.wait_for_word(word="water", timeout=30, interval=1) is None:
-        logging.info("Did not find the keyword 'water' in the menu. Did Keras navigate to the advanced menu correctly?")
+        logging.info(
+            "Did not find the keyword 'water' in the menu. Did Keras navigate to the advanced menu correctly?"
+        )
         sys.exit(1)
 
-    am.take_screenshot("advanced_1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of advanced settings menu")
+    am.take_screenshot(
+        "advanced_1.png",
+        ArtifactType.CONFIG_IMAGE,
+        "first screenshot of advanced settings menu",
+    )
     time.sleep(0.5)
 
     result = keras_service.look_for_word("water", attempts=10, interval=1)
     if not result:
-        logging.info("Did not find the keyword 'water' in the menu. Did Keras navigate to the advanced menu correctly?")
+        logging.info(
+            "Did not find the keyword 'water' in the menu. Did Keras navigate to the advanced menu correctly?"
+        )
         sys.exit(1)
     gui.moveTo(result["x"], result["y"])
     time.sleep(1)
@@ -140,17 +152,29 @@ def run_benchmark(keras_service):
     # Scroll to the middle of the advanced menu
     mouse_scroll_n_times(15, -1, 0.1)
     if keras_service.wait_for_word(word="heat", timeout=30, interval=1) is None:
-        logging.info("Did not find the keyword 'heat' in the menu. Did Keras scroll down the advanced menu far enough?")
+        logging.info(
+            "Did not find the keyword 'heat' in the menu. Did Keras scroll down the advanced menu far enough?"
+        )
         sys.exit(1)
-    am.take_screenshot("advanced_2.png", ArtifactType.CONFIG_IMAGE, "second screenshot of advanced settings menu")
+    am.take_screenshot(
+        "advanced_2.png",
+        ArtifactType.CONFIG_IMAGE,
+        "second screenshot of advanced settings menu",
+    )
     time.sleep(0.5)
 
     # Scroll to the bottom of the advanced menu
     mouse_scroll_n_times(15, -1, 0.1)
     if keras_service.wait_for_word(word="bodies", timeout=30, interval=1) is None:
-        logging.info("Did not find the keyword 'bodies' in the menu. Did Keras scroll down the advanced menu far enough?")
+        logging.info(
+            "Did not find the keyword 'bodies' in the menu. Did Keras scroll down the advanced menu far enough?"
+        )
         sys.exit(1)
-    am.take_screenshot("advanced_3.png", ArtifactType.CONFIG_IMAGE, "third screenshot of advanced settings menu")
+    am.take_screenshot(
+        "advanced_3.png",
+        ArtifactType.CONFIG_IMAGE,
+        "third screenshot of advanced settings menu",
+    )
     time.sleep(0.5)
 
     result = keras_service.look_for_word("bench", attempts=10, interval=1)
@@ -181,7 +205,8 @@ def run_benchmark(keras_service):
     result = keras_service.wait_for_word("summary", interval=0.2, timeout=250)
     if not result:
         logging.info(
-            "Results screen was not found! Did harness not wait long enough? Or test was too long?")
+            "Results screen was not found! Did harness not wait long enough? Or test was too long?"
+        )
         sys.exit(1)
 
     # Wait 5 seconds for benchmark info
@@ -202,26 +227,21 @@ def run_benchmark(keras_service):
     return test_start_time, test_end_time
 
 
-def setup_logging():
-    """setup logging"""
-    setup_log_directory(LOG_DIR)
-    logging.basicConfig(filename=f'{LOG_DIR}/harness.log',
-                        format=DEFAULT_LOGGING_FORMAT,
-                        datefmt=DEFAULT_DATE_FORMAT,
-                        level=logging.DEBUG)
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
-
-
 def main():
     """entry point"""
     parser = ArgumentParser()
-    parser.add_argument("--kerasHost", dest="keras_host",
-                        help="Host for Keras OCR service", required=True)
-    parser.add_argument("--kerasPort", dest="keras_port",
-                        help="Port for Keras OCR service", required=True)
+    parser.add_argument(
+        "--kerasHost",
+        dest="keras_host",
+        help="Host for Keras OCR service",
+        required=True,
+    )
+    parser.add_argument(
+        "--kerasPort",
+        dest="keras_port",
+        help="Port for Keras OCR service",
+        required=True,
+    )
     args = parser.parse_args()
     keras_service = KerasService(args.keras_host, args.keras_port)
     start_time, endtime = run_benchmark(keras_service)
@@ -230,15 +250,15 @@ def main():
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(endtime),
-        "version": get_build_id(STEAM_GAME_ID)
+        "version": get_build_id(STEAM_GAME_ID),
     }
 
-    write_report_json(LOG_DIR, "report.json", report)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
 
 
 if __name__ == "__main__":
     try:
-        setup_logging()
+        setup_logging(LOG_DIRECTORY)
         main()
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")
