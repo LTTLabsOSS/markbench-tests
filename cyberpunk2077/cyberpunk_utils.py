@@ -17,7 +17,7 @@ STEAM_GAME_ID = 1091500
 CYBERPUNK_INSTALL_DIR = get_app_install_location(STEAM_GAME_ID)
 
 
-def get_args() -> any:
+def get_args():
     """Returns command line arg values"""
     parser = ArgumentParser()
     parser.add_argument(
