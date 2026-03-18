@@ -1,19 +1,20 @@
 """MSI Kombustor test script"""
 
-from subprocess import Popen
 import sys
 from pathlib import Path
+from subprocess import Popen
+
 from msi_kombustor_utils import (
+    create_arg_string,
     parse_args,
     parse_resolution,
     parse_score,
-    create_arg_string,
 )
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.output import setup_logging, write_report_json, format_resolution
+from harness_utils.output import format_resolution, setup_logging, write_report_json
 
 INSTALL_DIR = r"C:\Program Files\Geeks3D\MSI Kombustor 4 x64"
 EXECUTABLE = "MSI-Kombustor-x64.exe"

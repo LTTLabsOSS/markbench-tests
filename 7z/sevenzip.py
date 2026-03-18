@@ -2,17 +2,18 @@
 
 import json
 import logging
-from pathlib import Path
 import re
+import subprocess
 import sys
 import time
+from pathlib import Path
 from subprocess import Popen
-import subprocess
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from sevenzip_utils import copy_from_network_drive
+
 from harness_utils.output import setup_logging
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent

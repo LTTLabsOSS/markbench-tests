@@ -1,10 +1,10 @@
 """Counter-Strike 2 test script utils"""
 
+import ctypes
 import logging
 import re
 import sys
 from pathlib import Path
-import ctypes
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)

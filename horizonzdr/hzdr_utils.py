@@ -1,9 +1,9 @@
 """Utility functions supporting Horizon Zero Dawn Remastered test script."""
 
-from argparse import ArgumentParser
+import os
 import re
 import winreg
-import os
+from argparse import ArgumentParser
 
 
 def export_registry_key(hive, subkey, input_file):

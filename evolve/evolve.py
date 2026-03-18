@@ -14,8 +14,8 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.output import (
-    setup_logging,
     seconds_to_milliseconds,
+    setup_logging,
     write_report_json,
 )
 from harness_utils.process import is_process_running

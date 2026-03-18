@@ -1,8 +1,8 @@
 """utility functions for running handbrake tests"""
 
-from pathlib import Path
-import time
 import shutil
+import time
+from pathlib import Path
 
 HANDBRAKE_EXECUTABLE = "HandBrakeCLI.exe"
 SOURCE_VIDEO_NAME = "big_buck_bunny_1080p24.y4m"

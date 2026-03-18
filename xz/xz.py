@@ -2,9 +2,10 @@
 
 import json
 import logging
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
+
 import psutil
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
@@ -12,10 +13,11 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from xz_utils import (
     XZ_EXECUTABLE,
-    xz_executable_exists,
     copy_from_network_drive,
     current_time_ms,
+    xz_executable_exists,
 )
+
 from harness_utils.output import setup_logging
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent

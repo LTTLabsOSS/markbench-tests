@@ -1,7 +1,7 @@
 """Utility functions for MSI Kombustor test script"""
 
-from argparse import ArgumentParser, Namespace
 import re
+from argparse import ArgumentParser, Namespace
 
 # cSpell:disable
 avail_tests = [

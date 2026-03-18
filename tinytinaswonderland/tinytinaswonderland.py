@@ -1,20 +1,23 @@
 """tiny tinas wonderlands test script"""
 
-from pathlib import Path
-import time
-import pydirectinput as user
 import logging
 import sys
+import time
+from argparse import ArgumentParser
+from pathlib import Path
+
+import pydirectinput as user
 from tinytinaswonderland_utils import (
     find_latest_result_file,
     get_documents_path,
     read_resolution,
 )
-from argparse import ArgumentParser
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.keras_service import KerasService
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -22,8 +25,6 @@ from harness_utils.output import (
 )
 from harness_utils.process import terminate_processes
 from harness_utils.steam import exec_steam_game, get_build_id
-from harness_utils.keras_service import KerasService
-from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"

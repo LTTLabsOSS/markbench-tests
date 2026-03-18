@@ -1,15 +1,16 @@
 """Ashes of the Singularity: Escalation test script"""
 
+import getpass
 import logging
-from pathlib import Path
 import sys
 import time
-import getpass
+from pathlib import Path
+
 from aotse_utils import (
-    read_current_resolution,
-    find_score_in_log,
     delete_old_scores,
+    find_score_in_log,
     get_args,
+    read_current_resolution,
     replace_exe,
     restore_exe,
 )
@@ -17,15 +18,15 @@ from aotse_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
-from harness_utils.steam import get_build_id, exec_steam_game
 from harness_utils.output import (
-    setup_logging,
-    seconds_to_milliseconds,
     format_resolution,
+    seconds_to_milliseconds,
+    setup_logging,
     write_report_json,
 )
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.steam import exec_steam_game, get_build_id
 
 #####
 ### Globals

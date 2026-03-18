@@ -1,16 +1,17 @@
 """Utility functions for Ashes of the Singularity: Escalation test script"""
 
+import getpass
+import glob
+import logging
 import os
 import re
-import sys
-import logging
-import getpass
-from pathlib import Path
-import psutil
-import glob
-import time
 import shutil
+import sys
+import time
 from argparse import ArgumentParser
+from pathlib import Path
+
+import psutil
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)

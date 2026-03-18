@@ -1,35 +1,34 @@
 """Stellaris test script"""
 
-from argparse import ArgumentParser
 import logging
 import os
-from pathlib import Path
-import time
 import sys
+import time
+from argparse import ArgumentParser
+from pathlib import Path
+
 import pyautogui as gui
 import pydirectinput as user
-
 from stellaris_utils import (
-    read_current_resolution,
     copy_benchmarkfiles,
     copy_benchmarksave,
     find_score_in_log,
+    read_current_resolution,
 )
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.process import terminate_processes
-from harness_utils.output import (
-    setup_logging,
-    format_resolution,
-    write_report_json,
-    seconds_to_milliseconds,
-)
-from harness_utils.steam import get_app_install_location
-from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-
+from harness_utils.keras_service import KerasService
+from harness_utils.output import (
+    format_resolution,
+    seconds_to_milliseconds,
+    setup_logging,
+    write_report_json,
+)
+from harness_utils.process import terminate_processes
+from harness_utils.steam import get_app_install_location
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"

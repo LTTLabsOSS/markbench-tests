@@ -1,15 +1,16 @@
 """GravityMark test script"""
 
-import logging
 import getpass
+import logging
 import subprocess
 import sys
 from pathlib import Path
+
 from gravitymark_utils import (
+    create_gravitymark_command,
     friendly_test_param,
     get_args,
     get_score,
-    create_gravitymark_command,
 )
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)

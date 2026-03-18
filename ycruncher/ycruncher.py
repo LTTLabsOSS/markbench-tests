@@ -1,10 +1,11 @@
 """Test script for y-cruncher"""
 
 import logging
-import sys
 import re
+import sys
 from pathlib import Path
 from subprocess import Popen
+
 from ycruncher_utils import (
     YCRUNCHER_FOLDER_NAME,
     current_time_ms,

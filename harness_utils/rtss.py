@@ -2,10 +2,9 @@
 
 import logging
 import os
-from subprocess import Popen
 import shutil
-
 from pathlib import Path
+from subprocess import Popen
 
 DEFAULT_BASE_PATH = os.path.join(
     os.environ["ProgramFiles(x86)"], "RivaTuner Statistics Server"

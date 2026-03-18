@@ -1,10 +1,10 @@
 """Utility functions for Total War: Warhammer III test script"""
 
+import logging
 import os
 import re
-import sys
-import logging
 import shutil
+import sys
 from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)

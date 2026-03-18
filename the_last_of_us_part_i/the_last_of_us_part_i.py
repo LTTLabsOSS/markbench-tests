@@ -2,31 +2,30 @@
 
 import logging
 import os
-from pathlib import Path
-import time
 import sys
-import pydirectinput as user
+import time
+from pathlib import Path
 
-from the_last_of_us_part_i_utils import get_args, get_resolution, copy_autosave
+import pydirectinput as user
+from the_last_of_us_part_i_utils import copy_autosave, get_args, get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
+from harness_utils.misc import press_n_times
 from harness_utils.output import (
-    setup_logging,
     format_resolution,
     seconds_to_milliseconds,
+    setup_logging,
     write_report_json,
 )
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
-    get_registry_active_user,
     exec_steam_run_command,
+    get_registry_active_user,
 )
-from harness_utils.misc import press_n_times
-
-from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 STEAM_GAME_ID = 1888930
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent

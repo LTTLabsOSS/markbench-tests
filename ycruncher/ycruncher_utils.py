@@ -1,8 +1,9 @@
 """Collection of functions to assist in running of ycruncher test script"""
 
 import time
-from zipfile import ZipFile
 from pathlib import Path
+from zipfile import ZipFile
+
 import requests
 
 YCRUNCHER_FOLDER_NAME = "y-cruncher v0.8.6.9545"

@@ -1,11 +1,12 @@
 """Cinebench 2024 test script"""
 
-from argparse import ArgumentParser
 import logging
-from pathlib import Path
 import subprocess
 import sys
 import time
+from argparse import ArgumentParser
+from pathlib import Path
+
 import psutil
 from cinebench_utils import friendly_test_name, get_score
 
@@ -13,8 +14,8 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.output import (
-    setup_logging,
     seconds_to_milliseconds,
+    setup_logging,
     write_report_json,
 )
 

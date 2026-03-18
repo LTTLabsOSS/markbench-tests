@@ -1,23 +1,24 @@
 """alan wake 2 test script"""
 
-from argparse import ArgumentParser
 import logging
-from pathlib import Path
-import time
-from subprocess import Popen
-from alanwake2_utils import find_epic_executable, copy_save, CONFIG_PATH, get_resolution
-import pydirectinput as user
 import sys
+import time
+from argparse import ArgumentParser
+from pathlib import Path
+from subprocess import Popen
+
+import pydirectinput as user
+from alanwake2_utils import CONFIG_PATH, copy_save, find_epic_executable, get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 # pylint: disable=wrong-import-position
 
+from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.keras_service import KerasService
+from harness_utils.misc import find_eg_game_version, press_n_times
 from harness_utils.output import setup_logging, write_report_json
 from harness_utils.process import terminate_processes
-from harness_utils.keras_service import KerasService
-from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.misc import press_n_times, find_eg_game_version
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"

@@ -1,34 +1,31 @@
 """The Last of Us Part I test script"""
 
-import logging
-from pathlib import Path
-import time
-import sys
-import pydirectinput as user
 import getpass
-
-import winreg  # for accessing settings, including resolution, in the registry
-
+import logging
 import shutil
+import sys
+import time
+import winreg  # for accessing settings, including resolution, in the registry
+from pathlib import Path
+
+import pydirectinput as user
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
+from harness_utils.misc import find_word, int_time, keras_args, press_n_times
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
-    write_report_json,
     setup_logging,
+    write_report_json,
 )
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
     exec_steam_run_command,
 )
-
-from harness_utils.artifacts import ArtifactManager, ArtifactType
-
-from harness_utils.misc import int_time, find_word, press_n_times, keras_args
 
 USERNAME = getpass.getuser()
 STEAM_GAME_ID = 2531310

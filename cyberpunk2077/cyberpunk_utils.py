@@ -1,12 +1,12 @@
 """Utility functions for Cyberpunk 2077 test script"""
 
-from argparse import ArgumentParser
-import os
 import logging
-from pathlib import Path
+import os
 import re
 import shutil
 import sys
+from argparse import ArgumentParser
+from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)

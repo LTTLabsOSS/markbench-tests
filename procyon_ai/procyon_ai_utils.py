@@ -1,14 +1,15 @@
 """UL Procyon Computer Vision test utils"""
 
-from pathlib import Path
-import psutil
-import winreg
-import re
-import os
-import win32api
-import sys
-from argparse import ArgumentParser
 import logging
+import os
+import re
+import sys
+import winreg
+from argparse import ArgumentParser
+from pathlib import Path
+
+import psutil
+import win32api
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"

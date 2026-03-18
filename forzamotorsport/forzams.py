@@ -1,28 +1,28 @@
 """Forza Motorsport test script"""
 
-import os
-from pathlib import Path
 import logging
+import os
 import sys
 import time
-import pydirectinput as user
+from pathlib import Path
 
-from forzams_utils import get_resolution, get_args
+import pydirectinput as user
+from forzams_utils import get_args, get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
+from harness_utils.misc import press_n_times
 from harness_utils.output import (
-    setup_logging,
     seconds_to_milliseconds,
+    setup_logging,
     write_report_json,
 )
-from harness_utils.misc import press_n_times
 from harness_utils.process import terminate_processes
+from harness_utils.rtss import copy_rtss_profile, start_rtss_process
 from harness_utils.steam import exec_steam_run_command, get_build_id
-from harness_utils.rtss import start_rtss_process, copy_rtss_profile
-from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 STEAM_GAME_ID = 2440510
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent

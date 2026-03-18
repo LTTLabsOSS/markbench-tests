@@ -1,11 +1,12 @@
 """Black Myth Wukong test script"""
 
-from argparse import ArgumentParser
 import logging
-from pathlib import Path
-import time
-import sys
 import re
+import sys
+import time
+from argparse import ArgumentParser
+from pathlib import Path
+
 import pydirectinput as user
 import vgamepad as vg
 
@@ -13,17 +14,17 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 # pylint: disable=wrong-import-position
-from harness_utils.process import terminate_processes
-from harness_utils.output import (
-    setup_logging,
-    format_resolution,
-    write_report_json,
-    seconds_to_milliseconds,
-)
-from harness_utils.steam import get_app_install_location, get_build_id, exec_steam_game
-from harness_utils.keras_service import KerasService
 from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.keras_service import KerasService
 from harness_utils.misc import LTTGamePad360
+from harness_utils.output import (
+    format_resolution,
+    seconds_to_milliseconds,
+    setup_logging,
+    write_report_json,
+)
+from harness_utils.process import terminate_processes
+from harness_utils.steam import exec_steam_game, get_app_install_location, get_build_id
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"

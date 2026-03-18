@@ -1,19 +1,18 @@
 """Recording session test script"""
 
 import logging
-from pathlib import Path
 import socket
 import sys
 import time
-
+from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.output import (
+    seconds_to_milliseconds,
     setup_logging,
     write_report_json,
-    seconds_to_milliseconds,
 )
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent

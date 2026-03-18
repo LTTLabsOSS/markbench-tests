@@ -1,11 +1,11 @@
 """Rocket League test utils"""
 
-from argparse import ArgumentParser
-import winreg
 import getpass
 import logging
 import re
 import shutil
+import winreg
+from argparse import ArgumentParser
 from pathlib import Path
 
 USERNAME = getpass.getuser()

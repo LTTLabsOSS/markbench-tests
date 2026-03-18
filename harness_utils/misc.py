@@ -1,18 +1,19 @@
 """Misc utility functions"""
 
-from argparse import ArgumentParser
+import json
 import logging
 import os
-from pathlib import Path
-from zipfile import ZipFile
-import time
-import pydirectinput as user
-import pyautogui as gui
-import requests
-import vgamepad as vg
-import json
 import re
 import sys
+import time
+from argparse import ArgumentParser
+from pathlib import Path
+from zipfile import ZipFile
+
+import pyautogui as gui
+import pydirectinput as user
+import requests
+import vgamepad as vg
 
 user.FAILSAFE = False
 

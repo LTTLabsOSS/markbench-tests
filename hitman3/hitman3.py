@@ -1,32 +1,32 @@
 """Hitman World of Assassination test script"""
 
-import os
-from pathlib import Path
 import logging
+import os
+import sys
 import time
+import winreg
+from pathlib import Path
+
 import psutil
 import pyautogui as gui
-import sys
-import winreg
-
 from hitman3_utils import (
-    get_resolution,
     get_args,
-    process_registry_file,
     get_benchmark_name,
+    get_resolution,
+    process_registry_file,
 )
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
 from harness_utils.output import (
-    setup_logging,
     seconds_to_milliseconds,
+    setup_logging,
     write_report_json,
 )
 from harness_utils.steam import exec_steam_run_command, get_build_id
-from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 STEAM_GAME_ID = 1659040
 STEAM_PATH = Path(os.environ["ProgramFiles(x86)"]) / "steam"

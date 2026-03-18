@@ -1,9 +1,9 @@
 """tiny tina's wonderlands utils"""
 
-import winreg
-import os
 import logging
+import os
 import re
+import winreg
 
 EXECUTABLE = "Wonderlands.exe"
 

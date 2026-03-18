@@ -1,11 +1,11 @@
 """Utility functions for The Last of Us Part I test script"""
 
-from argparse import ArgumentParser
 import ctypes
-import re
 import os
-import sys
+import re
 import shutil
+import sys
+from argparse import ArgumentParser
 from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)

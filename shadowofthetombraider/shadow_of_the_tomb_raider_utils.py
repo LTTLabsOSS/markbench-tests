@@ -1,9 +1,9 @@
 """Utility functions for Shadow of the Tomb Raider test script"""
 
-from argparse import ArgumentParser
 import os
-from pathlib import Path
 import winreg
+from argparse import ArgumentParser
+from pathlib import Path
 
 
 def get_reg(name) -> any:

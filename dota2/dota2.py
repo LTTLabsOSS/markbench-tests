@@ -1,33 +1,33 @@
 """Dota 2 test script"""
 
 import logging
-from pathlib import Path
+import sys
 import time
+from pathlib import Path
+
 import pyautogui as gui
 import pydirectinput as user
-import sys
 from dota2_utils import (
+    copy_config,
+    copy_replay,
+    get_args,
     get_resolution,
     verify_replay,
-    copy_replay,
-    copy_config,
-    get_args,
 )
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.keras_service import KerasService
 from harness_utils.output import (
-    setup_logging,
-    write_report_json,
     format_resolution,
     seconds_to_milliseconds,
+    setup_logging,
+    write_report_json,
 )
 from harness_utils.process import terminate_processes
-from harness_utils.keras_service import KerasService
 from harness_utils.steam import exec_steam_game
-from harness_utils.artifacts import ArtifactManager, ArtifactType
-
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"

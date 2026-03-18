@@ -1,8 +1,8 @@
 """utility functions for xz test script"""
 
-from pathlib import Path
-import time
 import shutil
+import time
+from pathlib import Path
 
 XZ_EXECUTABLE = "xz_5.6.2_x86_64.exe"
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
