@@ -6,7 +6,7 @@ import time
 from argparse import ArgumentParser
 from pathlib import Path
 
-from blender_utils import (
+from blender_render_utils import (
     BENCHMARK_CONFIG,
     download_scene,
     find_blender,
