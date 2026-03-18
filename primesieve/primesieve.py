@@ -2,10 +2,10 @@
 
 import json
 import logging
-from pathlib import Path
+import re
 import subprocess
 import sys
-import re
+from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -16,6 +16,7 @@ from primesieve_utils import (
     download_primesieve,
     primesieve_folder_exists,
 )
+
 from harness_utils.output import setup_logging
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent

@@ -1,7 +1,7 @@
 """3dmark test utils"""
 
-from pathlib import Path
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 
 def get_score(element_name, xml_path):

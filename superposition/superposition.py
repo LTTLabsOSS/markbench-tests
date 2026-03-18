@@ -1,12 +1,12 @@
 """Superposition test script"""
 
-from argparse import ArgumentParser
-from subprocess import Popen
 import json
-import re
-from pathlib import Path
 import logging
+import re
 import sys
+from argparse import ArgumentParser
+from pathlib import Path
+from subprocess import Popen
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)

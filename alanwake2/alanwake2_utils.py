@@ -1,10 +1,10 @@
 """alan wake 2 test utils"""
 
-import winreg
-import os
 import logging
+import os
 import re
 import shutil
+import winreg
 from pathlib import Path
 
 LOCALAPPDATA = os.getenv("LOCALAPPDATA")

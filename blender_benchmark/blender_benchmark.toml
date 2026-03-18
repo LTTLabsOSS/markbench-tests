@@ -1,5 +1,5 @@
 friendly_name = "Blender Benchmark"
-py_script = "blender.py"
+py_script = "blender_benchmark.py"
 executable = "blender.exe"
 presentmon_enabled = false
 non_game = true

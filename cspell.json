@@ -1,8 +1,5 @@
 {
-  "ignorePaths": [
-    ".*/",
-    "*.py"
-  ],
+  "ignorePaths": [".*/", "*.py"],
   "allowCompoundWords": true,
   "words": [
     "argies",
@@ -18,15 +15,18 @@
     "Keras",
     "Kikis",
     "Kombustor",
+    "koro",
     "opengl",
     "opengles",
     "OPTIX",
+    "pavillon",
     "psutil",
     "Projekt",
     "pycache",
     "Returnal",
     "RLCS",
     "RTSS",
+    "Ryzen",
     "tlou",
     "turbopolsa",
     "twwh",
@@ -50,7 +50,5 @@
     "vgamepad",
     "DaVinci"
   ],
-  "ignoreRegExpList": [
-    "import .*"
-  ]
+  "ignoreRegExpList": ["import .*"]
 }

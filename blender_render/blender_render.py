@@ -1,25 +1,25 @@
 """Blender render test script"""
 
-from pathlib import Path
-from blender_utils import (
-    BENCHMARK_CONFIG,
-    find_blender,
-    run_blender_render,
-    download_scene,
-)
-from argparse import ArgumentParser
 import logging
 import sys
 import time
+from argparse import ArgumentParser
+from pathlib import Path
+
+from blender_render_utils import (
+    BENCHMARK_CONFIG,
+    download_scene,
+    find_blender,
+    run_blender_render,
+)
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.output import (
+    seconds_to_milliseconds,
     setup_logging,
     write_report_json,
-    seconds_to_milliseconds,
 )
-
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"

@@ -1,12 +1,12 @@
 """Utility functions for Cyberpunk 2077 test script"""
 
-from argparse import ArgumentParser
-import os
 import logging
-from pathlib import Path
+import os
 import re
 import shutil
 import sys
+from argparse import ArgumentParser
+from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -17,7 +17,7 @@ STEAM_GAME_ID = 1091500
 CYBERPUNK_INSTALL_DIR = get_app_install_location(STEAM_GAME_ID)
 
 
-def get_args() -> any:
+def get_args():
     """Returns command line arg values"""
     parser = ArgumentParser()
     parser.add_argument(

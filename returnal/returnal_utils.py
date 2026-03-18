@@ -1,7 +1,7 @@
 """Utility functions supporting Returnal test script."""
 
-from argparse import ArgumentParser
 import re
+from argparse import ArgumentParser
 
 
 def get_resolution(config_path: str) -> tuple[int]:

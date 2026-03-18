@@ -4,13 +4,14 @@ import io
 import json
 import logging
 import time
-import mss
-import cv2
-import requests
-import numpy as np
-import dxcam
-from enum import Enum
 from dataclasses import dataclass
+from enum import Enum
+
+import cv2
+import dxcam
+import mss
+import numpy as np
+import requests
 
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)

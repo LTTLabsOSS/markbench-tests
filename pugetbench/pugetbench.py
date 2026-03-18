@@ -1,32 +1,33 @@
 """pugetbench for creators test script"""
 
 import logging
-from pathlib import Path
 import sys
-from argparse import ArgumentParser
-import time
-from subprocess import Popen, PIPE, STDOUT, TimeoutExpired
 import threading
+import time
+from argparse import ArgumentParser
+from pathlib import Path
+from subprocess import PIPE, STDOUT, Popen, TimeoutExpired
+
 from pugetbench_utils import (
-    trim_to_major_minor,
     find_score_in_log,
-    get_photoshop_version,
-    get_premierepro_version,
-    get_lightroom_version,
     get_aftereffects_version,
     get_davinci_version,
-    get_pugetbench_version,
     get_latest_benchmark_by_version,
+    get_lightroom_version,
+    get_photoshop_version,
+    get_premierepro_version,
+    get_pugetbench_version,
+    trim_to_major_minor,
 )
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
-from harness_utils.process import terminate_processes
 from harness_utils.output import (
-    setup_logging,
     seconds_to_milliseconds,
+    setup_logging,
     write_report_json,
 )
+from harness_utils.process import terminate_processes
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"

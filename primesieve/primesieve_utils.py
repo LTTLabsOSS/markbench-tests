@@ -1,7 +1,7 @@
 """collection of functions to assist in running of primesieve test script"""
 
-from pathlib import Path
 import time
+from pathlib import Path
 from zipfile import ZipFile
 
 import requests

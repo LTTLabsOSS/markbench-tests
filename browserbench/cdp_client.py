@@ -1,9 +1,9 @@
 """CDP Client Functions"""
 
-import socket
-import json
 import base64
+import json
 import os
+import socket
 import struct
 from urllib.parse import urlparse
 

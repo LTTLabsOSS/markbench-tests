@@ -1,20 +1,21 @@
 """3DMark test script"""
 
-from argparse import ArgumentParser
 import logging
-from pathlib import Path
 import subprocess
 import sys
 import time
+from argparse import ArgumentParser
+from pathlib import Path
+
 import psutil
-from utils import get_score
+from ul3dmark_utils import get_score
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.output import (
-    setup_logging,
     seconds_to_milliseconds,
+    setup_logging,
     write_report_json,
 )
 from harness_utils.process import is_process_running
@@ -95,7 +96,7 @@ def run_benchmark(process_name, command_to_run):
             now = time.time()
             elapsed = now - start_time
             if elapsed >= 30:  # seconds
-                raise ValueError("BenchMark subprocess did not start in time")
+                raise RuntimeError("Benchmark subprocess did not start in time")
             process = is_process_running(process_name)
             if process is not None:
                 process.nice(psutil.HIGH_PRIORITY_CLASS)
@@ -105,7 +106,8 @@ def run_benchmark(process_name, command_to_run):
         return proc
 
 
-try:
+def main():
+    """Run the selected 3DMark benchmark."""
     setup_logging(LOG_DIRECTORY)
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.benchmark]["config"]
@@ -117,12 +119,9 @@ try:
 
     if pr.returncode > 0:
         logging.error("3DMark exited with return code %d", pr.returncode)
-        sys.exit(pr.returncode)
+        return pr.returncode
 
     score = get_score(BENCHMARK_CONFIG[args.benchmark]["score_name"], REPORT_PATH)
-    if score is None:
-        logging.error("Could not find average FPS output!")
-        sys.exit(1)
 
     end_time = time.time()
     elapsed_test_time = round(end_time - strt, 2)
@@ -139,7 +138,8 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
-except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
-    sys.exit(1)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

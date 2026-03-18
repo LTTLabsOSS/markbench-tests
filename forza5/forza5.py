@@ -1,11 +1,12 @@
 """Forza Horizon 5 test script"""
 
-from argparse import ArgumentParser
 import logging
 import os
-from pathlib import Path
-import time
 import sys
+import time
+from argparse import ArgumentParser
+from pathlib import Path
+
 import pyautogui as gui
 import pydirectinput as user
 from forza5_utils import read_resolution
@@ -13,18 +14,18 @@ from forza5_utils import read_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.keras_service import KerasService
+from harness_utils.misc import press_n_times
 from harness_utils.output import (
-    setup_logging,
     format_resolution,
     seconds_to_milliseconds,
+    setup_logging,
     write_report_json,
 )
 from harness_utils.process import terminate_processes
-from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.rtss import start_rtss_process, copy_rtss_profile
+from harness_utils.rtss import copy_rtss_profile, start_rtss_process
 from harness_utils.steam import exec_steam_run_command
-from harness_utils.keras_service import KerasService
-from harness_utils.misc import press_n_times
 
 STEAM_GAME_ID = 1551360
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent

@@ -1,10 +1,11 @@
 """utils file for pugetbench harness"""
 
-import re
-import os
-from pathlib import Path
-import win32api
 import csv
+import os
+import re
+from pathlib import Path
+
+import win32api
 
 
 def trim_to_major_minor(version: str | None) -> str | None:

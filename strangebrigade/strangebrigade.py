@@ -1,11 +1,12 @@
 """Strange Brigade test script"""
 
-from argparse import ArgumentParser
 import logging
 import os
-from pathlib import Path
-import time
 import sys
+import time
+from argparse import ArgumentParser
+from pathlib import Path
+
 import pyautogui as gui
 import pydirectinput as user
 from strangebrigade_utils import read_current_resolution, replace_exe, restore_exe
@@ -13,26 +14,26 @@ from strangebrigade_utils import read_current_resolution, replace_exe, restore_e
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.misc import remove_files, press_n_times
-from harness_utils.process import terminate_processes
-from harness_utils.output import (
-    setup_logging,
-    format_resolution,
-    write_report_json,
-    seconds_to_milliseconds,
-)
-from harness_utils.steam import (
-    get_app_install_location,
-    exec_steam_run_command,
-    get_build_id,
-)
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import (
     KerasService,
-    ScreenSplitConfig,
     ScreenShotDivideMethod,
     ScreenShotQuadrant,
+    ScreenSplitConfig,
 )
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.misc import press_n_times, remove_files
+from harness_utils.output import (
+    format_resolution,
+    seconds_to_milliseconds,
+    setup_logging,
+    write_report_json,
+)
+from harness_utils.process import terminate_processes
+from harness_utils.steam import (
+    exec_steam_run_command,
+    get_app_install_location,
+    get_build_id,
+)
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"

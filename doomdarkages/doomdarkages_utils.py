@@ -1,12 +1,12 @@
 """Utility functions supporting Doom: The Dark Ages test script."""
 
+import json
+import logging
 import os
 import re
-from pathlib import Path
-import sys
-import logging
 import shutil
-import json
+import sys
+from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)

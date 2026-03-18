@@ -1,11 +1,11 @@
 """Utilities for Google Chrome"""
 
-import tempfile
-import time
 import json
 import logging
-import urllib.request
 import subprocess
+import tempfile
+import time
+import urllib.request
 import winreg
 
 

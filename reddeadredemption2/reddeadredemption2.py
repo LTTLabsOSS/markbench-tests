@@ -1,29 +1,29 @@
 """Red Dead Redemption 2 test script"""
 
-from argparse import ArgumentParser
-import logging
-import time
-import sys
-import pydirectinput as user
-from pathlib import Path
 import getpass
+import logging
+import sys
+import time
+from argparse import ArgumentParser
+from pathlib import Path
 
+import pydirectinput as user
 from red_dead_redemption_2_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.keras_service import KerasService
+from harness_utils.misc import press_n_times
 from harness_utils.output import (
-    setup_logging,
     format_resolution,
     seconds_to_milliseconds,
+    setup_logging,
     write_report_json,
 )
-from harness_utils.misc import press_n_times
 from harness_utils.process import terminate_processes
-from harness_utils.keras_service import KerasService
 from harness_utils.steam import exec_steam_run_command, get_build_id
-from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 STEAM_GAME_ID = 1174180
 PROCESS_NAME = "RDR2"

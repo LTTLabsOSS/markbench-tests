@@ -9,22 +9,22 @@ from pathlib import Path
 
 from cdp_client import CDPClient
 from chrome_utils import (
+    get_browser_version,
+    get_browser_websocket_url,
     get_chrome_path_from_registry,
     launch_chrome,
-    get_browser_websocket_url,
     wait_for_ready,
-    get_browser_version,
 )
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.output import (
+    seconds_to_milliseconds,
     setup_logging,
     write_report_json,
-    seconds_to_milliseconds,
 )
-from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 INTERNAL_TIMEOUT = 900  # 15 minutes
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent

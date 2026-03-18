@@ -1,7 +1,7 @@
 """Modules for executing shell commands and parsing strings"""
 
-import subprocess
 import re
+import subprocess
 
 
 def get_winml_devices(procyon_path):

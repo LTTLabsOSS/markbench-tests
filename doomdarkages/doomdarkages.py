@@ -1,11 +1,12 @@
 """Doom: The Dark Ages test script"""
 
 import logging
+import os.path
+import sys
+import time
 from argparse import ArgumentParser
 from pathlib import Path
-import os.path
-import time
-import sys
+
 import pydirectinput as user
 from doomdarkages_utils import get_resolution
 
@@ -13,18 +14,18 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from doomdarkages_utils import copy_launcher_config
-from harness_utils.steam import exec_steam_game, get_build_id
+
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
-from harness_utils.misc import press_n_times, mouse_scroll_n_times
-from harness_utils.process import terminate_processes
+from harness_utils.misc import mouse_scroll_n_times, press_n_times
 from harness_utils.output import (
-    setup_logging,
     format_resolution,
     seconds_to_milliseconds,
+    setup_logging,
     write_report_json,
 )
-from harness_utils.artifacts import ArtifactManager, ArtifactType
-
+from harness_utils.process import terminate_processes
+from harness_utils.steam import exec_steam_game, get_build_id
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"

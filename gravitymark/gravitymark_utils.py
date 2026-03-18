@@ -1,7 +1,7 @@
 """Utility functions for GravityMark test script"""
 
-from argparse import ArgumentParser, Namespace
 import re
+from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
 API_OPTIONS = [

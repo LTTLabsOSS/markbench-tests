@@ -1,9 +1,9 @@
 """Utility functions supporting Hitman World of Assassination test script."""
 
-from argparse import ArgumentParser
+import os
 import re
 import winreg
-import os
+from argparse import ArgumentParser
 
 
 def get_args() -> any:

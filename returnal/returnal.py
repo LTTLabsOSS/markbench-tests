@@ -1,32 +1,32 @@
 """Returnal test script"""
 
-import os
-from pathlib import Path
 import logging
+import os
 import sys
 import time
-import pydirectinput as user
+from pathlib import Path
 
-from returnal_utils import get_resolution, get_args
+import pydirectinput as user
+from returnal_utils import get_args, get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
+from harness_utils.misc import press_n_times, remove_files
 from harness_utils.output import (
-    setup_logging,
     format_resolution,
     seconds_to_milliseconds,
+    setup_logging,
     write_report_json,
 )
-from harness_utils.misc import remove_files, press_n_times
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
     exec_steam_run_command,
-    get_steamapps_common_path,
     get_build_id,
+    get_steamapps_common_path,
 )
-from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 STEAM_GAME_ID = 1649240
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent

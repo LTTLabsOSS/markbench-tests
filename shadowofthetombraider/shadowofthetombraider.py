@@ -2,35 +2,36 @@
 
 import logging
 import os
-from pathlib import Path
-import time
-import pydirectinput as user
 import sys
+import time
+from pathlib import Path
+
+import pydirectinput as user
 from shadow_of_the_tomb_raider_utils import (
+    get_args,
     get_latest_file_report,
     get_resolution,
-    get_args,
 )
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 # pylint: disable=wrong-import-position
-from harness_utils.output import (
-    setup_logging,
-    write_report_json,
-    format_resolution,
-    seconds_to_milliseconds,
-)
-from harness_utils.process import terminate_processes
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import (
     KerasService,
     ScreenShotDivideMethod,
     ScreenShotQuadrant,
     ScreenSplitConfig,
 )
+from harness_utils.output import (
+    format_resolution,
+    seconds_to_milliseconds,
+    setup_logging,
+    write_report_json,
+)
+from harness_utils.process import terminate_processes
 from harness_utils.steam import exec_steam_game, get_build_id
-from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 STEAM_GAME_ID = 750920
 PROCESS_NAME = "SOTTR.exe"

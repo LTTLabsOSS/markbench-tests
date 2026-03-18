@@ -1,10 +1,10 @@
 """Utility functions related to using Steam for running games."""
 
 import logging
-import winreg
-from subprocess import Popen
-from pathlib import Path
 import re
+import winreg
+from pathlib import Path
+from subprocess import Popen
 
 
 def get_run_game_id_command(game_id: int) -> str:

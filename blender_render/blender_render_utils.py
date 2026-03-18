@@ -1,22 +1,21 @@
 """Blender render test script"""
 
-from datetime import datetime
 import logging
 import os
-from pathlib import Path
 import re
 import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
 
 # pylint: disable=no-name-in-module
-from win32api import LOWORD, HIWORD, GetFileVersionInfo
+from win32api import HIWORD, LOWORD, GetFileVersionInfo
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.misc import download_file, extract_file_from_archive
-
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 

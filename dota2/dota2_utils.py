@@ -1,10 +1,10 @@
 """Dota 2 test script utils"""
 
-from argparse import ArgumentParser
 import logging
 import re
 import shutil
 import sys
+from argparse import ArgumentParser
 from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)

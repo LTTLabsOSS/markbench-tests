@@ -1,31 +1,31 @@
 """Marvel Rivals test script"""
 
-from argparse import ArgumentParser
 import logging
 import os
-from pathlib import Path
+import subprocess
+import sys
 import time
+from argparse import ArgumentParser
+from pathlib import Path
+
 import pyautogui as gui
 import pydirectinput as user
-import sys
-from marvelrivals_utils import read_resolution, find_latest_benchmarkcsv
-import subprocess
+from marvelrivals_utils import find_latest_benchmarkcsv, read_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.keras_service import KerasService
+from harness_utils.misc import mouse_scroll_n_times
 from harness_utils.output import (
-    setup_logging,
-    write_report_json,
     format_resolution,
     seconds_to_milliseconds,
+    setup_logging,
+    write_report_json,
 )
 from harness_utils.process import terminate_processes
-from harness_utils.keras_service import KerasService
-from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.misc import mouse_scroll_n_times
 from harness_utils.steam import get_app_install_location, get_build_id
-
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"

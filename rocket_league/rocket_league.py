@@ -1,32 +1,33 @@
 """Rocket League test script"""
 
-import logging
-import time
-from subprocess import Popen
-import sys
 import getpass
+import logging
+import sys
+import time
 from pathlib import Path
+from subprocess import Popen
+
 import vgamepad as vg
 from rocket_league_utils import (
-    get_resolution,
     copy_replay,
     find_epic_executable,
     get_args,
+    get_resolution,
 )
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.keras_service import KerasService
+from harness_utils.misc import LTTGamePadDS4, find_eg_game_version
 from harness_utils.output import (
-    setup_logging,
-    write_report_json,
     format_resolution,
     seconds_to_milliseconds,
+    setup_logging,
+    write_report_json,
 )
 from harness_utils.process import terminate_processes
-from harness_utils.keras_service import KerasService
-from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.misc import LTTGamePadDS4, find_eg_game_version
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
