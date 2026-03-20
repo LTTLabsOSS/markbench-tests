@@ -12,8 +12,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.helper import find_word
-from harness_utils.misc import press_n_times
+from harness_utils.helper import find_word, press
 from harness_utils.output import (
     seconds_to_milliseconds,
     setup_logging,
@@ -37,166 +36,6 @@ def start_game():
     )
 
 
-def navigate_to_settings():
-    """navigate from main menu to settings menu"""
-    logging.info("Navigating main menu")
-    result = find_word("continue", timeout=10)
-    if not result:
-        # an account with no save game has less menu options, so just press left and enter settings
-        user.press("left")
-        time.sleep(0.5)
-        user.press("enter")
-        time.sleep(0.5)
-    else:
-        user.press("left")
-        time.sleep(0.5)
-        user.press("down")
-        time.sleep(0.5)
-        user.press("enter")
-        time.sleep(0.5)
-
-
-def check_for_rt():
-    """Checks for if RT is enabled"""
-    result = find_word("reflections", interval=1, timeout=2)
-    if result:
-        press_n_times("down", 3, 0.2)
-        am.take_screenshot(
-            "graphics_rt.png", ArtifactType.CONFIG_IMAGE, "graphics menu rt"
-        )
-    if not result:
-        result = find_word("path", interval=1, timeout=2)
-        if result:
-            user.press("down")
-            am.take_screenshot(
-                "graphics_pt.png",
-                ArtifactType.CONFIG_IMAGE,
-                "graphics menu path tracing",
-            )
-
-
-def check_anisotropy(max_attempts=10):
-    """Continuously looks for a word. If not found in time, presses a button."""
-    for _ in range(max_attempts):
-        found = find_word("anisotropy", interval=1, timeout=5)
-
-        if found:
-            return True  # Stop checking
-
-        # If not found, press the button once
-        user.press("down")
-
-        # Short delay before rechecking
-        time.sleep(0.5)
-
-    logging.info(
-        "Max attempts reached for checking the camera. Did the game load the save?"
-    )
-    sys.exit(1)  # Word was not found
-
-
-def navigate_settings() -> None:
-    """Simulate inputs to navigate the main menu"""
-    navigate_to_settings()
-    result = find_word("volume", interval=3, timeout=20)
-    if not result:
-        logging.info(
-            "Did not see the volume options. Did the game navigate to the settings menu correctly?"
-        )
-        sys.exit(1)
-    # entered settings
-    user.press("3")
-    time.sleep(0.5)
-    user.press("3")
-    time.sleep(0.5)
-    user.press("3")
-    time.sleep(0.5)
-
-    result = find_word("preset", interval=3, timeout=20)
-    if not result:
-        logging.info(
-            "Did not see preset options. Did the game navigate to the graphics menu correctly?"
-        )
-        sys.exit(1)
-    # now on graphics tab
-    am.take_screenshot("graphics_1.png", ArtifactType.CONFIG_IMAGE, "graphics menu 1")
-
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")  # gets you to film grain
-    time.sleep(0.5)
-
-    dlss = find_word("dlss", interval=1, timeout=2)
-    if dlss:
-        result = find_word("multi", interval=1, timeout=2)
-        if result:
-            user.press("down")
-        press_n_times(
-            "down", 2, 0.2
-        )  # gets you to film grain usually except for combined with RT
-        result = find_word("grain", interval=1, timeout=2)
-        if not result:
-            user.press("down")
-
-    fsr = find_word("amd", interval=1, timeout=2)
-    if fsr:
-        user.press("down")  # gets you to film grain
-
-    xess = find_word("intel", interval=1, timeout=2)
-    if xess:
-        user.press("down")  # gets you to film grain
-
-    check_for_rt()
-
-    for _ in range(7):
-        user.press("down")
-        time.sleep(0.5)
-
-    check_anisotropy()
-
-    am.take_screenshot("graphics_2.png", ArtifactType.CONFIG_IMAGE, "graphics menu 2")
-
-    for _ in range(11):
-        user.press("down")
-        time.sleep(0.5)
-
-    result = find_word("occlusion", interval=3, timeout=20)
-    if not result:
-        logging.info(
-            "Did not see ambient occlusion options. Did the game navigate to the graphics menu correctly?"
-        )
-        sys.exit(1)
-    am.take_screenshot("graphics_3.png", ArtifactType.CONFIG_IMAGE, "graphics menu 3")
-
-    for _ in range(3):
-        user.press("down")
-        time.sleep(0.5)
-
-    result = find_word("level", interval=3, timeout=20)
-    if not result:
-        logging.info(
-            "Did not see LOD options. Did the game navigate to the graphics menu correctly?"
-        )
-        sys.exit(1)
-    am.take_screenshot("graphics_4.png", ArtifactType.CONFIG_IMAGE, "graphics menu 4")
-
-    user.press("3")
-    time.sleep(0.5)
-
-    result = find_word("resolution", interval=3, timeout=20)
-    if not result:
-        logging.info(
-            "Did not see preset options. Did the game navigate to the graphics menu correctly?"
-        )
-        sys.exit(1)
-    # now on video tab
-    am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "video menu")
-
-    user.press("b")
-    time.sleep(0.5)
-    user.press("enter")
-
-
 def run_benchmark():
     """Start the benchmark"""
     copy_no_intro_mod()
@@ -212,7 +51,117 @@ def run_benchmark():
         logging.info("Did not see settings menu option.")
         sys.exit(1)
 
-    navigate_settings()
+    logging.info("Navigating main menu")
+    result = find_word("continue", timeout=10)
+    if not result:
+        # an account with no save game has less menu options, so just press left and enter settings
+        press("left, enter")
+    else:
+        press("left, down, enter")
+
+    result = find_word("volume", interval=3, timeout=20)
+    if not result:
+        logging.info(
+            "Did not see the volume options. Did the game navigate to the settings menu correctly?"
+        )
+        sys.exit(1)
+    # entered settings
+    press("3*3")
+
+    result = find_word("preset", interval=3, timeout=20)
+    if not result:
+        logging.info(
+            "Did not see preset options. Did the game navigate to the graphics menu correctly?"
+        )
+        sys.exit(1)
+    # now on graphics tab
+    am.take_screenshot("graphics_1.png", ArtifactType.CONFIG_IMAGE, "graphics menu 1")
+
+    press("down*2")  # gets you to film grain
+
+    dlss = find_word("dlss", interval=1, timeout=2)
+    if dlss:
+        result = find_word("multi", interval=1, timeout=2)
+        if result:
+            user.press("down")
+        press(
+            "down*2", pause=0.2
+        )  # gets you to film grain usually except for combined with RT
+        result = find_word("grain", interval=1, timeout=2)
+        if not result:
+            user.press("down")
+
+    fsr = find_word("amd", interval=1, timeout=2)
+    if fsr:
+        user.press("down")  # gets you to film grain
+
+    xess = find_word("intel", interval=1, timeout=2)
+    if xess:
+        user.press("down")  # gets you to film grain
+
+    result = find_word("reflections", interval=1, timeout=2)
+    if result:
+        press("down*3", pause=0.2)
+        am.take_screenshot(
+            "graphics_rt.png", ArtifactType.CONFIG_IMAGE, "graphics menu rt"
+        )
+    if not result:
+        result = find_word("path", interval=1, timeout=2)
+        if result:
+            user.press("down")
+            am.take_screenshot(
+                "graphics_pt.png",
+                ArtifactType.CONFIG_IMAGE,
+                "graphics menu path tracing",
+            )
+
+    press("down*7")
+
+    for _ in range(10):
+        if find_word("anisotropy", interval=1, timeout=5):
+            break
+        press("down")
+    else:
+        logging.info(
+            "Max attempts reached for checking the camera. Did the game load the save?"
+        )
+        sys.exit(1)
+
+    am.take_screenshot("graphics_2.png", ArtifactType.CONFIG_IMAGE, "graphics menu 2")
+
+    press("down*11")
+
+    result = find_word("occlusion", interval=3, timeout=20)
+    if not result:
+        logging.info(
+            "Did not see ambient occlusion options. Did the game navigate to the graphics menu correctly?"
+        )
+        sys.exit(1)
+    am.take_screenshot("graphics_3.png", ArtifactType.CONFIG_IMAGE, "graphics menu 3")
+
+    press("down*3")
+
+    result = find_word("level", interval=3, timeout=20)
+    if not result:
+        logging.info(
+            "Did not see LOD options. Did the game navigate to the graphics menu correctly?"
+        )
+        sys.exit(1)
+    am.take_screenshot("graphics_4.png", ArtifactType.CONFIG_IMAGE, "graphics menu 4")
+
+    press("3")
+
+    result = find_word("resolution", interval=3, timeout=20)
+    if not result:
+        logging.info(
+            "Did not see preset options. Did the game navigate to the graphics menu correctly?"
+        )
+        sys.exit(1)
+    # now on video tab
+    am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "video menu")
+
+    press("b")
+    user.press("enter")
 
     # Start the benchmark!
     setup_end_time = int(time.time())
