@@ -12,7 +12,7 @@ import dxcam
 import mss
 import numpy as np
 import requests
-from helper import get_ocr_args
+from harness_utils.helper import get_ocr_args
 
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
