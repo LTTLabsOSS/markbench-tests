@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 
 import pydirectinput as user
-from cyberpunk_utils import copy_no_intro_mod, get_args, read_current_resolution
+from cyberpunk_utils import copy_no_intro_mod, read_current_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -249,8 +249,7 @@ def run_benchmark():
 
 setup_logging(LOG_DIRECTORY)
 
-args = get_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
+kerasService = KerasService()
 am = ArtifactManager(LOG_DIRECTORY)
 
 try:
