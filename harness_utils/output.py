@@ -4,7 +4,7 @@ import json
 import logging
 from pathlib import Path
 
-DEFAULT_LOGGING_FORMAT = "[%(levelname)s] (%(asctime)s) %(message)s"
+DEFAULT_LOGGING_FORMAT = "[%(levelname)s] [%(name)s] (%(asctime)s) %(message)s"
 DEFAULT_DATE_FORMAT = "%H:%M:%S"
 
 
