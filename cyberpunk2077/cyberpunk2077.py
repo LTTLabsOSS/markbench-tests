@@ -12,7 +12,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.helper import find_word
 from harness_utils.misc import press_n_times
 from harness_utils.output import (
     seconds_to_milliseconds,
@@ -40,7 +40,7 @@ def start_game():
 def navigate_to_settings():
     """navigate from main menu to settings menu"""
     logging.info("Navigating main menu")
-    result = kerasService.look_for_word("continue", attempts=10)
+    result = find_word("continue", timeout=10)
     if not result:
         # an account with no save game has less menu options, so just press left and enter settings
         user.press("left")
@@ -58,14 +58,14 @@ def navigate_to_settings():
 
 def check_for_rt():
     """Checks for if RT is enabled"""
-    result = kerasService.wait_for_word("reflections", interval=1, timeout=2)
+    result = find_word("reflections", interval=1, timeout=2)
     if result:
         press_n_times("down", 3, 0.2)
         am.take_screenshot(
             "graphics_rt.png", ArtifactType.CONFIG_IMAGE, "graphics menu rt"
         )
     if not result:
-        result = kerasService.wait_for_word("path", interval=1, timeout=2)
+        result = find_word("path", interval=1, timeout=2)
         if result:
             user.press("down")
             am.take_screenshot(
@@ -76,10 +76,9 @@ def check_for_rt():
 
 
 def check_anisotropy(max_attempts=10):
-    """Continuously looks for a word using kerasService. If not found in the given time, presses a button."""
+    """Continuously looks for a word. If not found in time, presses a button."""
     for _ in range(max_attempts):
-        # Try finding the word within check_duration seconds
-        found = kerasService.look_for_word(word="anisotropy", attempts=10, interval=0.5)
+        found = find_word("anisotropy", interval=1, timeout=5)
 
         if found:
             return True  # Stop checking
@@ -99,10 +98,10 @@ def check_anisotropy(max_attempts=10):
 def navigate_settings() -> None:
     """Simulate inputs to navigate the main menu"""
     navigate_to_settings()
-    result = kerasService.wait_for_word("volume", interval=3, timeout=20)
+    result = find_word("volume", interval=3, timeout=20)
     if not result:
         logging.info(
-            "Did not see the volume options. Did keras navigate to the settings menu correctly?"
+            "Did not see the volume options. Did the game navigate to the settings menu correctly?"
         )
         sys.exit(1)
     # entered settings
@@ -113,7 +112,7 @@ def navigate_settings() -> None:
     user.press("3")
     time.sleep(0.5)
 
-    result = kerasService.wait_for_word("preset", interval=3, timeout=20)
+    result = find_word("preset", interval=3, timeout=20)
     if not result:
         logging.info(
             "Did not see preset options. Did the game navigate to the graphics menu correctly?"
@@ -127,23 +126,23 @@ def navigate_settings() -> None:
     user.press("down")  # gets you to film grain
     time.sleep(0.5)
 
-    dlss = kerasService.wait_for_word("dlss", interval=1, timeout=2)
+    dlss = find_word("dlss", interval=1, timeout=2)
     if dlss:
-        result = kerasService.wait_for_word("multi", interval=1, timeout=2)
+        result = find_word("multi", interval=1, timeout=2)
         if result:
             user.press("down")
         press_n_times(
             "down", 2, 0.2
         )  # gets you to film grain usually except for combined with RT
-        result = kerasService.wait_for_word("grain", interval=1, timeout=2)
+        result = find_word("grain", interval=1, timeout=2)
         if not result:
             user.press("down")
 
-    fsr = kerasService.wait_for_word("amd", interval=1, timeout=2)
+    fsr = find_word("amd", interval=1, timeout=2)
     if fsr:
         user.press("down")  # gets you to film grain
 
-    xess = kerasService.wait_for_word("intel", interval=1, timeout=2)
+    xess = find_word("intel", interval=1, timeout=2)
     if xess:
         user.press("down")  # gets you to film grain
 
@@ -161,7 +160,7 @@ def navigate_settings() -> None:
         user.press("down")
         time.sleep(0.5)
 
-    result = kerasService.wait_for_word("occlusion", interval=3, timeout=20)
+    result = find_word("occlusion", interval=3, timeout=20)
     if not result:
         logging.info(
             "Did not see ambient occlusion options. Did the game navigate to the graphics menu correctly?"
@@ -173,7 +172,7 @@ def navigate_settings() -> None:
         user.press("down")
         time.sleep(0.5)
 
-    result = kerasService.wait_for_word("level", interval=3, timeout=20)
+    result = find_word("level", interval=3, timeout=20)
     if not result:
         logging.info(
             "Did not see LOD options. Did the game navigate to the graphics menu correctly?"
@@ -184,7 +183,7 @@ def navigate_settings() -> None:
     user.press("3")
     time.sleep(0.5)
 
-    result = kerasService.wait_for_word("resolution", interval=3, timeout=20)
+    result = find_word("resolution", interval=3, timeout=20)
     if not result:
         logging.info(
             "Did not see preset options. Did the game navigate to the graphics menu correctly?"
@@ -208,7 +207,7 @@ def run_benchmark():
 
     time.sleep(20)
 
-    result = kerasService.wait_for_word("new", interval=3, timeout=60)
+    result = find_word("new", interval=3, timeout=60)
     if not result:
         logging.info("Did not see settings menu option.")
         sys.exit(1)
@@ -220,7 +219,7 @@ def run_benchmark():
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
 
-    result = kerasService.wait_for_word("fps", timeout=60, interval=0.2)
+    result = find_word("fps", timeout=60, interval=0)
     if not result:
         logging.info("Benchmark didn't start.")
         sys.exit(1)
@@ -229,7 +228,7 @@ def run_benchmark():
 
     logging.info("Benchmark started. Waiting for benchmark to complete.")
     time.sleep(60)
-    result = kerasService.wait_for_word("results", timeout=240, interval=0.5)
+    result = find_word("results", timeout=240, interval=1)
     if not result:
         logging.info("Did not see results screen. Mark as DNF.")
         sys.exit(1)
@@ -249,7 +248,6 @@ def run_benchmark():
 
 setup_logging(LOG_DIRECTORY)
 
-kerasService = KerasService()
 am = ArtifactManager(LOG_DIRECTORY)
 
 try:
