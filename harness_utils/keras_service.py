@@ -12,6 +12,7 @@ import dxcam
 import mss
 import numpy as np
 import requests
+from helper import get_ocr_args
 
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -57,8 +58,13 @@ class KerasService:
     """Sets up connection to a Keras service and provides methods to use it"""
 
     def __init__(
-        self, ip_addr: str, port: int | str, timeout: float = DEFAULT_TIMEOUT
-    ) -> None:
+        self,
+        ip_addr: str | None = None,
+        port: int | str | None = None,
+        timeout: float = DEFAULT_TIMEOUT,
+    ):
+        if ip_addr is None and port is None:
+            ip_addr, port = get_ocr_args()
         self.ip_addr = ip_addr
         self.port = str(port)
         self.url = f"http://{ip_addr}:{str(port)}/process"
