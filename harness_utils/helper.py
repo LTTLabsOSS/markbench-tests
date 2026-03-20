@@ -1,45 +1,124 @@
+import io
+import json
 import logging
 import tomllib
 from argparse import ArgumentParser
 from functools import lru_cache
 from pathlib import Path
+from time import monotonic, sleep
+from typing import Any
+
+import cv2
+import dxcam
+import mss
+import numpy as np
+import requests
 
 CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "configs" / "config.toml"
+OCR_REQUEST_TIMEOUT = 5
 
 
 @lru_cache(maxsize=1)
-def get_ocr_args():
-    logging.debug("Checking OCR config path: %s", CONFIG_PATH)
+def get_ocr_url(
+    ip_addr: str | None = None,
+    port: int | str | None = None,
+) -> str:
+    host = "127.0.0.1"
+    ocr_port = "8000"
 
     if CONFIG_PATH.exists():
-        logging.debug("Found OCR config file. Using config branch.")
         with CONFIG_PATH.open("rb") as f:
             data = tomllib.load(f)
             ocr = data.get("ocr", {})
-            host = str(ocr.get("host", "127.0.0.1"))
-            port = str(ocr.get("port", 8000))
-            logging.debug(
-                "Resolved OCR args from config/defaults: host=%s, port=%s", host, port
-            )
-            return [host, port]
+            host = str(ocr.get("host", host))
+            ocr_port = str(ocr.get("port", ocr_port))
+        logging.debug("Found OCR config file. Using config/default values.")
+    else:
+        logging.debug("OCR config file not found. Falling back to CLI args.")
+        parser = ArgumentParser()
+        parser.add_argument(
+            "--kerasHost",
+            dest="keras_host",
+            help="Host for Keras OCR service",
+            required=True,
+        )
+        parser.add_argument(
+            "--kerasPort",
+            dest="keras_port",
+            help="Port for Keras OCR service",
+            required=True,
+        )
+        args = parser.parse_args()
+        host = str(args.keras_host)
+        ocr_port = str(args.keras_port)
 
-    logging.debug("OCR config file not found. Falling back to CLI args.")
+    host = str(ip_addr) if ip_addr is not None else host
+    ocr_port = str(port) if port is not None else ocr_port
+    logging.debug("Resolved OCR url: host=%s, port=%s", host, ocr_port)
+    return f"http://{host}:{ocr_port}/process"
 
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    args = parser.parse_args()
-    logging.debug(
-        "Resolved OCR args from CLI: host=%s, port=%s", args.keras_host, args.keras_port
-    )
-    return [str(args.keras_host), str(args.keras_port)]
+
+def _capture_ocr_screenshot():
+    with mss.mss() as sct:
+        monitor_1 = sct.monitors[1]
+        screenshot = np.array(sct.grab(monitor_1))
+        screenshot = cv2.cvtColor(screenshot, cv2.COLOR_RGB2GRAY)
+
+    _, encoded_image = cv2.imencode(".jpg", screenshot)
+    return io.BytesIO(encoded_image)
+
+
+def _capture_vulkan_screenshot():
+    camera = dxcam.create(output_idx=0)
+    frame = camera.grab()
+    if frame is None:
+        return None
+
+    screenshot = np.array(frame)
+    screenshot = cv2.cvtColor(screenshot, cv2.COLOR_RGB2GRAY)
+    _, encoded_image = cv2.imencode(".jpg", screenshot)
+    return io.BytesIO(encoded_image)
+
+
+def _query_ocr_service(word: str, vulkan: bool = False) -> Any:
+    try:
+        image_bytes = (
+            _capture_vulkan_screenshot() if vulkan else _capture_ocr_screenshot()
+        )
+        if image_bytes is None:
+            return None
+
+        response = requests.post(
+            get_ocr_url(),
+            data={"word": word},
+            files={"file": image_bytes},
+            timeout=OCR_REQUEST_TIMEOUT,
+        )
+        if not response.ok or "not found" in response.text:
+            return None
+
+        return json.loads(response.text)
+    except Exception:
+        logging.exception("OCR query failed for word=%s", word)
+        return None
+
+
+def find_word(
+    word: str,
+    vulkan: bool = False,
+    interval: int = 0,
+    timeout: int = 0,
+) -> Any:
+    if timeout <= 0:
+        return _query_ocr_service(word, vulkan)
+
+    start_time = monotonic()
+
+    while monotonic() - start_time < timeout:
+        result = _query_ocr_service(word, vulkan)
+        if result is not None:
+            return result
+
+        sleep(interval)
+
+    return None

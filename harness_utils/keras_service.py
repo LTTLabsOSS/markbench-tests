@@ -12,7 +12,8 @@ import dxcam
 import mss
 import numpy as np
 import requests
-from harness_utils.helper import get_ocr_args
+
+from harness_utils.helper import get_ocr_url
 
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -63,11 +64,7 @@ class KerasService:
         port: int | str | None = None,
         timeout: float = DEFAULT_TIMEOUT,
     ):
-        if ip_addr is None and port is None:
-            ip_addr, port = get_ocr_args()
-        self.ip_addr = ip_addr
-        self.port = str(port)
-        self.url = f"http://{ip_addr}:{str(port)}/process"
+        self.url = get_ocr_url(ip_addr, port)
         self.timeout = timeout
 
     def _capture_screenshot(self, split_config: ScreenSplitConfig) -> io.BytesIO:
