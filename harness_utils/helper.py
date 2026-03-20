@@ -108,17 +108,14 @@ def find_word(
     vulkan: bool = False,
     interval: int = 0,
     timeout: int = 0,
-) -> Any:
-    if timeout <= 0:
-        return _query_ocr_service(word, vulkan)
+):
 
     start_time = monotonic()
-
-    while monotonic() - start_time < timeout:
+    while True:
         result = _query_ocr_service(word, vulkan)
         if result is not None:
+            logging.debug(str(result))
             return result
-
+        if monotonic() > start_time + timeout:
+            return None
         sleep(interval)
-
-    return None
