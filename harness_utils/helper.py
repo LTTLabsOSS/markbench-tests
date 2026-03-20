@@ -12,10 +12,13 @@ import cv2
 import dxcam
 import mss
 import numpy as np
+import pydirectinput as user
 import requests
 
 CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "configs" / "config.toml"
 OCR_REQUEST_TIMEOUT = 5
+
+user.FAILSAFE = False
 
 
 @lru_cache(maxsize=1)
@@ -119,3 +122,39 @@ def find_word(
         if monotonic() > start_time + timeout:
             return None
         sleep(interval)
+
+
+def press(sequence: str, pause: float = 0.5) -> None:
+    """Press keys described by a comma-separated sequence like ``up*2, down*3``."""
+    steps = [step.strip() for step in sequence.split(",")]
+
+    for step in steps:
+        if not step:
+            continue
+
+        key, separator, count_text = step.partition("*")
+        key = key.strip()
+        if not key:
+            continue
+
+        count = 1
+        if separator:
+            count_text = count_text.strip()
+            if not count_text:
+                logging.warning(
+                    "Skipping press step with missing repeat count: %r", step
+                )
+                continue
+            if not count_text.isdigit():
+                logging.warning(
+                    "Skipping press step with invalid repeat count: %r", step
+                )
+                continue
+            count = int(count_text)
+            if count < 1:
+                logging.warning(
+                    "Skipping press step with non-positive repeat count: %r", step
+                )
+                continue
+
+        user.press(key, presses=count, interval=pause)
