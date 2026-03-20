@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from functools import lru_cache
 from pathlib import Path
 
-CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "config" / "config.toml"
+CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "configs" / "config.toml"
 
 
 def get_ocr_args():
