@@ -9,21 +9,21 @@ CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "configs" / "confi
 
 @lru_cache(maxsize=1)
 def get_ocr_args():
-    logging.info("Checking OCR config path: %s", CONFIG_PATH)
+    logging.debug("Checking OCR config path: %s", CONFIG_PATH)
 
     if CONFIG_PATH.exists():
-        logging.info("Found OCR config file. Using config branch.")
+        logging.debug("Found OCR config file. Using config branch.")
         with CONFIG_PATH.open("rb") as f:
             data = tomllib.load(f)
             ocr = data.get("ocr", {})
             host = str(ocr.get("host", "127.0.0.1"))
             port = str(ocr.get("port", 8000))
-            logging.info(
+            logging.debug(
                 "Resolved OCR args from config/defaults: host=%s, port=%s", host, port
             )
             return [host, port]
 
-    logging.info("OCR config file not found. Falling back to CLI args.")
+    logging.debug("OCR config file not found. Falling back to CLI args.")
 
     parser = ArgumentParser()
     parser.add_argument(
@@ -39,7 +39,7 @@ def get_ocr_args():
         required=True,
     )
     args = parser.parse_args()
-    logging.info(
+    logging.debug(
         "Resolved OCR args from CLI: host=%s, port=%s", args.keras_host, args.keras_port
     )
     return [str(args.keras_host), str(args.keras_port)]
