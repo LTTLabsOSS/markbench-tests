@@ -111,8 +111,8 @@ def find_word(
     vulkan: bool = False,
     interval: int = 0,
     timeout: int = 0,
+    msg: str | None = None,
 ):
-
     start_time = monotonic()
     while True:
         result = _query_ocr_service(word, vulkan)
@@ -120,11 +120,12 @@ def find_word(
             logging.debug(str(result))
             return result
         if monotonic() > start_time + timeout:
+            logging.info(msg or f"did not find {word}")
             return None
         sleep(interval)
 
 
-def press(sequence: str, pause: float = 0.5) -> None:
+def press(sequence: str, pause: float = 0.3) -> None:
     """Press keys described by a comma-separated sequence like ``up*2, down*3``."""
     steps = [step.strip() for step in sequence.split(",")]
 
