@@ -63,10 +63,9 @@ def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
 
     am.take_screenshot("02_graphics_presets.png", ArtifactType.CONFIG_IMAGE)
 
-    while not find_word("density", timeout=0):
+    while not find_word("vignette", timeout=0):
         press("down")
-
-    press("down*7")
+        
     am.take_screenshot("03_graphics_basic.png", ArtifactType.CONFIG_IMAGE)
 
     press("down*11")
