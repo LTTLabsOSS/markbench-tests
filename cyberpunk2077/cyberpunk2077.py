@@ -65,7 +65,7 @@ def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
 
     while not find_word("vignette", timeout=0):
         press("down")
-        
+
     am.take_screenshot("03_graphics_basic.png", ArtifactType.CONFIG_IMAGE)
 
     press("down*11")
@@ -97,7 +97,7 @@ def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
 
     logging.info("Benchmark started. Waiting for benchmark to complete.")
     time.sleep(60)
-    if not find_word("results", timeout=240, interval=1):
+    if not find_word("results", timeout=60, interval=1):
         return FAILED_RUN
 
     am.take_screenshot("07_results.png", ArtifactType.RESULTS_IMAGE)
