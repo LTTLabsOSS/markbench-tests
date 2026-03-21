@@ -5,7 +5,6 @@ import os
 import re
 import shutil
 import sys
-from argparse import ArgumentParser
 from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
@@ -15,24 +14,6 @@ from harness_utils.steam import get_app_install_location
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 STEAM_GAME_ID = 1091500
 CYBERPUNK_INSTALL_DIR = get_app_install_location(STEAM_GAME_ID)
-
-
-def get_args():
-    """Returns command line arg values"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    return parser.parse_args()
 
 
 def copy_from_network_drive():
