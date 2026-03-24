@@ -10,7 +10,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.helper import find_word, press
+from harness_utils.helper import FAILED_RUN, find_word, press
 from harness_utils.output import (
     seconds_to_milliseconds,
     setup_logging,
@@ -23,7 +23,6 @@ STEAM_GAME_ID = 1091500
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "cyberpunk2077.exe"
-FAILED_RUN = (0, 0)
 
 user.FAILSAFE = False
 

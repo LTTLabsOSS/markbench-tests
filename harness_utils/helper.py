@@ -17,6 +17,7 @@ import requests
 
 CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "configs" / "config.toml"
 OCR_REQUEST_TIMEOUT = 5
+FAILED_RUN = (0, 0)
 
 user.FAILSAFE = False
 

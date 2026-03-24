@@ -13,7 +13,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.helper import find_word, press
+from harness_utils.helper import FAILED_RUN, find_word, press
 from harness_utils.misc import remove_files
 from harness_utils.output import (
     format_resolution,
@@ -39,7 +39,6 @@ CONFIG_PATH = f"C:\\Users\\{username}\\Documents\\My Games\\F1 24\\hardwaresetti
 CONFIG_FILENAME = "hardware_settings_config.xml"
 CONFIG = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
 BENCHMARK_RESULTS_PATH = f"C:\\Users\\{username}\\Documents\\My Games\\F1 24\\benchmark"
-FAILED_RUN = (0, 0)
 
 intro_videos = [VIDEO_PATH / "attract.bk2", VIDEO_PATH / "cm_f1_sting.bk2"]
 
