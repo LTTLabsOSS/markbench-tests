@@ -39,6 +39,7 @@ CONFIG_PATH = f"C:\\Users\\{username}\\Documents\\My Games\\F1 24\\hardwaresetti
 CONFIG_FILENAME = "hardware_settings_config.xml"
 CONFIG = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
 BENCHMARK_RESULTS_PATH = f"C:\\Users\\{username}\\Documents\\My Games\\F1 24\\benchmark"
+FAILED_RUN = (0, 0)
 
 intro_videos = [VIDEO_PATH / "attract.bk2", VIDEO_PATH / "cm_f1_sting.bk2"]
 
@@ -54,151 +55,120 @@ def find_latest_result_file(base_path):
     return max(result_files, key=lambda path: path.stat().st_mtime)
 
 
-def find_settings() -> any:
-    """Look for and enter settings"""
-    if not find_word("settings", timeout=15, interval=3):
-        logging.info("Didn't find settings!")
-        sys.exit(1)
-    press("enter")
-    time.sleep(1.5)
+def launch_game() -> None:
+    """Handle pre-game setup and launch F1 24."""
+    remove_files([str(path) for path in intro_videos])
+    exec_steam_run_command(STEAM_GAME_ID)
 
 
-def find_graphics() -> any:
-    """Look for and enter graphics settings"""
-    if not find_word("graphics", timeout=15, interval=3):
-        logging.info("Didn't find graphics!")
-        sys.exit(1)
-    press("right, enter")
-    time.sleep(1.5)
+def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
+    """Runs the actual benchmark."""
+    launch_game()
+    time.sleep(2)
 
+    if not find_word(
+        "product",
+        timeout=80,
+    ):
+        return FAILED_RUN
 
-def navigate_startup():
-    """press space through the warnings and navigate startup menus"""
-    result = find_word("product", timeout=80)
-    if not result:
-        logging.info("Game didn't start in time. Check settings and try again.")
-        sys.exit(1)
-
-    press("space, space, space")
+    press("space*3")
     time.sleep(4)
 
-    # Press enter to proceed to the main menu
-    result = find_word("press", interval=2, timeout=80)
-    if not result:
-        logging.info("Game didn't start in time. Check settings and try again.")
-        sys.exit(1)
+    if not find_word(
+        "press",
+        interval=2,
+        timeout=80,
+    ):
+        return FAILED_RUN
 
     logging.info("Hit the title screen. Continuing")
     press("enter")
     time.sleep(1)
 
-    # cancel logging into ea services
-    result = find_word("login", timeout=50)
-    if result:
+    if find_word("login", timeout=50):
         logging.info("Cancelling logging in.")
         press("enter")
         time.sleep(2)
 
+    if find_word("signed", timeout=50):
+        press("enter")
 
-def offline_menu():
-    """Navigateout of the offline menu"""
-    result = find_word("signed", timeout=50)
-    if not result:
-        logging.info("Didn't find the keyword 'signed'")
-        return
-    press("enter")
-
-
-def run_benchmark():
-    """Runs the actual benchmark."""
-    remove_files([str(path) for path in intro_videos])
-    exec_steam_run_command(STEAM_GAME_ID)
-    am = ArtifactManager(LOG_DIRECTORY)
-
-    setup_start_time = int(time.time())
-    time.sleep(2)
-    navigate_startup()
-
-    offline_menu()
-
-    # Navigate menus and take screenshots using the artifact manager
-    result = find_word("theatre", interval=3, timeout=60)
-    if not result:
-        logging.info("Didn't land on the main menu!")
-        sys.exit(1)
+    if not find_word(
+        "theatre",
+        interval=3,
+        timeout=60,
+    ):
+        return FAILED_RUN
 
     logging.info("Saw the options! we are good to go!")
     time.sleep(1)
 
     press("down*6, enter")
     time.sleep(2)
-    # find_settings()
-    find_graphics()
 
-    # Navigate to video settings
+    if not find_word(
+        "graphics",
+        timeout=15,
+        interval=3,
+    ):
+        return FAILED_RUN
+    press("right, enter")
+    time.sleep(1.5)
+
     press("down*3, enter")
 
-    result = find_word("vsync", interval=3, timeout=60)
-    if not result:
-        logging.info(
-            "Didn't find the keyword 'vsync'. Did the program navigate to the video mode menu correctly?"
-        )
-        sys.exit(1)
+    if not find_word(
+        "vsync",
+        interval=3,
+        timeout=60,
+    ):
+        return FAILED_RUN
     press("down*18")
 
-    am.take_screenshot(
-        "video.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings menu"
-    )
+    am.take_screenshot("01_video.png", ArtifactType.CONFIG_IMAGE)
     press("esc")
 
-    result = find_word("steering", interval=3, timeout=60)
-    if not result:
-        logging.info(
-            "Didn't find the keyword 'steering'. Did the program exit the video mode menu correctly?"
-        )
-        sys.exit(1)
+    if not find_word(
+        "steering",
+        interval=3,
+        timeout=60,
+    ):
+        return FAILED_RUN
 
-    # Navigate through graphics settings and take screenshots of all settings contained within
-    am.take_screenshot(
-        "graphics_1.png",
-        ArtifactType.CONFIG_IMAGE,
-        "first screenshot of graphics settings",
-    )
+    am.take_screenshot("02_graphics_1.png", ArtifactType.CONFIG_IMAGE)
     press("down*29")
 
-    result = find_word("chromatic", interval=3, timeout=60)
-    if not result:
-        logging.info(
-            "Didn't find the keyword 'chromatic'. Did we navigate the menu correctly?"
-        )
-        sys.exit(1)
+    if not find_word(
+        "chromatic",
+        interval=3,
+        timeout=60,
+    ):
+        return FAILED_RUN
 
-    am.take_screenshot(
-        "graphics_2.png",
-        ArtifactType.CONFIG_IMAGE,
-        "second screenshot of graphics settings",
-    )
+    am.take_screenshot("03_graphics_2.png", ArtifactType.CONFIG_IMAGE)
     press("up*28, enter")
 
     # Navigate benchmark menu
-    if not find_word("weather", timeout=15, interval=3):
-        logging.info("Didn't find weather!")
-        sys.exit(1)
+    if not find_word(
+        "weather",
+        timeout=15,
+        interval=3,
+        msg="Didn't find weather!",
+    ):
+        return FAILED_RUN
 
-    am.take_screenshot(
-        "benchmark.png", ArtifactType.CONFIG_IMAGE, "screenshot of benchmark settings"
-    )
+    am.take_screenshot("04_benchmark.png", ArtifactType.CONFIG_IMAGE)
 
     press("down*6, enter")
     time.sleep(2)
 
-    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
-
-    result = find_word("lap", interval=0.5, timeout=90)
-    if not result:
-        logging.info("Benchmark didn't start.")
-        sys.exit(1)
+    if not find_word(
+        "lap",
+        timeout=90,
+        msg="Benchmark didn't start.",
+    ):
+        return FAILED_RUN
 
     logging.info("Benchmark started. Waiting for benchmark to complete.")
     test_start_time = int(time.time()) + 8
@@ -208,7 +178,7 @@ def run_benchmark():
 
     test_end_time = None
 
-    result = find_word("loading", interval=0.5, timeout=90)
+    result = find_word("loading", timeout=90)
     if result:
         logging.info("Found the loading screen. Marking the out time.")
         test_end_time = int(time.time()) - 2
@@ -216,18 +186,15 @@ def run_benchmark():
     else:
         logging.info("Could not find the loading screen. Could not mark end time!")
 
-    result = find_word("results", interval=3, timeout=90)
-    if not result:
-        logging.info(
-            "Results screen was not found!"
-            + "Did harness not wait long enough? Or test was too long?"
-        )
-        sys.exit(1)
+    if not find_word(
+        "results",
+        interval=3,
+        timeout=90,
+    ):
+        return FAILED_RUN
     logging.info("Results screen was found! Finishing benchmark.")
     results_file = find_latest_result_file(BENCHMARK_RESULTS_PATH)
-    am.take_screenshot(
-        "result.png", ArtifactType.RESULTS_IMAGE, "screenshot of results"
-    )
+    am.take_screenshot("05_results.png", ArtifactType.RESULTS_IMAGE)
     am.copy_file(CONFIG, ArtifactType.CONFIG_TEXT, "config file")
     am.copy_file(results_file, ArtifactType.RESULTS_TEXT, "benchmark results xml file")
 
@@ -237,30 +204,41 @@ def run_benchmark():
         )
         test_end_time = int(time.time())
 
-    elapsed_test_time = round(test_end_time - test_start_time, 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
-
-    terminate_processes(PROCESS_NAME)
-    am.create_manifest()
-
     return test_start_time, test_end_time
 
 
-setup_logging(LOG_DIRECTORY)
+def main() -> None:
+    """Run the F1 24 benchmark harness."""
+    setup_logging(LOG_DIRECTORY)
+    am = ArtifactManager(LOG_DIRECTORY)
+    report = None
+    exit_code = 0
 
-try:
-    start_time, end_time = run_benchmark()
-    width, height = get_resolution()
-    report = {
-        "resolution": format_resolution(width, height),
-        "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time),
-        "version": get_build_id(STEAM_GAME_ID),
-    }
+    try:
+        start_time, end_time = run_benchmark(am)
+        if (start_time, end_time) == FAILED_RUN:
+            exit_code = 1
+        else:
+            width, height = get_resolution()
+            report = {
+                "resolution": format_resolution(width, height),
+                "start_time": seconds_to_milliseconds(start_time),
+                "end_time": seconds_to_milliseconds(end_time),
+                "version": get_build_id(STEAM_GAME_ID),
+            }
+    except Exception as e:
+        logging.error("Something went wrong running the benchmark!")
+        logging.exception(e)
+        exit_code = 1
+    finally:
+        am.create_manifest()
+        if report is not None:
+            write_report_json(LOG_DIRECTORY, "report.json", report)
+        terminate_processes(PROCESS_NAME)
 
-    write_report_json(LOG_DIRECTORY, "report.json", report)
-except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
-    terminate_processes(PROCESS_NAME)
-    sys.exit(1)
+    if exit_code:
+        sys.exit(exit_code)
+
+
+if __name__ == "__main__":
+    main()
