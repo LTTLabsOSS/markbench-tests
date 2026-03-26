@@ -1,4 +1,4 @@
-"""Forza Motorsport test script"""
+"""Forza Motorsport test script."""
 
 import logging
 import os
@@ -6,15 +6,13 @@ import sys
 import time
 from pathlib import Path
 
-import pydirectinput as user
-from forzams_utils import get_args, get_resolution
+from forzams_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
-from harness_utils.misc import press_n_times
+from harness_utils.helper import FAILED_RUN, find_word, press
 from harness_utils.output import (
     seconds_to_milliseconds,
     setup_logging,
@@ -37,154 +35,134 @@ LOCAL_USER_SETTINGS = (
 )
 PROCESSES = ["forza_steamworks_release_final.exe", "RTSS.exe"]
 
-user.FAILSAFE = False
 
-
-def start_rtss():
-    """Sets up the RTSS process"""
+def launch_game() -> None:
+    """Handle pre-launch setup and game launch."""
     profile_path = SCRIPT_DIRECTORY / "forza_steamworks_release_final.exe.cfg"
     copy_rtss_profile(str(profile_path))
-    return start_rtss_process()
-
-
-def run_benchmark() -> tuple[float]:
-    """Run the benchmark"""
-    start_rtss()
-    # Give RTSS time to start
+    start_rtss_process()
     time.sleep(10)
     logging.info("Starting game")
     exec_steam_run_command(STEAM_GAME_ID)
-    setup_start_time = int(time.time())
-    am = ArtifactManager(LOG_DIRECTORY)
 
+
+def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
+    """Run the benchmark."""
+    launch_game()
+    setup_start_time = int(time.time())
     time.sleep(50)
 
-    # Make sure the game started correctly
-    if kerasService.wait_for_word(word="play", timeout=30, interval=1) is None:
-        logging.info("Could not find the main menu. Did the game load?")
-        sys.exit(1)
+    if not find_word("play", timeout=30, interval=1, msg="Could not find the main menu. Did the game load?"):
+        return FAILED_RUN
 
-    # Navigate to display menu
-    user.press("f")
+    press("f")
     time.sleep(1)
 
-    if kerasService.wait_for_word(word="contrast", timeout=30, interval=1) is None:
-        logging.info(
-            "Did not find the accessibility settings menu. Did the menu get stuck?"
-        )
-        sys.exit(1)
+    if not find_word(
+        "contrast",
+        timeout=30,
+        interval=1,
+        msg="Did not find the accessibility settings menu. Did the menu get stuck?",
+    ):
+        return FAILED_RUN
 
-    user.press("]")
-    time.sleep(0.5)
-    user.press("]")
-    time.sleep(0.5)
-    user.press("]")
-    time.sleep(0.5)
+    press("]*3")
+    if not find_word(
+        "resolution",
+        timeout=30,
+        interval=1,
+        msg="Did not find the display settings menu. Did the menu get stuck?",
+    ):
+        return FAILED_RUN
+    am.take_screenshot("01_display.png", ArtifactType.CONFIG_IMAGE)
 
-    # Verify that we have navigated to the video settings menu and take a screenshot
-    if kerasService.wait_for_word(word="resolution", timeout=30, interval=1) is None:
-        logging.info("Did not find the display settings menu. Did the menu get stuck?")
-        sys.exit(1)
+    press("]")
+    if not find_word(
+        "filtering",
+        timeout=30,
+        interval=1,
+        msg="Did not find the graphics settings menu. Did the menu get stuck?",
+    ):
+        return FAILED_RUN
+    am.take_screenshot("02_graphics_1.png", ArtifactType.CONFIG_IMAGE)
 
-    am.take_screenshot(
-        "display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings"
-    )
-    user.press("]")
-    time.sleep(0.5)
+    press("down*15")
+    if not find_word(
+        "particle",
+        timeout=30,
+        interval=1,
+        msg="Did not find the particle effect settings. Did the menu get stuck?",
+    ):
+        return FAILED_RUN
+    am.take_screenshot("03_graphics_2.png", ArtifactType.CONFIG_IMAGE)
 
-    if kerasService.wait_for_word(word="filtering", timeout=30, interval=1) is None:
-        logging.info("Did not find the graphics settings menu. Did the menu get stuck?")
-        sys.exit(1)
-    am.take_screenshot(
-        "graphics1.png", ArtifactType.CONFIG_IMAGE, "1st picture of graphics settings"
-    )
+    press("down*3, up, down")
+    if not find_word(
+        "flare",
+        timeout=30,
+        interval=1,
+        msg="Did not find the lens flare settings. Did the menu get stuck?",
+    ):
+        return FAILED_RUN
+    am.take_screenshot("04_graphics_3.png", ArtifactType.CONFIG_IMAGE)
 
-    press_n_times("down", 15, 0.5)
-
-    if kerasService.wait_for_word(word="particle", timeout=30, interval=1) is None:
-        logging.info(
-            "Did not find the particle effect settings. Did the menu get stuck?"
-        )
-        sys.exit(1)
-    am.take_screenshot(
-        "graphics2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of graphics settings"
-    )
-
-    press_n_times("down", 3, 0.5)
-    user.press("up")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-
-    if kerasService.wait_for_word(word="flare", timeout=30, interval=1) is None:
-        logging.info("Did not find the lens flare settings. Did the menu get stuck?")
-        sys.exit(1)
-    am.take_screenshot(
-        "graphics3.png", ArtifactType.CONFIG_IMAGE, "3rd picture of graphics settings"
-    )
-
-    # Navigate to graphics menu
-    user.press("[")
-    time.sleep(0.5)
-    user.press("enter")
-
-    setup_end_time = int(time.time())
-    elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
-    logging.info("Setup took %s seconds", elapsed_setup_time)
-
+    press("[, enter")
+    logging.info("Setup took %s seconds", round(int(time.time()) - setup_start_time, 2))
     time.sleep(15)
 
-    if kerasService.wait_for_word(word="results", timeout=60, interval=0.5) is None:
-        logging.info("Did not find the results screen. Did the game load?")
-        sys.exit(1)
-    am.take_screenshot(
-        "results.png", ArtifactType.CONFIG_IMAGE, "picture of results screen"
-    )
-
+    if not find_word("results", timeout=60, interval=0.5, msg="Did not find the results screen. Did the game load?"):
+        return FAILED_RUN
+    am.take_screenshot("05_results.png", ArtifactType.RESULTS_IMAGE)
     test_start_time = int(time.time())
-
-    # Wait for benchmark to complete
     time.sleep(180)
 
-    # Wait for results screen to display info
-    if kerasService.wait_for_word(word="results", timeout=15, interval=0.5) is None:
-        logging.info(
-            "Did not find the results screen. Did the game crash during the run?"
-        )
-        sys.exit(1)
+    if not find_word(
+        "results",
+        timeout=15,
+        interval=0.5,
+        msg="Did not find the results screen. Did the game crash during the run?",
+    ):
+        return FAILED_RUN
 
-    test_end_time = round(int(time.time()))
-    # Give results screen time to fill out, then save screenshot and config file
+    test_end_time = int(time.time())
     time.sleep(2)
     am.copy_file(LOCAL_USER_SETTINGS, ArtifactType.CONFIG_TEXT, "config file")
-
-    elapsed_test_time = round((test_end_time - test_start_time), 2)
-    logging.info("Benchmark took %s seconds", elapsed_test_time)
-
-    terminate_processes(*PROCESSES)
-    am.create_manifest()
-
+    logging.info("Benchmark took %s seconds", round(test_end_time - test_start_time, 2))
     return test_start_time, test_end_time
 
 
-setup_logging(LOG_DIRECTORY)
+def main() -> None:
+    """Run the Forza Motorsport benchmark harness."""
+    setup_logging(LOG_DIRECTORY)
+    am = ArtifactManager(LOG_DIRECTORY)
+    report = None
+    exit_code = 0
 
-args = get_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
+    try:
+        start_time, end_time = run_benchmark(am)
+        if (start_time, end_time) == FAILED_RUN:
+            exit_code = 1
+        else:
+            resolution = get_resolution(str(LOCAL_USER_SETTINGS))
+            report = {
+                "resolution": f"{resolution}",
+                "start_time": seconds_to_milliseconds(start_time),
+                "end_time": seconds_to_milliseconds(end_time),
+                "version": get_build_id(STEAM_GAME_ID),
+            }
+    except Exception as e:
+        logging.error("Something went wrong running the benchmark!")
+        logging.exception(e)
+        exit_code = 1
+    finally:
+        terminate_processes(*PROCESSES)
+        am.create_manifest()
+        if report is not None:
+            write_report_json(LOG_DIRECTORY, "report.json", report)
 
-try:
-    start_time, end_time = run_benchmark()
-    resolution = get_resolution(str(LOCAL_USER_SETTINGS))
-    report = {
-        "resolution": f"{resolution}",
-        "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time),
-        "version": get_build_id(STEAM_GAME_ID),
-    }
+    if exit_code:
+        sys.exit(exit_code)
 
-    write_report_json(LOG_DIRECTORY, "report.json", report)
-except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
-    terminate_processes(*PROCESSES)
-    sys.exit(1)
+
+if __name__ == "__main__":
+    main()

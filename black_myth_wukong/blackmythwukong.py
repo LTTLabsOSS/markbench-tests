@@ -1,21 +1,18 @@
-"""Black Myth Wukong test script"""
+"""Black Myth Wukong test script."""
 
 import logging
 import re
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
-import pydirectinput as user
 import vgamepad as vg
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-# pylint: disable=wrong-import-position
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.helper import FAILED_RUN, find_word
 from harness_utils.misc import LTTGamePad360
 from harness_utils.output import (
     format_resolution,
@@ -35,11 +32,9 @@ CONFIG_LOCATION = (
 )
 CONFIG_FILENAME = "GameUserSettings.ini"
 
-user.FAILSAFE = False
-
 
 def read_current_resolution():
-    """Reads resolutions settings from local game file"""
+    """Read resolutions settings from local game file."""
     height_pattern = re.compile(r"LastUserConfirmedResolutionSizeY=(\d+)")
     width_pattern = re.compile(r"LastUserConfirmedResolutionSizeX=(\d+)")
     cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
@@ -57,64 +52,47 @@ def read_current_resolution():
     return (height_value, width_value)
 
 
-def start_game():
-    """Starts the game process"""
+def launch_game() -> None:
     exec_steam_game(STEAM_GAME_ID)
     logging.info("Launching Game from Steam")
 
 
-def run_benchmark(keras_service):
-    """Starts the benchmark"""
-    start_game()
+def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
+    """Start the benchmark."""
+    launch_game()
     gamepad = LTTGamePad360()
     setup_start_time = int(time.time())
-    am = ArtifactManager(LOG_DIRECTORY)
     time.sleep(20)
 
-    if keras_service.wait_for_word(word="black", timeout=30, interval=1) is None:
-        logging.info("Did not find the welcome screen. Did the game launch correctly?")
-        sys.exit(1)
-    # We pause here to allow the option to enter the menu to appear as sometimes the word black shows up first
+    if not find_word("black", timeout=30, interval=1, msg="Did not find the welcome screen. Did the game launch correctly?"):
+        return FAILED_RUN
     time.sleep(2)
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(2)
 
-    if keras_service.wait_for_word(word="settings", timeout=30, interval=1) is None:
-        logging.info("Did not find the settings option. Did the game launch correctly?")
-        sys.exit(1)
+    if not find_word("settings", timeout=30, interval=1, msg="Did not find the settings option. Did the game launch correctly?"):
+        return FAILED_RUN
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
     time.sleep(0.5)
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(0.5)
 
-    if keras_service.wait_for_word(word="loop", timeout=30, interval=1) is None:
-        logging.info(
-            "Did not find the benchmark settings menu. Did the game navigate to the settings correctly?"
-        )
-        sys.exit(1)
+    if not find_word("loop", timeout=30, interval=1, msg="Did not find the benchmark settings menu. Did the game navigate to the settings correctly?"):
+        return FAILED_RUN
     gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN, n=3, pause=0.5)
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(0.5)
 
-    if keras_service.wait_for_word(word="calibration", timeout=30, interval=1) is None:
-        logging.info(
-            "Did not find the display settings menu. Did the game navigate the settings correctly?"
-        )
-        sys.exit(1)
-    am.take_screenshot(
-        "display.png", ArtifactType.CONFIG_IMAGE, "screenshot of display settings"
-    )
+    if not find_word("calibration", timeout=30, interval=1, msg="Did not find the display settings menu. Did the game navigate the settings correctly?"):
+        return FAILED_RUN
+    am.take_screenshot("01_display.png", ArtifactType.CONFIG_IMAGE)
 
     gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN, n=2, pause=0.5)
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(0.5)
 
-    # We do a little toggling here in order to get the settings to update correctly, because wukong has no true full screen option
-    if keras_service.wait_for_word(word="windowed", timeout=30, interval=1) is None:
-        logging.info(
-            "Did not find the keyword 'windowed'. Did the game select the display mode setting correctly?"
-        )
-        sys.exit(1)
+    if not find_word("windowed", timeout=30, interval=1, msg="Did not find the keyword 'windowed'. Did the game select the display mode setting correctly?"):
+        return FAILED_RUN
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
     time.sleep(0.5)
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
@@ -127,7 +105,6 @@ def run_benchmark(keras_service):
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(0.5)
 
-    # navigate to graphics menu
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
     time.sleep(0.5)
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
@@ -135,120 +112,78 @@ def run_benchmark(keras_service):
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(0.5)
 
-    if keras_service.wait_for_word(word="super", timeout=30, interval=1) is None:
-        logging.info(
-            "Did not find the top of the graphics menu. Did the game navigate the settings menu correctly?"
-        )
-        sys.exit(1)
-    am.take_screenshot(
-        "graphics_1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of graphics menu"
-    )
+    if not find_word("super", timeout=30, interval=1, msg="Did not find the top of the graphics menu. Did the game navigate the settings menu correctly?"):
+        return FAILED_RUN
+    am.take_screenshot("02_graphics_1.png", ArtifactType.CONFIG_IMAGE)
 
     gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP, n=9, pause=0.5)
-
-    if keras_service.wait_for_word(word="reflection", timeout=30, interval=1) is None:
-        logging.info(
-            "Did not find the bottom of the graphics menu. Did the game scroll down the graphics settings menu correctly?"
-        )
-        sys.exit(1)
-    am.take_screenshot(
-        "graphics_2.png",
-        ArtifactType.CONFIG_IMAGE,
-        "second screenshot of graphics menu",
-    )
+    if not find_word("reflection", timeout=30, interval=1, msg="Did not find the bottom of the graphics menu. Did the game scroll down the graphics settings menu correctly?"):
+        return FAILED_RUN
+    am.take_screenshot("03_graphics_2.png", ArtifactType.CONFIG_IMAGE)
 
     gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B, n=2, pause=0.5)
     time.sleep(2)
 
-    if keras_service.wait_for_word(word="benchmark", timeout=30, interval=1) is None:
-        logging.info(
-            "Did not find the option to start the benchmark. Did the game exit the settings menu correctly?"
-        )
-        sys.exit(1)
+    if not find_word("benchmark", timeout=30, interval=1, msg="Did not find the option to start the benchmark. Did the game exit the settings menu correctly?"):
+        return FAILED_RUN
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(2)
 
-    if keras_service.wait_for_word(word="confirm", timeout=30, interval=1) is None:
-        logging.info(
-            "Did not find the confirmation to start the benchmark. Did the game select the start benchmark option correctly?"
-        )
-        sys.exit(1)
+    if not find_word("confirm", timeout=30, interval=1, msg="Did not find the confirmation to start the benchmark. Did the game select the start benchmark option correctly?"):
+        return FAILED_RUN
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(0.5)
+    logging.info("Setup took %f seconds", round(int(time.time()) - setup_start_time, 2))
 
-    # log set up time
-    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
-
-    result = keras_service.wait_for_word("current", interval=0.5, timeout=100)
-    if not result:
-        logging.info("Could not find current. Unable to mark start time!")
-        sys.exit(1)
+    if not find_word("current", interval=0.5, timeout=100, msg="Could not find current. Unable to mark start time!"):
+        return FAILED_RUN
 
     test_start_time = int(time.time()) - 2
-
     time.sleep(142)
 
-    if keras_service.wait_for_word(word="result", timeout=30, interval=1) is None:
-        logging.info("Did not find result screen. Did the benchmark run?")
-        sys.exit(1)
+    if not find_word("result", timeout=30, interval=1, msg="Did not find result screen. Did the benchmark run?"):
+        return FAILED_RUN
 
     test_end_time = int(time.time()) - 1
     time.sleep(5)
-    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
-    am.copy_file(
-        f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}",
-        ArtifactType.CONFIG_TEXT,
-        "GameUserSettings.ini",
-    )
-    time.sleep(0.5)
-
-    # End the run
-    elapsed_test_time = round(test_end_time - test_start_time, 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
-
-    # Exit
-    terminate_processes(PROCESS_NAME)
-    am.create_manifest()
-
+    am.take_screenshot("04_results.png", ArtifactType.RESULTS_IMAGE)
+    am.copy_file(f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}", ArtifactType.CONFIG_TEXT, "GameUserSettings.ini")
+    logging.info("Benchmark took %f seconds", round(test_end_time - test_start_time, 2))
     return test_start_time, test_end_time
 
 
-def main():
-    """entry point"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    args = parser.parse_args()
-    keras_service = KerasService(args.keras_host, args.keras_port)
-    start_time, endtime = run_benchmark(keras_service)
-    height, width = read_current_resolution()
-    report = {
-        "resolution": format_resolution(width, height),
-        "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(endtime),
-        "version": get_build_id(STEAM_GAME_ID),
-    }
+def main() -> None:
+    """Run the Black Myth Wukong benchmark harness."""
+    setup_logging(LOG_DIRECTORY)
+    am = ArtifactManager(LOG_DIRECTORY)
+    report = None
+    exit_code = 0
 
-    write_report_json(LOG_DIRECTORY, "report.json", report)
-
-
-if __name__ == "__main__":
     try:
-        setup_logging(LOG_DIRECTORY)
-        main()
+        start_time, end_time = run_benchmark(am)
+        if (start_time, end_time) == FAILED_RUN:
+            exit_code = 1
+        else:
+            height, width = read_current_resolution()
+            report = {
+                "resolution": format_resolution(width, height),
+                "start_time": seconds_to_milliseconds(start_time),
+                "end_time": seconds_to_milliseconds(end_time),
+                "version": get_build_id(STEAM_GAME_ID),
+            }
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")
         logging.exception(ex)
+        exit_code = 1
+    finally:
         terminate_processes(PROCESS_NAME)
-        sys.exit(1)
+        am.create_manifest()
+        if report is not None:
+            write_report_json(LOG_DIRECTORY, "report.json", report)
+
+    if exit_code:
+        sys.exit(exit_code)
+
+
+if __name__ == "__main__":
+    main()

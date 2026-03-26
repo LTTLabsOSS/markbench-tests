@@ -1,12 +1,10 @@
-"""tiny tinas wonderlands test script"""
+"""Tiny Tina's Wonderlands test script."""
 
 import logging
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
-import pydirectinput as user
 from tinytinaswonderland_utils import (
     find_latest_result_file,
     get_documents_path,
@@ -17,10 +15,11 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.helper import FAILED_RUN, find_word, press
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
+    setup_logging,
     write_report_json,
 )
 from harness_utils.process import terminate_processes
@@ -29,130 +28,64 @@ from harness_utils.steam import exec_steam_game, get_build_id
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 STEAM_GAME_ID = 1286680
-EXECUTABLE = "Wonderlands.exe"
-
-user.FAILSAFE = False
+PROCESS_NAME = "Wonderlands"
 
 
-def start_game() -> any:
-    """start the game"""
-    return exec_steam_game(STEAM_GAME_ID, game_params=["-nostartupmovies"])
+def launch_game() -> None:
+    exec_steam_game(STEAM_GAME_ID, game_params=["-nostartupmovies"])
 
 
-def run_benchmark():
-    """run benchmark"""
-    start_game()
+def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
+    """Run benchmark."""
+    launch_game()
+    setup_start_time = int(time.time())
 
-    t1 = int(time.time())
-    optimizing_shaders = kerasService.look_for_word("optimize", interval=1, attempts=10)
-    if optimizing_shaders:
+    if find_word("optimize", interval=1, timeout=10):
         time.sleep(40)
 
-    # wait for menu to load
     time.sleep(20)
 
-    options_present = kerasService.wait_for_word("options", interval=1, timeout=60)
-    if options_present is None:
-        raise ValueError("game did not load within time")
+    if not find_word("options", interval=1, timeout=60, msg="game did not load within time"):
+        return FAILED_RUN
 
     logging.info("Saw the options! we are good to go!")
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("enter")
+    press("down*2, enter")
     time.sleep(4)
 
-    visuals = kerasService.wait_for_word("visuals", interval=1, timeout=10)
-    if visuals is None:
-        raise ValueError("on the wrong menu!")
+    if not find_word("visuals", interval=1, timeout=10, msg="on the wrong menu!"):
+        return FAILED_RUN
 
-    am.take_screenshot(
-        "graphics_1.png",
-        ArtifactType.CONFIG_IMAGE,
-        "first screenshot of graphics settings",
-    )
-
-    user.press("altleft")
-    time.sleep(0.5)
-
-    am.take_screenshot(
-        "graphics_2.png",
-        ArtifactType.CONFIG_IMAGE,
-        "second screenshot of graphics settings",
-    )
+    am.take_screenshot("01_graphics_1.png", ArtifactType.CONFIG_IMAGE)
+    press("altleft")
+    am.take_screenshot("02_graphics_2.png", ArtifactType.CONFIG_IMAGE)
     time.sleep(1)
+    press("down*18")
+    am.take_screenshot("03_graphics_3.png", ArtifactType.CONFIG_IMAGE)
+    press("altleft")
 
-    for _ in range(18):
-        user.press("down")
-        time.sleep(0.5)
+    if not find_word("benchmark", interval=1, timeout=10, msg="could not find benchmark button"):
+        return FAILED_RUN
 
-    am.take_screenshot(
-        "graphics_3.png",
-        ArtifactType.CONFIG_IMAGE,
-        "third screenshot of graphics settings",
-    )
-
-    user.press("altleft")
-    time.sleep(0.5)
-
-    benchmark = kerasService.wait_for_word("benchmark", interval=1, timeout=10)
-    if benchmark is None:
-        raise ValueError("could not find benchmark button")
-
-    user.press("down")
-    time.sleep(0.5)
-    user.press("enter")
+    press("down, enter")
     time.sleep(1)
+    logging.info("Harness setup took %d seconds", round((int(time.time()) - setup_start_time), 2))
 
-    t2 = int(time.time())
-    duration = round((t2 - t1), 2)
-    logging.info("Harness setup took %d seconds", duration)
-
-    result = kerasService.wait_for_word("fps", interval=0.5, timeout=30)
-    if result is None:
-        raise ValueError("benchmark didn't start on time or at all")
+    if not find_word("fps", interval=0.5, timeout=30, msg="benchmark didn't start on time or at all"):
+        return FAILED_RUN
 
     benchmark_start = int(time.time())
     time.sleep(110)
-    result = kerasService.wait_for_word("options", interval=0.5, timeout=30)
-    if result is None:
-        raise ValueError(
-            "did not detect end of benchmark, should have landed back in main menu"
-        )
+
+    if not find_word(
+        "options",
+        interval=0.5,
+        timeout=30,
+        msg="did not detect end of benchmark, should have landed back in main menu",
+    ):
+        return FAILED_RUN
 
     benchmark_end = int(time.time())
-    duration = round((benchmark_end - benchmark_start), 2)
-    logging.info("Benchmark took %d seconds", duration)
-    terminate_processes("Wonderlands")
-    return benchmark_start, benchmark_end
-
-
-try:
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    args = parser.parse_args()
-    kerasService = KerasService(args.keras_host, args.keras_port)
-    am = ArtifactManager(LOG_DIRECTORY)
-    start_time, end_time = run_benchmark()
-    height, width = read_resolution()
-    report = {
-        "resolution": format_resolution(width, height),
-        "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time),
-        "version": get_build_id(STEAM_GAME_ID),
-    }
+    logging.info("Benchmark took %d seconds", round((benchmark_end - benchmark_start), 2))
 
     my_documents_path = get_documents_path()
     settings_path = Path(
@@ -165,11 +98,41 @@ try:
     )
     benchmark_results = find_latest_result_file(str(saved_results_dir))
     am.copy_file(benchmark_results, ArtifactType.RESULTS_TEXT, "results file")
+    return benchmark_start, benchmark_end
 
-    am.create_manifest()
-    write_report_json(LOG_DIRECTORY, "report.json", report)
-except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
-    terminate_processes("Wonderlands")
-    sys.exit(1)
+
+def main() -> None:
+    """Run the Tiny Tina's Wonderlands benchmark harness."""
+    setup_logging(LOG_DIRECTORY)
+    am = ArtifactManager(LOG_DIRECTORY)
+    report = None
+    exit_code = 0
+
+    try:
+        start_time, end_time = run_benchmark(am)
+        if (start_time, end_time) == FAILED_RUN:
+            exit_code = 1
+        else:
+            height, width = read_resolution()
+            report = {
+                "resolution": format_resolution(width, height),
+                "start_time": seconds_to_milliseconds(start_time),
+                "end_time": seconds_to_milliseconds(end_time),
+                "version": get_build_id(STEAM_GAME_ID),
+            }
+    except Exception as e:
+        logging.error("Something went wrong running the benchmark!")
+        logging.exception(e)
+        exit_code = 1
+    finally:
+        terminate_processes(PROCESS_NAME)
+        am.create_manifest()
+        if report is not None:
+            write_report_json(LOG_DIRECTORY, "report.json", report)
+
+    if exit_code:
+        sys.exit(exit_code)
+
+
+if __name__ == "__main__":
+    main()

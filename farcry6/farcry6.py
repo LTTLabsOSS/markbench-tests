@@ -1,24 +1,21 @@
-"""Far Cry 6 test script"""
+"""Far Cry 6 test script."""
 
-# pylint: disable = C0116, W0621
 import logging
 import os
 import subprocess
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 import pyautogui as gui
-import pydirectinput as user
-from farcry6_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from farcry6_utils import get_resolution
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
-from harness_utils.misc import mouse_scroll_n_times, press_n_times
+from harness_utils.helper import FAILED_RUN, find_word, press
+from harness_utils.misc import mouse_scroll_n_times
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -35,193 +32,117 @@ username = os.getlogin()
 XML_FILE = rf"C:\Users\{username}\Documents\My Games\Far Cry 6\gamerprofile.xml"
 
 
-user.FAILSAFE = False
-
-
-def start_game():
+def launch_game() -> None:
     subprocess.run(f"start uplay://launch/{GAME_ID}/0", shell=True, check=True)
 
 
-def skip_logo_screens() -> None:
-    """Simulate input to skip logo screens"""
-    logging.info("Skipping logo screens")
+def click_result(result: dict) -> None:
+    gui.moveTo(result["x"], result["y"])
+    time.sleep(0.2)
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
 
-    # skipping the logo screens
-    press_n_times("escape", 8, 1)
 
-
-def run_benchmark():
-    am = ArtifactManager(LOG_DIRECTORY)
-    start_game()
+def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
+    launch_game()
     setup_start_time = int(time.time())
     time.sleep(25)
 
-    # skipping game intros
-    result = kerasService.look_for_word("warning", attempts=20, interval=1)
-    if not result:
-        logging.info("Did not see warnings. Did the game start?")
-        sys.exit(1)
+    if not find_word("warning", timeout=20, interval=1, msg="Did not see warnings. Did the game start?"):
+        return FAILED_RUN
+    press("escape*8", pause=1)
 
-    skip_logo_screens()
-
-    result = kerasService.look_for_word("original", attempts=20, interval=1)
-    if not result:
-        logging.info("Did not see the Far Cry 6 intro video. Did the game crash?")
-        sys.exit(1)
-
-    user.press("space")
-    user.press("space")
-
+    if not find_word("original", timeout=20, interval=1, msg="Did not see the Far Cry 6 intro video. Did the game crash?"):
+        return FAILED_RUN
+    press("space, space")
     time.sleep(2)
 
-    # navigating the menus to get to the video settings
-    result = kerasService.look_for_word("later", attempts=5, interval=1)
-    if result:
-        user.press("escape")
+    if find_word("later", timeout=5, interval=1):
+        press("escape")
 
-    result = kerasService.look_for_word("options", attempts=10, interval=1)
+    result = find_word("options", timeout=10, interval=1, msg="Did not find the main menu. Did the game skip the intros?")
     if not result:
-        logging.info("Did not find the main menu. Did the game skip the intros?")
-        sys.exit(1)
-
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+        return FAILED_RUN
+    click_result(result)
     time.sleep(2)
 
-    result = kerasService.look_for_word("video", attempts=10, interval=1)
+    result = find_word("video", timeout=10, interval=1, msg="Did not find the options menu. Did OCR click incorrectly?")
     if not result:
-        logging.info("Did not find the options menu. Did keras click incorrectly?")
-        sys.exit(1)
-
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+        return FAILED_RUN
+    click_result(result)
     time.sleep(2)
 
-    # grabbing screenshots of all the video settings
-    result = kerasService.look_for_word("adapter", attempts=10, interval=1)
-    if not result:
-        logging.info(
-            "Did not find the Video Adapter setting in the monitor options. Did keras navigate wrong?"
-        )
-        sys.exit(1)
-
-    am.take_screenshot(
-        "video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings"
-    )
-
+    if not find_word("adapter", timeout=10, interval=1, msg="Did not find the Video Adapter setting in the monitor options."):
+        return FAILED_RUN
+    am.take_screenshot("01_video.png", ArtifactType.CONFIG_IMAGE)
     time.sleep(2)
 
-    user.press("e")
-
-    result = kerasService.look_for_word("filtering", attempts=10, interval=1)
-    if not result:
-        logging.info(
-            "Did not find the Texture Filtering setting in the quality options. Did keras navigate wrong?"
-        )
-        sys.exit(1)
-
-    am.take_screenshot(
-        "quality1.png", ArtifactType.CONFIG_IMAGE, "1st picture of quality settings"
-    )
-
+    press("e")
+    if not find_word("filtering", timeout=10, interval=1, msg="Did not find the Texture Filtering setting in the quality options."):
+        return FAILED_RUN
+    am.take_screenshot("02_quality_1.png", ArtifactType.CONFIG_IMAGE)
     time.sleep(2)
-
     mouse_scroll_n_times(8, -800, 0.2)
 
-    result = kerasService.look_for_word("shading", attempts=10, interval=1)
-    if not result:
-        logging.info(
-            "Did not find the FidelityFX Variable Shading setting in the quality options. Did keras navigate wrong?"
-        )
-        sys.exit(1)
-
-    am.take_screenshot(
-        "quality2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of quality settings"
-    )
-
+    if not find_word("shading", timeout=10, interval=1, msg="Did not find the FidelityFX Variable Shading setting in the quality options."):
+        return FAILED_RUN
+    am.take_screenshot("03_quality_2.png", ArtifactType.CONFIG_IMAGE)
     time.sleep(2)
 
-    press_n_times("e", 2, 0.2)
+    press("e*2")
+    if not find_word("lock", timeout=10, interval=1, msg="Did not find the Enable Framerate Lock setting in the advanced options."):
+        return FAILED_RUN
+    am.take_screenshot("04_advanced.png", ArtifactType.CONFIG_IMAGE)
 
-    result = kerasService.look_for_word("lock", attempts=10, interval=1)
-    if not result:
-        logging.info(
-            "Did not find the Enable Framerate Lock setting in the advanced options. Did keras navigate wrong?"
-        )
-        sys.exit(1)
-
-    am.take_screenshot(
-        "advanced.png", ArtifactType.CONFIG_IMAGE, "picture of advanced settings"
-    )
-
-    # starting the benchmark
     time.sleep(2)
-    user.press("f5")
-    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
+    press("f5")
+    logging.info("Setup took %f seconds", round(int(time.time()) - setup_start_time, 2))
 
-    result = kerasService.look_for_word("toggle", attempts=10, interval=1)
-    if not result:
-        logging.info(
-            "Did not find the toggle ui button in the lower right. Did the benchmark crash?"
-        )
-        sys.exit(1)
+    if not find_word("toggle", timeout=10, interval=1, msg="Did not find the toggle ui button in the lower right. Did the benchmark crash?"):
+        return FAILED_RUN
     test_start_time = int(time.time())
+    time.sleep(60)
 
-    time.sleep(60)  # wait for benchmark to complete
-
-    result = kerasService.wait_for_word("results", interval=0.5, timeout=100)
-    if not result:
-        logging.info("Didn't find the results screen. Did the benchmark crash?")
-        sys.exit(1)
-
+    if not find_word("results", interval=0.5, timeout=100, msg="Didn't find the results screen. Did the benchmark crash?"):
+        return FAILED_RUN
     test_end_time = int(time.time()) - 1
-
-    # End the run
-    elapsed_test_time = round(test_end_time - test_start_time, 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
-    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    am.take_screenshot("05_results.png", ArtifactType.RESULTS_IMAGE)
     time.sleep(1)
-
-    # Exit
-    terminate_processes(PROCESS_NAME)
     am.copy_file(XML_FILE, ArtifactType.CONFIG_TEXT, "config file")
-    am.create_manifest()
-
+    logging.info("Benchmark took %f seconds", round(test_end_time - test_start_time, 2))
     return test_start_time, test_end_time
 
 
-setup_logging(LOG_DIRECTORY)
+def main() -> None:
+    setup_logging(LOG_DIRECTORY)
+    am = ArtifactManager(LOG_DIRECTORY)
+    report = None
+    exit_code = 0
+    try:
+        start_time, end_time = run_benchmark(am)
+        if (start_time, end_time) == FAILED_RUN:
+            exit_code = 1
+        else:
+            width, height = get_resolution()
+            report = {
+                "resolution": format_resolution(width, height),
+                "start_time": seconds_to_milliseconds(start_time),
+                "end_time": seconds_to_milliseconds(end_time),
+                "version": "unknown",
+            }
+    except Exception as e:
+        logging.error("Something went wrong running the benchmark!")
+        logging.exception(e)
+        exit_code = 1
+    finally:
+        terminate_processes(PROCESS_NAME)
+        am.create_manifest()
+        if report is not None:
+            write_report_json(LOG_DIRECTORY, "report.json", report)
+    if exit_code:
+        sys.exit(exit_code)
 
-parser = ArgumentParser()
-parser.add_argument(
-    "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
-)
-parser.add_argument(
-    "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
-)
-args = parser.parse_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
 
-try:
-    test_start_time, test_end_time = run_benchmark()
-    width, height = get_resolution()
-    report = {
-        "resolution": format_resolution(width, height),
-        "start_time": seconds_to_milliseconds(test_start_time),
-        "end_time": seconds_to_milliseconds(test_end_time),
-        "version": "unknown",
-    }
-
-    write_report_json(LOG_DIRECTORY, "report.json", report)
-except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
-    terminate_processes(PROCESS_NAME)
-    sys.exit(1)
+if __name__ == "__main__":
+    main()

@@ -63,7 +63,7 @@ def launch_game() -> None:
 def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
     """Runs the actual benchmark."""
     launch_game()
-    time.sleep(2)
+    time.sleep(20)
 
     if not find_word(
         "product",
@@ -76,14 +76,13 @@ def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
 
     if not find_word(
         "press",
-        interval=2,
-        timeout=80,
+        interval=1,
+        timeout=20,
     ):
         return FAILED_RUN
 
-    logging.info("Hit the title screen. Continuing")
     press("enter")
-    time.sleep(1)
+    time.sleep(3)
 
     if find_word("login", timeout=50):
         logging.info("Cancelling logging in.")

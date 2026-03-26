@@ -1,22 +1,19 @@
-"""Forza Horizon 5 test script"""
+"""Forza Horizon 5 test script."""
 
 import logging
 import os
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 import pyautogui as gui
-import pydirectinput as user
 from forza5_utils import read_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
-from harness_utils.misc import press_n_times
+from harness_utils.helper import FAILED_RUN, find_word, press
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -38,143 +35,113 @@ CONFIG_LOCATION = (
 CONFIG_FILENAME = "UserConfigSelections"
 PROCESSES = ["ForzaHorizon5.exe", "RTSS.exe"]
 
-user.FAILSAFE = False
 
-
-def start_rtss():
-    """Sets up the RTSS process"""
+def launch_game() -> None:
+    """Handle pre-launch setup and game launch."""
     profile_path = SCRIPT_DIRECTORY / "ForzaHorizon5.exe.cfg"
     copy_rtss_profile(str(profile_path))
-    return start_rtss_process()
-
-
-def run_benchmark():
-    """Starts the benchmark"""
-    start_rtss()
-    # Give RTSS time to start
+    start_rtss_process()
     time.sleep(10)
-
     exec_steam_run_command(STEAM_GAME_ID)
-    setup_start_time = int(time.time())
 
-    # Wait for menu to load
+
+def click_result(result: dict) -> None:
+    gui.moveTo(result["x"], result["y"])
+    time.sleep(0.2)
+    gui.mouseDown()
+    time.sleep(0.2)
+    gui.mouseUp()
+
+
+def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
+    """Start the benchmark."""
+    launch_game()
+    setup_start_time = int(time.time())
     time.sleep(30)
 
-    logging.info("Waiting for start prompt...")
-    result = kerasService.wait_for_word("start", timeout=30)
-    if not result:
-        logging.info("Game didn't start.")
-        sys.exit(1)
+    if not find_word("start", timeout=30, msg="Game didn't start."):
+        return FAILED_RUN
 
-    logging.info("Accessibility found pressing X to continue.")
-    user.press("x")
+    press("x")
     time.sleep(2)
 
-    result = kerasService.wait_for_word("video", timeout=30)
+    result = find_word("video", timeout=30, msg="Game didn't load to the settings menu.")
     if not result:
-        logging.info("Game didn't load to the settings menu.")
-        sys.exit(1)
-
-    logging.info("Video found, clicking and continuing.")
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-    am.take_screenshot("Video_pt.png", ArtifactType.CONFIG_IMAGE, "Video menu")
-    time.sleep(0.2)
-    press_n_times("down", 19, 0.1)
-    am.take_screenshot("Video_pt2.png", ArtifactType.CONFIG_IMAGE, "Video menu2")
-    press_n_times("down", 5, 0.1)
-    am.take_screenshot("Video_pt3.png", ArtifactType.CONFIG_IMAGE, "Video menu3")
-    time.sleep(0.2)
-    user.press("escape")
+        return FAILED_RUN
+    click_result(result)
+    am.take_screenshot("01_video_1.png", ArtifactType.CONFIG_IMAGE)
+    press("down*19", pause=0.1)
+    am.take_screenshot("02_video_2.png", ArtifactType.CONFIG_IMAGE)
+    press("down*5", pause=0.1)
+    am.take_screenshot("03_video_3.png", ArtifactType.CONFIG_IMAGE)
+    press("escape")
     time.sleep(1)
 
-    result = kerasService.wait_for_word("graphics", timeout=30)
+    result = find_word("graphics", timeout=30, msg="Game didn't load to the settings menu.")
     if not result:
-        logging.info("Game didn't load to the settings menu.")
-        sys.exit(1)
-
-    logging.info("Graphics found, clicking and continuing.")
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-    time.sleep(0.2)
-    am.take_screenshot("graphics_pt.png", ArtifactType.CONFIG_IMAGE, "graphics menu")
-    time.sleep(0.2)
-    press_n_times("down", 16, 0.1)
-    am.take_screenshot("graphics_pt2.png", ArtifactType.CONFIG_IMAGE, "graphics menu2")
-    time.sleep(0.1)
-    user.press("down")
+        return FAILED_RUN
+    click_result(result)
+    am.take_screenshot("04_graphics_1.png", ArtifactType.CONFIG_IMAGE)
+    press("down*16", pause=0.1)
+    am.take_screenshot("05_graphics_2.png", ArtifactType.CONFIG_IMAGE)
+    press("down")
     time.sleep(1)
 
-    result = kerasService.wait_for_word("benchmark", timeout=12)
+    result = find_word("benchmark", timeout=12, msg="Didn't find benchmark in settings.")
     if not result:
-        logging.info("Didn't find benchmark in settings.")
-        sys.exit(1)
-
+        return FAILED_RUN
     gui.mouseDown(result["x"], result["y"])
     time.sleep(0.2)
     gui.mouseUp()
     time.sleep(1)
-    user.press("down")
-    time.sleep(0.2)
-    user.press("enter")
-    time.sleep(0.2)
+    press("down, enter")
 
-    result = kerasService.wait_for_word("checkpoint", timeout=360)
-    if not result:
-        logging.info("Benchmark didn't start.")
-        sys.exit(1)
+    if not find_word("checkpoint", timeout=360, msg="Benchmark didn't start."):
+        return FAILED_RUN
 
-    elapsed_setup_time = round((int(time.time()) - setup_start_time), 2)
-    logging.info("Harness setup took %.2f seconds", elapsed_setup_time)
-
+    logging.info("Harness setup took %.2f seconds", round(int(time.time()) - setup_start_time, 2))
     test_start_time = int(time.time())
+    time.sleep(95)
 
-    time.sleep(95)  # wait for benchmark to finish 95 seconds
-
-    result = kerasService.wait_for_word("results", timeout=25)
-    if not result:
-        logging.info("Results screen was not found!")
-        sys.exit(1)
+    if not find_word("results", timeout=25, msg="Results screen was not found!"):
+        return FAILED_RUN
 
     test_end_time = int(time.time())
-    elapsed_test_time = round((test_end_time - test_start_time), 2)
-    logging.info("Benchmark took %.2f seconds", elapsed_test_time)
-
-    terminate_processes(*PROCESSES)
+    logging.info("Benchmark took %.2f seconds", round(test_end_time - test_start_time, 2))
     return test_start_time, test_end_time
 
 
-setup_logging(LOG_DIRECTORY)
+def main() -> None:
+    """Run the Forza Horizon 5 benchmark harness."""
+    setup_logging(LOG_DIRECTORY)
+    am = ArtifactManager(LOG_DIRECTORY)
+    report = None
+    exit_code = 0
 
-parser = ArgumentParser()
-parser.add_argument(
-    "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
-)
-parser.add_argument(
-    "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
-)
-args = parser.parse_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
-am = ArtifactManager(LOG_DIRECTORY)
+    try:
+        start_time, end_time = run_benchmark(am)
+        if (start_time, end_time) == FAILED_RUN:
+            exit_code = 1
+        else:
+            width, height = read_resolution(f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}")
+            report = {
+                "resolution": format_resolution(width, height),
+                "start_time": seconds_to_milliseconds(start_time),
+                "end_time": seconds_to_milliseconds(end_time),
+            }
+    except Exception as e:
+        logging.error("Something went wrong running the benchmark!")
+        logging.exception(e)
+        exit_code = 1
+    finally:
+        terminate_processes(*PROCESSES)
+        am.create_manifest()
+        if report is not None:
+            write_report_json(LOG_DIRECTORY, "report.json", report)
 
-try:
-    start_time, end_time = run_benchmark()
-    width, height = read_resolution(f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}")
-    report = {
-        "resolution": format_resolution(width, height),
-        "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time),
-    }
-    am.create_manifest()
-    write_report_json(LOG_DIRECTORY, "report.json", report)
-except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
-    terminate_processes(*PROCESSES)
-    sys.exit(1)
+    if exit_code:
+        sys.exit(exit_code)
+
+
+if __name__ == "__main__":
+    main()

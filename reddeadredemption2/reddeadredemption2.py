@@ -1,21 +1,18 @@
-"""Red Dead Redemption 2 test script"""
+"""Red Dead Redemption 2 test script."""
 
 import getpass
 import logging
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
-import pydirectinput as user
 from red_dead_redemption_2_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
-from harness_utils.misc import press_n_times
+from harness_utils.helper import FAILED_RUN, find_word, press
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -39,205 +36,121 @@ CONFIG_FULL_PATH = Path(
     "system.xml",
 )
 
-user.FAILSAFE = False
 
-
-def run_benchmark():
-    """Starts the benchmark"""
-    # Wait for game to load to main menu
-    setup_start_time = int(time.time())
+def launch_game() -> None:
     exec_steam_run_command(STEAM_GAME_ID)
-    am = ArtifactManager(LOG_DIRECTORY)
 
+
+def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
+    """Start the benchmark."""
+    launch_game()
+    setup_start_time = int(time.time())
     time.sleep(80)
 
-    # patch to look for seasonal popup
-    result = kerasService.look_for_word_vulkan("strange", attempts=30, interval=1)
-    if result:
-        user.press("enter")
+    if find_word("strange", vulkan=True, timeout=30, interval=1):
+        press("enter")
         time.sleep(3)
 
-    # Press Z to enter settings
-    result = kerasService.look_for_word_vulkan("settings", attempts=30, interval=1)
-    if not result:
-        logging.info("Did not find the settings menu. Did the game launch?")
-        sys.exit(1)
-    user.press("z")
+    if not find_word("settings", vulkan=True, timeout=30, interval=1, msg="Did not find the settings menu. Did the game launch?"):
+        return FAILED_RUN
+    press("z")
     time.sleep(3)
 
-    # Enter graphics menu
-    ## ensure we are starting from the top left of the screen
-    result = kerasService.look_for_word_vulkan("graphics", attempts=5, interval=1)
-    if not result:
-        logging.info("Did not find the graphics menu. Did keras get stuck?")
-        sys.exit(1)
-    user.press("up")
-    user.press("up")
-    user.press("left")
-    user.press("left")
-    user.press("down")
-    user.press("enter")
+    if not find_word("graphics", vulkan=True, timeout=5, interval=1, msg="Did not find the graphics menu. Did keras get stuck?"):
+        return FAILED_RUN
+    press("up*2, left*2, down, enter")
     time.sleep(3)
 
-    # Take pictures of the graphics settings
-    result = kerasService.look_for_word_vulkan("resolution", attempts=5, interval=1)
-    if not result:
-        logging.info(
-            "Did not find the resolution setting. Did the game navigate correctly?"
-        )
-        sys.exit(1)
-    am.take_screenshot_vulkan(
-        "Graphics1.png", ArtifactType.RESULTS_IMAGE, "1st Graphics Screenshot"
-    )
+    if not find_word("resolution", vulkan=True, timeout=5, interval=1, msg="Did not find the resolution setting. Did the game navigate correctly?"):
+        return FAILED_RUN
+    am.take_screenshot_vulkan("01_graphics_1.png", ArtifactType.CONFIG_IMAGE)
 
-    result = kerasService.look_for_word_vulkan("nvidia", attempts=5, interval=1)
-    if result:
+    if find_word("nvidia", vulkan=True, timeout=5, interval=1):
         logging.info("NVIDIA card is installed, navigating accordingly.")
-        press_n_times("down", 26, 0.2)
-
-        result = kerasService.look_for_word_vulkan("mode", attempts=5, interval=1)
-        if not result:
-            logging.info(
-                "Did not find the FSR mode description. Did it navigate correctly?"
-            )
-            sys.exit(1)
-        am.take_screenshot_vulkan(
-            "Graphics2.png", ArtifactType.RESULTS_IMAGE, "2nd Graphics Screenshot"
-        )
-        press_n_times("down", 14, 0.2)
-
-        result = kerasService.look_for_word_vulkan("long", attempts=5, interval=1)
-        if not result:
-            logging.info(
-                "Did not find the Long Shadows settings. Did it navigate correctly?"
-            )
-            sys.exit(1)
-        am.take_screenshot_vulkan(
-            "Graphics3.png", ArtifactType.RESULTS_IMAGE, "3rd Graphics Screenshot"
-        )
-        press_n_times("down", 15, 0.2)
-
-        result = kerasService.look_for_word_vulkan(
-            "tessellation", attempts=5, interval=1
-        )
-        if not result:
-            logging.info(
-                "Did not find the Tree Tessellation settings. Did Keras navigate correctly?"
-            )
-            sys.exit(1)
-        am.take_screenshot_vulkan(
-            "Graphics4.png", ArtifactType.RESULTS_IMAGE, "4th Graphics Screenshot"
-        )
-
+        press("down*26")
+        if not find_word("mode", vulkan=True, timeout=5, interval=1, msg="Did not find the FSR mode description. Did it navigate correctly?"):
+            return FAILED_RUN
+        am.take_screenshot_vulkan("02_graphics_2.png", ArtifactType.CONFIG_IMAGE)
+        press("down*14")
+        if not find_word("long", vulkan=True, timeout=5, interval=1, msg="Did not find the Long Shadows settings. Did it navigate correctly?"):
+            return FAILED_RUN
+        am.take_screenshot_vulkan("03_graphics_3.png", ArtifactType.CONFIG_IMAGE)
+        press("down*15")
     else:
         logging.info("NVIDIA card not detected on screen, navigating accordingly.")
-        press_n_times("down", 26, 0.2)
+        press("down*26")
+        if not find_word("msaa", vulkan=True, timeout=5, interval=1, msg="Did not find the MSAA settings. Did Keras navigate correctly?"):
+            return FAILED_RUN
+        am.take_screenshot_vulkan("02_graphics_2.png", ArtifactType.CONFIG_IMAGE)
+        press("down*14")
+        if not find_word("reflection", vulkan=True, timeout=5, interval=1, msg="Did not find the Water Reflection Quality settings. Did Keras navigate correctly?"):
+            return FAILED_RUN
+        am.take_screenshot_vulkan("03_graphics_3.png", ArtifactType.CONFIG_IMAGE)
+        press("down*12")
 
-        result = kerasService.look_for_word_vulkan("msaa", attempts=5, interval=1)
-        if not result:
-            logging.info(
-                "Did not find the MSAA settings. Did Keras navigate correctly?"
-            )
-            sys.exit(1)
-        am.take_screenshot_vulkan(
-            "Graphics2.png", ArtifactType.RESULTS_IMAGE, "2nd Graphics Screenshot"
-        )
-        press_n_times("down", 14, 0.2)
+    if not find_word("tessellation", vulkan=True, timeout=5, interval=1, msg="Did not find the Tree Tessellation settings. Did Keras navigate correctly?"):
+        return FAILED_RUN
+    am.take_screenshot_vulkan("04_graphics_4.png", ArtifactType.CONFIG_IMAGE)
 
-        result = kerasService.look_for_word_vulkan("reflection", attempts=5, interval=1)
-        if not result:
-            logging.info(
-                "Did not find the Water Reflection Quality settings. Did Keras navigate correctly?"
-            )
-            sys.exit(1)
-        am.take_screenshot_vulkan(
-            "Graphics3.png", ArtifactType.RESULTS_IMAGE, "3rd Graphics Screenshot"
-        )
-        press_n_times("down", 12, 0.2)
+    if not find_word("benchmark", vulkan=True, timeout=5, interval=1, msg="Did not see the Run Benchmark Test at the bottom of the screen. Did navigation mess up?"):
+        return FAILED_RUN
 
-        result = kerasService.look_for_word_vulkan(
-            "tessellation", attempts=5, interval=1
-        )
-        if not result:
-            logging.info(
-                "Did not find the Tree Tessellation settings. Did Keras navigate correctly?"
-            )
-            sys.exit(1)
-        am.take_screenshot_vulkan(
-            "Graphics4.png", ArtifactType.RESULTS_IMAGE, "4th Graphics Screenshot"
-        )
+    import pydirectinput as user  # localize legacy hold-key behavior
 
-    # Run benchmark by holding X for 2 seconds
-    result = kerasService.look_for_word_vulkan("benchmark", attempts=5, interval=1)
-    if not result:
-        logging.info(
-            "Did not see the Run Benchmark Test at the bottom of the screen. Did navigation mess up?"
-        )
-        sys.exit(1)
     user.keyDown("x")
     time.sleep(1.5)
     user.keyUp("x")
+    logging.info("Setup took %f seconds", round(int(time.time()) - setup_start_time, 2))
+    press("enter")
 
-    # Press enter to confirm benchmark
-    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
-    user.press("enter")
-
-    # Looking for the word Stop to mark the in time
-    result = kerasService.look_for_word_vulkan("stop", attempts=60, interval=1)
-    if not result:
-        logging.info(
-            "Did not find the stop benchmarking in the corner. Did the benchmark crash?"
-        )
-        sys.exit(1)
+    if not find_word("stop", vulkan=True, timeout=60, interval=1, msg="Did not find the stop benchmarking in the corner. Did the benchmark crash?"):
+        return FAILED_RUN
     test_start_time = int(time.time())
 
-    # Wait for the benchmark to complete
-    time.sleep(270)  # 4 min, 30 seconds.
-    result = kerasService.look_for_word_vulkan("end", attempts=30, interval=1)
-    if not result:
-        logging.info("Did not find the end results screen. Did the benchmark crash?")
-        sys.exit(1)
-    test_end_time = int(time.time())
-    am.take_screenshot_vulkan(
-        "Results.png", ArtifactType.RESULTS_IMAGE, "Results Screenshot"
-    )
-    elapsed_test_time = round(test_end_time - test_start_time, 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
-    am.copy_file(Path(CONFIG_FULL_PATH), ArtifactType.RESULTS_TEXT, "system.xml")
+    time.sleep(270)
+    if not find_word("end", vulkan=True, timeout=30, interval=1, msg="Did not find the end results screen. Did the benchmark crash?"):
+        return FAILED_RUN
 
-    # Exit
-    terminate_processes(PROCESS_NAME)
-    am.create_manifest()
-    time.sleep(50)  # sleeping to let the rockstar processes finish closing
+    test_end_time = int(time.time())
+    am.take_screenshot_vulkan("05_results.png", ArtifactType.RESULTS_IMAGE)
+    am.copy_file(Path(CONFIG_FULL_PATH), ArtifactType.RESULTS_TEXT, "system.xml")
+    logging.info("Benchmark took %f seconds", round(test_end_time - test_start_time, 2))
+    time.sleep(50)
     return test_start_time, test_end_time
 
 
-setup_logging(LOG_DIRECTORY)
+def main() -> None:
+    """Run the Red Dead Redemption 2 benchmark harness."""
+    setup_logging(LOG_DIRECTORY)
+    am = ArtifactManager(LOG_DIRECTORY)
+    report = None
+    exit_code = 0
 
-parser = ArgumentParser()
-parser.add_argument(
-    "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
-)
-parser.add_argument(
-    "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
-)
-args = parser.parse_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
+    try:
+        start_time, end_time = run_benchmark(am)
+        if (start_time, end_time) == FAILED_RUN:
+            exit_code = 1
+        else:
+            width, height = get_resolution()
+            report = {
+                "resolution": format_resolution(width, height),
+                "start_time": seconds_to_milliseconds(start_time),
+                "end_time": seconds_to_milliseconds(end_time),
+                "version": get_build_id(STEAM_GAME_ID),
+            }
+    except Exception as e:
+        logging.error("Something went wrong running the benchmark!")
+        logging.exception(e)
+        exit_code = 1
+    finally:
+        terminate_processes(PROCESS_NAME)
+        am.create_manifest()
+        if report is not None:
+            write_report_json(LOG_DIRECTORY, "report.json", report)
 
-try:
-    start_time, end_time = run_benchmark()
-    width, height = get_resolution()
-    report = {
-        "resolution": format_resolution(width, height),
-        "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time),
-        "version": get_build_id(STEAM_GAME_ID),
-    }
+    if exit_code:
+        sys.exit(exit_code)
 
-    write_report_json(LOG_DIRECTORY, "report.json", report)
-except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
-    terminate_processes(PROCESS_NAME)
-    sys.exit(1)
+
+if __name__ == "__main__":
+    main()

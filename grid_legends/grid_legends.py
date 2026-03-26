@@ -1,21 +1,17 @@
-"""Grid Legends test script"""
+"""Grid Legends test script."""
 
 import logging
 import os
 import re
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
-
-import pydirectinput as user
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-# pylint: disable=wrong-import-position
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.helper import FAILED_RUN, find_word, press
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -37,11 +33,9 @@ CONFIG_PATH = (
 CONFIG_FILENAME = "hardware_settings_config.xml"
 CONFIG_FULL_PATH = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
 
-user.FAILSAFE = False
-
 
 def get_resolution() -> tuple[int]:
-    """Gets resolution width and height from local xml file created by game."""
+    """Get resolution width and height from local xml file."""
     resolution = re.compile(r"<resolution width=\"(\d+)\" height=\"(\d+)\"")
     height = 0
     width = 0
@@ -57,156 +51,102 @@ def get_resolution() -> tuple[int]:
     return (height, width)
 
 
-def get_args() -> any:
-    """Returns command line arg values"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    return parser.parse_args()
+def launch_game() -> None:
+    exec_steam_game(STEAM_GAME_ID)
 
 
-def start_game():
-    """Launch the game"""
-    return exec_steam_game(STEAM_GAME_ID)
-
-
-def run_benchmark(keras_service):
-    """Run Grid Legends benchmark"""
+def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
+    """Run Grid Legends benchmark."""
+    launch_game()
     setup_start_time = int(time.time())
-    start_game()
-    am = ArtifactManager(LOG_DIRECTORY)
+    time.sleep(20)
 
-    time.sleep(20)  # wait for game to load to the start screen
-
-    if keras_service.wait_for_word(word="press", timeout=80, interval=1) is None:
-        logging.error("Game didn't load to start screen. Did the game load?")
-        sys.exit(1)
+    if not find_word("press", timeout=80, interval=1, msg="Game didn't load to start screen. Did the game load?"):
+        return FAILED_RUN
 
     logging.info("Game started. Entering main menu")
     time.sleep(4)
-    user.press("enter")
+    press("enter")
     time.sleep(2)
 
-    # waiting about a minute for the main menu to appear
-    if keras_service.wait_for_word(word="home", timeout=80, interval=1) is None:
-        logging.error("Game didn't load to main menu. Check settings and try again.")
-        sys.exit(1)
+    if not find_word("home", timeout=80, interval=1, msg="Game didn't load to main menu. Check settings and try again."):
+        return FAILED_RUN
 
     logging.info("Starting benchmark")
-    user.press("f3")
-    time.sleep(0.2)
-    user.press("right")
-    time.sleep(0.2)
-    user.press("right")
-    time.sleep(0.2)
-    user.press("enter")
-    time.sleep(0.2)
+    press("f3, right, right, enter")
 
-    if keras_service.wait_for_word(word="basic", timeout=30, interval=0.1) is None:
-        logging.error("Didn't basic video options. Did the menu navigate correctly?")
-        sys.exit(1)
-    am.take_screenshot(
-        "basic.png", ArtifactType.CONFIG_IMAGE, "picture of basic settings"
-    )
+    if not find_word("basic", timeout=30, interval=0.1, msg="Didn't basic video options. Did the menu navigate correctly?"):
+        return FAILED_RUN
+    am.take_screenshot("01_basic.png", ArtifactType.CONFIG_IMAGE)
 
-    user.press("f3")
-    time.sleep(0.2)
+    press("f3")
+    if not find_word("benchmark", timeout=30, interval=0.1, msg="Didn't reach advanced video options. Did the menu navigate correctly?"):
+        return FAILED_RUN
+    am.take_screenshot("02_advanced_1.png", ArtifactType.CONFIG_IMAGE)
 
-    if keras_service.wait_for_word(word="benchmark", timeout=30, interval=0.1) is None:
-        logging.error(
-            "Didn't reach advanced video options. Did the menu navigate correctly?"
-        )
-        sys.exit(1)
-    am.take_screenshot(
-        "advanced_1.png",
-        ArtifactType.CONFIG_IMAGE,
-        "first picture of advanced settings",
-    )
+    press("up")
+    if not find_word("shading", timeout=30, interval=0.1, msg="Didn't reach bottom of advanced video settings. Did the menu navigate correctly?"):
+        return FAILED_RUN
+    am.take_screenshot("03_advanced_2.png", ArtifactType.CONFIG_IMAGE)
 
-    user.press("up")
-    time.sleep(0.2)
+    press("down, enter")
+    logging.info("Harness setup took %f seconds", round(int(time.time()) - setup_start_time, 2))
 
-    if keras_service.wait_for_word(word="shading", timeout=30, interval=0.1) is None:
-        logging.error(
-            "Didn't reach bottom of advanced video settings. Did the menu navigate correctly?"
-        )
-        sys.exit(1)
-    am.take_screenshot(
-        "advanced_2.png",
-        ArtifactType.CONFIG_IMAGE,
-        "second picture of advanced settings",
-    )
-
-    user.press("down")
-    time.sleep(0.2)
-    user.press("enter")
-    time.sleep(0.2)
-
-    setup_end_time = int(time.time())
-    elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
-    logging.info("Harness setup took %f seconds", elapsed_setup_time)
-
-    if keras_service.wait_for_word(word="manzi", timeout=120, interval=0.1) is None:
-        logging.error("Didn't see Valentino Manzi. Did the benchmark load?")
-        sys.exit(1)
+    if not find_word("manzi", timeout=120, interval=0.1, msg="Didn't see Valentino Manzi. Did the benchmark load?"):
+        return FAILED_RUN
     test_start_time = int(time.time())
-
     time.sleep(136)
-    # TODO -> Mark benchmark start time using video OCR by looking for a players name
-    if keras_service.wait_for_word(word="results", timeout=30, interval=0.1) is None:
-        logging.error(
-            "Didn't see results screen for the benchmark. Could not mark start time! Did the benchmark crash?"
-        )
-        sys.exit(1)
+
+    if not find_word(
+        "results",
+        timeout=30,
+        interval=0.1,
+        msg="Didn't see results screen for the benchmark. Could not mark start time! Did the benchmark crash?",
+    ):
+        return FAILED_RUN
 
     test_end_time = int(time.time()) - 2
     time.sleep(2)
-
-    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    am.take_screenshot("04_results.png", ArtifactType.RESULTS_IMAGE)
     am.copy_file(Path(CONFIG_FULL_PATH), ArtifactType.CONFIG_TEXT, "game config")
-
     logging.info("Run completed. Closing game.")
     time.sleep(2)
-    am.create_manifest()
-
     return test_start_time, test_end_time
 
 
-def main():
-    """entry point"""
-    args = get_args()
-    keras_service = KerasService(args.keras_host, args.keras_port)
-    start_time, end_time = run_benchmark(keras_service)
-    elapsed_test_time = round((end_time - start_time), 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
-    terminate_processes(PROCESS_NAME)
-    height, width = get_resolution()
-    report = {
-        "resolution": format_resolution(width, height),
-        "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time),
-        "version": get_build_id(STEAM_GAME_ID),
-    }
+def main() -> None:
+    """Run the Grid Legends benchmark harness."""
+    setup_logging(LOG_DIRECTORY)
+    am = ArtifactManager(LOG_DIRECTORY)
+    report = None
+    exit_code = 0
 
-    write_report_json(LOG_DIRECTORY, "report.json", report)
-
-
-if __name__ == "__main__":
     try:
-        setup_logging(LOG_DIRECTORY)
-        main()
+        start_time, end_time = run_benchmark(am)
+        if (start_time, end_time) == FAILED_RUN:
+            exit_code = 1
+        else:
+            logging.info("Benchmark took %f seconds", round((end_time - start_time), 2))
+            height, width = get_resolution()
+            report = {
+                "resolution": format_resolution(width, height),
+                "start_time": seconds_to_milliseconds(start_time),
+                "end_time": seconds_to_milliseconds(end_time),
+                "version": get_build_id(STEAM_GAME_ID),
+            }
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")
         logging.exception(ex)
+        exit_code = 1
+    finally:
         terminate_processes(PROCESS_NAME)
-        sys.exit(1)
+        am.create_manifest()
+        if report is not None:
+            write_report_json(LOG_DIRECTORY, "report.json", report)
+
+    if exit_code:
+        sys.exit(exit_code)
+
+
+if __name__ == "__main__":
+    main()

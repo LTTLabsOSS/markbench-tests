@@ -4,7 +4,6 @@ import logging
 import re
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 import pydirectinput as user
@@ -12,10 +11,8 @@ import pydirectinput as user
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-# pylint: disable=wrong-import-position
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
-from harness_utils.misc import find_word, int_time, press_n_times
+from harness_utils.helper import FAILED_RUN, find_word, press
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -38,7 +35,7 @@ user.FAILSAFE = False
 
 
 def read_current_resolution():
-    """Reads resolutions settings from local game file"""
+    """Reads resolutions settings from local game file."""
     height_pattern = re.compile(r"FullscreenWidth=(\d+)")
     width_pattern = re.compile(r"FullscreenHeight=(\d+)")
     cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
@@ -56,15 +53,13 @@ def read_current_resolution():
     return (height_value, width_value)
 
 
-def delete_videos():
-    """deletes intro videos"""
+def delete_videos() -> None:
+    """Delete intro videos."""
     base_dir = Path(
         r"C:\Program Files (x86)\Steam\steamapps\common\Assassin's Creed Shadows"
     )
     videos_dir = base_dir / "videos"
     videos_en_dir = videos_dir / "en"
-
-    # List of video files to delete
     videos_to_delete = [
         videos_dir / "ANVIL_Logo.webm",
         videos_dir / "INTEL_Logo.webm",
@@ -75,7 +70,6 @@ def delete_videos():
         videos_en_dir / "warning_disclaimer.webm",
         videos_en_dir / "WarningSaving.webm",
     ]
-
     for file_path in videos_to_delete:
         if file_path.exists():
             try:
@@ -85,15 +79,13 @@ def delete_videos():
                 logging.error("Error deleting %s: %s", file_path, e)
 
 
-def move_benchmark_file():
-    """moves html benchmark results to log folder"""
+def move_benchmark_file() -> None:
+    """Move html benchmark results to log folder."""
     src_dir = Path(
         f"C:\\Users\\{USERNAME}\\Documents\\Assassin's Creed Shadows\\benchmark_reports"
     )
-
     for src_path in src_dir.iterdir():
         dest_path = LOG_DIRECTORY / src_path.name
-
         if src_path.is_file():
             try:
                 src_path.rename(dest_path)
@@ -104,178 +96,119 @@ def move_benchmark_file():
             logging.error("Benchmark HTML not found.")
 
 
-def start_game():
-    """Starts the game process"""
+def launch_game() -> None:
+    """Handle pre-launch setup and game launch."""
+    delete_videos()
     exec_steam_game(STEAM_GAME_ID)
     logging.info("Launching Game from Steam")
 
 
-def navi_settings(am):
-    """navigates and takes pictures of settings"""
-    user.press("space")
-
-    time.sleep(1)
-
-    am.take_screenshot("display1.png", ArtifactType.CONFIG_IMAGE, "display settings 1")
-
-    press_n_times("down", 13, 0.3)
-
-    am.take_screenshot("display2.png", ArtifactType.CONFIG_IMAGE, "display settings 2")
-
-    press_n_times("down", 4, 0.3)
-
-    am.take_screenshot("display3.png", ArtifactType.CONFIG_IMAGE, "display settings 3")
-
-    user.press("c")
-
-    time.sleep(1)
-
-    am.take_screenshot(
-        "scalability1.png", ArtifactType.CONFIG_IMAGE, "scalability settings 1"
-    )
-
-    press_n_times("down", 10, 0.3)
-
-    am.take_screenshot(
-        "scalability2.png", ArtifactType.CONFIG_IMAGE, "scalability settings 2"
-    )
-
-    press_n_times("down", 6, 0.3)
-
-    am.take_screenshot(
-        "scalability3.png", ArtifactType.CONFIG_IMAGE, "scalability settings 3"
-    )
-
-    press_n_times("down", 5, 0.3)
-
-    am.take_screenshot(
-        "scalability4.png", ArtifactType.CONFIG_IMAGE, "scalability settings 4"
-    )
-
-    user.press("esc")
-
-
-def run_benchmark(keras_service):
-    """runs the benchmark"""
-    delete_videos()
-    start_game()
-    setup_start_time = int_time()
-    am = ArtifactManager(LOG_DIRECTORY)
+def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
+    """Run the benchmark."""
+    launch_game()
     time.sleep(15)
 
-    if keras_service.wait_for_word(word="hardware", timeout=30, interval=1) is None:
-        logging.info("did not find hardware")
-    else:
+    if find_word("hardware", timeout=30, interval=1):
         user.mouseDown()
         time.sleep(0.2)
-        user.press("space")
+        press("space")
 
-    if keras_service.wait_for_word(word="animus", timeout=130, interval=1) is None:
-        logging.info("did not find main menu")
-        sys.exit(1)
+    if not find_word("animus", timeout=130, interval=1, msg="did not find main menu"):
+        return FAILED_RUN
 
-    user.press("f1")
+    setup_start_time = int(time.time())
+    press("f1")
 
-    find_word(keras_service, "system", "Couldn't find 'System' button")
+    if not find_word("system", msg="Couldn't find 'System' button"):
+        return FAILED_RUN
 
-    user.press("down")
+    press("down, space")
 
-    time.sleep(1)
-
-    user.press("space")
-
-    find_word(
-        keras_service,
+    if not find_word(
         "benchmark",
-        "couldn't find 'benchmark' on screen before settings",
-    )
+        msg="couldn't find 'benchmark' on screen before settings",
+    ):
+        return FAILED_RUN
 
-    navi_settings(am)
-
-    find_word(
-        keras_service, "benchmark", "couldn't find 'benchmark' on screen after settings"
-    )
-
-    user.press("down")
-
+    press("space")
     time.sleep(1)
+    am.take_screenshot("01_display_1.png", ArtifactType.CONFIG_IMAGE)
+    press("down*13")
+    am.take_screenshot("02_display_2.png", ArtifactType.CONFIG_IMAGE)
+    press("down*4")
+    am.take_screenshot("03_display_3.png", ArtifactType.CONFIG_IMAGE)
+    press("c")
+    time.sleep(1)
+    am.take_screenshot("04_scalability_1.png", ArtifactType.CONFIG_IMAGE)
+    press("down*10")
+    am.take_screenshot("05_scalability_2.png", ArtifactType.CONFIG_IMAGE)
+    press("down*6")
+    am.take_screenshot("06_scalability_3.png", ArtifactType.CONFIG_IMAGE)
+    press("down*5")
+    am.take_screenshot("07_scalability_4.png", ArtifactType.CONFIG_IMAGE)
+    press("esc")
 
-    user.press("space")
+    if not find_word(
+        "benchmark",
+        msg="couldn't find 'benchmark' on screen after settings",
+    ):
+        return FAILED_RUN
 
-    setup_end_time = int_time()
-    elapsed_setup_time = setup_end_time - setup_start_time
-    logging.info("Setup took %d seconds", elapsed_setup_time)
+    press("down, space")
+    logging.info("Setup took %d seconds", int(time.time()) - setup_start_time)
 
-    if keras_service.wait_for_word(word="benchmark", timeout=50, interval=1) is None:
-        logging.info("did not find benchmark")
-        sys.exit(1)
+    if not find_word("benchmark", timeout=50, interval=1, msg="did not find benchmark"):
+        return FAILED_RUN
 
-    test_start_time = int_time()
-
+    test_start_time = int(time.time())
     time.sleep(100)
 
-    find_word(keras_service, "results", "did not find results screen", 60)
+    if not find_word("results", timeout=60, msg="did not find results screen"):
+        return FAILED_RUN
 
-    test_end_time = int_time() - 2
-
-    elapsed_test_time = test_end_time - test_start_time
-    logging.info("Benchmark took %d seconds", elapsed_test_time)
-
-    am.take_screenshot(
-        "benchmark_results.png", ArtifactType.RESULTS_IMAGE, "benchmark results"
-    )
-
-    user.press("x")
-
+    test_end_time = int(time.time()) - 2
+    logging.info("Benchmark took %d seconds", test_end_time - test_start_time)
+    am.take_screenshot("08_results.png", ArtifactType.RESULTS_IMAGE)
+    press("x")
     time.sleep(5)
-
-    user.press("esc")
-
+    press("esc")
     move_benchmark_file()
-
     time.sleep(5)
-
-    terminate_processes(PROCESS_NAME)
-
-    am.create_manifest()
-
     return test_start_time, test_end_time
 
 
-def main():
-    """entry point"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    args = parser.parse_args()
-    keras_service = KerasService(args.keras_host, args.keras_port)
-    start_time, endtime = run_benchmark(keras_service)
-    height, width = read_current_resolution()
-    report = {
-        "resolution": format_resolution(width, height),
-        "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(endtime),
-        "version": get_build_id(STEAM_GAME_ID),
-    }
-    write_report_json(LOG_DIRECTORY, "report.json", report)
+def main() -> None:
+    """Run the Assassin's Creed Shadows benchmark harness."""
+    setup_logging(LOG_DIRECTORY)
+    am = ArtifactManager(LOG_DIRECTORY)
+    report = None
+    exit_code = 0
 
-
-if __name__ == "__main__":
     try:
-        setup_logging(LOG_DIRECTORY)
-        main()
+        start_time, end_time = run_benchmark(am)
+        if (start_time, end_time) == FAILED_RUN:
+            exit_code = 1
+        else:
+            height, width = read_current_resolution()
+            report = {
+                "resolution": format_resolution(width, height),
+                "start_time": seconds_to_milliseconds(start_time),
+                "end_time": seconds_to_milliseconds(end_time),
+                "version": get_build_id(STEAM_GAME_ID),
+            }
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")
         logging.exception(ex)
+        exit_code = 1
+    finally:
         terminate_processes(PROCESS_NAME)
-        sys.exit(1)
+        am.create_manifest()
+        if report is not None:
+            write_report_json(LOG_DIRECTORY, "report.json", report)
+
+    if exit_code:
+        sys.exit(exit_code)
+
+
+if __name__ == "__main__":
+    main()

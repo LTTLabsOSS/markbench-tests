@@ -1,21 +1,19 @@
-"""Atomic Heart test script"""
+"""Atomic Heart test script."""
 
 import logging
 import os
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
-import pydirectinput as user
 from atomic_heart_utils import read_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
-from harness_utils.misc import press_n_times, remove_files
+from harness_utils.helper import FAILED_RUN, find_word, press
+from harness_utils.misc import remove_files
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -49,179 +47,148 @@ intro_videos = [
     VIDEO_PATH / "Launch_FHD_60FPS_PC_Steam.mp4",
 ]
 
-user.FAILSAFE = False
 
-
-def navigate_game_menus(am: ArtifactManager):
-    """Navigate in game menus and take screenshots where appropriate"""
-    result = kerasService.wait_for_word("vsync", timeout=25)
-    if not result:
-        logging.info(
-            "Did not see display menu. Did we navigate to the options correctly?"
-        )
-        sys.exit(1)
-    am.take_screenshot(
-        "display.png", ArtifactType.CONFIG_IMAGE, "screenshot of the display settings"
-    )
-
-    user.press("e")
-    time.sleep(0.5)
-    result = kerasService.wait_for_word("dlss", timeout=25)
-    if not result:
-        logging.info(
-            "Did not see the top of quality menu. Did we navigate to the quality menu correctly?"
-        )
-        sys.exit(1)
-    am.take_screenshot(
-        "quality_1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of quality menu"
-    )
-
-    user.press("w")
-    time.sleep(0.5)
-    result = kerasService.wait_for_word("vegetation", timeout=25)
-    if not result:
-        logging.info(
-            "Did not see the bottom of quality menu. Did we scroll the quality menu correctly?"
-        )
-        sys.exit(1)
-    am.take_screenshot(
-        "quality_2.png", ArtifactType.CONFIG_IMAGE, "second screenshot of quality menu"
-    )
-    user.press("esc")
-    time.sleep(0.5)
-
-
-def run_benchmark():
-    """Starts the benchmark"""
+def launch_game() -> None:
+    """Handle pre-launch setup and game launch."""
     remove_files([str(path) for path in intro_videos])
     exec_steam_run_command(STEAM_GAME_ID)
-    am = ArtifactManager(LOG_DIRECTORY)
-    setup_start_time = int(time.time())
 
+
+def run_benchmark(am: ArtifactManager) -> tuple[int, int]:
+    """Start the benchmark."""
+    launch_game()
     time.sleep(10)
 
-    result = kerasService.wait_for_word("press", timeout=25)
-    if not result:
-        logging.info("Did not see start screen")
-        sys.exit(1)
+    if not find_word("press", timeout=25, msg="Did not see start screen"):
+        return FAILED_RUN
 
-    user.press("space")
+    setup_start_time = int(time.time())
+    press("space")
 
-    # This is for the menu checking for if there's a continue option
-    result = kerasService.look_for_word("continue", attempts=20, interval=1)
-    if result:
+    if find_word("continue", timeout=20, interval=1):
         logging.info("Continue option available, navigating accordingly.")
-        press_n_times("s", 3, 0.5)
-        user.press("f")
+        press("s*3, f")
         time.sleep(0.5)
-        navigate_game_menus(am)
-
-        # Launch benchmark
-        user.press("s")
-        time.sleep(0.5)
-        user.press("d")
-        time.sleep(0.5)
-        user.press("f")
-        time.sleep(0.5)
-        user.press("space")
     else:
         logging.info("Continue option not available, navigating accordingly.")
-        user.press("s")
+        press("s, f")
         time.sleep(0.5)
-        user.press("f")
-        time.sleep(0.5)
-        navigate_game_menus(am)
 
-        # Launch benchmark
-        user.press("s")
-        time.sleep(0.5)
-        user.press("w")
-        time.sleep(0.5)
-        user.press("d")
-        time.sleep(0.5)
-        user.press("f")
-        time.sleep(0.5)
-        user.press("space")
+    if not find_word(
+        "vsync",
+        timeout=25,
+        msg="Did not see display menu. Did we navigate to the options correctly?",
+    ):
+        return FAILED_RUN
+    am.take_screenshot("01_display.png", ArtifactType.CONFIG_IMAGE)
+
+    press("e")
+    time.sleep(0.5)
+    if not find_word(
+        "dlss",
+        timeout=25,
+        msg="Did not see the top of quality menu. Did we navigate to the quality menu correctly?",
+    ):
+        return FAILED_RUN
+    am.take_screenshot("02_quality_1.png", ArtifactType.CONFIG_IMAGE)
+
+    press("w")
+    time.sleep(0.5)
+    if not find_word(
+        "vegetation",
+        timeout=25,
+        msg="Did not see the bottom of quality menu. Did we scroll the quality menu correctly?",
+    ):
+        return FAILED_RUN
+    am.take_screenshot("03_quality_2.png", ArtifactType.CONFIG_IMAGE)
+    press("esc")
+    time.sleep(0.5)
+
+    if find_word("continue", timeout=1):
+        press("s, d, f, space")
+    else:
+        press("s, w, d, f, space")
 
     time.sleep(10)
 
-    # This is for the loading screen continue
-    result = kerasService.wait_for_word("continue", interval=1, timeout=80)
-    if not result:
-        logging.info(
-            "Did not see the option to continue. Check settings and try again."
-        )
-        sys.exit(1)
+    if not find_word(
+        "continue",
+        interval=1,
+        timeout=80,
+        msg="Did not see the option to continue. Check settings and try again.",
+    ):
+        return FAILED_RUN
 
-    logging.info("Continue found. Starting opening scene benchmark.")
-    user.press("space")
+    press("space")
+    logging.info("Setup took %f seconds", round(int(time.time()) - setup_start_time, 2))
 
-    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
-
-    result = kerasService.wait_for_word("vibes", interval=0.5, timeout=250)
-    if not result:
-        logging.info("Good vibes were not found! Could not mark the start time.")
-        sys.exit(1)
+    if not find_word(
+        "vibes",
+        interval=0.5,
+        timeout=250,
+        msg="Good vibes were not found! Could not mark the start time.",
+    ):
+        return FAILED_RUN
 
     test_start_time = int(time.time())
+    time.sleep(216)
 
-    time.sleep(216)  # Wait for benchmark till the end time
-
-    result = kerasService.wait_for_word("83", interval=0.5, timeout=250)
-    if not result:
-        logging.info("Waypoint distance was not found! Could not mark the end time.")
-        sys.exit(1)
+    if not find_word(
+        "83",
+        interval=0.5,
+        timeout=250,
+        msg="Waypoint distance was not found! Could not mark the end time.",
+    ):
+        return FAILED_RUN
 
     test_end_time = int(time.time())
+    time.sleep(13)
 
-    time.sleep(13)  # wait for No Rest For the Wicked Quest
+    if not find_word(
+        "wicked",
+        interval=1,
+        timeout=250,
+        msg="Wicked was not found! Did harness not wait long enough? Or test was too long?",
+    ):
+        return FAILED_RUN
 
-    result = kerasService.wait_for_word("wicked", interval=1, timeout=250)
-    if not result:
-        logging.info(
-            "Wicked was not found! Did harness not wait long enough? Or test was too long?"
-        )
-        sys.exit(1)
-
-    logging.info("Wicked found. Ending Benchmark.")
     am.copy_file(CONFIG_FULL_PATH, ArtifactType.CONFIG_TEXT, "GameUserSettings.ini")
-
-    elapsed_test_time = round(test_end_time - test_start_time, 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
-
-    # Exit
-    terminate_processes(PROCESS_NAME)
-    am.create_manifest()
-
+    logging.info("Benchmark took %f seconds", round(test_end_time - test_start_time, 2))
     return test_start_time, test_end_time
 
 
-setup_logging(LOG_DIRECTORY)
+def main() -> None:
+    """Run the Atomic Heart benchmark harness."""
+    setup_logging(LOG_DIRECTORY)
+    am = ArtifactManager(LOG_DIRECTORY)
+    report = None
+    exit_code = 0
 
-parser = ArgumentParser()
-parser.add_argument(
-    "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
-)
-parser.add_argument(
-    "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
-)
-args = parser.parse_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
+    try:
+        start_time, end_time = run_benchmark(am)
+        if (start_time, end_time) == FAILED_RUN:
+            exit_code = 1
+        else:
+            height, width = read_resolution()
+            report = {
+                "resolution": format_resolution(width, height),
+                "start_time": seconds_to_milliseconds(start_time),
+                "end_time": seconds_to_milliseconds(end_time),
+                "version": get_build_id(STEAM_GAME_ID),
+            }
+    except Exception as e:
+        logging.error("Something went wrong running the benchmark!")
+        logging.exception(e)
+        exit_code = 1
+    finally:
+        terminate_processes(PROCESS_NAME)
+        am.create_manifest()
+        if report is not None:
+            write_report_json(LOG_DIRECTORY, "report.json", report)
 
-try:
-    start_time, end_time = run_benchmark()
-    height, width = read_resolution()
-    report = {
-        "resolution": format_resolution(width, height),
-        "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time),
-        "version": get_build_id(STEAM_GAME_ID),
-    }
+    if exit_code:
+        sys.exit(exit_code)
 
-    write_report_json(LOG_DIRECTORY, "report.json", report)
-except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
-    terminate_processes(PROCESS_NAME)
-    sys.exit(1)
+
+if __name__ == "__main__":
+    main()
