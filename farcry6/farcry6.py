@@ -47,7 +47,7 @@ def skip_logo_screens() -> None:
     logging.info("Skipping logo screens")
 
     # skipping the logo screens
-    press_n_times("space", 15, 0.5)
+    press_n_times("space", 10, 0.5)
 
 
 def run_benchmark():
