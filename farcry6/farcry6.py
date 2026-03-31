@@ -47,7 +47,7 @@ def skip_logo_screens() -> None:
     logging.info("Skipping logo screens")
 
     # skipping the logo screens
-    press_n_times("escape", 8, 1)
+    press_n_times("space", 10, 0.5)
 
 
 def run_benchmark():
@@ -57,9 +57,9 @@ def run_benchmark():
     time.sleep(25)
 
     # skipping game intros
-    result = kerasService.look_for_word("warning", attempts=20, interval=1)
+    result = kerasService.look_for_word("government", attempts=20, interval=1)
     if not result:
-        logging.info("Did not see warnings. Did the game start?")
+        logging.info("Did not see 'government'. Did the game start?")
         sys.exit(1)
 
     skip_logo_screens()
