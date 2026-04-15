@@ -120,6 +120,7 @@ def create_conda_environment() -> str:
         "-n",
         CONDA_ENV_NAME,
         "python=3.11",
+        "-y",
     ]
     output = subprocess.check_output(
         " ".join(command), stderr=subprocess.STDOUT, text=True
