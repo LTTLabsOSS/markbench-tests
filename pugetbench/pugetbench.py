@@ -250,7 +250,7 @@ def main():
         args.app, args.app_version
     )
 
-    if args.benchmark_version is None:
+    if args.benchmark_version is None or args.benchmark_version == "":
         args.benchmark_version = get_latest_benchmark_by_version(args.app)
 
     try:

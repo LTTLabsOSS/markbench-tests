@@ -1,7 +1,6 @@
 """utils file for pugetbench harness"""
 
 import csv
-import logging
 import os
 import re
 from pathlib import Path
@@ -34,8 +33,6 @@ def get_latest_benchmark_by_version(benchmark_name: str):
         raise ValueError("Invalid benchmark name")
 
     benchmark_json_dir = Path().home() / "AppData/Local/com.puget.benchmark/benchmarks"
-    logging.info("Resolved path:", benchmark_json_dir)
-    logging.info("Exists:", benchmark_json_dir.exists())
     if not benchmark_json_dir.exists():
         raise ValueError("Could not find benchmark directory in appdata")
 
