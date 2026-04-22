@@ -117,6 +117,21 @@ def find_score_in_log(log_path):
     return None
 
 
+def find_pugetbench_csv(folder_path: str | Path) -> Path | None:
+    """Return the first `pugetbench*.csv` file found in the given folder."""
+    folder = Path(folder_path)
+    if not folder.is_dir():
+        raise ValueError(f"Invalid folder path: {folder_path}")
+
+    for file_path in sorted(folder.iterdir()):
+        if file_path.is_file() and re.fullmatch(
+            r"pugetbench.*\.csv", file_path.name, re.IGNORECASE
+        ):
+            return file_path
+
+    return None
+
+
 def get_photoshop_version() -> tuple[str, str]:
     """Get the installed Adobe Photoshop version string, prioritizing Beta versions."""
     base_path = r"C:\Program Files\Adobe"
