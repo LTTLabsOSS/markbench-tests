@@ -125,7 +125,7 @@ def run_benchmark():
     am = ArtifactManager(LOG_DIRECTORY)
 
     setup_start_time = int(time.time())
-    time.sleep(2)
+    time.sleep(20)
     navigate_startup()
 
     offline_menu()
