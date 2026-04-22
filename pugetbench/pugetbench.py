@@ -21,10 +21,9 @@ from pugetbench_utils import (
     trim_to_major_minor,
 )
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
-
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.output import (
     seconds_to_milliseconds,
     setup_logging,
