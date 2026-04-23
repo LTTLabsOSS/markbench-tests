@@ -292,6 +292,7 @@ def main():
         "start_time": seconds_to_milliseconds(test_start_time),
         "end_time": seconds_to_milliseconds(test_end_time),
         "benchmark_time": (elapsed_test_time),
+        "benchmark_time_unit": "seconds",
         "version": get_build_id(STEAM_GAME_ID),
     }
 
