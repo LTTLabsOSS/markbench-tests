@@ -66,11 +66,20 @@ def console_command(command):
     gui.write(command)
     user.press("enter")
 
-def time_check(keras_service, timeout=300, buffer=0.2):
+def time_check(keras_service, timeout=300, interval=0.5):
     """Continuously looks for the time of 08:18 using kerasService. If not found in the given time, marks the out time."""
-    timecheck_time = time.monotonic()
-    
-    while time.monotonic() - timecheck_time < timeout:
+    start = time.monotonic()
+    next_tick = start
+
+    while time.monotonic() - start < timeout:
+        now = time.monotonic()
+
+        # enforce fixed cadence
+        if now < next_tick:
+            time.sleep(next_tick - now)
+            continue
+
+        next_tick += interval
 
         found = keras_service.look_for_word(
             word="0818",
