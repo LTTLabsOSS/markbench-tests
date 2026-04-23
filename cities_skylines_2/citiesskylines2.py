@@ -43,6 +43,9 @@ STEAM_GAME_ID = 949230
 top_left_keras = ScreenSplitConfig(
     divide_method=ScreenShotDivideMethod.QUADRANT, quadrant=ScreenShotQuadrant.TOP_LEFT
 )
+bottom_left_keras = ScreenSplitConfig(
+    divide_method=ScreenShotDivideMethod.QUADRANT, quadrant=ScreenShotQuadrant.BOTTOM_LEFT
+)
 
 launcher_files = ["bootstrapper-v2.exe", "launcher.exe", "notlauncher-options.json"]
 save_files = ["Benchmark.cok", "Benchmark.cok.cid"]
@@ -82,9 +85,10 @@ def time_check(keras_service, timeout=300, interval=0.5):
         next_tick += interval
 
         found = keras_service.look_for_word(
-            word="0818",
+            word="18",
             attempts=1,
-            interval=0.2
+            interval=0.2,
+            split_config=bottom_left_keras
         )
 
         if found:
@@ -168,7 +172,7 @@ def run_benchmark(keras_service):
 
     #supposed to be window start time
     test_start_time = int(time.time())
-    time.sleep(60)
+    time.sleep(80)
     if not time_check(keras_service):
         logging.info("Timeout reached...")
         sys.exit(1)
