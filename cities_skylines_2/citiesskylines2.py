@@ -66,17 +66,17 @@ def console_command(command):
     gui.write(command)
     user.press("enter")
 
-def time_check(keras_service, timeout=200):
+def time_check(keras_service, timeout=300):
     """Continuously looks for a word using kerasService. If not found in the given time, marks the out time."""
-    timecheck_time = time.time()
+    timecheck_time = time.monotonic()
     
     while True:
         # Stop if we've exceeded the allowed time
-        if time.time() - timecheck_time > timeout:
+        if time.monotonic() - timecheck_time > timeout:
             logging.info(
                 "Timeout reached while checking the correct time. Did the benchmark start?"
             )
-            sys.exit(1)
+            return False
 
         found = keras_service.look_for_word(word="0818", attempts=2, interval=0.3)
 
@@ -151,7 +151,6 @@ def run_benchmark(keras_service):
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
     gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
     time.sleep(2)
     logging.info("Starting benchmark")
     user.press("3")
@@ -163,7 +162,9 @@ def run_benchmark(keras_service):
     #supposed to be window start time
     test_start_time = int(time.time())
     time.sleep(60)
-    time_check(keras_service)
+    if not time_check(keras_service):
+        logging.info("Timeout reached...")
+        sys.exit(1)
 
     result = keras_service.wait_for_word("paused", interval=0.5, timeout=100)
     if not result:
