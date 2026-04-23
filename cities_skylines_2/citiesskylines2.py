@@ -74,17 +74,14 @@ def time_check(keras_service, timeout=300, buffer=0.2):
 
         found = keras_service.look_for_word(
             word="0818",
-            attempts=2,
-            interval=0.4
+            attempts=1,
+            interval=0.2
         )
 
         if found:
             user.press("space")
             return True
 
-        # buffer prevents immediate re-trigger of another OCR cycle
-        if buffer > 0:
-            time.sleep(buffer)
     return False
 
 
