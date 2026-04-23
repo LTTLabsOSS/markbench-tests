@@ -1,4 +1,4 @@
-"""Utility functions for Total War: Warhammer III test script"""
+"""Utility functions for Cities: Skylines II test script"""
 
 import logging
 import os

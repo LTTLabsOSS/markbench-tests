@@ -1,4 +1,4 @@
-"""Stellaris test script"""
+"""Cities: Skylines II test script"""
 
 import logging
 import os
@@ -65,6 +65,26 @@ def console_command(command):
     """Enter a console command"""
     gui.write(command)
     user.press("enter")
+
+def time_check(keras_service, timeout=200):
+    """Continuously looks for a word using kerasService. If not found in the given time, marks the out time."""
+    timecheck_time = time.time()
+    
+    while True:
+        # Stop if we've exceeded the allowed time
+        if time.time() - timecheck_time > timeout:
+            logging.info(
+                "Timeout reached while checking the correct time. Did the benchmark start?"
+            )
+            sys.exit(1)
+
+        found = keras_service.look_for_word(word="0818", attempts=2, interval=0.3)
+
+        if found:
+            user.press("space")
+            return True
+
+        time.sleep(1)
 
 
 def run_benchmark(keras_service):
@@ -135,21 +155,30 @@ def run_benchmark(keras_service):
     time.sleep(2)
     logging.info("Starting benchmark")
     user.press("3")
-    time.sleep(2)
 
-    # TODO: switch back to 180 after testing
+    #mark in of benchmark start
+    benchmark_start_time = int(time.time())
+    time.sleep(3)
+
+    #supposed to be window start time
     test_start_time = int(time.time())
-    time.sleep(180)
+    time.sleep(60)
+    time_check(keras_service)
+
+    result = keras_service.wait_for_word("paused", interval=0.5, timeout=100)
+    if not result:
+        logging.info(
+            "Could not find the paused notification. Unable to mark start time!"
+        )
+        sys.exit(1)
 
     test_end_time = int(time.time())
-    time.sleep(2)
-    user.press("1")
 
     # Wait 5 seconds for benchmark info
-    time.sleep(10)
+    time.sleep(5)
 
     # End the run
-    elapsed_test_time = round(test_end_time - test_start_time, 2)
+    elapsed_test_time = round(test_end_time - benchmark_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Open quick menu
@@ -202,7 +231,7 @@ def run_benchmark(keras_service):
     gui.moveTo(result["x"], result["y"])
     time.sleep(0.2)
 
-    mouse_scroll_n_times(8, -800, 0.2)
+    mouse_scroll_n_times(8, -400, 0.2)
 
     if keras_service.wait_for_word(word="water", timeout=30, interval=1) is None:
         logging.info(
@@ -234,7 +263,7 @@ def run_benchmark(keras_service):
     terminate_processes(PROCESS_NAME)
     am.create_manifest()
 
-    return test_start_time, test_end_time
+    return test_start_time, test_end_time, elapsed_test_time
 
 
 def main():
@@ -255,12 +284,13 @@ def main():
     args = parser.parse_args()
     keras_service = KerasService(args.keras_host, args.keras_port)
 
-    test_start_time, test_end_time = run_benchmark(keras_service)
+    test_start_time, test_end_time, elapsed_test_time = run_benchmark(keras_service)
     resolution = read_current_resolution()
     report = {
         "resolution": f"{resolution}",
         "start_time": seconds_to_milliseconds(test_start_time),
         "end_time": seconds_to_milliseconds(test_end_time),
+        "benchmark_time": (elapsed_test_time),
         "version": get_build_id(STEAM_GAME_ID),
     }
 
