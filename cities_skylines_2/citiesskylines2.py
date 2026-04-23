@@ -66,25 +66,26 @@ def console_command(command):
     gui.write(command)
     user.press("enter")
 
-def time_check(keras_service, timeout=300):
-    """Continuously looks for a word using kerasService. If not found in the given time, marks the out time."""
+def time_check(keras_service, timeout=300, buffer=0.2):
+    """Continuously looks for the time of 08:18 using kerasService. If not found in the given time, marks the out time."""
     timecheck_time = time.monotonic()
     
-    while True:
-        # Stop if we've exceeded the allowed time
-        if time.monotonic() - timecheck_time > timeout:
-            logging.info(
-                "Timeout reached while checking the correct time. Did the benchmark start?"
-            )
-            return False
+    while time.monotonic() - timecheck_time < timeout:
 
-        found = keras_service.look_for_word(word="0818", attempts=2, interval=0.3)
+        found = keras_service.look_for_word(
+            word="0818",
+            attempts=2,
+            interval=0.4
+        )
 
         if found:
             user.press("space")
             return True
 
-        time.sleep(1)
+        # buffer prevents immediate re-trigger of another OCR cycle
+        if buffer > 0:
+            time.sleep(buffer)
+    return False
 
 
 def run_benchmark(keras_service):
