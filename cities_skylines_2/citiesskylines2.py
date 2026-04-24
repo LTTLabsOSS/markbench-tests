@@ -163,6 +163,7 @@ def run_benchmark(keras_service):
     gui.moveTo(result["x"], result["y"])
     time.sleep(2)
     logging.info("Starting benchmark")
+    user.press("space")
 
     #mark in of benchmark start
     if not time_check(keras_service):
