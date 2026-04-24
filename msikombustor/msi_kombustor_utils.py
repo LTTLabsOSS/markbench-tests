@@ -1,6 +1,7 @@
 """Utility functions for MSI Kombustor test script"""
-from argparse import ArgumentParser, Namespace
+
 import re
+from argparse import ArgumentParser, Namespace
 
 # cSpell:disable
 avail_tests = [
@@ -30,15 +31,35 @@ avail_tests = [
 ]
 # cSpell:enable
 
+
 def parse_args() -> Namespace:
     """Gets script arguments"""
     parser = ArgumentParser()
-    parser.add_argument("-t", "--test", dest="test", choices=avail_tests,
-                        help="kombustor test", metavar="test", required=True)
-    parser.add_argument("-r", "--resolution", dest="resolution",
-                        help="resolution", metavar="resolution", required=True)
-    parser.add_argument("-b", "--benchmark", dest="benchmark",
-                        help="benchmark mode", metavar="benchmark", required=False)
+    parser.add_argument(
+        "-t",
+        "--test",
+        dest="test",
+        choices=avail_tests,
+        help="kombustor test",
+        metavar="test",
+        required=True,
+    )
+    parser.add_argument(
+        "-r",
+        "--resolution",
+        dest="resolution",
+        help="resolution",
+        metavar="resolution",
+        required=True,
+    )
+    parser.add_argument(
+        "-b",
+        "--benchmark",
+        dest="benchmark",
+        help="benchmark mode",
+        metavar="benchmark",
+        required=False,
+    )
     return parser.parse_args()
 
 

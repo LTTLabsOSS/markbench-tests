@@ -1,11 +1,11 @@
 """alan wake 2 test utils"""
-import winreg
-import os
+
 import logging
+import os
 import re
 import shutil
+import winreg
 from pathlib import Path
-import json
 
 LOCALAPPDATA = os.getenv("LOCALAPPDATA")
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -16,10 +16,11 @@ DEFAULT_EXECUTABLE_NAME = "EpicGamesLauncher.exe"
 
 def account_id() -> any:
     """get epic account id"""
-    reg_path = r'Software\Epic Games\Unreal Engine\Identifiers'
+    reg_path = r"Software\Epic Games\Unreal Engine\Identifiers"
     try:
-        registry_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0,
-                                      winreg.KEY_READ)
+        registry_key = winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER, reg_path, 0, winreg.KEY_READ
+        )
         value, _ = winreg.QueryValueEx(registry_key, "AccountId")
         winreg.CloseKey(registry_key)
         return value
@@ -42,7 +43,7 @@ def get_resolution():
                 height = height_match.group(1)
             if width_match is not None:
                 width = width_match.group(1)
-            if height != 0 and width !=0:
+            if height != 0 and width != 0:
                 return (height, width)
     return (height, width)
 
@@ -59,22 +60,25 @@ def copy_save() -> None:
     try:
         Path(save_location).mkdir(parents=True, exist_ok=True)
     except FileExistsError as e:
-        logging.error("Could not copy files - likely due to non-directory file existing at path.")
+        logging.error(
+            "Could not copy files - likely due to non-directory file existing at path."
+        )
         raise e
 
     # Copy the benchmark over
     logging.info("Copying benchmark to install folder")
     destination_folder = save_location.joinpath(os.path.basename(AW2_SAVE))
     logging.info("Copying: %s -> %s", AW2_SAVE, destination_folder)
-    shutil.copytree(AW2_SAVE, destination_folder, dirs_exist_ok = True)
+    shutil.copytree(AW2_SAVE, destination_folder, dirs_exist_ok=True)
 
 
 def find_epic_executable() -> any:
     """Get path to Epic Games Executable"""
-    reg_path = r'Software\Epic Games\EOS'
+    reg_path = r"Software\Epic Games\EOS"
     try:
-        registry_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0,
-                                      winreg.KEY_READ)
+        registry_key = winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER, reg_path, 0, winreg.KEY_READ
+        )
         value, _ = winreg.QueryValueEx(registry_key, "ModSdkCommand")
         winreg.CloseKey(registry_key)
         return value

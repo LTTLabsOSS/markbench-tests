@@ -1,32 +1,35 @@
 """Utility functions for Total War: Warhammer III test script"""
+
+import getpass
+import logging
 import os
 import re
-import sys
-import logging
 import shutil
-import getpass
+import sys
 from pathlib import Path
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 USERNAME = getpass.getuser()
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "stellaris.exe"
 STEAM_GAME_ID = 281990
-CONFIG_LOCATION = Path(f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris")
-LOG_LOCATION = Path(f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris\\logs")
+CONFIG_LOCATION = Path(
+    f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris"
+)
+LOG_LOCATION = Path(
+    f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris\\logs"
+)
 BENCHMARK_LOCATION = Path(
-    f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris\\save games\\BENCHMARK")
+    f"C:\\Users\\{USERNAME}\\Documents\\Paradox Interactive\\Stellaris\\save games\\BENCHMARK"
+)
 CONFIG_FILENAME = "settings.txt"
 LOG_FILE = "game.log"
 
 
-benchmark_files = [
-    "benchmark.ini",
-    "pdx_settings.txt",
-    "settings.txt"
-]
+benchmark_files = ["benchmark.ini", "pdx_settings.txt", "settings.txt"]
 
 
 def read_current_resolution():
@@ -66,7 +69,7 @@ def copy_benchmarkfiles() -> None:
     """Copy benchmark config files to config directory"""
     for file in benchmark_files:
         try:
-            src_path = SCRIPT_DIR / "settings" / file
+            src_path = SCRIPT_DIRECTORY / "settings" / file
             CONFIG_LOCATION.mkdir(parents=True, exist_ok=True)
             dest_path = CONFIG_LOCATION / file
             logging.info("copying: %s -> %s", src_path, dest_path)
@@ -93,7 +96,9 @@ def delete_existing_saves():
                 file_path = BENCHMARK_LOCATION.joinpath(file)
                 if file_path.exists():
                     os.remove(file_path)
-            logging.info("Removing any additional save files from %s", BENCHMARK_LOCATION)
+            logging.info(
+                "Removing any additional save files from %s", BENCHMARK_LOCATION
+            )
         except OSError as ex:
             logging.error("Error occurred while deleting files: %s", ex)
 
@@ -102,7 +107,7 @@ def copy_benchmarksave() -> None:
     """Copy save game to saves directory"""
     try:
         benchmark_save = "August_28th_2024_Year2400.sav"
-        copy_destination = SCRIPT_DIR.joinpath(benchmark_save)
+        copy_destination = SCRIPT_DIRECTORY.joinpath(benchmark_save)
         copy_save_from_network_drive(benchmark_save, copy_destination)
         config_dest = BENCHMARK_LOCATION / benchmark_save
         delete_existing_saves()

@@ -1,34 +1,25 @@
 """Recording session test script"""
+
 import logging
-import os
 import socket
 import sys
 import time
+from pathlib import Path
 
-
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.output import (
-    write_report_json,
-    setup_log_directory,
     seconds_to_milliseconds,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT)
+    setup_logging,
+    write_report_json,
+)
 
-SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-LOG_DIRECTORY = os.path.join(SCRIPT_DIR, "run")
-setup_log_directory(LOG_DIRECTORY)
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+setup_logging(LOG_DIRECTORY)
 
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
-
-HOST = ''
+HOST = ""
 PORT = 30000
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 start_time = time.time()
@@ -46,9 +37,8 @@ while True:
         stop_time = time.time()
         report = {
             "start_time": seconds_to_milliseconds(start_time),
-            "end_time": seconds_to_milliseconds(stop_time)
+            "end_time": seconds_to_milliseconds(stop_time),
         }
 
         write_report_json(LOG_DIRECTORY, "report.json", report)
         sys.exit(0)
-        

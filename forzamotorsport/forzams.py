@@ -1,47 +1,51 @@
 """Forza Motorsport test script"""
-import os
+
 import logging
+import os
 import sys
 import time
+from pathlib import Path
+
 import pydirectinput as user
+from forzams_utils import get_args, get_resolution
 
-from forzams_utils import get_resolution, get_args
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
-
+from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
+from harness_utils.misc import press_n_times
 from harness_utils.output import (
     seconds_to_milliseconds,
-    setup_log_directory,
+    setup_logging,
     write_report_json,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT,
 )
-from harness_utils.misc import press_n_times
 from harness_utils.process import terminate_processes
-from harness_utils.steam import (
-  exec_steam_run_command,
-  get_build_id
-)
-from harness_utils.rtss import  start_rtss_process, copy_rtss_profile
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.rtss import copy_rtss_profile, start_rtss_process
+from harness_utils.steam import exec_steam_run_command, get_build_id
 
 STEAM_GAME_ID = 2440510
-SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-LOG_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "run")
-LOCAL_USER_SETTINGS = os.path.join(
-  os.getenv('LOCALAPPDATA'), "Microsoft.ForzaMotorsport", "User_SteamLocalStorageDirectory",
-  "ConnectedStorage", "ForzaUserConfigSelections", "UserConfigSelections"
-  )
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+LOCAL_USER_SETTINGS = (
+    Path(os.getenv("LOCALAPPDATA"))
+    / "Microsoft.ForzaMotorsport"
+    / "User_SteamLocalStorageDirectory"
+    / "ConnectedStorage"
+    / "ForzaUserConfigSelections"
+    / "UserConfigSelections"
+)
 PROCESSES = ["forza_steamworks_release_final.exe", "RTSS.exe"]
 
 user.FAILSAFE = False
 
+
 def start_rtss():
     """Sets up the RTSS process"""
-    profile_path = os.path.join(SCRIPT_DIRECTORY, "forza_steamworks_release_final.exe.cfg")
-    copy_rtss_profile(profile_path)
+    profile_path = SCRIPT_DIRECTORY / "forza_steamworks_release_final.exe.cfg"
+    copy_rtss_profile(str(profile_path))
     return start_rtss_process()
+
 
 def run_benchmark() -> tuple[float]:
     """Run the benchmark"""
@@ -65,7 +69,9 @@ def run_benchmark() -> tuple[float]:
     time.sleep(1)
 
     if kerasService.wait_for_word(word="contrast", timeout=30, interval=1) is None:
-        logging.info("Did not find the accessibility settings menu. Did the menu get stuck?")
+        logging.info(
+            "Did not find the accessibility settings menu. Did the menu get stuck?"
+        )
         sys.exit(1)
 
     user.press("]")
@@ -80,23 +86,31 @@ def run_benchmark() -> tuple[float]:
         logging.info("Did not find the display settings menu. Did the menu get stuck?")
         sys.exit(1)
 
-    am.take_screenshot("display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings")
+    am.take_screenshot(
+        "display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings"
+    )
     user.press("]")
     time.sleep(0.5)
 
     if kerasService.wait_for_word(word="filtering", timeout=30, interval=1) is None:
         logging.info("Did not find the graphics settings menu. Did the menu get stuck?")
         sys.exit(1)
-    am.take_screenshot("graphics1.png", ArtifactType.CONFIG_IMAGE, "1st picture of graphics settings")
+    am.take_screenshot(
+        "graphics1.png", ArtifactType.CONFIG_IMAGE, "1st picture of graphics settings"
+    )
 
-    press_n_times("down",15,0.5)
+    press_n_times("down", 15, 0.5)
 
     if kerasService.wait_for_word(word="particle", timeout=30, interval=1) is None:
-        logging.info("Did not find the particle effect settings. Did the menu get stuck?")
+        logging.info(
+            "Did not find the particle effect settings. Did the menu get stuck?"
+        )
         sys.exit(1)
-    am.take_screenshot("graphics2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of graphics settings")
+    am.take_screenshot(
+        "graphics2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of graphics settings"
+    )
 
-    press_n_times("down",3,0.5)
+    press_n_times("down", 3, 0.5)
     user.press("up")
     time.sleep(0.5)
     user.press("down")
@@ -105,7 +119,9 @@ def run_benchmark() -> tuple[float]:
     if kerasService.wait_for_word(word="flare", timeout=30, interval=1) is None:
         logging.info("Did not find the lens flare settings. Did the menu get stuck?")
         sys.exit(1)
-    am.take_screenshot("graphics3.png", ArtifactType.CONFIG_IMAGE, "3rd picture of graphics settings")
+    am.take_screenshot(
+        "graphics3.png", ArtifactType.CONFIG_IMAGE, "3rd picture of graphics settings"
+    )
 
     # Navigate to graphics menu
     user.press("[")
@@ -121,7 +137,9 @@ def run_benchmark() -> tuple[float]:
     if kerasService.wait_for_word(word="results", timeout=60, interval=0.5) is None:
         logging.info("Did not find the results screen. Did the game load?")
         sys.exit(1)
-    am.take_screenshot("results.png", ArtifactType.CONFIG_IMAGE, "picture of results screen")
+    am.take_screenshot(
+        "results.png", ArtifactType.CONFIG_IMAGE, "picture of results screen"
+    )
 
     test_start_time = int(time.time())
 
@@ -130,7 +148,9 @@ def run_benchmark() -> tuple[float]:
 
     # Wait for results screen to display info
     if kerasService.wait_for_word(word="results", timeout=15, interval=0.5) is None:
-        logging.info("Did not find the results screen. Did the game crash during the run?")
+        logging.info(
+            "Did not find the results screen. Did the game crash during the run?"
+        )
         sys.exit(1)
 
     test_end_time = round(int(time.time()))
@@ -147,28 +167,19 @@ def run_benchmark() -> tuple[float]:
     return test_start_time, test_end_time
 
 
-setup_log_directory(LOG_DIRECTORY)
-
-logging.basicConfig(filename=f'{LOG_DIRECTORY}/harness.log',
-                    format=DEFAULT_LOGGING_FORMAT,
-                    datefmt=DEFAULT_DATE_FORMAT,
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+setup_logging(LOG_DIRECTORY)
 
 args = get_args()
 kerasService = KerasService(args.keras_host, args.keras_port)
 
 try:
     start_time, end_time = run_benchmark()
-    resolution = get_resolution(LOCAL_USER_SETTINGS)
+    resolution = get_resolution(str(LOCAL_USER_SETTINGS))
     report = {
         "resolution": f"{resolution}",
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
-        "version": get_build_id(STEAM_GAME_ID)
+        "version": get_build_id(STEAM_GAME_ID),
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)

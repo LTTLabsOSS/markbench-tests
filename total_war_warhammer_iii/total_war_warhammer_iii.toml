@@ -1,0 +1,11 @@
+friendly_name = "Total War: Warhammer 3"
+py_script = "twwh3.py"
+executable = "warhammer3.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true
+
+[[args]]
+name = "benchmark"
+type = "select"
+tooltip = "Select benchmark type"
+values = ["battle", "mom"]

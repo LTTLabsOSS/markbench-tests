@@ -1,6 +1,7 @@
 """Utility functions for GravityMark test script"""
-from argparse import ArgumentParser, Namespace
+
 import re
+from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
 API_OPTIONS = [
@@ -20,8 +21,9 @@ CLI_OPTIONS = {
     "-sensors": "1",
     "-benchmark": "1",
     "-close": "1",
-    "-status": "1"
+    "-status": "1",
 }
+
 
 def friendly_test_param(api: str) -> str:
     """return a friendlier string given the API harness argument"""
@@ -35,11 +37,17 @@ def friendly_test_param(api: str) -> str:
         return "DX11"
     return api
 
+
 def get_args() -> Namespace:
     """Get command line arguments for test script"""
     parser = ArgumentParser()
     parser.add_argument(
-        "-a", "--api", dest="api", required=True, choices=API_OPTIONS, help="GravityMark graphics API"
+        "-a",
+        "--api",
+        dest="api",
+        required=True,
+        choices=API_OPTIONS,
+        help="GravityMark graphics API",
     )
     return parser.parse_args()
 

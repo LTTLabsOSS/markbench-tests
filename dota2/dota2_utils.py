@@ -1,29 +1,44 @@
 """Dota 2 test script utils"""
-from argparse import ArgumentParser
+
 import logging
 import re
 import shutil
 import sys
+from argparse import ArgumentParser
 from pathlib import Path
 
-PARENT_DIR = str(Path(sys.path[0], ".."))
-sys.path.append(PARENT_DIR)
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.steam import get_app_install_location, get_registry_active_user, get_steam_folder_path
+from harness_utils.steam import (
+    get_app_install_location,
+    get_registry_active_user,
+    get_steam_folder_path,
+)
 
 STEAM_GAME_ID = 570
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 STEAM_USER_ID = get_registry_active_user()
-DEFAULT_INSTALL_PATH = Path(r"C:\Program Files (x86)\Steam\steamapps\common\dota 2 beta")
+DEFAULT_INSTALL_PATH = Path(
+    r"C:\Program Files (x86)\Steam\steamapps\common\dota 2 beta"
+)
 
 
 def get_args() -> any:
     """Returns command line arg values"""
     parser = ArgumentParser()
-    parser.add_argument("--kerasHost", dest="keras_host",
-                        help="Host for Keras OCR service", required=True)
-    parser.add_argument("--kerasPort", dest="keras_port",
-                        help="Port for Keras OCR service", required=True)
+    parser.add_argument(
+        "--kerasHost",
+        dest="keras_host",
+        help="Host for Keras OCR service",
+        required=True,
+    )
+    parser.add_argument(
+        "--kerasPort",
+        dest="keras_port",
+        help="Port for Keras OCR service",
+        required=True,
+    )
     return parser.parse_args()
 
 
@@ -39,31 +54,42 @@ def copy_replay_from_network_drive():
     """Copies replay file from network drive to harness folder"""
     src_path = Path(r"\\labs.lmg.gg\labs\03_ProcessingFiles\Dota2\benchmark.dem")
     dest_path = SCRIPT_DIRECTORY / "benchmark.dem"
-    shutil.copyfile(src_path, dest_path)
+    try:
+        logging.info("Copying the replay from the network drive to the harness folder.")
+        shutil.copyfile(src_path, dest_path)
+    except OSError as err:
+        logging.error("Network copy failed: %s", err)
+        raise
+
+
+def verify_replay() -> None:
+    """Ensure the replay exists in SCRIPT_DIRECTORY."""
+    src_path = SCRIPT_DIRECTORY / "benchmark.dem"
+
+    if src_path.exists():
+        logging.info("The replay exists in the harness folder. Copying the files.")
+        return
+
+    logging.info("The replay file doesn't exist in the harness folder.")
+    copy_replay_from_network_drive()
 
 
 def copy_replay() -> None:
-    """Copy replay file to dota 2 folder"""
+    """Copyihg the replay"""
+    replay_path = Path(get_install_path(), "game\\dota\\replays")
+    replay_path.mkdir(parents=True, exist_ok=True)
+
+    src_path = SCRIPT_DIRECTORY / "benchmark.dem"
+    dest_path = replay_path / "benchmark.dem"
+
+    # Try copying the benchmark to the correct area.
     try:
-        replay_path = Path(get_install_path(), "game\\dota\\replays")
-        replay_path.mkdir(parents=True, exist_ok=True)
-
-        src_path = SCRIPT_DIRECTORY / "benchmark.dem"
-        dest_path = replay_path / "benchmark.dem"
-
         logging.info("Copying: %s -> %s", src_path, dest_path)
         shutil.copy(src_path, dest_path)
         return
-    except OSError:
-        logging.error("Could not copy local replay file; Trying from network drive.")
-    try:
-        copy_replay_from_network_drive()
-
-        logging.info("Copying: %s -> %s", src_path, dest_path)
-        shutil.copy(src_path, dest_path)
     except OSError as err:
-        logging.error("Could not copy replay file.")
-        raise err
+        logging.error("Could not copy copy the replay file: %s", err)
+        raise
 
 
 def copy_config() -> None:
@@ -72,30 +98,40 @@ def copy_config() -> None:
         config_path = Path(get_install_path(), "game\\dota\\cfg")
         config_path.mkdir(parents=True, exist_ok=True)
 
-        src_path = SCRIPT_DIRECTORY / "benchmark.cfg"
-        dest_path = config_path / "benchmark.cfg"
+        files_to_copy = ["benchmark_run.cfg", "benchmark_load.cfg"]
 
-        logging.info("Copying: %s -> %s", src_path, dest_path)
-        shutil.copy(src_path, dest_path)
+        for filename in files_to_copy:
+            src_path = SCRIPT_DIRECTORY / filename
+            dest_path = config_path / filename
+
+            logging.info("Copying: %s -> %s", src_path, dest_path)
+            shutil.copy(src_path, dest_path)
     except OSError as err:
-        logging.error("Could not copy config file.")
-        raise err
+        logging.error("Could not copy config files: %s", err)
+        raise
 
 
 def read_config() -> list[str] | None:
     """Looks for config file and returns contents if found"""
     userdata_path = Path(
         get_steam_folder_path(),
-        "userdata", str(STEAM_USER_ID),
+        "userdata",
+        str(STEAM_USER_ID),
         str(STEAM_GAME_ID),
-        "local", "cfg", "video.txt")
+        "local",
+        "cfg",
+        "video.txt",
+    )
     install_path = Path(get_install_path(), "game", "dota", "cfg", "video.txt")
     try:
         with open(userdata_path, encoding="utf-8") as f:
             return f.readlines()
     except OSError:
-        logging.error("Did not find config file at path %s. Trying path %s",
-                      userdata_path, install_path)
+        logging.error(
+            "Did not find config file at path %s. Trying path %s",
+            userdata_path,
+            install_path,
+        )
     try:
         with open(install_path, encoding="utf-8") as f:
             return f.readlines()

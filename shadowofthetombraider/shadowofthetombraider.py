@@ -1,45 +1,44 @@
 """Shadow of the Tomb Raider test script"""
+
 import logging
 import os
-from pathlib import Path
-import time
-import pydirectinput as user
 import sys
-from shadow_of_the_tomb_raider_utils import get_latest_file_report, get_resolution, get_args
+import time
+from pathlib import Path
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+import pydirectinput as user
+from shadow_of_the_tomb_raider_utils import (
+    get_args,
+    get_latest_file_report,
+    get_resolution,
+)
 
-#pylint: disable=wrong-import-position
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
+
+# pylint: disable=wrong-import-position
+from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.keras_service import (
+    KerasService,
+    ScreenShotDivideMethod,
+    ScreenShotQuadrant,
+    ScreenSplitConfig,
+)
 from harness_utils.output import (
-    setup_log_directory,
-    write_report_json,
     format_resolution,
     seconds_to_milliseconds,
-    DEFAULT_LOGGING_FORMAT,
-    DEFAULT_DATE_FORMAT)
+    setup_logging,
+    write_report_json,
+)
 from harness_utils.process import terminate_processes
-from harness_utils.keras_service import KerasService, ScreenShotDivideMethod, ScreenShotQuadrant, ScreenSplitConfig
 from harness_utils.steam import exec_steam_game, get_build_id
-from harness_utils.artifacts import ArtifactManager, ArtifactType
 
 STEAM_GAME_ID = 750920
 PROCESS_NAME = "SOTTR.exe"
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 
 user.FAILSAFE = False
-
-def setup_logging():
-    """default logging config"""
-    setup_log_directory(LOG_DIR)
-    logging.basicConfig(filename=f'{LOG_DIR}/harness.log',
-                        format=DEFAULT_LOGGING_FORMAT,
-                        datefmt=DEFAULT_DATE_FORMAT,
-                        level=logging.DEBUG)
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
 
 
 def start_game():
@@ -53,12 +52,19 @@ def run_benchmark(keras_service, am):
     start_game()
     time.sleep(10)
 
+    if keras_service.wait_for_word(word="unavailable", timeout=30, interval=1):
+        user.press("enter")
+
     ss_config = ScreenSplitConfig(
-        divide_method=ScreenShotDivideMethod.HORIZONTAL,
-        quadrant=ScreenShotQuadrant.TOP
+        divide_method=ScreenShotDivideMethod.HORIZONTAL, quadrant=ScreenShotQuadrant.TOP
     )
 
-    if keras_service.wait_for_word(word="options", timeout=30, interval=1, split_config=ss_config) is None:
+    if (
+        keras_service.wait_for_word(
+            word="options", timeout=30, interval=1, split_config=ss_config
+        )
+        is None
+    ):
         logging.info("Did not find the options menu. Did the game launch correctly?")
         sys.exit(1)
 
@@ -89,25 +95,31 @@ def run_benchmark(keras_service, am):
     time.sleep(1)
 
     if keras_service.wait_for_word(word="benchmark", timeout=30, interval=1) is None:
-        logging.info("Did not find the benchmark option on the screen. Did the menu get stuck?")
+        logging.info(
+            "Did not find the benchmark option on the screen. Did the menu get stuck?"
+        )
         sys.exit(1)
 
-    am.take_screenshot("display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings")
+    am.take_screenshot(
+        "display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings"
+    )
 
-    # press up until we have DISPLAY hilighted so we can flip to the graphics tab
+    # press up until we have DISPLAY highlighted so we can flip to the graphics tab
     for _ in range(21):
         user.press("up")
         time.sleep(0.2)
 
     user.press("right")
-    am.take_screenshot("graphics.png", ArtifactType.CONFIG_IMAGE, "picture of graphics settings")
+    am.take_screenshot(
+        "graphics.png", ArtifactType.CONFIG_IMAGE, "picture of graphics settings"
+    )
 
     user.press("r")
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
-    if keras_service.wait_for_word(word="fps", timeout=30, interval=0.5) is None:
-        logging.info("Did not find the benchmark option on the screen. Did the menu get stuck?")
+    if keras_service.wait_for_word(word="fps", timeout=60, interval=0.5) is None:
+        logging.info("Did not find the FPS counter. Did the benchmark crash?")
         sys.exit(1)
     test_start_time = int(time.time())
 
@@ -118,7 +130,9 @@ def run_benchmark(keras_service, am):
 
     result = keras_service.wait_for_word(word="tomb", timeout=10, interval=0.1)
     if result is None:
-        logging.error("Unable to find the loading screen. Using default end time value.")
+        logging.error(
+            "Unable to find the loading screen. Using default end time value."
+        )
     else:
         test_end_time = int(time.time())
 
@@ -135,10 +149,16 @@ def run_benchmark(keras_service, am):
     am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
 
     username = os.getlogin()
-    game_document_dir = Path(f"C:\\Users\\{username}\\Documents\\Shadow of the Tomb Raider")
+    game_document_dir = Path(
+        f"C:\\Users\\{username}\\Documents\\Shadow of the Tomb Raider"
+    )
     game_log = game_document_dir.joinpath("Shadow of the Tomb Raider.log")
     am.copy_file(Path(game_log), ArtifactType.RESULTS_TEXT, "game log")
-    am.copy_file(get_latest_file_report(game_document_dir), ArtifactType.RESULTS_TEXT, "benchmark result")
+    am.copy_file(
+        get_latest_file_report(game_document_dir),
+        ArtifactType.RESULTS_TEXT,
+        "benchmark result",
+    )
 
     terminate_processes(PROCESS_NAME)
     height, width = get_resolution()
@@ -146,19 +166,19 @@ def run_benchmark(keras_service, am):
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(test_start_time),
         "end_time": seconds_to_milliseconds(test_end_time),
-        "version": get_build_id(STEAM_GAME_ID)
+        "version": get_build_id(STEAM_GAME_ID),
     }
 
     am.create_manifest()
-    write_report_json(LOG_DIR, "report.json", report)
+    write_report_json(LOG_DIRECTORY, "report.json", report)
 
 
 def main():
     """entry point"""
-    setup_logging()
+    setup_logging(LOG_DIRECTORY)
     args = get_args()
     keras_service = KerasService(args.keras_host, args.keras_port)
-    am = ArtifactManager(LOG_DIR)
+    am = ArtifactManager(LOG_DIRECTORY)
     run_benchmark(keras_service, am)
 
 

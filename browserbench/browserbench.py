@@ -1,0 +1,247 @@
+"""Multi-Benchmark Browser Harness"""
+
+import argparse
+import logging
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+from cdp_client import CDPClient
+from chrome_utils import (
+    get_browser_version,
+    get_browser_websocket_url,
+    get_chrome_path_from_registry,
+    launch_chrome,
+    wait_for_ready,
+)
+
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
+
+from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.output import (
+    seconds_to_milliseconds,
+    setup_logging,
+    write_report_json,
+)
+
+INTERNAL_TIMEOUT = 900  # 15 minutes
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+setup_logging(LOG_DIRECTORY)
+am = ArtifactManager(LOG_DIRECTORY)
+
+BENCHMARKS = {
+    "jetstream2": {
+        "url": "https://browserbench.org/JetStream/",
+        "wait_expr": "document.querySelector('#status a.button[href^=\"javascript:JetStream.start()\"]') != null",
+        "start_expr": "JetStream.start(); true;",
+        "score_expr": """
+            (function() {
+                const el = document.querySelector('#result-summary.done .score');
+                return el ? parseFloat(el.innerText) : null;
+            })();
+        """,
+        "version": "2.2",
+    },
+    "speedometer": {
+        "url": "https://browserbench.org/Speedometer3.1/",
+        "wait_expr": "document.querySelector('.start-tests-button') != null",
+        "start_expr": "document.querySelector('.start-tests-button').click(); true;",
+        "score_expr": """
+            (function() {
+                const el = document.querySelector('#result-number');
+                return el ? parseFloat(el.innerText) : null;
+            })();
+        """,
+        "version": "3.1",
+    },
+    "motionmark": {
+        "url": "https://browserbench.org/MotionMark1.3.1/",
+        "wait_expr": "document.querySelector('#start-button') != null",
+        "start_expr": "document.querySelector('#start-button').click(); true;",
+        "score_expr": """
+            (function() {
+                const el = document.querySelector('.score');
+                if (!el) return null;
+                const val = el.innerText.split('@')[0].trim();
+                const num = parseFloat(val);
+                return isNaN(num) ? null : num;
+            })();
+        """,
+        "version": "1.3.1",
+    },
+    "kraken": {
+        "landing_url": "https://mozilla.github.io/krakenbenchmark.mozilla.org/",
+        "wait_expr_landing": "document.querySelector('a[href$=\"driver.html\"]') != null",
+        "start_expr_landing": "document.querySelector('a[href$=\"driver.html\"]').click(); true;",
+        "url": "https://mozilla.github.io/krakenbenchmark.mozilla.org/kraken-1.1/driver.html",
+        "wait_expr": "!!document.querySelector('#run')",
+        "start_expr": "document.querySelector('#run').click(); true;",
+        "score_expr": """
+            (function() {
+                const pre = document.querySelector('#console');
+                if (!pre) return null;
+                const match = pre.innerText.match(/Total:\\s+([0-9.]+)ms/);
+                return match ? parseFloat(match[1]) : null;
+            })();
+        """,
+        "version": "1.1",
+    },
+    "webxprt4": {
+        "url": "https://www.principledtechnologies.com/benchmarkxprt/webxprt/2021/wx4_build_3_7_3/",
+        "wait_expr": "!!document.querySelector('button.wx-start_btn[data-start-test]')",
+        "start_expr": "document.querySelector('button.wx-start_btn[data-start-test]').click(); true;",
+        "score_expr": """
+            (function() {
+                const el = document.querySelector('.wx-results-score-text');
+                if (!el) return null;
+                const val = el.innerText.trim();
+                const num = parseFloat(val);
+                return isNaN(num) ? null : num;
+            })();
+        """,
+        "version": "wx4_build_3.7.3",
+    },
+    "webxprt5": {
+        "url": "https://www.principledtechnologies.com/wx5/",
+        "wait_expr": "!!document.querySelector('#startBtn')",
+        "start_expr": "document.querySelector('#startBtn').click(); true;",
+        "score_expr": """
+            (function() {
+                const el = document.querySelector('.wx-results-score');
+                if (!el) return null;
+                const num = parseFloat(el.innerText.trim());
+                return isNaN(num) ? null : num;
+            })();
+        """,
+        "version": "5.0",
+    },
+}
+
+
+def start_benchmark(client: CDPClient, start_expr: str):
+    """Starts the benchmark once loaded"""
+    client.call("Runtime.evaluate", {"expression": start_expr})
+
+
+def wait_for_score(client: CDPClient, score_expr: str) -> float:
+    """Looking for score of the benchmark, times out after 15 minutes"""
+    start_time = time.time()
+    while time.time() - start_time < INTERNAL_TIMEOUT:
+        res = client.call("Runtime.evaluate", {"expression": score_expr})
+        val = res["result"]["result"].get("value")
+        if val is not None:
+            return float(val)
+        time.sleep(3)
+    raise TimeoutError("Benchmark did not finish in time")
+
+
+def main():
+    """Running the benchmark"""
+
+    parser = argparse.ArgumentParser(description="Browser benchmark harness")
+    parser.add_argument(
+        "--benchmark",
+        choices=BENCHMARKS.keys(),
+        required=True,
+        help="Which benchmark to run",
+    )
+    args = parser.parse_args()
+    bench = BENCHMARKS[args.benchmark]
+
+    try:
+        logging.info("Detecting Chrome path...")
+        chrome_path = get_chrome_path_from_registry()
+        logging.info("Chrome path: %s", chrome_path)
+
+        # Determine initial URL
+        initial_url = bench.get("landing_url", bench["url"])
+        logging.info("Launching isolated Chrome instance...")
+        chrome_proc = launch_chrome(chrome_path, initial_url)
+
+        # Connect CDP
+        ws_url = get_browser_websocket_url(initial_url)
+        client = CDPClient(ws_url)
+        client.connect()
+
+        if args.benchmark == "kraken":
+            # Wait for landing page link
+            wait_for_ready(client, bench["wait_expr_landing"])
+            logging.info(
+                "Kraken landing page ready. Pausing 10s before clicking 'Begin'..."
+            )
+            time.sleep(10)
+
+            # Click Begin link
+            start_time = time.time()
+            start_benchmark(client, bench["start_expr_landing"])
+            logging.info("Clicked 'Begin', driver page now loading...'")
+
+            # Reconnect to driver tab
+            ws_url = get_browser_websocket_url(bench["url"])
+            client = CDPClient(ws_url)
+            client.connect()
+
+            # Wait for page to fully load (driver page DOM ready)
+            wait_for_ready(client, "document.readyState === 'complete'")
+            logging.info("Kraken driver page loaded and running benchmark.")
+
+            unit = "ms"
+        else:
+            # Wait for benchmark start
+            wait_for_ready(client, bench["wait_expr"])
+            time.sleep(10)  # settle
+
+            start_time = time.time()
+            start_benchmark(client, bench["start_expr"])
+            unit = "score"
+
+        browser_version = get_browser_version(client)
+        logging.info("Browser version: %s", browser_version)
+
+        score = wait_for_score(client, bench["score_expr"])
+        end_time = time.time()
+
+        logging.info("%s score: %s", args.benchmark, score)
+
+        # JSON reporting
+        report = {
+            "test": "Browser Benchmark",
+            "benchmark": args.benchmark,
+            "benchmark_version": bench.get("version", "unknown"),
+            "score": score,
+            "unit": unit,
+            "browser_version": browser_version,
+            "start_time": seconds_to_milliseconds(start_time),
+            "end_time": seconds_to_milliseconds(end_time),
+        }
+
+        write_report_json(LOG_DIRECTORY, "report.json", report)
+        am.take_screenshot(
+            "result.png",
+            ArtifactType.CONFIG_IMAGE,
+            "Screenshot of the benchmark result",
+        )
+        am.create_manifest()
+
+        time.sleep(15)
+
+        # Terminate Chrome
+        chrome_proc.terminate()
+        try:
+            chrome_proc.wait(timeout=15)
+        except subprocess.TimeoutExpired:
+            chrome_proc.kill()
+
+    except Exception as e:
+        logging.error("Error during benchmark!")
+        logging.exception(e)
+        if "chrome_proc" in locals():
+            chrome_proc.kill()
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

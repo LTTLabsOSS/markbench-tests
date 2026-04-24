@@ -1,31 +1,34 @@
 """Misc utility functions"""
-from argparse import ArgumentParser
+
+import json
 import logging
 import os
-from pathlib import Path
-from zipfile import ZipFile
-import time
-import pydirectinput as user
-import pyautogui as gui
-import requests
-import vgamepad as vg
-import json
 import re
 import sys
+import time
+from argparse import ArgumentParser
+from pathlib import Path
+from zipfile import ZipFile
+
+import pyautogui as gui
+import pydirectinput as user
+import requests
+import vgamepad as vg
 
 user.FAILSAFE = False
+
 
 class LTTGamePad360(vg.VX360Gamepad):
     """
     Class extension for the virtual game pad library
 
-    Many of the in built functions for this library are super useful but a bit unwieldy to use. 
-    This class extension provides some useful functions to make your code look a little cleaner when 
+    Many of the in built functions for this library are super useful but a bit unwieldy to use.
+    This class extension provides some useful functions to make your code look a little cleaner when
     implemented in our harnesses.
     """
 
     def single_press(self, button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN, pause=0.1):
-        """ 
+        """
         Custom function to perform a single press of a specified gamepad button
 
         button --> must be a XUSB_BUTTON class, defaults to dpad down
@@ -69,13 +72,15 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
     """
     Class extension for the virtual game pad library
 
-    Many of the in built functions for this library are super useful but a bit unwieldy to use. 
-    This class extension provides some useful functions to make your code look a little cleaner when 
+    Many of the in built functions for this library are super useful but a bit unwieldy to use.
+    This class extension provides some useful functions to make your code look a little cleaner when
     implemented in our harnesses.
     """
 
-    def single_button_press(self, button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS, fastpause=0.05):
-        """ 
+    def single_button_press(
+        self, button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS, fastpause=0.05
+    ):
+        """
         Custom function to perform a single press of a specified gamepad digital button
 
         button --> must be a DS4_BUTTONS class, defaults to cross
@@ -111,8 +116,10 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
             self.single_button_press(button)
             time.sleep(pause)
 
-    def single_dpad_press(self, direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, pause=0.1):
-        """ 
+    def single_dpad_press(
+        self, direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, pause=0.1
+    ):
+        """
         Custom function to perform a single press of a specified gamepad button
 
         button --> must be a DS4_DPAD_DIRECTIONS class, defaults to dpad south
@@ -137,7 +144,9 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
         self.reset()
         self.update()
 
-    def dpad_press_n_times(self, direction: vg.DS4_DPAD_DIRECTIONS, n: int, pause: float):
+    def dpad_press_n_times(
+        self, direction: vg.DS4_DPAD_DIRECTIONS, n: int, pause: float
+    ):
         """
         Sometimes we need to press a certain dpad direction multiple times in a row, this loop does that for you
         """
@@ -161,7 +170,7 @@ def mouse_scroll_n_times(n: int, scroll_amount: int, pause: float):
 
     n --> the number of times you want to scroll, should be a positive integer
     scroll_amount --> positive is scroll up, negative is scroll down
-    pause --> the amount of time to pause betwee subsequent scrolls
+    pause --> the amount of time to pause between subsequent scrolls
     """
     for _ in range(n):
         gui.vscroll(scroll_amount)
@@ -195,19 +204,21 @@ def remove_files(paths: list[str]) -> None:
 def download_file(download_url: str, destination: Path) -> None:
     """Downloads file from given url to destination"""
     response = requests.get(download_url, allow_redirects=True, timeout=120)
-    with open(destination, 'wb') as f:
+    with open(destination, "wb") as f:
         f.write(response.content)
 
 
 def extract_archive(zip_file: Path, destination_dir: Path) -> None:
     """Extract all contents of an archive"""
-    with ZipFile(zip_file, 'r') as zip_object:
+    with ZipFile(zip_file, "r") as zip_object:
         zip_object.extractall(path=destination_dir)
 
 
-def extract_file_from_archive(zip_file: Path, member_path: str, destination_dir: Path) -> None:
-    """Extract a single file memeber from an archive"""
-    with ZipFile(zip_file, 'r') as zip_object:
+def extract_file_from_archive(
+    zip_file: Path, member_path: str, destination_dir: Path
+) -> None:
+    """Extract a single file member from an archive"""
+    with ZipFile(zip_file, "r") as zip_object:
         zip_object.extract(member_path, path=destination_dir)
 
 
@@ -221,7 +232,9 @@ def find_eg_game_version(gamefoldername: str) -> str:
             file_content = file.read()
 
         # Check if the "InstallationList" section is in the content
-        installation_list_match = re.search(r'"InstallationList":\s*(\[[^\]]*\])', file_content)
+        installation_list_match = re.search(
+            r'"InstallationList":\s*(\[[^\]]*\])', file_content
+        )
         if not installation_list_match:
             print("No InstallationList found.")
             return None
@@ -247,7 +260,10 @@ def find_eg_game_version(gamefoldername: str) -> str:
 
 def find_word(keras_service, word, msg, timeout=30, interval=1):
     """Function to call Keras service to find a word in the screen"""
-    if keras_service.wait_for_word(word=word, timeout=timeout, interval=interval) is None:
+    if (
+        keras_service.wait_for_word(word=word, timeout=timeout, interval=interval)
+        is None
+    ):
         logging.error(msg)
         sys.exit(1)
 
@@ -255,8 +271,16 @@ def find_word(keras_service, word, msg, timeout=30, interval=1):
 def keras_args():
     """helper function to get args for keras"""
     parser = ArgumentParser()
-    parser.add_argument("--kerasHost", dest="keras_host",
-                        help="Host for Keras OCR service", required=True)
-    parser.add_argument("--kerasPort", dest="keras_port",
-                        help="Port for Keras OCR service", required=True)
+    parser.add_argument(
+        "--kerasHost",
+        dest="keras_host",
+        help="Host for Keras OCR service",
+        required=True,
+    )
+    parser.add_argument(
+        "--kerasPort",
+        dest="keras_port",
+        help="Port for Keras OCR service",
+        required=True,
+    )
     return parser.parse_args()

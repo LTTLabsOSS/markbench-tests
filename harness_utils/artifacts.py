@@ -1,15 +1,21 @@
 """Provides ArtifactManager class for capturing artifacts from test runs."""
+
+import logging
 import os
-import mss
-import yaml
-import dxcam
-import cv2
-import numpy as np
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum, unique
-from shutil import copy
 from pathlib import Path
-from collections.abc import Callable
+from shutil import copy
+
+import cv2
+import dxcam
+import mss
+import numpy as np
+import yaml
+
+logger = logging.getLogger(__name__)
+
 
 @unique
 class ArtifactType(Enum):
@@ -50,6 +56,7 @@ class Artifact:
     """
     Describes an artifact captured by the ArtifactManager.
     """
+
     filename: str
     type: ArtifactType
     description: str
@@ -68,13 +75,16 @@ class ArtifactManager:
     Used to manage artifacts captured during a test run, either by coping files or taking screenshots.
     The manager maintains a list of artifacts it has captured and can produce a manifest file listing them.
     """
+
     def __init__(self, output_path: str | os.PathLike) -> None:
         self.output_path = Path(output_path)
         self.artifacts: list[Artifact] = []
 
         self.output_path.mkdir(parents=True, exist_ok=True)
 
-    def copy_file(self, src: str | os.PathLike, artifact_type: ArtifactType, description=""):
+    def copy_file(
+        self, src: str | os.PathLike, artifact_type: ArtifactType, description=""
+    ):
         """
         Copies a file from `src` to the manager's `output_path` and adds a new Artifact to the manager's artifacts list.
 
@@ -89,18 +99,27 @@ class ArtifactManager:
             raise ValueError("src should point to a file, not a directory")
         filename = src_path.name
         try:
-            copy(src, self.output_path / filename)
+            if Path(src).resolve() != Path(self.output_path).resolve() / filename:
+                logger.info("Copying %s to %s", src, self.output_path / filename)
+                copy(src, self.output_path / filename)
+            else:
+                logger.info(
+                    "Skipping copy of %s to %s as it already exists",
+                    src,
+                    self.output_path / filename,
+                )
             artifact = Artifact(filename, artifact_type, description)
             self.artifacts.append(artifact)
         except OSError as e:
             raise e
 
     def take_screenshot(
-            self,
-            filename: str,
-            artifact_type: ArtifactType,
-            description="",
-            screenshot_override: Callable[[str | os.PathLike], None] | None = None):
+        self,
+        filename: str,
+        artifact_type: ArtifactType,
+        description="",
+        screenshot_override: Callable[[str | os.PathLike], None] | None = None,
+    ):
         """
         Takes a screenshot and saves it to the manager's `output_path` with the given `filename`
         and adds a new Artifact to the manager's artifact list.
@@ -111,7 +130,9 @@ class ArtifactManager:
         Raises a `ValueError` if `artifact_type` is not one of the `ArtifactType` values which represents an image.
         """
         if artifact_type not in _IMAGE_ARTIFACT_TYPES:
-            raise ValueError("artifact_type should be a type that represents an image artifact")
+            raise ValueError(
+                "artifact_type should be a type that represents an image artifact"
+            )
 
         if screenshot_override is None:
             with mss.mss() as sct:
@@ -122,11 +143,12 @@ class ArtifactManager:
         self.artifacts.append(artifact)
 
     def take_screenshot_vulkan(
-            self,
-            filename: str,
-            artifact_type: ArtifactType,
-            description="",
-            screenshot_override: Callable[[str | os.PathLike], None] | None = None):
+        self,
+        filename: str,
+        artifact_type: ArtifactType,
+        description="",
+        screenshot_override: Callable[[str | os.PathLike], None] | None = None,
+    ):
         """
         Takes a screenshot using dxcam and saves it to the manager's `output_path` with the given `filename`.
         Adds a new Artifact to the manager's artifact list.
@@ -134,7 +156,9 @@ class ArtifactManager:
         Raises a `ValueError` if `artifact_type` is not one of the `_IMAGE_ARTIFACT_TYPES` values which represent an image.
         """
         if artifact_type not in _IMAGE_ARTIFACT_TYPES:
-            raise ValueError("artifact_type should be a type that represents an image artifact")
+            raise ValueError(
+                "artifact_type should be a type that represents an image artifact"
+            )
 
         output_filepath = str(self.output_path / filename)
 

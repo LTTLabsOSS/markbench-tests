@@ -1,6 +1,0 @@
-friendly_name: "Aida64 GPGPU"
-executable: "aida64gpgpu.py"
-process_name: "aida64.exe"
-disable_presentmon: true
-hidden: 1
-output_dir: "run"

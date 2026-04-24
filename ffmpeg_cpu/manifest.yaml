@@ -1,0 +1,12 @@
+friendly_name: "FFMPEG CPU VMAF"
+executable: "ffmpeg_cpu.py"
+process_name: "ffmpeg.exe"
+disable_presentmon: true
+output_dir: run
+options:
+  - name: encoder
+    type: select
+    values:
+      - h264
+      - av1
+      - h265

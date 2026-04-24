@@ -1,84 +1,78 @@
 """7-Zip test script"""
+
 import json
 import logging
-import os.path
 import re
+import subprocess
 import sys
 import time
+from pathlib import Path
 from subprocess import Popen
-import subprocess
 
-sys.path.insert(1, os.path.join(sys.path[0], ".."))
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from sevenzip_utils import copy_from_network_drive
 
-script_dir = os.path.dirname(os.path.realpath(__file__))
-log_dir = os.path.join(script_dir, "run")
-if not os.path.isdir(log_dir):
-    os.mkdir(log_dir)
-LOGGING_FORMAT = '%(asctime)s %(levelname)-s %(message)s'
-logging.basicConfig(filename=f'{log_dir}/harness.log',
-                    format=LOGGING_FORMAT,
-                    datefmt='%m-%d %H:%M',
-                    level=logging.DEBUG)
-console = logging.StreamHandler()
-formatter = logging.Formatter(LOGGING_FORMAT)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+from harness_utils.output import setup_logging
 
-EXECUTABLE = "7zr_25.00.exe"
-ABS_EXECUTABLE_PATH = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), EXECUTABLE)
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+setup_logging(LOG_DIRECTORY)
 
-if os.path.isfile(ABS_EXECUTABLE_PATH) is False:
-    logging.info(
-        "7-Zip executable not found, downloading from network drive")
+EXECUTABLE = "7za_64_26.00.exe"
+ABS_EXECUTABLE_PATH = SCRIPT_DIRECTORY / EXECUTABLE
+
+if ABS_EXECUTABLE_PATH.is_file() is False:
+    logging.info("7-Zip executable not found, downloading from network drive")
     copy_from_network_drive()
 
-COMMAND = f'{ABS_EXECUTABLE_PATH}'
-COMMAND = COMMAND.rstrip()
+command = str(ABS_EXECUTABLE_PATH)
+command = command.rstrip()
 t1 = time.time()
 logging.info("Starting 7-Zip benchmark! This may take a minute or so...")
-with Popen([COMMAND, "b", "3"], cwd=os.path.dirname(
-    os.path.realpath(__file__)), stdout=subprocess.PIPE) as process:
-
+with Popen(
+    [command, "b", "3"], cwd=SCRIPT_DIRECTORY, stdout=subprocess.PIPE
+) as process:
     stdout_data, stderr = process.communicate()
-    list_of_strings = stdout_data.decode('utf-8').splitlines()
+    list_of_strings = stdout_data.decode("utf-8").splitlines()
 
-    SPEED_PATTERN = r'^Avr:\s*([0-9]*)\s.*\|\s*([0-9]*)\s.*$'
-    VERSION_PATTERN = r'7-Zip \(r\) (\d+\.\d+).*'
+    SPEED_PATTERN = r"^Avr:\s*([0-9]*)\s.*\|\s*([0-9]*)\s.*$"
+    VERSION_PATTERN = r"7-Zip \(a\) (\d+\.\d+) \((x\d+)\).*"
 
-    VERSION = ""
-    SPEED_C = ""
-    SPEED_D = ""
+    version = ""
+    speed_c = ""
+    speed_d = ""
 
     # Strips the newline character
     for line in list_of_strings:
         if line.isspace():
             continue
         logging.info(line.strip())
-        if '7-Zip' in line:
-            VERSION = re.match(VERSION_PATTERN, line).group(1)
-        if 'Avr:' in line:
-            SPEED_C = re.match(SPEED_PATTERN, line).group(1)
-            SPEED_D = re.match(SPEED_PATTERN, line).group(2)
+        if "7-Zip" in line:
+            match = re.match(VERSION_PATTERN, line)
+            if match:
+                version = f"{match.group(1)} {match.group(2)}"
+        if "Avr:" in line:
+            speed_c = re.match(SPEED_PATTERN, line).group(1)
+            speed_d = re.match(SPEED_PATTERN, line).group(2)
 
     t2 = time.time()
     logging.info("Benchmark took %s seconds", round((t2 - t1), 3))
     result = [
         {
             "test": "7-Zip Compression",
-            "score": SPEED_C,
+            "score": speed_c,
             "unit": "KiB/s",
-            "version": VERSION.strip()
+            "version": version.strip(),
         },
         {
             "test": "7-Zip Decompression",
-            "score": SPEED_D,
+            "score": speed_d,
             "unit": "KiB/s",
-            "version": VERSION.strip()
+            "version": version.strip(),
         },
     ]
 
-    with open(os.path.join(log_dir, "report.json"), "w", encoding="utf-8") as file:
+    with open(LOG_DIRECTORY / "report.json", "w", encoding="utf-8") as file:
         file.write(json.dumps(result))

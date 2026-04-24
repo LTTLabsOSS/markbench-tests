@@ -1,5 +1,5 @@
 friendly_name: "Cinebench 2024"
-executable: "cinebench.py"
+executable: "cinebench_2024.py"
 process_name: "Cinebench.exe"
 disable_presentmon: true
 output_dir: "run"
