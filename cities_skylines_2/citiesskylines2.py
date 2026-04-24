@@ -48,7 +48,7 @@ bottom_left_keras = ScreenSplitConfig(
 )
 
 launcher_files = ["bootstrapper-v2.exe", "launcher.exe", "notlauncher-options.json"]
-save_files = ["Benchmark.cok", "Benchmark.cok.cid"]
+save_files = ["toomanypeople.cok", "toomanypeople.cok.cid"]
 config_files = ["UserState.coc"]
 
 APPDATA = os.getenv("APPDATA")
@@ -69,7 +69,7 @@ def console_command(command):
     gui.write(command)
     user.press("enter")
 
-def time_check(keras_service, timeout=300, interval=0.5):
+def time_check(keras_service, timeout=400, interval=0.5):
     """Continuously looks for the time of 08:18 using kerasService. If not found in the given time, marks the out time."""
     start = time.monotonic()
     next_tick = start
@@ -85,14 +85,13 @@ def time_check(keras_service, timeout=300, interval=0.5):
         next_tick += interval
 
         found = keras_service.look_for_word(
-            word="18",
+            word="15",
             attempts=1,
             interval=0.2,
             split_config=bottom_left_keras
         )
 
         if found:
-            user.press("space")
             return True
 
     return False
@@ -137,7 +136,7 @@ def run_benchmark(keras_service):
     time.sleep(0.2)
 
     result = keras_service.look_for_word(
-        "benchmark", attempts=10, interval=1, split_config=top_left_keras
+        "toomanypeople", attempts=10, interval=1, split_config=top_left_keras
     )
     if not result:
         logging.info(
@@ -153,7 +152,7 @@ def run_benchmark(keras_service):
     user.press("enter")
     time.sleep(10)
 
-    result = keras_service.wait_for_word("grand", interval=0.5, timeout=100)
+    result = keras_service.wait_for_word("megalopolis", interval=0.5, timeout=100)
     if not result:
         logging.info(
             "Could not find the paused notification. Unable to mark start time!"
@@ -164,27 +163,31 @@ def run_benchmark(keras_service):
     gui.moveTo(result["x"], result["y"])
     time.sleep(2)
     logging.info("Starting benchmark")
-    user.press("3")
 
     #mark in of benchmark start
+    if not time_check(keras_service):
+        logging.info("Timeout reached...")
+        sys.exit(1)
+    user.press("3")
     benchmark_start_time = int(time.time())
     time.sleep(3)
 
     #supposed to be window start time
     test_start_time = int(time.time())
-    time.sleep(80)
+    time.sleep(20)
     if not time_check(keras_service):
         logging.info("Timeout reached...")
         sys.exit(1)
 
-    test_end_time = int(time.time())
-
+    user.press("space")
     result = keras_service.wait_for_word("paused", interval=0.5, timeout=100)
     if not result:
         logging.info(
-            "Could not find the paused notification. Unable to mark end time!"
+            "Could not find the paused notification. Unable to mark start time!"
         )
         sys.exit(1)
+
+    test_end_time = int(time.time())
 
     # Wait 5 seconds for benchmark info
     time.sleep(5)
