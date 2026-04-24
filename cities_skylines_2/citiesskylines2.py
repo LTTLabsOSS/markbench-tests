@@ -177,14 +177,14 @@ def run_benchmark(keras_service):
         logging.info("Timeout reached...")
         sys.exit(1)
 
+    test_end_time = int(time.time())
+
     result = keras_service.wait_for_word("paused", interval=0.5, timeout=100)
     if not result:
         logging.info(
-            "Could not find the paused notification. Unable to mark start time!"
+            "Could not find the paused notification. Unable to mark end time!"
         )
         sys.exit(1)
-
-    test_end_time = int(time.time())
 
     # Wait 5 seconds for benchmark info
     time.sleep(5)
