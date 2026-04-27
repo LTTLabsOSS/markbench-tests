@@ -16,12 +16,26 @@ MINGW_FOLDER = SCRIPT_DIRECTORY.joinpath("mingw64")
 MINICONDA_EXECUTABLE_PATH = Path("C:\\ProgramData\\miniconda3\\_conda.exe")
 CONDA_ENV_NAME = "godotbuild"
 GODOT_DIR = "godot-4.4.1-stable"
+CONDA_ENV_DIRECTORY = Path.home().joinpath(".conda", "envs", CONDA_ENV_NAME)
+CONDA_ENV_PYTHON = CONDA_ENV_DIRECTORY.joinpath("python.exe")
 
 
 def get_conda_subprocess_env() -> dict[str, str]:
-    """build a subprocess environment that ignores user site-packages"""
+    """build an isolated subprocess environment for conda-managed Python"""
     env = os.environ.copy()
     env["PYTHONNOUSERSITE"] = "1"
+    for key in [
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "PYTHONEXECUTABLE",
+        "PYTHONUSERBASE",
+        "VIRTUAL_ENV",
+        "CONDA_PREFIX",
+        "CONDA_DEFAULT_ENV",
+        "CONDA_PROMPT_MODIFIER",
+        "__PYVENV_LAUNCHER__",
+    ]:
+        env.pop(key, None)
     return env
 
 
@@ -182,16 +196,9 @@ def create_conda_environment() -> str:
 
 
 def run_conda_command(conda_cmd: List[str]) -> str:
-    """run a command inside a conda environment, returns captured output from the command"""
-    command = [
-        str(MINICONDA_EXECUTABLE_PATH),
-        "run",
-        "-n",
-        CONDA_ENV_NAME,
-        "--cwd",
-        str(SCRIPT_DIRECTORY.joinpath(GODOT_DIR)),
-    ] + conda_cmd
-    output = run_subprocess(command)
+    """run a command using the conda environment's interpreter"""
+    command = [str(CONDA_ENV_PYTHON)] + conda_cmd
+    output = run_subprocess(command, cwd=SCRIPT_DIRECTORY.joinpath(GODOT_DIR))
     return output
 
 
