@@ -1,0 +1,20 @@
+friendly_name = "Cinebench 2026"
+py_script = "cinebench_2026.py"
+executable = "Cinebench.exe"
+presentmon_enabled = false
+presentmon_ignore_exit = true
+non_game = true
+
+[[args]]
+name = "test"
+type = "select"
+tooltip = "Select which Cinebench test to run"
+values = [
+  "cpu-single-thread",
+  "cpu-single-core",
+  "cpu-multithread",
+  "cpu-1/x-thread",
+  "cpu-all",
+  "gpu",
+  "all"
+]
