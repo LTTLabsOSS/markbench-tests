@@ -40,7 +40,7 @@ def main():
     output = create_conda_environment()
     logging.info(output)
 
-    output = run_conda_command(["pip", "install", "scons"])
+    output = run_conda_command(["python", "-m", "pip", "install", "scons"])
     logging.info(output)
 
     output = run_conda_command(

@@ -18,6 +18,34 @@ CONDA_ENV_NAME = "godotbuild"
 GODOT_DIR = "godot-4.4.1-stable"
 
 
+def get_conda_subprocess_env() -> dict[str, str]:
+    """build a subprocess environment that ignores user site-packages"""
+    env = os.environ.copy()
+    env["PYTHONNOUSERSITE"] = "1"
+    return env
+
+
+def run_subprocess(command: List[str], cwd: Path | None = None) -> str:
+    """run a subprocess and surface stdout/stderr on failure"""
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=cwd,
+            env=get_conda_subprocess_env(),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as err:
+        output = (err.stdout or "").strip()
+        command_string = " ".join(command)
+        if output:
+            raise Exception(f"command failed: {command_string}\n{output}") from err
+        raise Exception(f"command failed: {command_string}") from err
+    return completed.stdout
+
+
 def install_mingw() -> str:
     """copies mingw from the network drive and adds to path"""
     original_path = os.environ.get("PATH", "")
@@ -68,7 +96,12 @@ def install_miniconda() -> str:
         "-Wait",
     ]
     try:
-        output = subprocess.check_output(command, stderr=subprocess.PIPE, text=True)
+        output = subprocess.check_output(
+            command,
+            env=get_conda_subprocess_env(),
+            stderr=subprocess.PIPE,
+            text=True,
+        )
     except Exception as err:
         command_string = " ".join(command)
         raise Exception(
@@ -99,21 +132,43 @@ def check_conda_environment_exists() -> bool:
     """check if godotbuild environment exists"""
     command = [str(MINICONDA_EXECUTABLE_PATH), "list", "-n", CONDA_ENV_NAME]
     process = subprocess.run(
-        " ".join(command),
+        command,
+        env=get_conda_subprocess_env(),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
         check=False,
     )
+    if process.returncode not in (0, 1):
+        command_string = " ".join(command)
+        error_output = (process.stdout or process.stderr or "").strip()
+        if error_output:
+            raise Exception(f"command failed: {command_string}\n{error_output}")
+        raise Exception(f"command failed: {command_string}")
     if process.returncode == 1:
         return False
     return True
 
 
+def remove_conda_environment() -> str:
+    """remove the godotbuild environment if it already exists"""
+    if not check_conda_environment_exists():
+        return "godotbuild conda environment did not exist"
+    command = [
+        str(MINICONDA_EXECUTABLE_PATH),
+        "env",
+        "remove",
+        "-n",
+        CONDA_ENV_NAME,
+        "-y",
+    ]
+    output = run_subprocess(command)
+    return output or "removed existing godotbuild conda environment"
+
+
 def create_conda_environment() -> str:
-    """create conda environment to work in"""
-    if check_conda_environment_exists():
-        return "godotbuild conda environment exists"
+    """recreate the conda environment from scratch for each run"""
+    output_lines = [remove_conda_environment().strip()]
     command = [
         str(MINICONDA_EXECUTABLE_PATH),
         "create",
@@ -122,10 +177,8 @@ def create_conda_environment() -> str:
         "python=3.11",
         "-y",
     ]
-    output = subprocess.check_output(
-        " ".join(command), stderr=subprocess.STDOUT, text=True
-    )
-    return output
+    output_lines.append(run_subprocess(command).strip())
+    return "\n".join(line for line in output_lines if line)
 
 
 def run_conda_command(conda_cmd: List[str]) -> str:
@@ -134,13 +187,11 @@ def run_conda_command(conda_cmd: List[str]) -> str:
         str(MINICONDA_EXECUTABLE_PATH),
         "run",
         "-n",
-        "godotbuild",
+        CONDA_ENV_NAME,
         "--cwd",
         str(SCRIPT_DIRECTORY.joinpath(GODOT_DIR)),
     ] + conda_cmd
-    output = subprocess.check_output(
-        " ".join(command), stderr=subprocess.STDOUT, text=True
-    )
+    output = run_subprocess(command)
     return output
 
 
