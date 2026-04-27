@@ -40,17 +40,17 @@ def main():
     output = create_conda_environment()
     logging.info(output)
 
-    output = run_conda_command(["pip", "install", "scons"])
+    output = run_conda_command(["-m", "pip", "install", "scons"])
     logging.info(output)
 
     output = run_conda_command(
-        ["scons", "--clean", "--no-cache", "platform=windows", "arch=x86_64"]
+        ["-m", "SCons", "--clean", "--no-cache", "platform=windows", "arch=x86_64"]
     )
     logging.info(output)
 
     start_time = current_time_ms()
     output = run_conda_command(
-        ["scons", "--no-cache", "platform=windows", "arch=x86_64"]
+        ["-m", "SCons", "--no-cache", "platform=windows", "arch=x86_64"]
     )
     logging.info(output)
     end_time = current_time_ms()
