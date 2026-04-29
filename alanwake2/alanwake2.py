@@ -86,7 +86,7 @@ def run_benchmark():
             "Continue option not listed, navigating accordingly."
             )
         press_n_times("up", 2, 0.2)
-    
+
     user.press("enter")
     time.sleep(0.2)
     if kerasService.wait_for_word(word="graphics", timeout=60, interval=0.5) is None:
