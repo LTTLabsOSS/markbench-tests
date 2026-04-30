@@ -1,0 +1,23 @@
+friendly_name = "Cinebench 2026 Stress"
+py_script = "cinebench_2026.py"
+executable = "Cinebench.exe"
+presentmon_enabled = false
+presentmon_ignore_exit = true
+category = "stress"
+
+[[args]]
+name = "test"
+type = "select"
+tooltip = "Select which Cinebench test to run"
+values = [
+  "cpu-single-thread",
+  "cpu-single-core",
+  "cpu-multi-thread",
+  "gpu"
+]
+
+[[args]]
+name = "duration_seconds"
+type = "input"
+tooltip = "Stress duration in seconds"
+default = "900"
