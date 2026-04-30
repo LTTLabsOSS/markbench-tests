@@ -31,7 +31,7 @@ TEST_OPTIONS = {
     "cpu-multi-thread": CPU_X_TEST,
     "gpu": GPU_TEST,
 }
-DURATION_OPTION = "g_CinebenchMinimumTestDuration=1"
+DURATION_OPTION = "g_CinebenchMinimumTestDuration=1020"
 
 
 parser = ArgumentParser()
@@ -79,32 +79,27 @@ if test_type == CPU_1SMT_TEST and not cpu_supports_smt():
 try:
     logging.info("Stress duration: %d seconds", args.duration_seconds)
     start_time = end_time = time.time()
-    while time.time() - start_time < args.duration_seconds:
-        remaining_seconds = args.duration_seconds - (time.time() - start_time)
-        with subprocess.Popen(
-            [CINEBENCH_PATH, test_type, DURATION_OPTION],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            bufsize=1,
-            cwd=str(Path(CINEBENCH_PATH).parent),
-            universal_newlines=True,
-        ) as proc:
-            logging.info(
-                "Cinebench started. Setting process priority to high (PID: %s)",
-                proc.pid,
-            )
-            process = psutil.Process(proc.pid)
-            process.nice(psutil.HIGH_PRIORITY_CLASS)
-            try:
-                out, _ = proc.communicate(timeout=remaining_seconds)
-            except subprocess.TimeoutExpired:
-                logging.info("Stress duration reached. Terminating Cinebench.")
-                terminate_processes(Path(CINEBENCH_PATH).name)
-                proc.kill()
-                out, _ = proc.communicate()
+    with subprocess.Popen(
+        [CINEBENCH_PATH, test_type, DURATION_OPTION],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.STDOUT,
+        cwd=str(Path(CINEBENCH_PATH).parent),
+    ) as proc:
+        logging.info(
+            "Cinebench started. Setting process priority to high (PID: %s)",
+            proc.pid,
+        )
+        process = psutil.Process(proc.pid)
+        process.nice(psutil.HIGH_PRIORITY_CLASS)
+        time.sleep(args.duration_seconds)
+        if proc.poll() is None:
+            logging.info("Stress duration reached. Terminating Cinebench.")
+            terminate_processes(Path(CINEBENCH_PATH).name)
+            proc.kill()
+        proc.wait()
 
-            if proc.returncode > 0:
-                logging.debug("Cinebench exited with return code %d", proc.returncode)
+        if proc.returncode > 0:
+            logging.debug("Cinebench exited with return code %d", proc.returncode)
 
     end_time = time.time()
     logging.info("Finished Cinebench stress test: %s", friendly_test_name(test_type))
