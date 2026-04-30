@@ -115,6 +115,7 @@ def offline_menu():
     if not result:
         logging.info("Didn't find the keyword 'signed'")
         return
+    time.sleep(2)
     user.press("enter")
 
 
