@@ -106,7 +106,7 @@ def navigate_startup():
     if result:
         logging.info("Cancelling logging in.")
         user.press("enter")
-        time.sleep(2) 
+        time.sleep(2)
 
 
 def offline_menu():
