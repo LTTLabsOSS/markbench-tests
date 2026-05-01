@@ -1,0 +1,12 @@
+friendly_name = "F1 24 Stress"
+py_script = "f1_stress.py"
+executable = "F1_24.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true
+category = "stress"
+
+[[args]]
+name = "duration_seconds"
+type = "input"
+tooltip = "Stress duration in seconds"
+default = "900"

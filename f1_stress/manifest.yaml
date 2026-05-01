@@ -1,0 +1,8 @@
+friendly_name: "F1 24 Stress"
+executable: "f1_stress.py"
+process_name: "F1_24.exe"
+hidden: 0
+output_dir: "run"
+options:
+  - name: duration_seconds
+    type: input

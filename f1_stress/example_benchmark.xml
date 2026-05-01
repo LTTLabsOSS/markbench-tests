@@ -3,7 +3,7 @@
 
   Enable by adding -benchmark <benchmark_filename.xml> to the command line parameters.
   
-  Ensure the XML exists in "data_win\benchmark". 
+  This harness passes the absolute path to this XML with -benchmark.
 
   Specify car and track list as shown below (up to 10 tracks, max 20 cars per track). 
   
