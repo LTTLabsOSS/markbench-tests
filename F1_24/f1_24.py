@@ -102,7 +102,7 @@ def navigate_startup():
     time.sleep(1)
 
     # cancel logging into ea services
-    result = kerasService.wait_for_word("login", timeout=50)
+    result = kerasService.wait_for_word("login", timeout=20)
     if result:
         logging.info("Cancelling logging in.")
         user.press("enter")
@@ -111,10 +111,12 @@ def navigate_startup():
 
 def offline_menu():
     """Navigateout of the offline menu"""
-    result = kerasService.wait_for_word("signed", timeout=50)
+    result = kerasService.wait_for_word("network", timeout=20)
     if not result:
-        logging.info("Didn't find the keyword 'signed'")
+        logging.info("Didn't find the keyword 'network'")
         return
+    user.press("down")
+    time.sleep(0.5)
     user.press("enter")
 
 
