@@ -6,6 +6,15 @@ presentmon_ignore_exit = true
 category = "stress"
 
 [[args]]
+name = "benchmark"
+type = "select"
+tooltip = "Select the benchmark XML to run"
+default = "example_benchmark.xml"
+values = [
+  "example_benchmark.xml"
+]
+
+[[args]]
 name = "duration_seconds"
 type = "input"
 tooltip = "Stress duration in seconds"

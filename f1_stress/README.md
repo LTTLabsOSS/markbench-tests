@@ -5,21 +5,25 @@ navigate menus.
 
 ## Prerequisites
 
-- Python 3.10+
+- Python 3.11+
 - F1 24 installed through Steam
-- Benchmark XML at `f1_stress/example_benchmark.xml`
+- Benchmark XML listed in `f1_stress.toml` and present in the harness folder
 - Hardware settings XML at `f1_stress/config/hardwaresettings/hardware_settings_config.xml`
 
 ## Options
 
+- `--benchmark`: benchmark XML file to run. Choices and default come from `f1_stress.toml`.
 - `--duration-seconds` or `--duration_seconds`: stress duration in seconds. Default `900`.
 
-Benchmark XML and hardware settings XML paths are static. The harness copies:
+To add another benchmark XML, place it in `f1_stress` and add its filename to the
+`benchmark` select `values` in `f1_stress.toml`.
+
+Hardware settings path is static. The harness copies:
 
 - `f1_stress/config/hardwaresettings/hardware_settings_config.xml` to `Documents\My Games\F1 24\hardwaresettings`.
 
-The harness launches F1 24 with `-benchmark` pointed at the absolute path for
-`f1_stress/example_benchmark.xml`.
+The harness launches F1 24 with `-benchmark` pointed at the selected XML's
+absolute path.
 
 ## Output
 
