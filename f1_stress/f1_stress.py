@@ -29,36 +29,40 @@ STEAM_GAME_ID = 2488620
 PROCESS_NAME = "F1_24.exe"
 CONFIG_FILENAME = "hardware_settings_config.xml"
 TOML_CONFIG = SCRIPT_DIRECTORY / "f1_stress.toml"
-HARDWARE_SETTINGS_SOURCE = (
-    SCRIPT_DIRECTORY / "config" / "hardwaresettings" / CONFIG_FILENAME
-)
+BENCHMARK_DIRECTORY = SCRIPT_DIRECTORY / "benchmarks"
+HARDWARE_SETTINGS_SOURCE_DIRECTORY = SCRIPT_DIRECTORY / "hardware_settings"
 USERNAME = getpass.getuser()
 HARDWARE_SETTINGS_DIRECTORY = Path(
     f"C:\\Users\\{USERNAME}\\Documents\\My Games\\F1 24\\hardwaresettings"
 )
 
 
-def get_benchmark_options() -> tuple[list[str], str]:
-    """Read benchmark choices from the harness TOML."""
+def get_select_options(arg_name: str) -> tuple[list[str], str]:
+    """Read select choices from the harness TOML."""
     with open(TOML_CONFIG, "rb") as config_file:
         config = tomllib.load(config_file)
 
     for arg in config.get("args", []):
-        if arg.get("name") != "benchmark":
+        if arg.get("name") != arg_name:
             continue
 
         values = arg.get("values", [])
         default = arg.get("default", values[0] if values else None)
         if not values:
-            raise ValueError("No benchmark values configured in f1_stress.toml")
+            raise ValueError(f"No {arg_name} values configured in f1_stress.toml")
         if default not in values:
-            raise ValueError("Default benchmark is not listed in f1_stress.toml")
+            raise ValueError(f"Default {arg_name} is not listed in f1_stress.toml")
         return values, default
 
-    raise ValueError("Benchmark select arg not found in f1_stress.toml")
+    raise ValueError(f"{arg_name} select arg not found in f1_stress.toml")
 
 
-def get_args(benchmark_values: list[str], default_benchmark: str):
+def get_args(
+    benchmark_values: list[str],
+    default_benchmark: str,
+    hardware_settings_values: list[str],
+    default_hardware_settings: str,
+):
     """Returns command line arg values."""
     parser = ArgumentParser()
     parser.add_argument(
@@ -67,6 +71,14 @@ def get_args(benchmark_values: list[str], default_benchmark: str):
         help="Benchmark XML file to run",
         choices=benchmark_values,
         default=default_benchmark,
+    )
+    parser.add_argument(
+        "--hardware-settings",
+        "--hardware_settings",
+        dest="hardware_settings",
+        help="Hardware settings XML file to apply",
+        choices=hardware_settings_values,
+        default=default_hardware_settings,
     )
     parser.add_argument(
         "--duration-seconds",
@@ -79,18 +91,25 @@ def get_args(benchmark_values: list[str], default_benchmark: str):
     return parser.parse_args()
 
 
-def prepare_hardware_settings() -> Path:
-    """Copy static hardware settings to F1's My Games directory."""
-    source_file = HARDWARE_SETTINGS_SOURCE.resolve()
-    destination_file = HARDWARE_SETTINGS_DIRECTORY / source_file.name
+def find_missing_files(directory: Path, filenames: list[str]) -> list[str]:
+    """Return configured files missing from a source directory."""
+    return [
+        str((directory / filename).resolve())
+        for filename in filenames
+        if not (directory / filename).resolve().is_file()
+    ]
 
-    if not source_file.is_file():
-        logging.error("Hardware settings source not found: %s", source_file)
-        sys.exit(1)
 
+def prepare_hardware_settings(hardware_settings_file: Path) -> Path:
+    """Copy selected hardware settings to F1's My Games directory."""
+    destination_file = HARDWARE_SETTINGS_DIRECTORY / CONFIG_FILENAME
     HARDWARE_SETTINGS_DIRECTORY.mkdir(parents=True, exist_ok=True)
-    logging.info("Copying hardware settings: %s -> %s", source_file, destination_file)
-    shutil.copy(source_file, destination_file)
+    logging.info(
+        "Copying hardware settings: %s -> %s",
+        hardware_settings_file,
+        destination_file,
+    )
+    shutil.copy(hardware_settings_file, destination_file)
     return destination_file
 
 
@@ -116,20 +135,38 @@ def run_benchmark(duration_seconds: int, benchmark_file: Path) -> tuple[float, f
 def main():
     """Entry point."""
     setup_logging(LOG_DIRECTORY)
-    benchmark_values, default_benchmark = get_benchmark_options()
-    missing_benchmarks = [
-        str((SCRIPT_DIRECTORY / benchmark).resolve())
-        for benchmark in benchmark_values
-        if not (SCRIPT_DIRECTORY / benchmark).resolve().is_file()
-    ]
+    benchmark_values, default_benchmark = get_select_options("benchmark")
+    hardware_settings_values, default_hardware_settings = get_select_options(
+        "hardware_settings"
+    )
+
+    missing_benchmarks = find_missing_files(BENCHMARK_DIRECTORY, benchmark_values)
     if missing_benchmarks:
         logging.error("Configured benchmark XML not found: %s", missing_benchmarks)
         sys.exit(1)
 
-    args = get_args(benchmark_values, default_benchmark)
+    missing_hardware_settings = find_missing_files(
+        HARDWARE_SETTINGS_SOURCE_DIRECTORY, hardware_settings_values
+    )
+    if missing_hardware_settings:
+        logging.error(
+            "Configured hardware settings XML not found: %s",
+            missing_hardware_settings,
+        )
+        sys.exit(1)
 
-    benchmark_file = (SCRIPT_DIRECTORY / args.benchmark).resolve()
-    prepare_hardware_settings()
+    args = get_args(
+        benchmark_values,
+        default_benchmark,
+        hardware_settings_values,
+        default_hardware_settings,
+    )
+
+    benchmark_file = (BENCHMARK_DIRECTORY / args.benchmark).resolve()
+    hardware_settings_file = (
+        HARDWARE_SETTINGS_SOURCE_DIRECTORY / args.hardware_settings
+    ).resolve()
+    prepare_hardware_settings(hardware_settings_file)
 
     start_time, end_time = run_benchmark(args.duration_seconds, benchmark_file)
 

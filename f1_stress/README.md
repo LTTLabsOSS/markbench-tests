@@ -7,20 +7,25 @@ navigate menus.
 
 - Python 3.11+
 - F1 24 installed through Steam
-- Benchmark XML listed in `f1_stress.toml` and present in the harness folder
-- Hardware settings XML at `f1_stress/config/hardwaresettings/hardware_settings_config.xml`
+- Benchmark XML listed in `f1_stress.toml` and present in `f1_stress/benchmarks`
+- Hardware settings XML listed in `f1_stress.toml` and present in `f1_stress/hardware_settings`
 
 ## Options
 
 - `--benchmark`: benchmark XML file to run. Choices and default come from `f1_stress.toml`.
+- `--hardware-settings` or `--hardware_settings`: hardware settings XML file to copy. Choices and default come from `f1_stress.toml`.
 - `--duration-seconds` or `--duration_seconds`: stress duration in seconds. Default `900`.
 
-To add another benchmark XML, place it in `f1_stress` and add its filename to the
-`benchmark` select `values` in `f1_stress.toml`.
+To add another benchmark XML, place it in `f1_stress/benchmarks` and add its
+filename to the `benchmark` select `values` in `f1_stress.toml`.
 
-Hardware settings path is static. The harness copies:
+To add another hardware settings XML, place it in `f1_stress/hardware_settings`
+and add its filename to the `hardware_settings` select `values` in
+`f1_stress.toml`.
 
-- `f1_stress/config/hardwaresettings/hardware_settings_config.xml` to `Documents\My Games\F1 24\hardwaresettings`.
+Selected hardware settings file is always copied to
+`Documents\My Games\F1 24\hardwaresettings\hardware_settings_config.xml`,
+overwriting the existing file with that destination name.
 
 The harness launches F1 24 with `-benchmark` pointed at the selected XML's
 absolute path.

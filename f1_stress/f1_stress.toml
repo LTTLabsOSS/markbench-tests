@@ -15,6 +15,16 @@ values = [
 ]
 
 [[args]]
+name = "hardware_settings"
+type = "select"
+tooltip = "Select the hardware settings XML to copy"
+default = "games-1080-ultra.xml"
+values = [
+  "games-1080-ultra.xml",
+  "games-2160-ultra-rt.xml"
+]
+
+[[args]]
 name = "duration_seconds"
 type = "input"
 tooltip = "Stress duration in seconds"
