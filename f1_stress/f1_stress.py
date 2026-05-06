@@ -20,7 +20,6 @@ from harness_utils.output import (
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
     exec_steam_game,
-    get_app_install_location,
     get_build_id,
 )
 
@@ -114,27 +113,15 @@ def prepare_hardware_settings(hardware_settings_file: Path) -> Path:
     return destination_file
 
 
-def prepare_benchmark_file(benchmark_file: Path) -> Path:
-    """Copy selected benchmark XML to F1's benchmark directory."""
-    destination_directory = (
-        Path(get_app_install_location(STEAM_GAME_ID)) / "data_win" / "benchmark"
-    )
-    destination_file = destination_directory / benchmark_file.name
-    destination_directory.mkdir(parents=True, exist_ok=True)
-    logging.info("Copying benchmark XML: %s -> %s", benchmark_file, destination_file)
-    shutil.copy(benchmark_file, destination_file)
-    return destination_file
-
-
-def run_benchmark(duration_seconds: int, benchmark_filename: str) -> tuple[float, float]:
+def run_benchmark(duration_seconds: int, benchmark_file: Path) -> tuple[float, float]:
     """Launch F1 24 benchmark mode and run until duration elapses."""
     logging.info("Stress duration: %d seconds", duration_seconds)
-    logging.info("Launching F1 24 with benchmark XML: %s", benchmark_filename)
+    logging.info("Launching F1 24 with benchmark XML: %s", benchmark_file)
 
     start_time = time.time()
     exec_steam_game(
         STEAM_GAME_ID,
-        game_params=["-benchmark", benchmark_filename],
+        game_params=["-benchmark", str(benchmark_file.resolve())],
     )
     time.sleep(duration_seconds)
 
@@ -180,12 +167,8 @@ def main():
         HARDWARE_SETTINGS_SOURCE_DIRECTORY / args.hardware_settings
     ).resolve()
     prepare_hardware_settings(hardware_settings_file)
-    copied_benchmark_file = prepare_benchmark_file(benchmark_file)
 
-    start_time, end_time = run_benchmark(
-        args.duration_seconds,
-        copied_benchmark_file.name,
-    )
+    start_time, end_time = run_benchmark(args.duration_seconds, benchmark_file)
 
     report = {
         "test": "F1 24 Stress",
