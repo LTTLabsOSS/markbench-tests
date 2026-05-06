@@ -3,7 +3,7 @@
 
   Enable by adding -benchmark <benchmark_filename.xml> to the command line parameters.
 
-  Ensure the XML exists in "Documents\My Games\F1 24\benchmark".
+  Ensure the XML exists in the F1 installation "benchmark" folder.
 
   Specify car and track list as shown below (up to 10 tracks, max 20 cars per track).
 

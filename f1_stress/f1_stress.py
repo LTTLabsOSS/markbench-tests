@@ -20,6 +20,7 @@ from harness_utils.output import (
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
     exec_steam_game,
+    get_app_install_location,
     get_build_id,
 )
 
@@ -34,9 +35,6 @@ BENCHMARK_DIRECTORY = SCRIPT_DIRECTORY / "benchmarks"
 BENCHMARK_FILE = BENCHMARK_DIRECTORY / BENCHMARK_FILENAME
 HARDWARE_SETTINGS_SOURCE_DIRECTORY = SCRIPT_DIRECTORY / "hardware_settings"
 USERNAME = getpass.getuser()
-BENCHMARK_DESTINATION_DIRECTORY = Path(
-    f"C:\\Users\\{USERNAME}\\Documents\\My Games\\F1 24\\benchmark"
-)
 HARDWARE_SETTINGS_DIRECTORY = Path(
     f"C:\\Users\\{USERNAME}\\Documents\\My Games\\F1 24\\hardwaresettings"
 )
@@ -111,8 +109,9 @@ def prepare_hardware_settings(hardware_settings_file: Path) -> Path:
 
 def prepare_benchmark_file() -> Path:
     """Copy the hardcoded benchmark XML to F1's benchmark folder."""
-    destination_file = BENCHMARK_DESTINATION_DIRECTORY / BENCHMARK_FILENAME
-    BENCHMARK_DESTINATION_DIRECTORY.mkdir(parents=True, exist_ok=True)
+    destination_directory = Path(get_app_install_location(STEAM_GAME_ID)) / "benchmark"
+    destination_file = destination_directory / BENCHMARK_FILENAME
+    destination_directory.mkdir(parents=True, exist_ok=True)
     logging.info("Copying benchmark XML: %s -> %s", BENCHMARK_FILE, destination_file)
     shutil.copy(BENCHMARK_FILE, destination_file)
     return destination_file
