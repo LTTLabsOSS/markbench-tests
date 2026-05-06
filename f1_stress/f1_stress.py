@@ -32,7 +32,6 @@ CONFIG_FILENAME = "hardware_settings_config.xml"
 BENCHMARK_FILENAME = "canada_5_loop.xml"
 TOML_CONFIG = SCRIPT_DIRECTORY / "f1_stress.toml"
 BENCHMARK_DIRECTORY = SCRIPT_DIRECTORY / "benchmarks"
-BENCHMARK_FILE = BENCHMARK_DIRECTORY / BENCHMARK_FILENAME
 HARDWARE_SETTINGS_SOURCE_DIRECTORY = SCRIPT_DIRECTORY / "hardware_settings"
 USERNAME = getpass.getuser()
 HARDWARE_SETTINGS_DIRECTORY = Path(
@@ -61,11 +60,20 @@ def get_select_options(arg_name: str) -> tuple[list[str], str]:
 
 
 def get_args(
+    benchmark_values: list[str],
+    default_benchmark: str,
     hardware_settings_values: list[str],
     default_hardware_settings: str,
 ):
     """Returns command line arg values."""
     parser = ArgumentParser()
+    parser.add_argument(
+        "--benchmark",
+        dest="benchmark",
+        help="Benchmark XML file to run",
+        choices=benchmark_values,
+        default=default_benchmark,
+    )
     parser.add_argument(
         "--hardware-settings",
         "--hardware_settings",
@@ -107,15 +115,15 @@ def prepare_hardware_settings(hardware_settings_file: Path) -> Path:
     return destination_file
 
 
-def prepare_benchmark_file() -> Path:
-    """Copy the hardcoded benchmark XML to F1's benchmark folder."""
+def prepare_benchmark_file(benchmark_file: Path) -> Path:
+    """Copy selected benchmark XML to F1's benchmark folder."""
     destination_directory = (
         Path(get_app_install_location(STEAM_GAME_ID)) / "data_win" / "benchmark"
     )
     destination_file = destination_directory / BENCHMARK_FILENAME
     destination_directory.mkdir(parents=True, exist_ok=True)
-    logging.info("Copying benchmark XML: %s -> %s", BENCHMARK_FILE, destination_file)
-    shutil.copy(BENCHMARK_FILE, destination_file)
+    logging.info("Copying benchmark XML: %s -> %s", benchmark_file, destination_file)
+    shutil.copy(benchmark_file, destination_file)
     return destination_file
 
 
@@ -141,12 +149,14 @@ def run_benchmark(duration_seconds: int, benchmark_filename: str) -> tuple[float
 def main():
     """Entry point."""
     setup_logging(LOG_DIRECTORY)
+    benchmark_values, default_benchmark = get_select_options("benchmark")
     hardware_settings_values, default_hardware_settings = get_select_options(
         "hardware_settings"
     )
 
-    if not BENCHMARK_FILE.resolve().is_file():
-        logging.error("Benchmark XML not found: %s", BENCHMARK_FILE.resolve())
+    missing_benchmarks = find_missing_files(BENCHMARK_DIRECTORY, benchmark_values)
+    if missing_benchmarks:
+        logging.error("Configured benchmark XML not found: %s", missing_benchmarks)
         sys.exit(1)
 
     missing_hardware_settings = find_missing_files(
@@ -160,19 +170,22 @@ def main():
         sys.exit(1)
 
     args = get_args(
+        benchmark_values,
+        default_benchmark,
         hardware_settings_values,
         default_hardware_settings,
     )
 
+    benchmark_file = (BENCHMARK_DIRECTORY / args.benchmark).resolve()
     hardware_settings_file = (
         HARDWARE_SETTINGS_SOURCE_DIRECTORY / args.hardware_settings
     ).resolve()
     prepare_hardware_settings(hardware_settings_file)
-    prepare_benchmark_file()
+    copied_benchmark_file = prepare_benchmark_file(benchmark_file)
 
     start_time, end_time = run_benchmark(
         args.duration_seconds,
-        BENCHMARK_FILENAME,
+        copied_benchmark_file.name,
     )
 
     report = {
