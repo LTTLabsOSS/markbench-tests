@@ -19,8 +19,8 @@ navigate menus.
 To add another benchmark XML, place it in `f1_stress/benchmarks` and add its
 filename to the `benchmark` select `values` in `f1_stress.toml`.
 
-Selected benchmark XML is copied to the F1 install `benchmark` folder as
-`benchmark.xml`.
+Selected benchmark XML is copied to the F1 install `data_win\benchmark` folder
+as `benchmark.xml`.
 
 To add another hardware settings XML, place it in `f1_stress/hardware_settings`
 and add its filename to the `hardware_settings` select `values` in
@@ -30,7 +30,7 @@ Selected hardware settings file is always copied to
 `Documents\My Games\F1 24\hardwaresettings\hardware_settings_config.xml`,
 overwriting the existing file with that destination name.
 
-The harness launches F1 24 with `-benchmark`.
+The harness launches F1 24 with `-benchmark benchmark.xml`.
 
 ## Output
 

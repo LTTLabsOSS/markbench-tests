@@ -117,7 +117,9 @@ def prepare_hardware_settings(hardware_settings_file: Path) -> Path:
 
 def prepare_benchmark_file(benchmark_file: Path) -> Path:
     """Copy selected benchmark XML to F1's benchmark folder."""
-    destination_directory = Path(get_app_install_location(STEAM_GAME_ID)) / "benchmark"
+    destination_directory = (
+        Path(get_app_install_location(STEAM_GAME_ID)) / "data_win" / "benchmark"
+    )
     destination_file = destination_directory / BENCHMARK_FILENAME
     destination_directory.mkdir(parents=True, exist_ok=True)
     logging.info("Copying benchmark XML: %s -> %s", benchmark_file, destination_file)
@@ -125,15 +127,15 @@ def prepare_benchmark_file(benchmark_file: Path) -> Path:
     return destination_file
 
 
-def run_benchmark(duration_seconds: int) -> tuple[float, float]:
+def run_benchmark(duration_seconds: int, benchmark_filename: str) -> tuple[float, float]:
     """Launch F1 24 benchmark mode and run until duration elapses."""
     logging.info("Stress duration: %d seconds", duration_seconds)
-    logging.info("Launching F1 24 with benchmark mode enabled")
+    logging.info("Launching F1 24 with benchmark XML: %s", benchmark_filename)
 
     start_time = time.time()
     exec_steam_game(
         STEAM_GAME_ID,
-        game_params=["-benchmark"],
+        game_params=["-benchmark", benchmark_filename],
     )
     time.sleep(duration_seconds)
 
@@ -179,9 +181,12 @@ def main():
         HARDWARE_SETTINGS_SOURCE_DIRECTORY / args.hardware_settings
     ).resolve()
     prepare_hardware_settings(hardware_settings_file)
-    prepare_benchmark_file(benchmark_file)
+    copied_benchmark_file = prepare_benchmark_file(benchmark_file)
 
-    start_time, end_time = run_benchmark(args.duration_seconds)
+    start_time, end_time = run_benchmark(
+        args.duration_seconds,
+        copied_benchmark_file.name,
+    )
 
     report = {
         "test": "F1 24 Stress",

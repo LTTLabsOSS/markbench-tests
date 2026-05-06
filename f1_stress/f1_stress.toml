@@ -9,9 +9,9 @@ category = "stress"
 name = "benchmark"
 type = "select"
 tooltip = "Select the benchmark XML to run"
-default = "example_benchmark.xml"
+default = "canada_5_loop.xml"
 values = [
-  "example_benchmark.xml"
+  "canada_5_loop.xml"
 ]
 
 [[args]]
