@@ -15,8 +15,8 @@ navigate menus.
 - `--hardware-settings` or `--hardware_settings`: hardware settings XML file to copy. Choices and default come from `f1_stress.toml`.
 - `--duration-seconds` or `--duration_seconds`: stress duration in seconds. Default `900`.
 
-The hardcoded benchmark XML is copied to the F1 install
-`data_win\benchmark` folder as `canada_5_loop.xml`.
+The hardcoded benchmark XML is copied to
+`Documents\My Games\F1 24\benchmark` as `canada_5_loop.xml`.
 
 To add another hardware settings XML, place it in `f1_stress/hardware_settings`
 and add its filename to the `hardware_settings` select `values` in
