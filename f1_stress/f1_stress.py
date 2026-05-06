@@ -121,7 +121,7 @@ def run_benchmark(duration_seconds: int, benchmark_file: Path) -> tuple[float, f
     start_time = time.time()
     exec_steam_game(
         STEAM_GAME_ID,
-        game_params=["-benchmark", str(benchmark_file.resolve())],
+        game_params=["-benchmark", f'"{benchmark_file.resolve()}"'],
     )
     time.sleep(duration_seconds)
 
