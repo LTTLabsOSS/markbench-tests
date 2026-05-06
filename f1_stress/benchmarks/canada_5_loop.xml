@@ -21,5 +21,5 @@
 
 -->
 <config infinite_loop="true" hardware_settings="hardware_settings_config.xml" show_fps="true" >
-  <track name="canada" laps="5" weather="wet" num_cars="20" camera_mode="cycle" driver="max_verstappen" grid_pos="10" />
+  <track name="montreal" laps="5" weather="wet" num_cars="20" camera_mode="cycle" driver="max_verstappen" grid_pos="10" />
 </config>
