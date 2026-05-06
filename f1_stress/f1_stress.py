@@ -20,6 +20,7 @@ from harness_utils.output import (
 from harness_utils.process import terminate_processes
 from harness_utils.steam import (
     exec_steam_game,
+    get_app_install_location,
     get_build_id,
 )
 
@@ -28,6 +29,7 @@ LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 STEAM_GAME_ID = 2488620
 PROCESS_NAME = "F1_24.exe"
 CONFIG_FILENAME = "hardware_settings_config.xml"
+BENCHMARK_FILENAME = "benchmark.xml"
 TOML_CONFIG = SCRIPT_DIRECTORY / "f1_stress.toml"
 BENCHMARK_DIRECTORY = SCRIPT_DIRECTORY / "benchmarks"
 HARDWARE_SETTINGS_SOURCE_DIRECTORY = SCRIPT_DIRECTORY / "hardware_settings"
@@ -113,15 +115,25 @@ def prepare_hardware_settings(hardware_settings_file: Path) -> Path:
     return destination_file
 
 
-def run_benchmark(duration_seconds: int, benchmark_file: Path) -> tuple[float, float]:
+def prepare_benchmark_file(benchmark_file: Path) -> Path:
+    """Copy selected benchmark XML to F1's benchmark folder."""
+    destination_directory = Path(get_app_install_location(STEAM_GAME_ID)) / "benchmark"
+    destination_file = destination_directory / BENCHMARK_FILENAME
+    destination_directory.mkdir(parents=True, exist_ok=True)
+    logging.info("Copying benchmark XML: %s -> %s", benchmark_file, destination_file)
+    shutil.copy(benchmark_file, destination_file)
+    return destination_file
+
+
+def run_benchmark(duration_seconds: int) -> tuple[float, float]:
     """Launch F1 24 benchmark mode and run until duration elapses."""
     logging.info("Stress duration: %d seconds", duration_seconds)
-    logging.info("Launching F1 24 with benchmark XML: %s", benchmark_file)
+    logging.info("Launching F1 24 with benchmark mode enabled")
 
     start_time = time.time()
     exec_steam_game(
         STEAM_GAME_ID,
-        game_params=["-benchmark", f'"{benchmark_file.resolve()}"'],
+        game_params=["-benchmark"],
     )
     time.sleep(duration_seconds)
 
@@ -167,8 +179,9 @@ def main():
         HARDWARE_SETTINGS_SOURCE_DIRECTORY / args.hardware_settings
     ).resolve()
     prepare_hardware_settings(hardware_settings_file)
+    prepare_benchmark_file(benchmark_file)
 
-    start_time, end_time = run_benchmark(args.duration_seconds, benchmark_file)
+    start_time, end_time = run_benchmark(args.duration_seconds)
 
     report = {
         "test": "F1 24 Stress",
