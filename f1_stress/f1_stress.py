@@ -12,6 +12,7 @@ from pathlib import Path
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.keras_service import KerasService
 from harness_utils.output import (
     seconds_to_milliseconds,
     setup_logging,
@@ -82,6 +83,18 @@ def get_args(
         type=int,
         default=900,
     )
+    parser.add_argument(
+        "--kerasHost",
+        dest="keras_host",
+        help="Host for Keras OCR service",
+        required=True,
+    )
+    parser.add_argument(
+        "--kerasPort",
+        dest="keras_port",
+        help="Port for Keras OCR service",
+        required=True,
+    )
     return parser.parse_args()
 
 
@@ -117,16 +130,30 @@ def prepare_benchmark_file() -> Path:
     return destination_file
 
 
-def run_benchmark(duration_seconds: int, benchmark_filename: str) -> tuple[float, float]:
+def run_benchmark(
+    duration_seconds: int,
+    benchmark_filename: str,
+    keras_service: KerasService,
+) -> tuple[float, float]:
     """Launch F1 24 benchmark mode and run until duration elapses."""
     logging.info("Stress duration: %d seconds", duration_seconds)
     logging.info("Launching F1 24 with benchmark XML: %s", benchmark_filename)
 
-    start_time = time.time()
     exec_steam_game(
         STEAM_GAME_ID,
         game_params=["-benchmark", benchmark_filename],
     )
+
+    time.sleep(10)
+
+    result = keras_service.wait_for_word("fps", interval=0, timeout=90)
+    if result is None:
+        logging.error("FPS counter was not found. Could not mark stress start time.")
+        terminate_processes(PROCESS_NAME)
+        sys.exit(1)
+
+    logging.info("Found FPS counter. Starting stress timer.")
+    start_time = time.time()
     time.sleep(duration_seconds)
 
     logging.info("Stress duration reached. Terminating F1 24.")
@@ -161,6 +188,7 @@ def main():
         hardware_settings_values,
         default_hardware_settings,
     )
+    keras_service = KerasService(args.keras_host, args.keras_port)
 
     hardware_settings_file = (
         HARDWARE_SETTINGS_SOURCE_DIRECTORY / args.hardware_settings
@@ -171,6 +199,7 @@ def main():
     start_time, end_time = run_benchmark(
         args.duration_seconds,
         BENCHMARK_FILENAME,
+        keras_service,
     )
 
     report = {
