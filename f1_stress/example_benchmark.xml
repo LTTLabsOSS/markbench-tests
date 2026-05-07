@@ -1,0 +1,25 @@
+<?xml version="1.0" standalone="yes" ?>
+<!-- Example benchmark mode control file
+
+  Enable by adding -benchmark <benchmark_filename.xml> to the command line parameters.
+  
+  Ensure the XML exists in "data_win\benchmark". 
+
+  Specify car and track list as shown below (up to 10 tracks, max 20 cars per track). 
+  
+  For a list of track and car names, browse to the F1 installation directory.
+  
+  Options: 
+	hardware_settings			- Which hardware settings config to use (in My Games\<F1 Game Name>\hardwaresettings\).	
+	camera_mode: 
+		cycle, replay, cockpit, chase, chase_far, nose, pod
+								- Which camera type to use. "cycle" will cycle all onboard cameras every 10 seconds.
+	infinite_loop: true, false 	- Loops the benchmark tracks until the game is closed.
+    show_fps: true, false       - Show FPS counter on screen during benchmark.
+	weather: clear, wet			- Which weather to use.
+    
+	
+-->
+<config infinite_loop="true" hardware_settings="hardware_settings_config.xml" show_fps="true" >
+  <track name="canada" laps="5" weather="wet" num_cars="20" camera_mode="cycle" driver="max_verstappen" grid_pos="10" />
+</config>

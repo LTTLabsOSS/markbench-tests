@@ -80,6 +80,13 @@ def run_benchmark():
 
     logging.info("Navigating to options to get some screenshots")
     press_n_times("down", 4, 0.2)
+
+    if kerasService.look_for_word(word="continue", interval=0.5, attempts=5) is None:
+        logging.info(
+            "Continue option not listed, navigating accordingly."
+            )
+        press_n_times("up", 2, 0.2)
+
     user.press("enter")
     time.sleep(0.2)
     if kerasService.wait_for_word(word="graphics", timeout=60, interval=0.5) is None:
