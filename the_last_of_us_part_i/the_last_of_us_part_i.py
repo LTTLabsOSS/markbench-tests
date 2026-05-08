@@ -217,7 +217,7 @@ def navigate_main_menu(am: ArtifactManager) -> None:
         )
         sys.exit(1)
 
-    
+
     # load the save
     user.press("space")
     time.sleep(0.5)
@@ -235,7 +235,7 @@ def run_benchmark():
         logging.info("Did not see start screen")
         sys.exit(1)
 
-    
+
     # copy_autosave()
 
     navigate_main_menu(am)
