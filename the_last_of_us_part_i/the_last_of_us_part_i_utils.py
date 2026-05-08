@@ -155,5 +155,4 @@ def copy_autosave():
     time.sleep(10)
     shutil.copytree(src_autosave_dir, dest_folder)
 
-    logging.info(f"Autosave copied from {src_autosave_dir} -> {dest_folder}")
-
+    logging.info("Autosave copied from %s -> %s", src_autosave_dir, dest_folder)
