@@ -5,6 +5,8 @@ import os
 import re
 import shutil
 import sys
+import logging
+import time
 from argparse import ArgumentParser
 from pathlib import Path
 
@@ -148,7 +150,9 @@ def copy_autosave():
     # Remove existing savedata (autosave restore should be exact)
     if dest_folder.exists():
         shutil.rmtree(dest_folder)
+        logging.info("Removing old save file")
 
+    time.sleep(10)
     shutil.copytree(src_autosave_dir, dest_folder)
 
-    print(f"Autosave copied from {src_autosave_dir} -> {dest_folder}")
+    logging.info("Autosave copied from %s -> %s", src_autosave_dir, dest_folder)

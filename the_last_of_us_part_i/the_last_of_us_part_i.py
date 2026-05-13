@@ -190,6 +190,10 @@ def navigate_main_menu(am: ArtifactManager) -> None:
     time.sleep(0.5)
     take_screenshots(am)
 
+    # Copy the autosave here
+    copy_autosave()
+    time.sleep(30)
+
     # navigating to the load menu
     press_n_times("w", 2, 0.2)
     user.press("space")
@@ -213,6 +217,7 @@ def navigate_main_menu(am: ArtifactManager) -> None:
         )
         sys.exit(1)
 
+
     # load the save
     user.press("space")
     time.sleep(0.5)
@@ -230,7 +235,8 @@ def run_benchmark():
         logging.info("Did not see start screen")
         sys.exit(1)
 
-    copy_autosave()
+
+    # copy_autosave()
 
     navigate_main_menu(am)
 
@@ -258,7 +264,7 @@ def run_benchmark():
     time.sleep(150)
 
     # This actually looks for "from?" but the current ML model sees it as fromy
-    result = kerasService.wait_for_word("fromy", interval=0.2, timeout=250)
+    result = kerasService.wait_for_word("from", interval=0.2, timeout=250)
     if not result:
         logging.info("Did not find prompt to end harness.")
         sys.exit(1)
