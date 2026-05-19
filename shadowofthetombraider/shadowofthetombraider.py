@@ -52,6 +52,11 @@ def run_benchmark(keras_service, am):
     start_game()
     time.sleep(10)
 
+    #Check for if no display adapter warning is up
+    if keras_service.wait_for_word(word="adapter", timeout=30, interval=1):
+        user.press("enter")
+
+    #Check for if notification for services unavailable is up
     if keras_service.wait_for_word(word="unavailable", timeout=30, interval=1):
         user.press("enter")
 
