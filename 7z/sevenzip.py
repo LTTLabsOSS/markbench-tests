@@ -6,6 +6,7 @@ import re
 import subprocess
 import sys
 import time
+from argparse import ArgumentParser
 from pathlib import Path
 from subprocess import Popen
 
@@ -20,25 +21,41 @@ SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 setup_logging(LOG_DIRECTORY)
 
-EXECUTABLE = "7za_64_26.00.exe"
+TEST_OPTIONS = {
+    "x86_64": "7za_64_26.00.exe",
+    "arm_64": "7za_arm_26.00.exe",
+}
+
+parser = ArgumentParser()
+parser.add_argument(
+    "-a",
+    "--architecture",
+    dest="architecture",
+    help="Architecture type",
+    required=True,
+    choices=TEST_OPTIONS.keys(),
+)
+args = parser.parse_args()
+
+EXECUTABLE = TEST_OPTIONS[args.architecture]
 ABS_EXECUTABLE_PATH = SCRIPT_DIRECTORY / EXECUTABLE
 
-if ABS_EXECUTABLE_PATH.is_file() is False:
-    logging.info("7-Zip executable not found, downloading from network drive")
-    copy_from_network_drive()
 
-command = str(ABS_EXECUTABLE_PATH)
-command = command.rstrip()
+if not ABS_EXECUTABLE_PATH.is_file():
+    logging.info("7-Zip executable not found, downloading from network drive")
+    copy_from_network_drive(EXECUTABLE)
+
+command = [str(ABS_EXECUTABLE_PATH), "b", "3"]
 t1 = time.time()
 logging.info("Starting 7-Zip benchmark! This may take a minute or so...")
 with Popen(
-    [command, "b", "3"], cwd=SCRIPT_DIRECTORY, stdout=subprocess.PIPE
+    command, cwd=SCRIPT_DIRECTORY, stdout=subprocess.PIPE
 ) as process:
     stdout_data, stderr = process.communicate()
     list_of_strings = stdout_data.decode("utf-8").splitlines()
 
     SPEED_PATTERN = r"^Avr:\s*([0-9]*)\s.*\|\s*([0-9]*)\s.*$"
-    VERSION_PATTERN = r"7-Zip \(a\) (\d+\.\d+) \((x\d+)\).*"
+    VERSION_PATTERN = r"7-Zip \(a\) (\d+\.\d+) \(([^)]+)\).*"
 
     version = ""
     speed_c = ""

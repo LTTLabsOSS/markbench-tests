@@ -3,3 +3,8 @@ executable: "sevenzip.py"
 process_name: "7zr.exe"
 disable_presentmon: true
 output_dir: "run"
+options:
+  - name: architecture
+    type: select
+    values: ["x86_64", "arm_64"]
+    tooltip: Select which architecture test to run

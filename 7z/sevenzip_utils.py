@@ -4,9 +4,12 @@ import os
 import shutil
 
 
-def copy_from_network_drive():
-    """Download 7zip from network drive"""
-    source = r"\\labs.lmg.gg\labs\01_Installers_Utilities\7ZIP\7za_64_26.00.exe"
+NETWORK_SHARE = r"\\labs.lmg.gg\labs\01_Installers_Utilities\7ZIP"
+
+
+def copy_from_network_drive(executable_name: str):
+    """Download 7zip executable from network drive"""
+    source = os.path.join(NETWORK_SHARE, executable_name)
     root_dir = os.path.dirname(os.path.realpath(__file__))
-    destination = os.path.join(root_dir, "7za_64_26.00.exe")
+    destination = os.path.join(root_dir, executable_name)
     shutil.copyfile(source, destination)
