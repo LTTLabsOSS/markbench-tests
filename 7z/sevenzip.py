@@ -21,11 +21,9 @@ SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 setup_logging(LOG_DIRECTORY)
 
-EXECUTABLE_X64 = "7za_64_26.00.exe"
-EXECUTABLE_ARM = "7za_arm_26.00.exe"
 TEST_OPTIONS = {
-    "x86_64": EXECUTABLE_X64,
-    "arm_64": EXECUTABLE_ARM,
+    "x86_64": "7za_64_26.00.exe",
+    "arm_64": "7za_arm_26.00.exe",
 }
 
 parser = ArgumentParser()
@@ -43,16 +41,15 @@ EXECUTABLE = TEST_OPTIONS[args.architecture]
 ABS_EXECUTABLE_PATH = SCRIPT_DIRECTORY / EXECUTABLE
 
 
-if ABS_EXECUTABLE_PATH.is_file() is False:
+if not ABS_EXECUTABLE_PATH.is_file():
     logging.info("7-Zip executable not found, downloading from network drive")
-    copy_from_network_drive()
+    copy_from_network_drive(EXECUTABLE)
 
-command = str(ABS_EXECUTABLE_PATH)
-command = command.rstrip()
+command = [str(ABS_EXECUTABLE_PATH), "b", "3"]
 t1 = time.time()
 logging.info("Starting 7-Zip benchmark! This may take a minute or so...")
 with Popen(
-    [command, "b", "3"], cwd=SCRIPT_DIRECTORY, stdout=subprocess.PIPE
+    command, cwd=SCRIPT_DIRECTORY, stdout=subprocess.PIPE
 ) as process:
     stdout_data, stderr = process.communicate()
     list_of_strings = stdout_data.decode("utf-8").splitlines()
