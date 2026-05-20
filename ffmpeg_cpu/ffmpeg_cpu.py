@@ -16,6 +16,7 @@ from ffmpeg_cpu_utils import (
     current_time_ms,
     ffmpeg_present,
     is_video_source_present,
+    vmaf_supported
 )
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
@@ -48,14 +49,19 @@ parser.add_argument(
 args = parser.parse_args()
 
 ENCODERS = ["h264", "av1", "h265"]
-FFMPEG_EXE_PATH = SCRIPT_DIRECTORY / TEST_OPTIONS[args.architecture] / "bin" / "ffmpeg.exe"
-FFMPEG_VERSION = TEST_OPTIONS[args.architecture]
+
+FFMPEG_BUILD = TEST_OPTIONS[args.architecture]
 VMAF_VERSION = "vmaf_v0.6.1neg"
+INPUT_VIDEO = SCRIPT_DIRECTORY / "big_buck_bunny_1080p24.y4m"
+OUTPUT_VIDEO = SCRIPT_DIRECTORY / "output.mp4"
+
 
 
 def main():  # pylint: disable=too-many-locals too-many-branches
     """entrypoint"""
     am = ArtifactManager(LOG_DIRECTORY)
+    ffmpeg_root = SCRIPT_DIRECTORY / TEST_OPTIONS[args.architecture]
+    ffmpeg_exe_path = ffmpeg_root / "bin" / "ffmpeg.exe"
 
     if args.encoder not in ENCODERS:
         logging.error("Invalid encoder selection: %s", args.encoder)
@@ -74,11 +80,11 @@ def main():  # pylint: disable=too-many-locals too-many-branches
         logging.info("Starting ffmpeg_cpu benchmark...")
 
         if args.encoder == "h264":
-            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIRECTORY}\\big_buck_bunny_1080p24.y4m -c:v libx264 -preset slow -profile:v high -level:v 5.1 -crf 20 -c:a copy {SCRIPT_DIRECTORY}\\output.mp4"
+            command = f"{ffmpeg_exe_path} -y -i {INPUT_VIDEO} -c:v libx264 -preset slow -profile:v high -level:v 5.1 -crf 20 -c:a copy {OUTPUT_VIDEO}"
         elif args.encoder == "av1":
-            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIRECTORY}\\big_buck_bunny_1080p24.y4m -c:v libsvtav1 -preset 7 -profile:v main -level:v 5.1 -crf 20 -c:a copy {SCRIPT_DIRECTORY}\\output.mp4"
+            command = f"{ffmpeg_exe_path} -y -i {INPUT_VIDEO} -c:v libsvtav1 -preset 7 -profile:v main -level:v 5.1 -crf 20 -c:a copy {OUTPUT_VIDEO}"
         elif args.encoder == "h265":
-            command = f"{FFMPEG_EXE_PATH} -y -i {SCRIPT_DIRECTORY}\\big_buck_bunny_1080p24.y4m -c:v libx265 -preset slow -profile:v main -level:v 5.1 -crf 20 -c:a copy {SCRIPT_DIRECTORY}\\output.mp4"
+            command = f"{ffmpeg_exe_path} -y -i {INPUT_VIDEO} -c:v libx265 -preset slow -profile:v main -level:v 5.1 -crf 20 -c:a copy {OUTPUT_VIDEO}"
         else:
             logging.error("Invalid encoder selection: %s", args.encoder)
             sys.exit(1)
@@ -111,17 +117,18 @@ def main():  # pylint: disable=too-many-locals too-many-branches
                         int(h) * 3600 + int(m) * 60 + float(s)
                     )
                     break
-
+        if encoding_fps is None:
+            raise RuntimeError("Failed to parse encoding FPS from ffmpeg output")
         logging.info("Encoding FPS (overall): %s", encoding_fps)
 
         vmaf_score = None
         vmaf_duration = None
-        if args.architecture == "x86_64":
+        if vmaf_supported():
 
             logging.info("Beginning VMAF")
-
-            source_path = SCRIPT_DIRECTORY / "big_buck_bunny_1080p24.y4m"
-            encoded_path = SCRIPT_DIRECTORY / "output.mp4"
+            start_vmaf_time = current_time_ms()
+            source_path = INPUT_VIDEO
+            encoded_path = OUTPUT_VIDEO
             filter_complex = (
                 f"libvmaf=model=version={VMAF_VERSION}:n_threads=10:log_path=vmafout.txt"
             )
@@ -142,7 +149,7 @@ def main():  # pylint: disable=too-many-locals too-many-branches
             with open(vmaf_log_path, "w+", encoding="utf-8") as vmaf_log:
                 logging.info("Calculating VMAF...")
                 subprocess.run(
-                    [FFMPEG_EXE_PATH, *argument_list], stderr=vmaf_log, check=True
+                    [ffmpeg_exe_path, *argument_list], stderr=vmaf_log, check=True
                 )
                 vmaf_log.flush()
                 vmaf_log.seek(0)
@@ -152,17 +159,13 @@ def main():  # pylint: disable=too-many-locals too-many-branches
                         if match:
                             vmaf_score = float(match.group(1))
                         break
-            end_time = current_time_ms()
-            vmaf_duration = end_time - end_encoding_time
+            end_vmaf_time = current_time_ms()
+            vmaf_duration = end_vmaf_time - start_vmaf_time
             logging.info("VMAF score: %s", vmaf_score)
 
             am.copy_file(str(vmaf_log_path), ArtifactType.RESULTS_TEXT, "vmaf log file")
         else:
-            logging.info(
-            "Skipping VMAF for architecture '%s' (unsupported)",
-            args.architecture,
-            )
-
+            logging.info("VMAF not supported in this FFMPEG build")
         end_time = current_time_ms()
         am.copy_file(
             str(encoding_log_path), ArtifactType.RESULTS_TEXT, "encoding log file"
@@ -173,16 +176,20 @@ def main():  # pylint: disable=too-many-locals too-many-branches
         report = {
             "test": "FFMPEG CPU Encoding",
             "test_parameter": str(args.encoder),
-            "ffmpeg_version": FFMPEG_VERSION,
-            "vmaf_version": VMAF_VERSION if vmaf_score is not None else None,
-            "score": encoding_fps,
+            "architecture": args.architecture,
+            "ffmpeg_build": FFMPEG_BUILD,
+            "encoding_fps": encoding_fps,
             "unit": "frames per second",
             "encoding_duration": logged_encoding_duration_seconds,
-            "vmaf_score": vmaf_score,
-            "vmaf_duration": vmaf_duration,
             "start_time": start_encoding_time,
             "end_time": end_time,
         }
+        if vmaf_score is not None:
+            report.update({
+                "vmaf_version": VMAF_VERSION,
+                "vmaf_score": vmaf_score,
+                "vmaf_duration": vmaf_duration,
+            })
         write_report_json(LOG_DIRECTORY, "report.json", report)
     except Exception as e:
         logging.error("Something went wrong running the benchmark!")
