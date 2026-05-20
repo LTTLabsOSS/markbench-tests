@@ -61,9 +61,9 @@ def main():  # pylint: disable=too-many-locals too-many-branches
         logging.error("Invalid encoder selection: %s", args.encoder)
         sys.exit(1)
 
-    if not ffmpeg_present():
+    if not ffmpeg_present(args.architecture):
         logging.info("FFmpeg not found, copying from network drive...")
-        copy_ffmpeg_from_network_drive()
+        copy_ffmpeg_from_network_drive(args.architecture)
 
     if not is_video_source_present():
         logging.info("Video source not found, copying from network drive...")
