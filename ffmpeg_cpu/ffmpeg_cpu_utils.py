@@ -76,12 +76,13 @@ def current_time_ms():
 def vmaf_supported() -> bool:
     """Determine if VMAF can run in this environment"""
     try:
-        subprocess.run(
+        result = subprocess.run(
             [FFMPEG_EXE_PATH, "-filters"],
             capture_output=True,
             text=True,
             check=True,
         )
-        return True
+        output = (result.stdout or "") + (result.stderr or "")
+        return "libvmaf" in output
     except Exception:
         return False
