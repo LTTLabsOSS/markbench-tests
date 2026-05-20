@@ -2,6 +2,7 @@
 
 import shutil
 import time
+import subprocess
 from pathlib import Path
 
 
@@ -71,3 +72,16 @@ def copy_video_source():
 def current_time_ms():
     """Get current timestamp in milliseconds since epoch"""
     return int(time.time() * 1000)
+
+def vmaf_supported() -> bool:
+    """Determine if VMAF can run in this environment"""
+    try:
+        subprocess.run(
+            [FFMPEG_EXE_PATH, "-filters"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return True
+    except Exception:
+        return False
