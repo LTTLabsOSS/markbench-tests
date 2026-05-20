@@ -4,6 +4,11 @@ process_name: "ffmpeg.exe"
 disable_presentmon: true
 output_dir: run
 options:
+  - name: architecture
+    type: select
+    values:
+      - x86_64
+      - arm64
   - name: encoder
     type: select
     values:

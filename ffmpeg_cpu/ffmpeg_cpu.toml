@@ -5,6 +5,11 @@ presentmon_enabled = false
 non_game = true
 
 [[args]]
+name = "architecture"
+type = "select"
+tooltip = "Select architeture to run"
+values = ["x86_64", "arm64"]
+
 name = "encoder"
 type = "select"
 tooltip = "Select encoder to use"

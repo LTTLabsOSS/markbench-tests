@@ -24,18 +24,38 @@ from harness_utils.output import setup_logging, write_report_json
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 setup_logging(LOG_DIRECTORY)
+TEST_OPTIONS = {
+    "x86_64": "ffmpeg-8.0.1-full_build",
+    "arm64": "ffmpeg-8.0.1-full_static-win-arm64",
+}
+
+parser = ArgumentParser()
+parser.add_argument(
+    "--encoder", 
+    dest="encoder", 
+    required=True
+)
+
+parser.add_argument(
+    "-a", 
+    "--architecture", 
+    dest="architecture", 
+    help="Architecture type", 
+    required=True, 
+    choices=TEST_OPTIONS.keys()
+)
+
+args = parser.parse_args()
 
 ENCODERS = ["h264", "av1", "h265"]
-FFMPEG_EXE_PATH = SCRIPT_DIRECTORY / "ffmpeg-8.0.1-full_build" / "bin" / "ffmpeg.exe"
-FFMPEG_VERSION = "ffmpeg-8.0.1-full_build"
+FFMPEG_EXE_PATH = SCRIPT_DIRECTORY / TEST_OPTIONS[args.architecture] / "bin" / "ffmpeg.exe"
+FFMPEG_VERSION = TEST_OPTIONS[args.architecture]
 VMAF_VERSION = "vmaf_v0.6.1neg"
 
 
 def main():  # pylint: disable=too-many-locals too-many-branches
     """entrypoint"""
-    parser = ArgumentParser()
-    parser.add_argument("--encoder", dest="encoder", required=True)
-    args = parser.parse_args()
+    am = ArtifactManager(LOG_DIRECTORY)
 
     if args.encoder not in ENCODERS:
         logging.error("Invalid encoder selection: %s", args.encoder)
@@ -80,11 +100,11 @@ def main():  # pylint: disable=too-many-locals too-many-branches
             for line in reversed(encoding_log.read().splitlines()):
                 last_encoding_line = line.strip() or last_encoding_line
                 frame_match = re.search(
-                    r"frame=\s?(\d+)\sfps=\s?(\d+).*elapsed=\s?(\d+:\d{2}:\d{2}\.\d+)",
+                    r"frame=\s?(\d+)\sfps=\s?([0-9]+(?:\.[0-9]+)?).*elapsed=\s?(\d+:\d{2}:\d{2}\.\d+)",
                     last_encoding_line,
                 )
                 if frame_match:
-                    encoding_fps = int(frame_match.group(2))
+                    encoding_fps = float(frame_match.group(2))
                     elapsed = str(frame_match.group(3))
                     h, m, s = elapsed.split(":")
                     logged_encoding_duration_seconds = (
@@ -94,61 +114,72 @@ def main():  # pylint: disable=too-many-locals too-many-branches
 
         logging.info("Encoding FPS (overall): %s", encoding_fps)
 
-        logging.info("Beginning VMAF")
-
-        source_path = SCRIPT_DIRECTORY / "big_buck_bunny_1080p24.y4m"
-        encoded_path = SCRIPT_DIRECTORY / "output.mp4"
-        filter_complex = (
-            f"libvmaf=model=version={VMAF_VERSION}:n_threads=10:log_path=vmafout.txt"
-        )
-        argument_list = [
-            "-i",
-            str(source_path),
-            "-i",
-            str(encoded_path),
-            "-filter_complex",
-            filter_complex,
-            "-f",
-            "null",
-            "-",
-        ]
-        logging.info("VMAF args: %s", argument_list)
-
         vmaf_score = None
-        vmaf_log_path = LOG_DIRECTORY / "vmaf.log"
-        with open(vmaf_log_path, "w+", encoding="utf-8") as vmaf_log:
-            logging.info("Calculating VMAF...")
-            subprocess.run(
-                [FFMPEG_EXE_PATH, *argument_list], stderr=vmaf_log, check=True
-            )
-            vmaf_log.flush()
-            vmaf_log.seek(0)
-            for line in reversed(vmaf_log.read().splitlines()):
-                if "VMAF score:" in line:
-                    match = re.search(r"VMAF score:\s*([0-9]+(?:\.[0-9]+)?)", line)
-                    if match:
-                        vmaf_score = float(match.group(1))
-                    break
-        end_time = current_time_ms()
-        logging.info("VMAF score: %s", vmaf_score)
+        vmaf_duration = None
+        if args.architecture == "x86_64":
 
-        am = ArtifactManager(LOG_DIRECTORY)
+            logging.info("Beginning VMAF")
+
+            source_path = SCRIPT_DIRECTORY / "big_buck_bunny_1080p24.y4m"
+            encoded_path = SCRIPT_DIRECTORY / "output.mp4"
+            filter_complex = (
+                f"libvmaf=model=version={VMAF_VERSION}:n_threads=10:log_path=vmafout.txt"
+            )
+            argument_list = [
+                "-i",
+                str(source_path),
+                "-i",
+                str(encoded_path),
+                "-filter_complex",
+                filter_complex,
+                "-f",
+                "null",
+                "-",
+            ]
+            logging.info("VMAF args: %s", argument_list)
+
+            vmaf_log_path = LOG_DIRECTORY / "vmaf.log"
+            with open(vmaf_log_path, "w+", encoding="utf-8") as vmaf_log:
+                logging.info("Calculating VMAF...")
+                subprocess.run(
+                    [FFMPEG_EXE_PATH, *argument_list], stderr=vmaf_log, check=True
+                )
+                vmaf_log.flush()
+                vmaf_log.seek(0)
+                for line in reversed(vmaf_log.read().splitlines()):
+                    if "VMAF score:" in line:
+                        match = re.search(r"VMAF score:\s*([0-9]+(?:\.[0-9]+)?)", line)
+                        if match:
+                            vmaf_score = float(match.group(1))
+                        break
+            end_time = current_time_ms()
+            vmaf_duration = end_time - end_encoding_time
+            logging.info("VMAF score: %s", vmaf_score)
+
+            am.copy_file(str(vmaf_log_path), ArtifactType.RESULTS_TEXT, "vmaf log file")
+        else:
+            logging.info(
+            "Skipping VMAF for architecture '%s' (unsupported)",
+            args.architecture,
+            )
+
+        end_time = current_time_ms()
         am.copy_file(
             str(encoding_log_path), ArtifactType.RESULTS_TEXT, "encoding log file"
         )
-        am.copy_file(str(vmaf_log_path), ArtifactType.RESULTS_TEXT, "vmaf log file")
+        
         am.create_manifest()
 
         report = {
             "test": "FFMPEG CPU Encoding",
             "test_parameter": str(args.encoder),
             "ffmpeg_version": FFMPEG_VERSION,
-            "vmaf_version": VMAF_VERSION,
+            "vmaf_version": VMAF_VERSION if vmaf_score is not None else None,
             "score": encoding_fps,
             "unit": "frames per second",
             "encoding_duration": logged_encoding_duration_seconds,
             "vmaf_score": vmaf_score,
-            "vmaf_duration": end_time - end_encoding_time,
+            "vmaf_duration": vmaf_duration,
             "start_time": start_encoding_time,
             "end_time": end_time,
         }
