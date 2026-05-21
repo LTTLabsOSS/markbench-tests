@@ -8,11 +8,11 @@ from dataclasses import dataclass
 from enum import Enum
 
 import cv2
-import mss
 import numpy as np
 import requests
 
 from harness_utils.platform import is_linux, is_windows
+from harness_utils.screenshot import capture_screenshot_grayscale
 
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -65,12 +65,6 @@ class KerasService:
         self.url = f"http://{ip_addr}:{str(port)}/process"
         self.timeout = timeout
 
-    def _raise_linux_screenshot_error(self, exc: Exception) -> None:
-        raise RuntimeError(
-            "Failed to capture screenshot on Linux with mss. Verify the session exposes "
-            "an X11 display or grants Wayland screenshot access."
-        ) from exc
-
     def _apply_split_config(self, screenshot, split_config: ScreenSplitConfig):
         if split_config.divide_method == ScreenShotDivideMethod.HORIZONTAL:
             return self._divide_horizontal(screenshot, split_config.quadrant)
@@ -85,16 +79,7 @@ class KerasService:
         return io.BytesIO(encoded_image)
 
     def _capture_screenshot(self, split_config: ScreenSplitConfig) -> io.BytesIO:
-        try:
-            with mss.mss() as sct:
-                monitor_1 = sct.monitors[1]  # Identify the display to capture
-                screenshot = np.array(sct.grab(monitor_1))
-                screenshot = cv2.cvtColor(screenshot, cv2.COLOR_RGB2GRAY)
-        except Exception as exc:
-            if is_linux():
-                self._raise_linux_screenshot_error(exc)
-            raise
-
+        screenshot = capture_screenshot_grayscale()
         screenshot = self._apply_split_config(screenshot, split_config)
         return self._encode_screenshot(screenshot)
 

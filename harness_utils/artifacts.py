@@ -9,11 +9,11 @@ from pathlib import Path
 from shutil import copy
 
 import cv2
-import mss
 import numpy as np
 import yaml
 
 from harness_utils.platform import is_linux, is_windows
+from harness_utils.screenshot import take_screenshot_file
 
 logger = logging.getLogger(__name__)
 
@@ -50,23 +50,6 @@ class ArtifactType(Enum):
 
 
 _IMAGE_ARTIFACT_TYPES = (ArtifactType.CONFIG_IMAGE, ArtifactType.RESULTS_IMAGE)
-
-
-def _raise_linux_screenshot_error(exc: Exception) -> None:
-    raise RuntimeError(
-        "Failed to capture screenshot on Linux with mss. Verify the session exposes "
-        "an X11 display or grants Wayland screenshot access."
-    ) from exc
-
-
-def _take_mss_screenshot(output_filepath: str) -> None:
-    try:
-        with mss.mss() as sct:
-            sct.shot(output=output_filepath)
-    except Exception as exc:
-        if is_linux():
-            _raise_linux_screenshot_error(exc)
-        raise
 
 
 @dataclass
@@ -153,7 +136,7 @@ class ArtifactManager:
             )
 
         if screenshot_override is None:
-            _take_mss_screenshot(str(self.output_path / filename))
+            take_screenshot_file(self.output_path / filename)
         else:
             screenshot_override(self.output_path / filename)
         artifact = Artifact(filename, artifact_type, description)
@@ -195,7 +178,7 @@ class ArtifactManager:
             cv2.imwrite(output_filepath, frame_bgr)
         elif screenshot_override is None:
             if is_linux():
-                _take_mss_screenshot(output_filepath)
+                take_screenshot_file(output_filepath)
             else:
                 raise RuntimeError("Vulkan screenshot capture is only supported on Windows and Linux")
         else:

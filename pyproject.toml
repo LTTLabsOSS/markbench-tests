@@ -21,7 +21,7 @@ windows = [
 ]
 
 linux = [
-    # System dependency: ydotool
+    # System dependencies: ydotool, grim
     "pyautogui>=0.9.54",
 ]
 
