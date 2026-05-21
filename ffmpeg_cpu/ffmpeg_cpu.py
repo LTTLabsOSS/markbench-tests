@@ -123,7 +123,7 @@ def main():  # pylint: disable=too-many-locals too-many-branches
 
         vmaf_score = None
         vmaf_duration = None
-        if vmaf_supported():
+        if vmaf_supported(args.architecture):
 
             logging.info("Beginning VMAF")
             start_vmaf_time = current_time_ms()
