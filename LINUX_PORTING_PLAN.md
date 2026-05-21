@@ -6,7 +6,7 @@
 - Synced base commit: `f4fd593`
 - Scope: Cyberpunk first, with helpers reusable repo-wide.
 - Linux backend choice: `ydotool`
-- Overall status: Phase 9 complete.
+- Overall status: Phase 10 complete.
 
 ## Phase 1: Branch And Baseline
 
@@ -111,10 +111,14 @@
 
 ## Phase 10: Dependency Split
 
-- Status: Pending.
-- Changed files: Pending.
-- Test command/result: Pending.
-- Caveats/follow-up: Pending.
+- Status: Complete.
+- Changed files:
+  - `pyproject.toml`
+  - `LINUX_PORTING_PLAN.md`
+- Test command/result:
+  - `uv run --no-sync python -m compileall harness_utils cyberpunk2077`: passed.
+- Caveats/follow-up:
+  - Linux system dependency `ydotool` is documented in the Linux optional dependency section.
 
 ## Phase 11: Tests
 
