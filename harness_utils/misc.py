@@ -20,9 +20,13 @@ except ImportError:
 
     class _MissingGamepadBase:
         def __init__(self, *args, **kwargs):
-            raise RuntimeError(
-                "vgamepad is required for gamepad helpers; install the Windows extra."
-            )
+            pass
+
+        def __getattr__(self, _name):
+            def _noop(*args, **kwargs):
+                return None
+
+            return _noop
 
     class _MissingXusbButton:
         XUSB_GAMEPAD_DPAD_DOWN = None
