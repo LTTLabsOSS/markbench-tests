@@ -135,12 +135,20 @@ class ArtifactManager:
                 "artifact_type should be a type that represents an image artifact"
             )
 
+        logger.info(
+            "Attempting artifact screenshot filename=%s type=%s description=%s",
+            filename,
+            artifact_type.value,
+            description,
+        )
         if screenshot_override is None:
             take_screenshot_file(self.output_path / filename)
         else:
+            logger.info("Using screenshot override for artifact filename=%s", filename)
             screenshot_override(self.output_path / filename)
         artifact = Artifact(filename, artifact_type, description)
         self.artifacts.append(artifact)
+        logger.info("Captured artifact screenshot filename=%s", filename)
 
     def take_screenshot_vulkan(
         self,
@@ -161,6 +169,12 @@ class ArtifactManager:
             )
 
         output_filepath = str(self.output_path / filename)
+        logger.info(
+            "Attempting Vulkan artifact screenshot filename=%s type=%s description=%s",
+            filename,
+            artifact_type.value,
+            description,
+        )
 
         if screenshot_override is None and is_windows():
             import dxcam
@@ -182,10 +196,12 @@ class ArtifactManager:
             else:
                 raise RuntimeError("Vulkan screenshot capture is only supported on Windows and Linux")
         else:
+            logger.info("Using Vulkan screenshot override for artifact filename=%s", filename)
             screenshot_override(output_filepath)
 
         artifact = Artifact(filename, artifact_type, description)
         self.artifacts.append(artifact)
+        logger.info("Captured Vulkan artifact screenshot filename=%s", filename)
 
     def create_manifest(self):
         """

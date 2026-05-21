@@ -14,6 +14,7 @@ import requests
 from harness_utils.platform import is_linux, is_windows
 from harness_utils.screenshot import capture_screenshot_grayscale
 
+logger = logging.getLogger(__name__)
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
@@ -79,12 +80,14 @@ class KerasService:
         return io.BytesIO(encoded_image)
 
     def _capture_screenshot(self, split_config: ScreenSplitConfig) -> io.BytesIO:
+        logger.info("Capturing Keras screenshot split_config=%s", split_config)
         screenshot = capture_screenshot_grayscale()
         screenshot = self._apply_split_config(screenshot, split_config)
         return self._encode_screenshot(screenshot)
 
     def _capture_vulkan_screenshot(self, split_config):
         """Capture a screenshot from Vulkan fullscreen using DXGI Desktop Duplication"""
+        logger.info("Capturing Keras Vulkan screenshot split_config=%s", split_config)
         if is_linux():
             return self._capture_screenshot(split_config)
         if not is_windows():
@@ -110,6 +113,7 @@ class KerasService:
         return self._encode_screenshot(screenshot)
 
     def _query_service(self, word: str, image_bytes: io.BytesIO) -> any:
+        logger.info("Querying Keras service word=%s url=%s", word, self.url)
         try:
             keras_response = requests.post(
                 self.url,
@@ -119,13 +123,17 @@ class KerasService:
             )
 
             if not keras_response.ok:
+                logger.warning("Keras service returned non-OK response status=%s", keras_response.status_code)
                 return None
 
             if "not found" in keras_response.text:
+                logger.info("Keras service did not find word=%s", word)
                 return None
 
+            logger.info("Keras service found word=%s", word)
             return json.loads(keras_response.text)
         except requests.exceptions.Timeout:
+            logger.warning("Keras service timed out word=%s timeout=%s", word, self.timeout)
             return None
 
     def _divide_horizontal(self, screenshot, quadrant: ScreenShotQuadrant):
@@ -177,6 +185,7 @@ class KerasService:
                 quadrant=ScreenShotQuadrant.TOP,
             )
         for _ in range(attempts):
+            logger.info("Looking for word attempt word=%s", word)
             image_bytes = self._capture_screenshot(split_config)
             result = self._query_service(word, image_bytes)
             if result is not None:
@@ -198,6 +207,7 @@ class KerasService:
                 quadrant=ScreenShotQuadrant.TOP,
             )
         for _ in range(attempts):
+            logger.info("Looking for word with Vulkan attempt word=%s", word)
             image_bytes = self._capture_vulkan_screenshot(split_config)
             result = self._query_service(word, image_bytes)
             if result is not None:
@@ -224,6 +234,7 @@ class KerasService:
             )
         search_start_time = time.time()
         while time.time() - search_start_time < timeout:
+            logger.info("Waiting for word attempt word=%s timeout=%s", word, timeout)
             image_bytes = self._capture_screenshot(split_config)
             result = self._query_service(word, image_bytes)
             if result is not None:
@@ -246,6 +257,7 @@ class KerasService:
             )
         search_start_time = time.time()
         while time.time() - search_start_time < timeout:
+            logger.info("Waiting for word with Vulkan attempt word=%s timeout=%s", word, timeout)
             image_bytes = self._capture_vulkan_screenshot(split_config)
             result = self._query_service(word, image_bytes)
             if result is not None:
