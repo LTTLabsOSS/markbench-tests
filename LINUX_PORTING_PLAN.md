@@ -6,7 +6,7 @@
 - Synced base commit: `f4fd593`
 - Scope: Cyberpunk first, with helpers reusable repo-wide.
 - Linux backend choice: `ydotool`
-- Overall status: Phase 7 complete.
+- Overall status: Phase 8 complete.
 
 ## Phase 1: Branch And Baseline
 
@@ -88,10 +88,14 @@
 
 ## Phase 8: Asset Helpers
 
-- Status: Pending.
-- Changed files: Pending.
-- Test command/result: Pending.
-- Caveats/follow-up: Pending.
+- Status: Complete.
+- Changed files:
+  - `harness_utils/assets.py`
+  - `LINUX_PORTING_PLAN.md`
+- Test command/result:
+  - `uv run --no-sync python -m compileall harness_utils`: passed.
+- Caveats/follow-up:
+  - Cyberpunk assets can be supplied with `MARKBENCH_CYBERPUNK_ASSET_DIR`; Linux does not assume UNC access.
 
 ## Phase 9: Cyberpunk Migration
 
