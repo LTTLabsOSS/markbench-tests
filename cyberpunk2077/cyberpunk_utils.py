@@ -1,7 +1,6 @@
 """Utility functions for Cyberpunk 2077 test script"""
 
 import logging
-import os
 import re
 import shutil
 import sys
@@ -10,11 +9,16 @@ from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
-from harness_utils.steam import get_app_install_location
+from harness_utils.assets import resolve_asset
+from harness_utils.paths import game_install_path, windows_local_appdata
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 STEAM_GAME_ID = 1091500
-CYBERPUNK_INSTALL_DIR = get_app_install_location(STEAM_GAME_ID)
+CYBERPUNK_ASSET_ENV_VAR = "MARKBENCH_CYBERPUNK_ASSET_DIR"
+NO_INTRO_MOD_FILENAME = "basegame_no_intro_videos.archive"
+NO_INTRO_MOD_NETWORK_PATH = Path(
+    r"\\labs.lmg.gg\labs\03_ProcessingFiles\Cyberpunk 2077\basegame_no_intro_videos.archive"
+)
 
 
 def get_args():
@@ -35,48 +39,35 @@ def get_args():
     return parser.parse_args()
 
 
-def copy_from_network_drive():
-    """Copies mod file from network drive to harness folder"""
-    src_path = Path(
-        r"\\labs.lmg.gg\labs\03_ProcessingFiles\Cyberpunk 2077\basegame_no_intro_videos.archive"
-    )
-    dest_path = SCRIPT_DIRECTORY / "basegame_no_intro_videos.archive"
-    shutil.copyfile(src_path, dest_path)
-
-
 def copy_no_intro_mod() -> None:
     """Copies no intro mod file"""
-    try:
-        mod_path = Path(f"{CYBERPUNK_INSTALL_DIR}\\archive\\pc\\mod")
-        mod_path.mkdir(parents=True, exist_ok=True)
+    install_dir = game_install_path(STEAM_GAME_ID)
+    mod_path = install_dir / "archive" / "pc" / "mod"
+    mod_path.mkdir(parents=True, exist_ok=True)
 
-        src_path = SCRIPT_DIRECTORY / "basegame_no_intro_videos.archive"
-        dest_path = mod_path / "basegame_no_intro_videos.archive"
+    src_path = resolve_asset(
+        SCRIPT_DIRECTORY / NO_INTRO_MOD_FILENAME,
+        env_var=CYBERPUNK_ASSET_ENV_VAR,
+        fallback_network_path=NO_INTRO_MOD_NETWORK_PATH,
+    )
+    dest_path = mod_path / NO_INTRO_MOD_FILENAME
 
-        logging.info("Copying: %s -> %s", src_path, dest_path)
+    logging.info("Copying: %s -> %s", src_path, dest_path)
+    if src_path.resolve() != dest_path.resolve():
         shutil.copy(src_path, dest_path)
-        return
-    except OSError:
-        logging.error("Could not copy local mod file; Trying from network drive")
-    try:
-        copy_from_network_drive()
-
-        logging.info("Copying: %s -> %s", src_path, dest_path)
-        shutil.copy(src_path, dest_path)
-    except OSError as err:
-        logging.error("Could not copy mod file from network drive")
-        raise err
 
 
 def read_current_resolution():
     """Get resolution from local game file"""
-    app_data = os.getenv("LOCALAPPDATA")
-    config_location = f"{app_data}\\CD Projekt Red\\Cyberpunk 2077"
-    config_filename = "UserSettings.json"
+    config_location = (
+        windows_local_appdata(STEAM_GAME_ID)
+        / "CD Projekt Red"
+        / "Cyberpunk 2077"
+    )
+    config_path = config_location / "UserSettings.json"
     resolution_pattern = re.compile(r"\"value\"\: \"(\d+x\d+)\"\,")
-    cfg = f"{config_location}\\{config_filename}"
     resolution = 0
-    with open(cfg, encoding="utf-8") as file:
+    with open(config_path, encoding="utf-8") as file:
         lines = file.readlines()
         for line in lines:
             resolution_match = resolution_pattern.search(line)

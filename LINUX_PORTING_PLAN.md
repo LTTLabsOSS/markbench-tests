@@ -6,7 +6,7 @@
 - Synced base commit: `f4fd593`
 - Scope: Cyberpunk first, with helpers reusable repo-wide.
 - Linux backend choice: `ydotool`
-- Overall status: Phase 8 complete.
+- Overall status: Phase 9 complete.
 
 ## Phase 1: Branch And Baseline
 
@@ -99,10 +99,15 @@
 
 ## Phase 9: Cyberpunk Migration
 
-- Status: Pending.
-- Changed files: Pending.
-- Test command/result: Pending.
-- Caveats/follow-up: Pending.
+- Status: Complete.
+- Changed files:
+  - `cyberpunk2077/cyberpunk2077.py`
+  - `cyberpunk2077/cyberpunk_utils.py`
+  - `LINUX_PORTING_PLAN.md`
+- Test command/result:
+  - `uv run --no-sync python -m compileall cyberpunk2077 harness_utils`: passed.
+- Caveats/follow-up:
+  - Cyberpunk runtime validation remains pending on both Windows and Linux.
 
 ## Phase 10: Dependency Split
 

@@ -5,13 +5,13 @@ import sys
 import time
 from pathlib import Path
 
-import pydirectinput as user
-from cyberpunk_utils import copy_no_intro_mod, get_args, read_current_resolution
-
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from cyberpunk_utils import copy_no_intro_mod, get_args, read_current_resolution
+
 from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.input import user
 from harness_utils.keras_service import KerasService
 from harness_utils.misc import press_n_times
 from harness_utils.output import (
