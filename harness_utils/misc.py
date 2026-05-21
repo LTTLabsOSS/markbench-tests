@@ -10,13 +10,45 @@ from argparse import ArgumentParser
 from pathlib import Path
 from zipfile import ZipFile
 
-import pyautogui as gui
 import requests
-import vgamepad as vg
 
 from harness_utils.input import user
 
+try:
+    import vgamepad as vg
+except ImportError:
+
+    class _MissingGamepadBase:
+        def __init__(self, *args, **kwargs):
+            raise RuntimeError(
+                "vgamepad is required for gamepad helpers; install the Windows extra."
+            )
+
+    class _MissingXusbButton:
+        XUSB_GAMEPAD_DPAD_DOWN = None
+
+    class _MissingDs4Buttons:
+        DS4_BUTTON_CROSS = None
+
+    class _MissingDs4DpadDirections:
+        DS4_BUTTON_DPAD_SOUTH = None
+
+    class _MissingVGamepad:
+        VX360Gamepad = _MissingGamepadBase
+        VDS4Gamepad = _MissingGamepadBase
+        XUSB_BUTTON = _MissingXusbButton
+        DS4_BUTTONS = _MissingDs4Buttons
+        DS4_DPAD_DIRECTIONS = _MissingDs4DpadDirections
+
+    vg = _MissingVGamepad()
+
 user.FAILSAFE = False
+
+
+def _pyautogui():
+    import pyautogui as gui
+
+    return gui
 
 
 class LTTGamePad360(vg.VX360Gamepad):
@@ -158,6 +190,7 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
 
 def clickme(x: int, y: int):
     """Pyautogui's click function sucks, this should do the trick"""
+    gui = _pyautogui()
     gui.moveTo(x, y)
     time.sleep(0.2)
     gui.mouseDown()
@@ -173,6 +206,7 @@ def mouse_scroll_n_times(n: int, scroll_amount: int, pause: float):
     scroll_amount --> positive is scroll up, negative is scroll down
     pause --> the amount of time to pause between subsequent scrolls
     """
+    gui = _pyautogui()
     for _ in range(n):
         gui.vscroll(scroll_amount)
         time.sleep(pause)
