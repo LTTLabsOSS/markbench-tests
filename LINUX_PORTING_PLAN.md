@@ -6,7 +6,7 @@
 - Synced base commit: `f4fd593`
 - Scope: Cyberpunk first, with helpers reusable repo-wide.
 - Linux backend choice: `ydotool`
-- Overall status: Phase 4 complete.
+- Overall status: Phase 5 complete.
 
 ## Phase 1: Branch And Baseline
 
@@ -53,10 +53,15 @@
 
 ## Phase 5: Input Helpers
 
-- Status: Pending.
-- Changed files: Pending.
-- Test command/result: Pending.
-- Caveats/follow-up: Pending.
+- Status: Complete.
+- Changed files:
+  - `harness_utils/input.py`
+  - `harness_utils/misc.py`
+  - `LINUX_PORTING_PLAN.md`
+- Test command/result:
+  - `uv run --no-sync python -m compileall harness_utils`: passed.
+- Caveats/follow-up:
+  - Linux input requires the system `ydotool` command and currently maps the Cyberpunk keys only.
 
 ## Phase 6: Screenshot Helpers
 

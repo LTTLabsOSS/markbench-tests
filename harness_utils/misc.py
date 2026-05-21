@@ -11,9 +11,10 @@ from pathlib import Path
 from zipfile import ZipFile
 
 import pyautogui as gui
-import pydirectinput as user
 import requests
 import vgamepad as vg
+
+from harness_utils.input import user
 
 user.FAILSAFE = False
 
