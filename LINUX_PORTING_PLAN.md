@@ -126,6 +126,7 @@
   - `uv run --no-sync python -m compileall harness_utils cyberpunk2077`: passed.
 - Caveats/follow-up:
   - Linux system dependencies `ydotool` and `grim` are documented in the Linux optional dependency section.
+  - `pyautogui` is Windows-only; Linux Wayland path uses `ydotool` for input and `grim` for screenshots.
 
 ## Phase 11: Tests
 
