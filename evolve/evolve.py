@@ -134,7 +134,7 @@ def main():
         "Compute": scores["Compute"],
         "Workgraphs": scores["Work Graphs"],
         "Driver": scores["Driver"],
-        "Energy": scores["Energy"],
+        "Energy": scores["Energy Consumption"],
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
