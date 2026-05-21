@@ -6,7 +6,7 @@
 - Synced base commit: `f4fd593`
 - Scope: Cyberpunk first, with helpers reusable repo-wide.
 - Linux backend choice: `ydotool`
-- Overall status: Phase 3 complete.
+- Overall status: Phase 4 complete.
 
 ## Phase 1: Branch And Baseline
 
@@ -42,10 +42,14 @@
 
 ## Phase 4: Proton And Windows Path Helpers
 
-- Status: Pending.
-- Changed files: Pending.
-- Test command/result: Pending.
-- Caveats/follow-up: Pending.
+- Status: Complete.
+- Changed files:
+  - `harness_utils/paths.py`
+  - `LINUX_PORTING_PLAN.md`
+- Test command/result:
+  - `uv run --no-sync python -m compileall harness_utils`: passed.
+- Caveats/follow-up:
+  - Linux Windows-path helpers require a valid Steam app ID and existing Proton prefix paths.
 
 ## Phase 5: Input Helpers
 
