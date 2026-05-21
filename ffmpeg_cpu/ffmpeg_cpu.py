@@ -129,8 +129,9 @@ def main():  # pylint: disable=too-many-locals too-many-branches
             start_vmaf_time = current_time_ms()
             source_path = INPUT_VIDEO
             encoded_path = OUTPUT_VIDEO
+            vmaf_model_path = f"../vmaf/{VMAF_VERSION}.json"
             filter_complex = (
-                f"libvmaf=model=version={VMAF_VERSION}:n_threads=10:log_path=vmafout.txt"
+                f"libvmaf=model=path={vmaf_model_path}:n_threads=10:log_path=vmafout.txt"
             )
             argument_list = [
                 "-i",
@@ -149,7 +150,7 @@ def main():  # pylint: disable=too-many-locals too-many-branches
             with open(vmaf_log_path, "w+", encoding="utf-8") as vmaf_log:
                 logging.info("Calculating VMAF...")
                 subprocess.run(
-                    [ffmpeg_exe_path, *argument_list], stderr=vmaf_log, check=True
+                    [ffmpeg_exe_path, *argument_list], cwd=ffmpeg_exe_path.parent stderr=vmaf_log, check=True
                 )
                 vmaf_log.flush()
                 vmaf_log.seek(0)
