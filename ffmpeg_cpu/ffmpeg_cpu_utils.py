@@ -73,11 +73,13 @@ def current_time_ms():
     """Get current timestamp in milliseconds since epoch"""
     return int(time.time() * 1000)
 
-def vmaf_supported() -> bool:
+def vmaf_supported(architecture: str) -> bool:
     """Determine if VMAF can run in this environment"""
     try:
+        ffmpeg_exe = get_ffmpeg_exe_path(architecture)
+
         result = subprocess.run(
-            [FFMPEG_EXE_PATH, "-filters"],
+            [str(ffmpeg_exe), "-filters"],
             capture_output=True,
             text=True,
             check=True,
