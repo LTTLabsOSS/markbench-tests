@@ -6,7 +6,7 @@
 - Synced base commit: `f4fd593`
 - Scope: Cyberpunk first, with helpers reusable repo-wide.
 - Linux backend choice: `ydotool`
-- Overall status: Phase 1 complete.
+- Overall status: Phase 2 complete.
 
 ## Phase 1: Branch And Baseline
 
@@ -20,10 +20,14 @@
 
 ## Phase 2: Platform Detection
 
-- Status: Pending.
-- Changed files: Pending.
-- Test command/result: Pending.
-- Caveats/follow-up: Pending.
+- Status: Complete.
+- Changed files:
+  - `harness_utils/platform.py`
+  - `LINUX_PORTING_PLAN.md`
+- Test command/result:
+  - `uv run --no-sync python -m compileall harness_utils`: passed.
+- Caveats/follow-up:
+  - `python` is not available on PATH in this shell; used the working `uv` Python runner.
 
 ## Phase 3: Steam Helpers
 
