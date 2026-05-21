@@ -82,9 +82,9 @@ def vmaf_supported(architecture: str) -> bool:
             [str(ffmpeg_exe), "-filters"],
             capture_output=True,
             text=True,
-            check=True,
+            check=False,
         )
         output = (result.stdout or "") + (result.stderr or "")
-        return "libvmaf" in output
+        return "libvmaf" in output.lower()
     except Exception:
         return False
