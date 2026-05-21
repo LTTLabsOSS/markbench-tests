@@ -155,7 +155,7 @@ def run_benchmark():
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
 
     # Starting the benchmark:
-    if kerasService.wait_for_word(word="recap", timeout=60, interval=0.5) is None:
+    if kerasService.wait_for_word(word="recap", timeout=80, interval=0.5) is None:
         logging.error("Didn't see the word recap. Did the save game load?")
         sys.exit(1)
 
