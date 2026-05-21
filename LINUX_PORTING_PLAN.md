@@ -6,7 +6,7 @@
 - Synced base commit: `f4fd593`
 - Scope: Cyberpunk first, with helpers reusable repo-wide.
 - Linux backend choice: `ydotool`
-- Overall status: Phase 10 complete.
+- Overall status: Phase 11 complete.
 
 ## Phase 1: Branch And Baseline
 
@@ -122,10 +122,19 @@
 
 ## Phase 11: Tests
 
-- Status: Pending.
-- Changed files: Pending.
-- Test command/result: Pending.
-- Caveats/follow-up: Pending.
+- Status: Complete.
+- Changed files:
+  - `tests/test_platform_helpers.py`
+  - `tests/test_steam_helpers.py`
+  - `tests/test_paths.py`
+  - `tests/test_input.py`
+  - `tests/test_process.py`
+  - `LINUX_PORTING_PLAN.md`
+- Test command/result:
+  - `uv run python -m unittest discover -s tests`: passed, 15 tests.
+  - `uv run python -m compileall harness_utils cyberpunk2077 tests`: passed.
+- Caveats/follow-up:
+  - Used `uv run python` because `python` is not available on PATH in this shell.
 
 ## Phase 12: Manual Validation Notes
 
