@@ -150,7 +150,7 @@ def main():  # pylint: disable=too-many-locals too-many-branches
             with open(vmaf_log_path, "w+", encoding="utf-8") as vmaf_log:
                 logging.info("Calculating VMAF...")
                 subprocess.run(
-                    [ffmpeg_exe_path, *argument_list], cwd=ffmpeg_exe_path.parent stderr=vmaf_log, check=True
+                    [ffmpeg_exe_path, *argument_list], cwd=ffmpeg_exe_path.parent, stderr=vmaf_log, check=True
                 )
                 vmaf_log.flush()
                 vmaf_log.seek(0)
