@@ -8,10 +8,11 @@ from dataclasses import dataclass
 from enum import Enum
 
 import cv2
-import dxcam
 import mss
 import numpy as np
 import requests
+
+from harness_utils.platform import is_linux, is_windows
 
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -64,25 +65,48 @@ class KerasService:
         self.url = f"http://{ip_addr}:{str(port)}/process"
         self.timeout = timeout
 
-    def _capture_screenshot(self, split_config: ScreenSplitConfig) -> io.BytesIO:
-        screenshot = None
-        with mss.mss() as sct:
-            monitor_1 = sct.monitors[1]  # Identify the display to capture
-            screenshot = np.array(sct.grab(monitor_1))
-            screenshot = cv2.cvtColor(screenshot, cv2.COLOR_RGB2GRAY)
+    def _raise_linux_screenshot_error(self, exc: Exception) -> None:
+        raise RuntimeError(
+            "Failed to capture screenshot on Linux with mss. Verify the session exposes "
+            "an X11 display or grants Wayland screenshot access."
+        ) from exc
 
+    def _apply_split_config(self, screenshot, split_config: ScreenSplitConfig):
         if split_config.divide_method == ScreenShotDivideMethod.HORIZONTAL:
-            screenshot = self._divide_horizontal(screenshot, split_config.quadrant)
-        elif split_config.divide_method == ScreenShotDivideMethod.VERTICAL:
-            screenshot = self._divide_vertical(screenshot, split_config.quadrant)
-        elif split_config.divide_method == ScreenShotDivideMethod.QUADRANT:
-            screenshot = self._divide_in_four(screenshot, split_config.quadrant)
+            return self._divide_horizontal(screenshot, split_config.quadrant)
+        if split_config.divide_method == ScreenShotDivideMethod.VERTICAL:
+            return self._divide_vertical(screenshot, split_config.quadrant)
+        if split_config.divide_method == ScreenShotDivideMethod.QUADRANT:
+            return self._divide_in_four(screenshot, split_config.quadrant)
+        return screenshot
 
+    def _encode_screenshot(self, screenshot) -> io.BytesIO:
         _, encoded_image = cv2.imencode(".jpg", screenshot)
         return io.BytesIO(encoded_image)
 
+    def _capture_screenshot(self, split_config: ScreenSplitConfig) -> io.BytesIO:
+        try:
+            with mss.mss() as sct:
+                monitor_1 = sct.monitors[1]  # Identify the display to capture
+                screenshot = np.array(sct.grab(monitor_1))
+                screenshot = cv2.cvtColor(screenshot, cv2.COLOR_RGB2GRAY)
+        except Exception as exc:
+            if is_linux():
+                self._raise_linux_screenshot_error(exc)
+            raise
+
+        screenshot = self._apply_split_config(screenshot, split_config)
+        return self._encode_screenshot(screenshot)
+
     def _capture_vulkan_screenshot(self, split_config):
         """Capture a screenshot from Vulkan fullscreen using DXGI Desktop Duplication"""
+        if is_linux():
+            return self._capture_screenshot(split_config)
+        if not is_windows():
+            raise RuntimeError("Vulkan screenshot capture is only supported on Windows and Linux")
+
+        import dxcam
+
         camera = dxcam.create(
             output_idx=0
         )  # Select the main display (Change if needed)
@@ -97,16 +121,8 @@ class KerasService:
             screenshot, cv2.COLOR_RGB2GRAY
         )  # Convert to grayscale
 
-        # Apply splitting logic if needed
-        if split_config.divide_method == ScreenShotDivideMethod.HORIZONTAL:
-            screenshot = self._divide_horizontal(screenshot, split_config.quadrant)
-        elif split_config.divide_method == ScreenShotDivideMethod.VERTICAL:
-            screenshot = self._divide_vertical(screenshot, split_config.quadrant)
-        elif split_config.divide_method == ScreenShotDivideMethod.QUADRANT:
-            screenshot = self._divide_in_four(screenshot, split_config.quadrant)
-
-        _, encoded_image = cv2.imencode(".jpg", screenshot)  # Encode image
-        return io.BytesIO(encoded_image)  # Return image bytes
+        screenshot = self._apply_split_config(screenshot, split_config)
+        return self._encode_screenshot(screenshot)
 
     def _query_service(self, word: str, image_bytes: io.BytesIO) -> any:
         try:

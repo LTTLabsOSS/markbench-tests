@@ -6,7 +6,7 @@
 - Synced base commit: `f4fd593`
 - Scope: Cyberpunk first, with helpers reusable repo-wide.
 - Linux backend choice: `ydotool`
-- Overall status: Phase 5 complete.
+- Overall status: Phase 6 complete.
 
 ## Phase 1: Branch And Baseline
 
@@ -65,10 +65,15 @@
 
 ## Phase 6: Screenshot Helpers
 
-- Status: Pending.
-- Changed files: Pending.
-- Test command/result: Pending.
-- Caveats/follow-up: Pending.
+- Status: Complete.
+- Changed files:
+  - `harness_utils/artifacts.py`
+  - `harness_utils/keras_service.py`
+  - `LINUX_PORTING_PLAN.md`
+- Test command/result:
+  - `uv run --no-sync python -m compileall harness_utils`: passed.
+- Caveats/follow-up:
+  - Linux screenshot capture depends on the active session exposing X11 or allowing Wayland screenshot access.
 
 ## Phase 7: Process Helpers
 
