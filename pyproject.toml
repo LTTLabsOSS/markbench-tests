@@ -3,22 +3,21 @@ name = "markbench"
 version = "0.1.0"
 requires-python = "==3.11.*"
 dependencies = [
+    "dxcam>=0.0.5; sys_platform == 'win32'",
     "mss>=10.1.0",
     "opencv-python>=4.13.0.92",
     "psutil>=7.2.2",
+    "pyautogui>=0.9.54; sys_platform == 'win32'",
+    "pydirectinput>=1.0.4; sys_platform == 'win32'",
+    "pywin32>=311; sys_platform == 'win32'",
     "pyyaml>=6.0.3",
     "requests>=2.32.5",
     "vdf>=3.4",
+    "vgamepad>=0.1.0; sys_platform == 'win32'",
 ]
 
 [project.optional-dependencies]
-windows = [
-    "dxcam>=0.0.5",
-    "pydirectinput>=1.0.4",
-    "pywin32>=311",
-    "pyautogui>=0.9.54",
-    "vgamepad>=0.1.0",
-]
+windows = []
 
 linux = [
     # System dependencies: ydotool, grim
