@@ -89,7 +89,7 @@ else:
         logging.info(process.stderr)
         if OPTIX in process.stdout or OPTIX in process.stderr:
             device_type = OPTIX  # nvidia
-        if CUDA in process.stdout or CUDA in process.stderr:
+        elif CUDA in process.stdout or CUDA in process.stderr:
             device_type = CUDA  # older non rtx nvidia
         elif HIP in process.stdout or HIP in process.stderr:
             device_type = HIP  # amd
