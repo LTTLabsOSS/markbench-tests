@@ -128,7 +128,7 @@ def main():
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
         "unit": "Score",
-        "Raytracing": scores["Raytracing"],
+        "Raytracing": scores["Ray tracing"],
         "Acceleration Structure Builds": scores["Acceleration Structure Builds"],
         "Rasterization": scores["Rasterization"],
         "Compute": scores["Compute"],
