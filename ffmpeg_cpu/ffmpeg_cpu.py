@@ -33,16 +33,16 @@ TEST_OPTIONS = {
 parser = ArgumentParser()
 parser.add_argument(
     "--encoder", 
-    dest="encoder", 
+    dest="encoder",
     required=True
 )
 
 parser.add_argument(
     "-a", 
     "--architecture", 
-    dest="architecture", 
-    help="Architecture type", 
-    required=True, 
+    dest="architecture",
+    help="Architecture type",
+    required=True,
     choices=TEST_OPTIONS.keys()
 )
 
@@ -95,8 +95,6 @@ def main():  # pylint: disable=too-many-locals too-many-branches
         with open(encoding_log_path, "w", encoding="utf-8") as encoding_log:
             logging.info("Encoding...")
             subprocess.run(command, stderr=encoding_log, check=True)
-
-        end_encoding_time = current_time_ms()
         logging.info("Encoding completed")
 
         encoding_fps = None
@@ -171,7 +169,7 @@ def main():  # pylint: disable=too-many-locals too-many-branches
         am.copy_file(
             str(encoding_log_path), ArtifactType.RESULTS_TEXT, "encoding log file"
         )
-        
+
         am.create_manifest()
 
         report = {
