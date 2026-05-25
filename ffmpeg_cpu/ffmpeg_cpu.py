@@ -1,4 +1,4 @@
-"""test script for handbrake encoding tests"""
+"""test script for FFMPEG encoding tests"""
 
 import logging
 import re
