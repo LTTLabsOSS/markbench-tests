@@ -6,7 +6,6 @@ import re
 import shutil
 from pathlib import Path
 from subprocess import Popen
-from typing import Any
 
 from harness_utils.platform import is_linux, is_windows, require_linux, require_windows
 
@@ -40,14 +39,6 @@ def _linux_steam_root_candidates() -> list[Path]:
         candidates = [Path.home() / ".local" / "share" / "Steam"]
     logger.debug("Linux Steam root candidates: %s", candidates)
     return candidates
-
-
-def _load_vdf(path: Path) -> dict[str, Any]:
-    logger.info("Loading Steam VDF path=%s", path)
-    import vdf
-
-    with open(path, encoding="utf-8") as file:
-        return vdf.load(file)
 
 
 def get_steam_library_paths() -> list[Path]:
@@ -135,18 +126,18 @@ def get_app_manifest_path(app_id: int) -> Path:
     raise RuntimeError("Steam app manifest lookup is only supported on Windows and Linux")
 
 
-def _get_app_state(app_id: int) -> dict[str, Any]:
-    logger.info("Reading Steam app state app_id=%s", app_id)
-    manifest_path = get_app_manifest_path(app_id)
-    data = _load_vdf(manifest_path)
-    app_state = data.get("AppState") or data.get("appstate")
-    if not isinstance(app_state, dict):
-        raise RuntimeError(f"Steam app manifest missing AppState: {manifest_path}")
-    return app_state
+def _read_app_manifest_value(manifest_path: Path, value_name: str) -> str | None:
+    logger.info("Reading Steam app manifest value path=%s value=%s", manifest_path, value_name)
+    with open(manifest_path, encoding="utf-8") as file:
+        data = file.read()
+    value_match = re.search(rf'"{re.escape(value_name)}"\s*"([^"]+)"', data)
+    if value_match is None:
+        return None
+    return value_match.group(1)
 
 
 def get_app_install_location(app_id: int) -> str:
-    """Given the Steam App ID, Gets the install directory from the Windows Registry"""
+    """Given the Steam App ID, gets the install directory."""
     logger.info("Resolving Steam app install location app_id=%s", app_id)
     if is_windows():
         reg_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App " + str(
@@ -165,11 +156,10 @@ def get_app_install_location(app_id: int) -> str:
 
     if is_linux():
         manifest_path = get_app_manifest_path(app_id)
-        app_state = _get_app_state(app_id)
-        install_dir = app_state.get("installdir")
+        install_dir = _read_app_manifest_value(manifest_path, "installdir")
         if not install_dir:
             raise RuntimeError(f"Steam app manifest missing installdir: {manifest_path}")
-        path = str(Path(get_steam_folder_path()) / "steamapps" / "common" / install_dir)
+        path = str(manifest_path.parent / "common" / install_dir)
         logger.info("Resolved Linux Steam app install location app_id=%s path=%s", app_id, path)
         return path
 
@@ -180,17 +170,9 @@ def get_proton_prefix(app_id: int) -> Path:
     """Returns the Proton prefix path for a Steam app."""
     logger.info("Resolving Proton prefix app_id=%s", app_id)
     require_linux("Proton prefix lookup")
-    path = Path(get_steam_folder_path()) / "steamapps" / "compatdata" / str(app_id) / "pfx"
+    path = get_app_manifest_path(app_id).parent / "compatdata" / str(app_id) / "pfx"
     logger.info("Resolved Proton prefix app_id=%s path=%s", app_id, path)
     return path
-
-
-def _linux_steam_command(game_id: int, game_params: list[str] | None = None) -> list[str]:
-    if game_params is None:
-        game_params = []
-    command = [get_steam_exe_path(), "-applaunch", str(game_id), *game_params]
-    logger.info("Built Linux Steam command: %s", " ".join(command))
-    return command
 
 
 def exec_steam_run_command(game_id: int, steam_path=None) -> Popen:
@@ -217,7 +199,8 @@ def exec_steam_game(game_id: int, steam_path=None, game_params=None) -> Popen:
         game_params = []
 
     if steam_path is None and is_linux():
-        command = _linux_steam_command(game_id, game_params)
+        command = [get_steam_exe_path(), "-applaunch", str(game_id), *game_params]
+        logger.info("Built Linux Steam command: %s", " ".join(command))
     else:
         if steam_path is None:
             steam_path = get_steam_exe_path()
@@ -230,37 +213,17 @@ def exec_steam_game(game_id: int, steam_path=None, game_params=None) -> Popen:
 def get_build_id(game_id: int) -> str | None:
     """Gets the build ID of a game from the Steam installation directory"""
     logger.info("Resolving Steam build ID game_id=%s", game_id)
-    if is_windows():
-        game_folder = (
-            Path(get_app_install_location(game_id))
-            / "../"
-            / "../"
-            / f"appmanifest_{game_id}.acf"
-        )
-        logger.debug("Checking Windows build ID manifest path=%s", game_folder)
-        if not game_folder.exists():
-            logger.warning("Game folder not found when looking for game version")
-            return None
-        with open(game_folder, "r", encoding="utf-8") as file:
-            data = file.read()
-        buildid_match = re.search(r'"buildid"\s*"(\d+)"', data)
-        if buildid_match is not None:
-            logger.info("Resolved Windows Steam build ID game_id=%s build_id=%s", game_id, buildid_match.group(1))
-            return buildid_match.group(1)
-        logger.warning("No 'buildid' found in the file when looking for game version")
-        return None
 
-    if is_linux():
+    if is_windows() or is_linux():
         manifest_path = get_app_manifest_path(game_id)
-        logger.debug("Checking Linux build ID manifest path=%s", manifest_path)
+        logger.debug("Checking Steam build ID manifest path=%s", manifest_path)
         if not manifest_path.exists():
             logger.warning("Game folder not found when looking for game version")
             return None
-        app_state = _get_app_state(game_id)
-        build_id = app_state.get("buildid")
+        build_id = _read_app_manifest_value(manifest_path, "buildid")
         if build_id is not None:
-            logger.info("Resolved Linux Steam build ID game_id=%s build_id=%s", game_id, build_id)
-            return str(build_id)
+            logger.info("Resolved Steam build ID game_id=%s build_id=%s", game_id, build_id)
+            return build_id
         logger.warning("No 'buildid' found in the file when looking for game version")
         return None
 
