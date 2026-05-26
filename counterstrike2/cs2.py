@@ -61,14 +61,6 @@ def wait_for_word(keras_service, word, timeout=30, interval=1, why: str = ""):
     return result
 
 
-def look_for_word(keras_service, word, attempts=10, interval=1, why: str = ""):
-    """Function for looking for word"""
-    result = keras_service.look_for_word(word, attempts=attempts, interval=interval)
-    if not result:
-        raise RuntimeError(f"Did not find {word} to {why}.")
-    return result
-
-
 def console_command(command):
     """Enter a console command"""
     gui.write(command)
@@ -126,8 +118,8 @@ def identify_settings():
 def navigate_settings(keras_service, am):
     """Navigates the settings menu and takes screenshots for traceability"""
 
-    result = look_for_word(
-        keras_service, word="video", why="find the video menu button"
+    result = wait_for_word(
+        keras_service, word="video", timeout=10, interval=1, why="find the video menu button"
     )
 
     gui.moveTo(result["x"], result["y"])
@@ -142,8 +134,8 @@ def navigate_settings(keras_service, am):
         "video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings"
     )
 
-    result = look_for_word(
-        keras_service, word="advanced", why="find the advanced video menu"
+    result = wait_for_word(
+        keras_service, word="advanced", timeout=10, interval=1, why="find the advanced video menu"
     )
 
     gui.moveTo(result["x"], result["y"])
@@ -158,8 +150,8 @@ def navigate_settings(keras_service, am):
         "first picture of advanced video settings",
     )
 
-    result = look_for_word(
-        keras_service, word="boost", why="identify we're in the advanced video menu"
+    result = wait_for_word(
+        keras_service, word="boost", timeout=10, interval=1, why="identify we're in the advanced video menu"
     )
 
     gui.moveTo(result["x"], result["y"])
@@ -180,7 +172,7 @@ def execute_benchmark(keras_service):
     """Starts the benchmark"""
     logging.info("Starting benchmark")
 
-    result = look_for_word(keras_service, word="play", why="click the play tab")
+    result = wait_for_word(keras_service, word="play", timeout=10, interval=1, why="click the play tab")
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -188,7 +180,7 @@ def execute_benchmark(keras_service):
     gui.mouseUp()
     time.sleep(0.2)
 
-    result = look_for_word(keras_service, word="workshop", why="click the workshop tab")
+    result = wait_for_word(keras_service, word="workshop", timeout=10, interval=1, why="click the workshop tab")
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -196,7 +188,7 @@ def execute_benchmark(keras_service):
     gui.mouseUp()
     time.sleep(0.2)
 
-    result = look_for_word(keras_service, word="fps", why="click the benchmark icon")
+    result = wait_for_word(keras_service, word="fps", timeout=10, interval=1, why="click the benchmark icon")
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -204,7 +196,7 @@ def execute_benchmark(keras_service):
     gui.mouseUp()
     time.sleep(0.2)
 
-    result = look_for_word(keras_service, word="go", why="start the benchmark")
+    result = wait_for_word(keras_service, word="go", timeout=10, interval=1, why="start the benchmark")
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()

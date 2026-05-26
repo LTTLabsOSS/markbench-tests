@@ -72,7 +72,7 @@ def run_benchmark():
         user.press("esc")
 
     # Navigating main menu:
-    is_load_present = kerasService.look_for_word("load", interval=1, attempts=5)
+    is_load_present = kerasService.wait_for_word("load", interval=1, timeout=5)
     if is_load_present is None:
         raise ValueError(
             "Load game option does not exist. Did the save get copied correctly?"
@@ -81,7 +81,7 @@ def run_benchmark():
     logging.info("Navigating to options to get some screenshots")
     press_n_times("down", 4, 0.2)
 
-    if kerasService.look_for_word(word="continue", interval=0.5, attempts=5) is None:
+    if kerasService.wait_for_word(word="continue", interval=0.5, timeout=2.5) is None:
         logging.info(
             "Continue option not listed, navigating accordingly."
             )

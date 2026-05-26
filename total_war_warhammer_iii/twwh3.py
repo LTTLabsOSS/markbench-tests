@@ -73,7 +73,7 @@ def run_benchmark():
     time.sleep(5)
     am = ArtifactManager(LOG_DIRECTORY)
 
-    result = kerasService.look_for_word("warning", attempts=10, interval=5)
+    result = kerasService.wait_for_word("warning", timeout=50, interval=5)
     if not result:
         logging.info("Did not see warnings. Did the game start?")
         sys.exit(1)
@@ -81,7 +81,7 @@ def run_benchmark():
     skip_logo_screens()
     time.sleep(2)
 
-    result = kerasService.look_for_word("options", attempts=10, interval=1)
+    result = kerasService.wait_for_word("options", timeout=10, interval=1)
     if not result:
         logging.info("Did not find the options menu. Did the game skip the intros?")
         sys.exit(1)
@@ -97,7 +97,7 @@ def run_benchmark():
         "main.png", ArtifactType.CONFIG_IMAGE, "picture of basic settings"
     )
 
-    result = kerasService.look_for_word("ad", attempts=10, interval=1)
+    result = kerasService.wait_for_word("ad", timeout=10, interval=1)
     if not result:
         logging.info("Did not find the advanced menu. Did the game skip the intros?")
         sys.exit(1)
@@ -113,7 +113,7 @@ def run_benchmark():
         "advanced.png", ArtifactType.CONFIG_IMAGE, "picture of advanced settings"
     )
 
-    result = kerasService.look_for_word("bench", attempts=10, interval=1)
+    result = kerasService.wait_for_word("bench", timeout=10, interval=1)
     if not result:
         logging.info("Did not find the benchmark menu. Did the game skip the intros?")
         sys.exit(1)
@@ -124,7 +124,7 @@ def run_benchmark():
     time.sleep(0.2)
     gui.mouseUp()
     if args.benchmark != "battle":
-        result = kerasService.look_for_word("mirrors", attempts=10, interval=1)
+        result = kerasService.wait_for_word("mirrors", timeout=10, interval=1)
         gui.moveTo(result["x"], result["y"])
         time.sleep(0.2)
         gui.mouseDown()

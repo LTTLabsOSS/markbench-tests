@@ -56,7 +56,7 @@ def get_run_game_id_command(game_id: int) -> str:
 def camera_cycle(max_attempts=10):
     """Continuously looks for a word using kerasService. If not found in the given time, presses a button.
 
-    :param kerasService: Object that has the method look_for_word().
+    :param kerasService: Object that has the method wait_for_word().
     :param gamepad: The gamepad object to send button presses.
     :param word: The word to look for.
     :param max_attempts: Maximum times to check before stopping.
@@ -65,7 +65,7 @@ def camera_cycle(max_attempts=10):
     """
     for _ in range(max_attempts):
         # Try finding the word within check_duration seconds
-        found = kerasService.look_for_word(word="player", attempts=2, interval=0.2)
+        found = kerasService.wait_for_word(word="player", timeout=0.4, interval=0.2)
 
         if found:
             return True  # Stop checking
@@ -146,7 +146,7 @@ def run_benchmark():
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(1)
 
-    if kerasService.look_for_word(word="recent", attempts=10, interval=1):
+    if kerasService.wait_for_word(word="recent", timeout=10, interval=1):
         logging.info("In Match History menu, navigating to Saved Replays.")
         gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT)
         time.sleep(1)
@@ -210,7 +210,7 @@ def run_benchmark():
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(0.4)
 
-    if kerasService.look_for_word(word="audio", attempts=10, interval=1) is None:
+    if kerasService.wait_for_word(word="audio", timeout=10, interval=1) is None:
         logging.info("Couldn't find the audio tab. Did the settings menu open?")
         sys.exit(1)
 
@@ -221,7 +221,7 @@ def run_benchmark():
     )
     time.sleep(1)
 
-    if kerasService.look_for_word(word="window", attempts=10, interval=1) is None:
+    if kerasService.wait_for_word(word="window", timeout=10, interval=1) is None:
         logging.info(
             "Couldn't find the window settings header. Did Keras see the right menu?"
         )

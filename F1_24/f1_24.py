@@ -59,7 +59,7 @@ def find_latest_result_file(base_path):
 
 def find_settings() -> any:
     """Look for and enter settings"""
-    if not kerasService.look_for_word("settings", attempts=5, interval=3):
+    if not kerasService.wait_for_word("settings", timeout=15, interval=3):
         logging.info("Didn't find settings!")
         sys.exit(1)
     user.press("enter")
@@ -68,7 +68,7 @@ def find_settings() -> any:
 
 def find_graphics() -> any:
     """Look for and enter graphics settings"""
-    if not kerasService.look_for_word("graphics", attempts=5, interval=3):
+    if not kerasService.wait_for_word("graphics", timeout=15, interval=3):
         logging.info("Didn't find graphics!")
         sys.exit(1)
     user.press("right")
@@ -198,7 +198,7 @@ def run_benchmark():
     time.sleep(0.2)
 
     # Navigate benchmark menu
-    if not kerasService.look_for_word("weather", attempts=5, interval=3):
+    if not kerasService.wait_for_word("weather", timeout=15, interval=3):
         logging.info("Didn't find weather!")
         sys.exit(1)
 

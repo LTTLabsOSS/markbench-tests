@@ -44,7 +44,7 @@ def run_benchmark():
     start_game()
 
     t1 = int(time.time())
-    optimizing_shaders = kerasService.look_for_word("optimize", interval=1, attempts=10)
+    optimizing_shaders = kerasService.wait_for_word("optimize", interval=1, timeout=10)
     if optimizing_shaders:
         time.sleep(40)
 

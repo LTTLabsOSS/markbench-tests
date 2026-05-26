@@ -94,7 +94,7 @@ def run_benchmark(keras_service):
         logging.info("Did not find the main menu. Did the game crash?")
         sys.exit(1)
 
-    result = keras_service.look_for_word("load", attempts=10, interval=1)
+    result = keras_service.wait_for_word("load", timeout=10, interval=1)
     if not result:
         logging.info("Did not find the load game option. Did the save game copy?")
         sys.exit(1)
@@ -105,8 +105,8 @@ def run_benchmark(keras_service):
     gui.click()
     time.sleep(0.2)
 
-    result = keras_service.look_for_word(
-        "benchmark", attempts=10, interval=1, split_config=top_left_keras
+    result = keras_service.wait_for_word(
+        "benchmark", timeout=10, interval=1, split_config=top_left_keras
     )
     if not result:
         logging.info(
@@ -156,7 +156,7 @@ def run_benchmark(keras_service):
     user.press("esc")
     time.sleep(0.2)
 
-    result = keras_service.look_for_word("options", attempts=10, interval=1)
+    result = keras_service.wait_for_word("options", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the options menu. Did the game open the quick dialog menu properly?"
@@ -173,7 +173,7 @@ def run_benchmark(keras_service):
         "general.png", ArtifactType.CONFIG_IMAGE, "general settings menu"
     )
 
-    result = keras_service.look_for_word("graphics", attempts=10, interval=1)
+    result = keras_service.wait_for_word("graphics", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the graphics menu. Did the game navigate to the general settings correctly?"
@@ -192,7 +192,7 @@ def run_benchmark(keras_service):
         "first picture of graphics settings menu",
     )
 
-    result = keras_service.look_for_word("window", attempts=10, interval=1)
+    result = keras_service.wait_for_word("window", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the keyword 'window' in graphics menu. Did the game navigate to the graphics menu correctly?"

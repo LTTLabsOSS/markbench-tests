@@ -108,7 +108,7 @@ def run_benchmark():
     user.press("space")
 
     # This is for the menu checking for if there's a continue option
-    result = kerasService.look_for_word("continue", attempts=20, interval=1)
+    result = kerasService.wait_for_word("continue", timeout=20, interval=1)
     if result:
         logging.info("Continue option available, navigating accordingly.")
         press_n_times("s", 3, 0.5)

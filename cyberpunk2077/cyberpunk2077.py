@@ -40,7 +40,7 @@ def start_game():
 def navigate_to_settings():
     """navigate from main menu to settings menu"""
     logging.info("Navigating main menu")
-    result = kerasService.look_for_word("continue", attempts=10)
+    result = kerasService.wait_for_word("continue", timeout=10)
     if not result:
         # an account with no save game has less menu options, so just press left and enter settings
         user.press("left")
@@ -79,7 +79,7 @@ def check_anisotropy(max_attempts=10):
     """Continuously looks for a word using kerasService. If not found in the given time, presses a button."""
     for _ in range(max_attempts):
         # Try finding the word within check_duration seconds
-        found = kerasService.look_for_word(word="anisotropy", attempts=10, interval=0.5)
+        found = kerasService.wait_for_word(word="anisotropy", timeout=5, interval=0.5)
 
         if found:
             return True  # Stop checking

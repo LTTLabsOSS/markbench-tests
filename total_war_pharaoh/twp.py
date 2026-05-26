@@ -87,7 +87,7 @@ def run_benchmark(keras_service):
     am = ArtifactManager(LOG_DIRECTORY)
     time.sleep(5)
 
-    result = keras_service.look_for_word("warning", attempts=10, interval=5)
+    result = keras_service.wait_for_word("warning", timeout=50, interval=5)
     if not result:
         logging.info("Did not see warnings. Did the game start?")
         sys.exit(1)
@@ -95,7 +95,7 @@ def run_benchmark(keras_service):
     skip_logo_screens()
     time.sleep(2)
 
-    result = keras_service.look_for_word("options", attempts=10, interval=1)
+    result = keras_service.wait_for_word("options", timeout=10, interval=1)
     if not result:
         logging.info("Did not find the options menu. Did the game skip the intros?")
         sys.exit(1)
@@ -115,7 +115,7 @@ def run_benchmark(keras_service):
     )
     time.sleep(0.5)
 
-    result = keras_service.look_for_word("advanced", attempts=10, interval=1)
+    result = keras_service.wait_for_word("advanced", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the advanced options menu. Did the game navigate to options correctly?"
@@ -141,7 +141,7 @@ def run_benchmark(keras_service):
     )
     time.sleep(0.5)
 
-    result = keras_service.look_for_word("water", attempts=10, interval=1)
+    result = keras_service.wait_for_word("water", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the keyword 'water' in the menu. Did Keras navigate to the advanced menu correctly?"
@@ -178,7 +178,7 @@ def run_benchmark(keras_service):
     )
     time.sleep(0.5)
 
-    result = keras_service.look_for_word("bench", attempts=10, interval=1)
+    result = keras_service.wait_for_word("bench", timeout=10, interval=1)
     if not result:
         logging.info("Did not find the benchmark menu. Did the game skip the intros?")
         sys.exit(1)

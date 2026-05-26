@@ -241,7 +241,7 @@ def run_benchmark():
     navigate_main_menu(am)
 
     # press load save
-    result = kerasService.look_for_word("yes", attempts=10, interval=1)
+    result = kerasService.wait_for_word("yes", timeout=10, interval=1)
     if not result:
         logging.info("Did not load the save")
         sys.exit(1)

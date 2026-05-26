@@ -107,7 +107,7 @@ def screenshot_settings():
     gui.mouseUp()
     time.sleep(0.2)
 
-    result = kerasService.look_for_word(word="video", attempts=10, interval=1)
+    result = kerasService.wait_for_word(word="video", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the video menu button. Did Keras enter settings correctly?"
