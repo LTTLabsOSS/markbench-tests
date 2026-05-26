@@ -12,14 +12,11 @@ import cv2
 import dxcam
 import mss
 import numpy as np
-import pydirectinput as user
 import requests
 
 CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "configs" / "config.toml"
 OCR_REQUEST_TIMEOUT = 5
 FAILED_RUN = (0, 0)
-
-user.FAILSAFE = False
 
 
 @lru_cache(maxsize=1)
@@ -62,48 +59,37 @@ def get_ocr_url(
     return f"http://{host}:{ocr_port}/process"
 
 
-def _capture_ocr_screenshot():
-    with mss.mss() as sct:
-        monitor_1 = sct.monitors[1]
-        screenshot = np.array(sct.grab(monitor_1))
-        screenshot = cv2.cvtColor(screenshot, cv2.COLOR_BGRA2RGB)
-    _, encoded_image = cv2.imencode(".jpg", screenshot)
-    return io.BytesIO(encoded_image)
-
-
-def _capture_vulkan_screenshot():
-    camera = dxcam.create(output_idx=0)
-    frame = camera.grab()
-    if frame is None:
-        return None
-
-    screenshot = np.array(frame)
-    screenshot = cv2.cvtColor(screenshot, cv2.COLOR_RGB2GRAY)
-    _, encoded_image = cv2.imencode(".jpg", screenshot)
+def _capture_screen_bytes(vulkan: bool = False):
+    if vulkan:
+        camera = dxcam.create(output_idx=0)
+        frame = camera.grab()
+        if frame is None:
+            return None
+        raw = np.array(frame)
+    else:
+        with mss.mss() as sct:
+            raw = np.array(sct.grab(sct.monitors[1]))
+    _, encoded_image = cv2.imencode(".jpg", raw)
     return io.BytesIO(encoded_image)
 
 
 def _query_ocr_service(word: str, vulkan: bool = False) -> Any:
-    try:
-        image_bytes = (
-            _capture_vulkan_screenshot() if vulkan else _capture_ocr_screenshot()
-        )
-        if image_bytes is None:
-            return None
 
-        response = requests.post(
-            get_ocr_url(),
-            data={"word": word},
-            files={"file": image_bytes},
-            timeout=OCR_REQUEST_TIMEOUT,
-        )
-        if not response.ok or "not found" in response.text:
-            return None
-
-        return json.loads(response.text)
-    except Exception:
-        logging.exception("OCR query failed for word=%s", word)
+    image_bytes = _capture_screen_bytes(vulkan)
+    if image_bytes is None:
         return None
+
+    response = requests.post(
+        get_ocr_url(),
+        data={"word": word},
+        files={"file": image_bytes},
+        timeout=OCR_REQUEST_TIMEOUT,
+    )
+
+    if not response.ok or "not found" in response.text:
+        return None
+
+    return json.loads(response.text)
 
 
 def find_word(
@@ -120,7 +106,7 @@ def find_word(
             logging.debug(str(result))
             return result
         if monotonic() > start_time + timeout:
-            logging.info(msg or f"did not find {word}")
+            logging.info(msg or f"did not find {word} in {timeout}s")
             return None
         sleep(interval)
 
