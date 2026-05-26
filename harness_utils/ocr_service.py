@@ -12,7 +12,10 @@ import cv2
 import dxcam
 import mss
 import numpy as np
+import pydirectinput as user
 import requests
+
+user.FAILSAFE = False
 
 CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "configs" / "config.toml"
 OCR_REQUEST_TIMEOUT = 5
