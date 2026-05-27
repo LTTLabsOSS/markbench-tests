@@ -1,4 +1,3 @@
-import io
 import json
 import logging
 import tomllib
@@ -8,12 +7,10 @@ from pathlib import Path
 from time import monotonic, sleep
 from typing import Any
 
-import cv2
-import dxcam
-import mss
-import numpy as np
 import pydirectinput as user
 import requests
+
+from harness_utils.screenshot import capture_screenshot_jpg_bytes
 
 user.FAILSAFE = False
 
@@ -63,17 +60,7 @@ def get_ocr_url(
 
 
 def _capture_screen_bytes(vulkan: bool = False):
-    if vulkan:
-        camera = dxcam.create(output_idx=0)
-        frame = camera.grab()
-        if frame is None:
-            return None
-        raw = np.array(frame)
-    else:
-        with mss.mss() as sct:
-            raw = np.array(sct.grab(sct.monitors[1]))
-    _, encoded_image = cv2.imencode(".jpg", raw)
-    return io.BytesIO(encoded_image)
+    return capture_screenshot_jpg_bytes(vulkan)
 
 
 def _query_ocr_service(word: str, vulkan: bool = False) -> Any:

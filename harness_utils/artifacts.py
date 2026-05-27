@@ -2,18 +2,15 @@
 
 import logging
 import os
-from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum, unique
 from pathlib import Path
 from shutil import copy
 
-import cv2
-import numpy as np
 import yaml
 
 from harness_utils.platform import is_linux, is_windows
-from harness_utils.screenshot import take_screenshot_file
+from harness_utils.screenshot import capture_screenshot_png_bytes, take_screenshot_file
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +116,6 @@ class ArtifactManager:
         filename: str,
         artifact_type: ArtifactType,
         description="",
-        screenshot_override: Callable[[str | os.PathLike], None] | None = None,
     ):
         """
         Takes a screenshot and saves it to the manager's `output_path` with the given `filename`
@@ -141,11 +137,7 @@ class ArtifactManager:
             artifact_type.value,
             description,
         )
-        if screenshot_override is None:
-            take_screenshot_file(self.output_path / filename)
-        else:
-            logger.info("Using screenshot override for artifact filename=%s", filename)
-            screenshot_override(self.output_path / filename)
+        take_screenshot_file(self.output_path / filename)
         artifact = Artifact(filename, artifact_type, description)
         self.artifacts.append(artifact)
         logger.info("Captured artifact screenshot filename=%s", filename)
@@ -155,10 +147,9 @@ class ArtifactManager:
         filename: str,
         artifact_type: ArtifactType,
         description="",
-        screenshot_override: Callable[[str | os.PathLike], None] | None = None,
     ):
         """
-        Takes a screenshot using dxcam and saves it to the manager's `output_path` with the given `filename`.
+        Takes a Vulkan screenshot and saves it to the manager's `output_path` with the given `filename`.
         Adds a new Artifact to the manager's artifact list.
 
         Raises a `ValueError` if `artifact_type` is not one of the `_IMAGE_ARTIFACT_TYPES` values which represent an image.
@@ -176,28 +167,17 @@ class ArtifactManager:
             description,
         )
 
-        if screenshot_override is None and is_windows():
-            import dxcam
-
-            camera = dxcam.create(output_idx=0)  # Initialize DXCam
-            frame = camera.grab()  # Capture the screenshot
-
-            if frame is None:
-                raise RuntimeError("Failed to capture screenshot with dxcam.")
-
-            # Convert to BGR format (since dxcam outputs in RGB)
-            frame_bgr = cv2.cvtColor(np.array(frame), cv2.COLOR_RGB2BGR)
-
-            # Save image using OpenCV
-            cv2.imwrite(output_filepath, frame_bgr)
-        elif screenshot_override is None:
-            if is_linux():
-                take_screenshot_file(output_filepath)
-            else:
-                raise RuntimeError("Vulkan screenshot capture is only supported on Windows and Linux")
+        if is_windows():
+            image_bytes = capture_screenshot_png_bytes(vulkan=True)
+            if image_bytes is None:
+                raise RuntimeError("Failed to capture screenshot.")
+            Path(output_filepath).write_bytes(image_bytes.getbuffer())
+        elif is_linux():
+            take_screenshot_file(output_filepath)
         else:
-            logger.info("Using Vulkan screenshot override for artifact filename=%s", filename)
-            screenshot_override(output_filepath)
+            raise RuntimeError(
+                "Vulkan screenshot capture is only supported on Windows and Linux"
+            )
 
         artifact = Artifact(filename, artifact_type, description)
         self.artifacts.append(artifact)

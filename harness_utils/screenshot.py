@@ -1,13 +1,14 @@
 """Screenshot capture helpers."""
 
+import io
 import logging
 import os
 import shutil
 import subprocess
-import tempfile
 from pathlib import Path
 
 import cv2
+import dxcam
 import mss
 import numpy as np
 
@@ -25,7 +26,9 @@ def _linux_screenshot_error(exc: Exception) -> RuntimeError:
 
 
 def _grim_path() -> str | None:
-    logger.debug("Checking grim backend WAYLAND_DISPLAY=%s", os.getenv("WAYLAND_DISPLAY"))
+    logger.debug(
+        "Checking grim backend WAYLAND_DISPLAY=%s", os.getenv("WAYLAND_DISPLAY")
+    )
     if is_linux() and os.getenv("WAYLAND_DISPLAY"):
         grim = shutil.which("grim")
         logger.debug("Resolved grim path=%s", grim)
@@ -74,32 +77,34 @@ def take_screenshot_file(output_path: str | os.PathLike) -> None:
     _take_mss_file(path)
 
 
-def _capture_mss_grayscale() -> np.ndarray:
-    logger.info("Attempting grayscale screenshot with mss")
-    try:
-        with mss.mss() as sct:
-            monitor_1 = sct.monitors[1]
-            screenshot = np.array(sct.grab(monitor_1))
-            return cv2.cvtColor(screenshot, cv2.COLOR_RGB2GRAY)
-    except Exception as exc:
-        if is_linux():
-            raise _linux_screenshot_error(exc) from exc
-        raise
-    logger.info("Captured grayscale screenshot with mss")
-
-
-def capture_screenshot_grayscale() -> np.ndarray:
-    """Capture a screenshot as a grayscale array."""
-    logger.info("Capturing grayscale screenshot")
-    if _grim_path() is None:
-        return _capture_mss_grayscale()
-
-    with tempfile.TemporaryDirectory() as tmp:
-        screenshot_path = Path(tmp) / "screenshot.png"
-        _run_grim(screenshot_path)
-        logger.debug("Reading grim screenshot for grayscale conversion path=%s", screenshot_path)
-        screenshot = cv2.imread(str(screenshot_path), cv2.IMREAD_GRAYSCALE)
+def capture_screenshot_array(vulkan: bool = False) -> np.ndarray | None:
+    """Capture a screenshot as an array."""
+    if vulkan:
+        camera = dxcam.create(output_idx=0, output_color="BGR")
+        screenshot = camera.grab()
         if screenshot is None:
-            raise RuntimeError(f"Failed to read grim screenshot: {screenshot_path}")
-        logger.info("Captured grayscale screenshot with grim")
-        return screenshot
+            return None
+        return np.array(screenshot)
+
+    with mss.mss() as sct:
+        return np.array(sct.grab(sct.monitors[1]))
+
+
+def capture_screenshot_jpg_bytes(vulkan: bool = False) -> io.BytesIO | None:
+    """Capture a screenshot and encode it as JPG bytes."""
+    screenshot = capture_screenshot_array(vulkan)
+    if screenshot is None:
+        return None
+
+    _, encoded_image = cv2.imencode(".jpg", screenshot)
+    return io.BytesIO(encoded_image)
+
+
+def capture_screenshot_png_bytes(vulkan: bool = False) -> io.BytesIO | None:
+    """Capture a screenshot and encode it as PNG bytes."""
+    screenshot = capture_screenshot_array(vulkan)
+    if screenshot is None:
+        return None
+
+    _, encoded_image = cv2.imencode(".png", screenshot)
+    return io.BytesIO(encoded_image)

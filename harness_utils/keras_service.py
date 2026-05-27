@@ -8,11 +8,9 @@ from dataclasses import dataclass
 from enum import Enum
 
 import cv2
-import dxcam
-import numpy as np
 import requests
 
-from harness_utils.screenshot import capture_screenshot_grayscale
+from harness_utils.screenshot import capture_screenshot_array
 
 logger = logging.getLogger(__name__)
 logging.getLogger("requests").setLevel(logging.WARNING)
@@ -75,35 +73,26 @@ class KerasService:
             return self._divide_in_four(screenshot, split_config.quadrant)
         return screenshot
 
-    def _encode_screenshot(self, screenshot) -> io.BytesIO:
-        _, encoded_image = cv2.imencode(".jpg", screenshot)
-        return io.BytesIO(encoded_image)
-
     def _capture_screenshot(self, split_config) -> io.BytesIO:
         logger.info("Capturing Keras screenshot split_config=%s", split_config)
-        screenshot = capture_screenshot_grayscale()
+        screenshot = capture_screenshot_array()
         if split_config is not None:
             screenshot = self._apply_split_config(screenshot, split_config)
-        return self._encode_screenshot(screenshot)
+        _, encoded_image = cv2.imencode(".jpg", screenshot)
+        return io.BytesIO(encoded_image)
 
     def _capture_vulkan_screenshot(self, split_config):
         """Capture a screenshot from Vulkan fullscreen using DXGI Desktop Duplication"""
         logger.info("Capturing Keras Vulkan screenshot split_config=%s", split_config)
 
-        camera = dxcam.create(
-            output_idx=0
-        )  # Select the main display (Change if needed)
-        frame = camera.grab()  # Capture the frame
-
-        if frame is None:
+        screenshot = capture_screenshot_array(vulkan=True)
+        if screenshot is None:
             print("Failed to capture Vulkan frame.")
             return None
-
-        screenshot = np.array(frame)  # Convert to numpy array
         if split_config is not None:
             screenshot = self._apply_split_config(screenshot, split_config)
-
-        return self._encode_screenshot(screenshot)
+        _, encoded_image = cv2.imencode(".jpg", screenshot)
+        return io.BytesIO(encoded_image)
 
     def _query_service(self, word: str, image_bytes: io.BytesIO | None):
         logger.info("Querying Keras service word=%s url=%s", word, self.url)
