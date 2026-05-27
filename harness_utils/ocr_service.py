@@ -69,12 +69,38 @@ def _query_ocr_service(word: str, vulkan: bool = False) -> Any:
     if image_bytes is None:
         return None
 
-    response = requests.post(
-        get_ocr_url(),
-        data={"word": word},
-        files={"file": image_bytes},
-        timeout=OCR_REQUEST_TIMEOUT,
-    )
+    url = get_ocr_url()
+    try:
+        response = requests.post(
+            url,
+            data={"word": word},
+            files={"file": image_bytes},
+            timeout=OCR_REQUEST_TIMEOUT,
+        )
+    except requests.exceptions.Timeout:
+        logging.warning(
+            "OCR service timed out after %ss while searching for word=%r url=%s",
+            OCR_REQUEST_TIMEOUT,
+            word,
+            url,
+        )
+        return None
+    except requests.exceptions.ConnectionError as exc:
+        logging.warning(
+            "OCR service connection failed while searching for word=%r url=%s error=%s",
+            word,
+            url,
+            exc,
+        )
+        return None
+    except requests.exceptions.RequestException as exc:
+        logging.warning(
+            "OCR service request failed while searching for word=%r url=%s error=%s",
+            word,
+            url,
+            exc,
+        )
+        return None
 
     if not response.ok or "not found" in response.text:
         return None
