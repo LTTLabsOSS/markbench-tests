@@ -79,7 +79,7 @@
 - Test command/result:
   - `uv run --no-sync python -m compileall harness_utils cyberpunk2077`: passed after unit test removal.
 - Caveats/follow-up:
-  - Wayland/wlroots screenshot capture uses system `grim`.
+  - Linux screenshot capture uses KDE Spectacle.
   - X11 screenshot capture falls back to `mss`.
 
 ## Phase 7: Process Helpers
@@ -126,8 +126,10 @@
 - Test command/result:
   - `uv run --no-sync python -m compileall harness_utils cyberpunk2077`: passed.
 - Caveats/follow-up:
-  - Linux system dependencies `ydotool` and `grim` are documented in the Linux optional dependency section.
-  - `pyautogui` is Windows-only; Linux Wayland path uses `ydotool` for input and `grim` for screenshots.
+  - Linux system dependencies `ydotool` and `spectacle` are documented in the
+    Linux optional dependency section.
+  - `pyautogui` is Windows-only; Linux Wayland path uses `ydotool` for input
+    and `spectacle` for screenshots.
 
 ## Phase 11: Tests
 
@@ -175,6 +177,7 @@
   - Examples include direct `pydirectinput` imports, hard-coded `C:\` paths, `LOCALAPPDATA`/`APPDATA` lookups, and direct `winreg` imports outside the new helpers.
 - Caveats/follow-up:
   - `python` is not available on PATH in this shell; validation used `uv run --no-sync python`.
-  - Linux runtime requires Steam/Proton, `ydotool`, and either X11 screenshot access or Wayland/wlroots `grim`.
+  - Linux runtime requires Steam/Proton, `ydotool`, and `spectacle` for
+    screenshot access.
   - Linux Steam runtime assumes native Steam, one library, and `STEAM_DIR` or `~/.local/share/Steam`.
   - Platform helpers now log action attempts and path/backend decisions for debugging traceability.

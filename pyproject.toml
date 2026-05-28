@@ -19,7 +19,7 @@ dependencies = [
 windows = []
 
 linux = [
-    # System dependencies: ydotool, grim
+    # System dependencies: ydotool, spectacle
 ]
 
 [tool.ruff]
