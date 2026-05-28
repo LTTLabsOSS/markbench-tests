@@ -31,14 +31,13 @@ def _read_steam_registry_value(reg_path: str, value_name: str) -> str:
     return value
 
 
-def _linux_steam_root_candidates() -> list[Path]:
-    steam_dir = os.getenv("STEAM_DIR")
-    if steam_dir:
-        candidates = [Path(steam_dir).expanduser()]
-    else:
-        candidates = [Path.home() / ".local" / "share" / "Steam"]
-    logger.debug("Linux Steam root candidates: %s", candidates)
-    return candidates
+def _linux_steam_root() -> Path:
+    import pwd
+
+    username = pwd.getpwuid(os.getuid()).pw_name
+    path = Path("/home") / username / ".local" / "share" / "Steam"
+    logger.debug("Linux Steam root path: %s", path)
+    return path
 
 
 def get_steam_library_paths() -> list[Path]:
@@ -56,13 +55,9 @@ def get_steam_folder_path() -> str:
     if is_windows():
         return _read_steam_registry_value(r"Software\Valve\Steam", "SteamPath")
     if is_linux():
-        for root in _linux_steam_root_candidates():
-            logger.debug("Checking Linux Steam root path=%s", root)
-            if root.exists():
-                logger.info("Resolved Linux Steam folder path=%s", root)
-                return str(root)
-        checked = ", ".join(str(path) for path in _linux_steam_root_candidates())
-        raise RuntimeError(f"Steam folder not found; checked: {checked}")
+        root = _linux_steam_root()
+        logger.info("Resolved Linux Steam folder path=%s", root)
+        return str(root)
     raise RuntimeError("Steam folder lookup is only supported on Windows and Linux")
 
 

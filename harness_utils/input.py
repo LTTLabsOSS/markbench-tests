@@ -1,26 +1,24 @@
 """Platform input adapter."""
 
 import logging
+import shutil
 import subprocess
-from pathlib import Path
-from time import sleep
+from contextlib import suppress
 
 from harness_utils.platform import is_linux, is_windows
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_YDOTOOL_SOCKET = Path("/tmp/.ydotool_socket")
-YDOTOOLD_STARTUP_WAIT_SECONDS = 1
+YDOTOOL_KEY_HOLD_MS = 50
 
-
-_PYDOTOOL_KEYS = {
-    "left": "KEY_LEFT",
-    "right": "KEY_RIGHT",
-    "up": "KEY_UP",
-    "down": "KEY_DOWN",
-    "enter": "KEY_ENTER",
-    "b": "KEY_B",
-    "3": "KEY_3",
+_YDOTOOL_KEYS = {
+    "left": 105,
+    "right": 106,
+    "up": 103,
+    "down": 108,
+    "enter": 28,
+    "b": 48,
+    "3": 4,
 }
 
 
@@ -47,51 +45,56 @@ class _WindowsInputBackend:
         self._pydirectinput.click(x=x, y=y)
 
 
-class _PydotoolInputBackend:
+class _YdotoolInputBackend:
     def __init__(self) -> None:
-        import pydotool
-
-        if not DEFAULT_YDOTOOL_SOCKET.exists():
-            subprocess.Popen(
-                ["ydotoold", "--socket-path", str(DEFAULT_YDOTOOL_SOCKET)],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-            for _ in range(YDOTOOLD_STARTUP_WAIT_SECONDS * 10):
-                if DEFAULT_YDOTOOL_SOCKET.exists():
-                    break
-                sleep(0.1)
-
-        pydotool.init(str(DEFAULT_YDOTOOL_SOCKET))
-        self._pydotool = pydotool
+        self._ydotool = shutil.which("ydotool")
+        if self._ydotool is None:
+            raise RuntimeError("Linux input requires `ydotool` on PATH")
 
     def _keycode(self, key: str) -> int:
         normalized_key = key.lower()
         try:
-            key_name = _PYDOTOOL_KEYS[normalized_key]
-            return getattr(self._pydotool, key_name)
+            return _YDOTOOL_KEYS[normalized_key]
         except KeyError as exc:
-            supported = ", ".join(sorted(_PYDOTOOL_KEYS))
+            supported = ", ".join(sorted(_YDOTOOL_KEYS))
             raise RuntimeError(
-                f"Unsupported pydotool key `{key}`; supported: {supported}"
+                f"Unsupported ydotool key `{key}`; supported: {supported}"
             ) from exc
 
+    def _run(self, *args: str) -> None:
+        subprocess.run([self._ydotool, *args], check=True)
+
     def press(self, key: str) -> None:
-        self._pydotool.input_key(self._keycode(key))
+        keycode = self._keycode(key)
+        try:
+            self._run(
+                "key",
+                "--key-delay",
+                str(YDOTOOL_KEY_HOLD_MS),
+                f"{keycode}:1",
+                f"{keycode}:0",
+            )
+        except subprocess.CalledProcessError:
+            with suppress(subprocess.CalledProcessError):
+                self._run("key", f"{keycode}:0")
+            raise
 
     def keyDown(self, key: str) -> None:
-        self._pydotool.key(self._keycode(key), True)
+        self._run("key", f"{self._keycode(key)}:1")
 
     def keyUp(self, key: str) -> None:
-        self._pydotool.key(self._keycode(key), False)
+        self._run("key", f"{self._keycode(key)}:0")
 
     def hotkey(self, *keys: str) -> None:
-        self._pydotool.key_combination([self._keycode(key) for key in keys])
+        for key in keys:
+            self.keyDown(key)
+        for key in reversed(keys):
+            self.keyUp(key)
 
     def click(self, x: int | None = None, y: int | None = None) -> None:
         if x is not None and y is not None:
-            self._pydotool.mouse_move((x, y), True)
-        self._pydotool.left_click()
+            self._run("mousemove", "--absolute", str(x), str(y))
+        self._run("click", "0xC0")
 
 
 class InputController:
@@ -108,7 +111,7 @@ class InputController:
         if is_windows():
             return _WindowsInputBackend(self)
         if is_linux():
-            return _PydotoolInputBackend()
+            return _YdotoolInputBackend()
         raise RuntimeError("Input is only supported on Windows and Linux")
 
     def press(self, key: str) -> None:

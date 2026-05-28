@@ -6,7 +6,7 @@
 - Synced base commit: `f4fd593`
 - Scope: Cyberpunk first, with helpers reusable repo-wide.
 - Linux backend choice: `ydotool`
-- Linux Steam contract: native Steam, one configured library, `$STEAM_DIR` preferred with `~/.local/share/Steam` fallback.
+- Linux Steam contract: native Steam, one configured library at `/home/<user>/.local/share/Steam`.
 - Overall status: Phase 12 complete.
 
 ## Phase 1: Branch And Baseline
@@ -179,5 +179,5 @@
   - `python` is not available on PATH in this shell; validation used `uv run --no-sync python`.
   - Linux runtime requires Steam/Proton, `ydotool`, and `spectacle` for
     screenshot access.
-  - Linux Steam runtime assumes native Steam, one library, and `STEAM_DIR` or `~/.local/share/Steam`.
+  - Linux Steam runtime assumes native Steam and one library at `/home/<user>/.local/share/Steam`.
   - Platform helpers now log action attempts and path/backend decisions for debugging traceability.
