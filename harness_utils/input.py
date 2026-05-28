@@ -3,13 +3,10 @@
 import logging
 import shutil
 import subprocess
-from contextlib import suppress
 
 from harness_utils.platform import is_linux, is_windows
 
 logger = logging.getLogger(__name__)
-
-YDOTOOL_KEY_HOLD_MS = 50
 
 _YDOTOOL_KEYS = {
     "left": 105,
@@ -62,28 +59,32 @@ class _YdotoolInputBackend:
             ) from exc
 
     def _run(self, *args: str) -> None:
-        subprocess.run([self._ydotool, *args], check=True)
+        logger.info("Attempting ydotool command args=%s", args)
+        try:
+            subprocess.run([self._ydotool, *args], check=True)
+        except subprocess.CalledProcessError:
+            logger.exception("Failed ydotool command args=%s", args)
+            raise
+        logger.info("Completed ydotool command args=%s", args)
 
     def press(self, key: str) -> None:
         keycode = self._keycode(key)
-        try:
-            self._run(
-                "key",
-                "--key-delay",
-                str(YDOTOOL_KEY_HOLD_MS),
-                f"{keycode}:1",
-                f"{keycode}:0",
-            )
-        except subprocess.CalledProcessError:
-            with suppress(subprocess.CalledProcessError):
-                self._run("key", f"{keycode}:0")
-            raise
+        logger.info("Attempting ydotool press key=%s keycode=%s", key, keycode)
+        self.keyDown(key)
+        self.keyUp(key)
+        logger.info("Completed ydotool press key=%s keycode=%s", key, keycode)
 
     def keyDown(self, key: str) -> None:
-        self._run("key", f"{self._keycode(key)}:1")
+        keycode = self._keycode(key)
+        logger.info("Attempting ydotool keyDown key=%s keycode=%s", key, keycode)
+        self._run("key", f"{keycode}:1")
+        logger.info("Completed ydotool keyDown key=%s keycode=%s", key, keycode)
 
     def keyUp(self, key: str) -> None:
-        self._run("key", f"{self._keycode(key)}:0")
+        keycode = self._keycode(key)
+        logger.info("Attempting ydotool keyUp key=%s keycode=%s", key, keycode)
+        self._run("key", f"{keycode}:0")
+        logger.info("Completed ydotool keyUp key=%s keycode=%s", key, keycode)
 
     def hotkey(self, *keys: str) -> None:
         for key in keys:
@@ -118,21 +119,25 @@ class InputController:
         """Press and release a key."""
         logger.info("Attempting input press key=%s", key)
         self._backend.press(key)
+        logger.info("Completed input press key=%s", key)
 
     def keyDown(self, key: str) -> None:
         """Press and hold a key."""
         logger.info("Attempting input keyDown key=%s", key)
         self._backend.keyDown(key)
+        logger.info("Completed input keyDown key=%s", key)
 
     def keyUp(self, key: str) -> None:
         """Release a key."""
         logger.info("Attempting input keyUp key=%s", key)
         self._backend.keyUp(key)
+        logger.info("Completed input keyUp key=%s", key)
 
     def hotkey(self, *keys: str) -> None:
         """Press a key chord."""
         logger.info("Attempting input hotkey keys=%s", keys)
         self._backend.hotkey(*keys)
+        logger.info("Completed input hotkey keys=%s", keys)
 
     def click(self, x: int | None = None, y: int | None = None) -> None:
         """Click the primary mouse button."""
