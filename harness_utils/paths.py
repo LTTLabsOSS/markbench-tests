@@ -9,6 +9,9 @@ from harness_utils.steam import get_app_install_location, get_proton_prefix
 
 logger = logging.getLogger(__name__)
 
+WINDOWS_NETWORK_DRIVE_ROOT = Path(r"\\labs.lmg.gg\labs")
+LINUX_NETWORK_DRIVE_ROOT = Path("/mnt/labs.lmg.gg/labs")
+
 
 def _require_app_id(app_id: int | None, feature: str) -> int:
     logger.debug("Checking app_id for feature=%s app_id=%s", feature, app_id)
@@ -57,54 +60,40 @@ def _proton_user_dir(app_id: int) -> Path:
     raise RuntimeError(f"Missing Proton user directory under: {users_dir}")
 
 
-def _proton_user_path(app_id: int | None, *parts: str) -> Path:
-    logger.info("Resolving Proton user path app_id=%s parts=%s", app_id, parts)
-    linux_app_id = _require_app_id(app_id, "Proton path lookup")
-    return _require_existing_path(_proton_user_dir(linux_app_id).joinpath(*parts))
-
-
-def local_appdata(
-    app_id: int | None = None,
-    *parts: str,
-    must_exist: bool = False,
-) -> Path:
-    """Returns the native or Proton Local AppData path."""
-    logger.info(
-        "Resolving Local AppData app_id=%s parts=%s must_exist=%s",
-        app_id,
-        parts,
-        must_exist,
+def _proton_local_appdata(app_id: int | None) -> Path:
+    logger.info("Resolving Proton Local AppData app_id=%s", app_id)
+    linux_app_id = _require_app_id(app_id, "Local AppData lookup")
+    return _require_existing_path(
+        _proton_user_dir(linux_app_id) / "AppData" / "Local"
     )
+
+
+def local_appdata(app_id: int | None = None) -> Path:
+    """Returns the native or Proton Local AppData path."""
+    logger.info("Resolving Local AppData app_id=%s", app_id)
     if is_windows():
-        path = _require_env_path("LOCALAPPDATA").joinpath(*parts)
-        if must_exist:
-            path = _require_existing_path(path)
+        path = _require_env_path("LOCALAPPDATA")
         logger.info("Resolved path=%s", path)
         return path
     if is_linux():
-        path = _proton_user_path(app_id, "AppData", "Local").joinpath(*parts)
-        if must_exist:
-            path = _require_existing_path(path)
+        path = _proton_local_appdata(app_id)
         logger.info("Resolved path=%s", path)
         return path
     raise RuntimeError("Local AppData lookup is only supported on Windows and Linux")
 
 
-def game_install_path(
-    app_id: int,
-    *parts: str,
-    must_exist: bool = False,
-) -> Path:
+def network_drive_path() -> Path:
+    """Returns the platform-specific Labs network drive path."""
+    if is_windows():
+        return WINDOWS_NETWORK_DRIVE_ROOT
+    if is_linux():
+        return LINUX_NETWORK_DRIVE_ROOT
+    raise RuntimeError("Network drive lookup is only supported on Windows and Linux")
+
+
+def game_install_path(app_id: int) -> Path:
     """Returns a Steam game install path."""
-    logger.info(
-        "Resolving game install path app_id=%s parts=%s must_exist=%s",
-        app_id,
-        parts,
-        must_exist,
-    )
-    root = _require_existing_path(Path(get_app_install_location(app_id)))
-    path = root.joinpath(*parts)
-    if must_exist:
-        path = _require_existing_path(path)
+    logger.info("Resolving game install path app_id=%s", app_id)
+    path = _require_existing_path(Path(get_app_install_location(app_id)))
     logger.info("Resolved game install path app_id=%s path=%s", app_id, path)
     return path
