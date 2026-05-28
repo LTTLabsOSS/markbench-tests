@@ -7,12 +7,10 @@ from pathlib import Path
 from time import monotonic, sleep
 from typing import Any
 
-import pydirectinput as user
 import requests
 
+from harness_utils.input import user
 from harness_utils.screenshot import capture_screenshot_jpg_bytes
-
-user.FAILSAFE = False
 
 CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "configs" / "config.toml"
 OCR_REQUEST_TIMEOUT = 5
@@ -160,4 +158,7 @@ def press(sequence: str, pause: float = 0.3) -> None:
                 )
                 continue
 
-        user.press(key, presses=count, interval=pause)
+        for press_index in range(count):
+            user.press(key)
+            if press_index + 1 < count:
+                sleep(pause)

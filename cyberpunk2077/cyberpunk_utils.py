@@ -8,33 +8,26 @@ from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
-from harness_utils.assets import resolve_asset
-from harness_utils.paths import game_install_path, windows_local_appdata
+from harness_utils.paths import game_install_path, local_appdata
 
 logger = logging.getLogger(__name__)
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 STEAM_GAME_ID = 1091500
-CYBERPUNK_ASSET_ENV_VAR = "MARKBENCH_CYBERPUNK_ASSET_DIR"
 NO_INTRO_MOD_FILENAME = "basegame_no_intro_videos.archive"
-NO_INTRO_MOD_NETWORK_PATH = Path(
-    r"\\labs.lmg.gg\labs\03_ProcessingFiles\Cyberpunk 2077\basegame_no_intro_videos.archive"
-)
 
 
 def copy_no_intro_mod() -> None:
     """Copies no intro mod file"""
     logger.info("Preparing Cyberpunk no intro mod copy")
-    install_dir = game_install_path(STEAM_GAME_ID)
-    mod_path = install_dir / "archive" / "pc" / "mod"
+    mod_path = game_install_path(STEAM_GAME_ID, "archive", "pc", "mod")
     logger.info("Ensuring Cyberpunk mod directory exists path=%s", mod_path)
     mod_path.mkdir(parents=True, exist_ok=True)
 
-    src_path = resolve_asset(
-        SCRIPT_DIRECTORY / NO_INTRO_MOD_FILENAME,
-        env_var=CYBERPUNK_ASSET_ENV_VAR,
-        fallback_network_path=NO_INTRO_MOD_NETWORK_PATH,
-    )
+    src_path = SCRIPT_DIRECTORY / NO_INTRO_MOD_FILENAME
+    if not src_path.exists():
+        raise FileNotFoundError(f"Missing Cyberpunk no intro mod: {src_path}")
+
     dest_path = mod_path / NO_INTRO_MOD_FILENAME
 
     logger.info("Copying Cyberpunk no intro mod: %s -> %s", src_path, dest_path)
@@ -47,12 +40,13 @@ def copy_no_intro_mod() -> None:
 def read_current_resolution():
     """Get resolution from local game file"""
     logger.info("Reading Cyberpunk current resolution")
-    config_location = (
-        windows_local_appdata(STEAM_GAME_ID)
-        / "CD Projekt Red"
-        / "Cyberpunk 2077"
+    config_path = local_appdata(
+        STEAM_GAME_ID,
+        "CD Projekt Red",
+        "Cyberpunk 2077",
+        "UserSettings.json",
+        must_exist=True,
     )
-    config_path = config_location / "UserSettings.json"
     logger.info("Reading Cyberpunk settings file path=%s", config_path)
     resolution_pattern = re.compile(r"\"value\"\: \"(\d+x\d+)\"\,")
     resolution = 0

@@ -32,12 +32,6 @@ def _require_existing_path(path: Path) -> Path:
     return path
 
 
-def _windows_userprofile_path(folder_name: str) -> Path:
-    logger.info("Resolving Windows user profile path folder=%s", folder_name)
-    userprofile = _require_env_path("USERPROFILE")
-    return _require_existing_path(userprofile / folder_name)
-
-
 def _proton_user_dir(app_id: int) -> Path:
     logger.info("Resolving Proton user directory app_id=%s", app_id)
     prefix = _require_existing_path(get_proton_prefix(app_id))
@@ -64,54 +58,53 @@ def _proton_user_dir(app_id: int) -> Path:
 
 
 def _proton_user_path(app_id: int | None, *parts: str) -> Path:
-    logger.info("Resolving Proton Windows path app_id=%s parts=%s", app_id, parts)
-    linux_app_id = _require_app_id(app_id, "Proton Windows path lookup")
+    logger.info("Resolving Proton user path app_id=%s parts=%s", app_id, parts)
+    linux_app_id = _require_app_id(app_id, "Proton path lookup")
     return _require_existing_path(_proton_user_dir(linux_app_id).joinpath(*parts))
 
 
-def windows_local_appdata(app_id: int | None = None) -> Path:
-    """Returns the native or Proton Windows Local AppData path."""
-    logger.info("Resolving Windows Local AppData app_id=%s", app_id)
+def local_appdata(
+    app_id: int | None = None,
+    *parts: str,
+    must_exist: bool = False,
+) -> Path:
+    """Returns the native or Proton Local AppData path."""
+    logger.info(
+        "Resolving Local AppData app_id=%s parts=%s must_exist=%s",
+        app_id,
+        parts,
+        must_exist,
+    )
     if is_windows():
-        return _require_env_path("LOCALAPPDATA")
+        path = _require_env_path("LOCALAPPDATA").joinpath(*parts)
+        if must_exist:
+            path = _require_existing_path(path)
+        logger.info("Resolved path=%s", path)
+        return path
     if is_linux():
-        return _proton_user_path(app_id, "AppData", "Local")
-    raise RuntimeError("Windows Local AppData lookup is only supported on Windows and Linux")
+        path = _proton_user_path(app_id, "AppData", "Local").joinpath(*parts)
+        if must_exist:
+            path = _require_existing_path(path)
+        logger.info("Resolved path=%s", path)
+        return path
+    raise RuntimeError("Local AppData lookup is only supported on Windows and Linux")
 
 
-def windows_roaming_appdata(app_id: int | None = None) -> Path:
-    """Returns the native or Proton Windows Roaming AppData path."""
-    logger.info("Resolving Windows Roaming AppData app_id=%s", app_id)
-    if is_windows():
-        return _require_env_path("APPDATA")
-    if is_linux():
-        return _proton_user_path(app_id, "AppData", "Roaming")
-    raise RuntimeError("Windows Roaming AppData lookup is only supported on Windows and Linux")
-
-
-def windows_documents(app_id: int | None = None) -> Path:
-    """Returns the native or Proton Windows Documents path."""
-    logger.info("Resolving Windows Documents app_id=%s", app_id)
-    if is_windows():
-        return _windows_userprofile_path("Documents")
-    if is_linux():
-        return _proton_user_path(app_id, "Documents")
-    raise RuntimeError("Windows Documents lookup is only supported on Windows and Linux")
-
-
-def windows_saved_games(app_id: int | None = None) -> Path:
-    """Returns the native or Proton Windows Saved Games path."""
-    logger.info("Resolving Windows Saved Games app_id=%s", app_id)
-    if is_windows():
-        return _windows_userprofile_path("Saved Games")
-    if is_linux():
-        return _proton_user_path(app_id, "Saved Games")
-    raise RuntimeError("Windows Saved Games lookup is only supported on Windows and Linux")
-
-
-def game_install_path(app_id: int) -> Path:
+def game_install_path(
+    app_id: int,
+    *parts: str,
+    must_exist: bool = False,
+) -> Path:
     """Returns a Steam game install path."""
-    logger.info("Resolving game install path app_id=%s", app_id)
-    path = _require_existing_path(Path(get_app_install_location(app_id)))
+    logger.info(
+        "Resolving game install path app_id=%s parts=%s must_exist=%s",
+        app_id,
+        parts,
+        must_exist,
+    )
+    root = _require_existing_path(Path(get_app_install_location(app_id)))
+    path = root.joinpath(*parts)
+    if must_exist:
+        path = _require_existing_path(path)
     logger.info("Resolved game install path app_id=%s path=%s", app_id, path)
     return path
