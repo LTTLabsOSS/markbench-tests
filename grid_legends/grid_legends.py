@@ -22,7 +22,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -189,7 +189,7 @@ def main():
     start_time, end_time = run_benchmark(keras_service)
     elapsed_test_time = round((end_time - start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     height, width = get_resolution()
     report = {
         "resolution": format_resolution(width, height),
@@ -208,5 +208,5 @@ if __name__ == "__main__":
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")
         logging.exception(ex)
-        terminate_processes(PROCESS_NAME)
+        terminate_process(PROCESS_NAME)
         sys.exit(1)

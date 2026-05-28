@@ -21,7 +21,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.steam import (
     exec_steam_game,
     get_build_id,
@@ -269,7 +269,7 @@ def run_benchmark(keras_service):
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     am.create_manifest()
 
     return test_start_time, test_end_time
@@ -316,4 +316,4 @@ if __name__ == "__main__":
         logging.exception(ex)
         sys.exit(1)
     finally:
-        terminate_processes(PROCESS_NAME)
+        terminate_process(PROCESS_NAME)

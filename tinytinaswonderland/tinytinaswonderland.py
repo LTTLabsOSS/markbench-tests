@@ -23,7 +23,7 @@ from harness_utils.output import (
     seconds_to_milliseconds,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -124,7 +124,7 @@ def run_benchmark():
     benchmark_end = int(time.time())
     duration = round((benchmark_end - benchmark_start), 2)
     logging.info("Benchmark took %d seconds", duration)
-    terminate_processes("Wonderlands")
+    terminate_process("Wonderlands")
     return benchmark_start, benchmark_end
 
 
@@ -171,5 +171,5 @@ try:
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
-    terminate_processes("Wonderlands")
+    terminate_process("Wonderlands")
     sys.exit(1)

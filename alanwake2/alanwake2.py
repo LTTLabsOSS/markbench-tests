@@ -18,7 +18,7 @@ from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
 from harness_utils.misc import find_eg_game_version, press_n_times
 from harness_utils.output import setup_logging, write_report_json
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
@@ -173,7 +173,7 @@ def run_benchmark():
     am.copy_file(CONFIG_PATH, ArtifactType.CONFIG_TEXT, "renderer.ini")
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     return test_start_time, test_end_time
 
 
@@ -209,5 +209,5 @@ try:
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     sys.exit(1)

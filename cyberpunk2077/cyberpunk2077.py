@@ -19,13 +19,13 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
 STEAM_GAME_ID = 1091500
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-PROCESS_NAME = "cyberpunk2077.exe"
+PROCESS_NAME = "cyberpunk2077"
 
 user.FAILSAFE = False
 
@@ -243,7 +243,7 @@ def run_benchmark():
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     time.sleep(3)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     return test_start_time, test_end_time
 
 
@@ -266,5 +266,5 @@ try:
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     sys.exit(1)

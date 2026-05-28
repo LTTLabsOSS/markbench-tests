@@ -27,7 +27,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.steam import get_app_install_location
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -169,7 +169,7 @@ def run_benchmark(keras_host, keras_port):
     # Exit
     score = find_score_in_log()
     logging.info("The one year passed in %s seconds", score)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     am.create_manifest()
 
     return test_start_time, test_end_time, score
@@ -215,5 +215,5 @@ if __name__ == "__main__":
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")
         logging.exception(ex)
-        terminate_processes(PROCESS_NAME)
+        terminate_process(PROCESS_NAME)
         sys.exit(1)

@@ -18,7 +18,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.steam import (
     exec_steam_game,
     get_app_install_location,
@@ -149,7 +149,7 @@ def run_benchmark(
     result = keras_service.wait_for_word("fps", interval=0, timeout=90)
     if result is None:
         logging.error("FPS counter was not found. Could not mark stress start time.")
-        terminate_processes(PROCESS_NAME)
+        terminate_process(PROCESS_NAME)
         sys.exit(1)
 
     logging.info("Found FPS counter. Starting stress timer.")
@@ -157,7 +157,7 @@ def run_benchmark(
     time.sleep(duration_seconds)
 
     logging.info("Stress duration reached. Terminating F1 24.")
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     end_time = time.time()
 
     return start_time, end_time
@@ -218,5 +218,5 @@ if __name__ == "__main__":
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")
         logging.exception(ex)
-        terminate_processes(PROCESS_NAME)
+        terminate_process(PROCESS_NAME)
         sys.exit(1)

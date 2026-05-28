@@ -5,40 +5,41 @@ import psutil
 from harness_utils.platform import is_linux, is_windows
 
 
-def _terminate_processes_windows(*process_names: str) -> None:
-    for name in process_names:
-        for process in psutil.process_iter():
-            if name.lower() in process.name().lower():
-                process.terminate()
+def terminate_process(process_name: str) -> None:
+    """Finds a given process name and terminates it"""
+    if not process_name:
+        return
 
+    process_name_lower = process_name.casefold()
 
-def _terminate_processes_linux(*process_names: str) -> None:
-    pass
-
-
-def terminate_processes(*process_names: str) -> None:
-    """Finds given process names and terminates them"""
     if is_windows():
-        _terminate_processes_windows(*process_names)
-    elif is_linux():
-        _terminate_processes_linux(*process_names)
+        for process in psutil.process_iter():
+            if process_name_lower in process.name().casefold():
+                process.terminate()
+        return
 
+    if is_linux():
+        processes = []
+        for process in psutil.process_iter(["pid", "name", "exe", "cmdline"]):
+            cmdline = process.info.get("cmdline") or []
+            process_text = (
+                f"{process.info.get('name') or ''} "
+                f"{process.info.get('exe') or ''} "
+                f"{' '.join(cmdline)}"
+            ).casefold()
 
-def _is_process_running_windows(process_name):
-    for process in psutil.process_iter(["pid", "name"]):
-        if process.info["name"] == process_name:
-            return process
-    return None
+            if process_name_lower in process_text:
+                process.terminate()
+                processes.append(process)
 
-
-def _is_process_running_linux(process_name):
-    pass
+        _, survivors = psutil.wait_procs(processes, timeout=5)
+        for process in survivors:
+            process.kill()
 
 
 def is_process_running(process_name):
     """check if given process is running"""
-    if is_windows():
-        return _is_process_running_windows(process_name)
-    if is_linux():
-        return _is_process_running_linux(process_name)
+    for process in psutil.process_iter(["pid", "name"]):
+        if process.info["name"] == process_name:
+            return process
     return None
