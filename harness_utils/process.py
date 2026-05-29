@@ -35,20 +35,15 @@ def terminate_process(process_name: str) -> None:
 
     if is_linux():
         processes = []
-        for process in psutil.process_iter(["pid", "name", "exe", "cmdline"]):
-            cmdline = process.info.get("cmdline") or []
-            process_text = (
-                f"{process.info.get('name') or ''} "
-                f"{process.info.get('exe') or ''} "
-                f"{' '.join(cmdline)}"
-            ).casefold()
+        for process in psutil.process_iter(["pid", "name", "cmdline"]):
+            command = " ".join(process.info.get("cmdline") or "").casefold()
 
-            if process_name_lower in process_text:
+            if process_name_lower in command:
                 logger.info(
-                    "Terminating Linux process pid=%s name=%s exe=%s",
+                    "Terminating Linux process pid=%s name=%s command=%s",
                     process.info.get("pid"),
                     process.info.get("name"),
-                    process.info.get("exe"),
+                    command,
                 )
                 process.terminate()
                 processes.append(process)
