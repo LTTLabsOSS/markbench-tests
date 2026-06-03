@@ -25,7 +25,7 @@ from harness_utils.steam import exec_steam_game, get_build_id
 STEAM_GAME_ID = 1091500
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-PROCESS_NAME = "cyberpunk2077"
+PROCESS_NAME = "Cyberpunk2077.exe"
 
 user.FAILSAFE = False
 
