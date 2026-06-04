@@ -1,27 +1,23 @@
-"""Cross-platform helpers for Windows game paths and Proton prefixes."""
+"""Cross-platform helpers for Steam game and Windows-style user paths."""
 
-import logging
 import os
 from pathlib import Path
 
 from harness_utils.platform import is_linux, is_windows
 from harness_utils.steam import get_app_install_location, get_proton_prefix
 
-logger = logging.getLogger(__name__)
-
 WINDOWS_NETWORK_DRIVE_ROOT = Path(r"\\labs.lmg.gg\labs")
 LINUX_NETWORK_DRIVE_ROOT = Path("/mnt/labs.lmg.gg/labs")
+PROTON_USERNAME = "steamuser"
 
 
-def _require_app_id(app_id: int | None, feature: str) -> int:
-    logger.debug("Checking app_id for feature=%s app_id=%s", feature, app_id)
+def _require_app_id(app_id: int | None) -> int:
     if app_id is None:
-        raise RuntimeError(f"{feature} requires app_id on Linux")
+        raise RuntimeError("Linux Proton path lookup requires app_id")
     return app_id
 
 
 def _require_env_path(env_var: str) -> Path:
-    logger.info("Resolving Windows environment path env_var=%s", env_var)
     value = os.getenv(env_var)
     if not value:
         raise RuntimeError(f"Missing environment variable: {env_var}")
@@ -29,57 +25,41 @@ def _require_env_path(env_var: str) -> Path:
 
 
 def _require_existing_path(path: Path) -> Path:
-    logger.debug("Checking path exists: %s", path)
     if not path.exists():
         raise RuntimeError(f"Missing path: {path}")
     return path
 
 
+def proton_c_drive(app_id: int) -> Path:
+    """Returns the Proton C: drive path for a Steam app."""
+    return _require_existing_path(get_proton_prefix(app_id) / "drive_c")
+
+
 def _proton_user_dir(app_id: int) -> Path:
-    logger.info("Resolving Proton user directory app_id=%s", app_id)
-    prefix = _require_existing_path(get_proton_prefix(app_id))
-    users_dir = _require_existing_path(prefix / "drive_c" / "users")
-    steamuser = users_dir / "steamuser"
-    logger.debug("Checking Proton steamuser path: %s", steamuser)
-    if steamuser.exists():
-        logger.info("Using Proton steamuser directory: %s", steamuser)
-        return steamuser
-
-    candidates = sorted(
-        (
-            path
-            for path in users_dir.iterdir()
-            if path.is_dir() and path.name.lower() != "public"
-        ),
-        key=lambda path: path.name.lower(),
-    )
-    if candidates:
-        logger.info("Using first Proton user directory: %s", candidates[0])
-        return candidates[0]
-
-    raise RuntimeError(f"Missing Proton user directory under: {users_dir}")
-
-
-def _proton_local_appdata(app_id: int | None) -> Path:
-    logger.info("Resolving Proton Local AppData app_id=%s", app_id)
-    linux_app_id = _require_app_id(app_id, "Local AppData lookup")
-    return _require_existing_path(
-        _proton_user_dir(linux_app_id) / "AppData" / "Local"
-    )
+    """Returns the default Proton Windows user path for a Steam app."""
+    return _require_existing_path(proton_c_drive(app_id) / "users" / PROTON_USERNAME)
 
 
 def local_appdata(app_id: int | None = None) -> Path:
     """Returns the native or Proton Local AppData path."""
-    logger.info("Resolving Local AppData app_id=%s", app_id)
     if is_windows():
-        path = _require_env_path("LOCALAPPDATA")
-        logger.info("Resolved path=%s", path)
-        return path
+        return _require_env_path("LOCALAPPDATA")
     if is_linux():
-        path = _proton_local_appdata(app_id)
-        logger.info("Resolved path=%s", path)
-        return path
+        return _require_existing_path(
+            _proton_user_dir(_require_app_id(app_id)) / "AppData" / "Local"
+        )
     raise RuntimeError("Local AppData lookup is only supported on Windows and Linux")
+
+
+def user_documents(app_id: int | None = None) -> Path:
+    """Returns the native or Proton user Documents path."""
+    if is_windows():
+        return _require_existing_path(_require_env_path("USERPROFILE") / "Documents")
+    if is_linux():
+        return _require_existing_path(
+            _proton_user_dir(_require_app_id(app_id)) / "Documents"
+        )
+    raise RuntimeError("Documents lookup is only supported on Windows and Linux")
 
 
 def network_drive_path() -> Path:
@@ -93,7 +73,4 @@ def network_drive_path() -> Path:
 
 def game_install_path(app_id: int) -> Path:
     """Returns a Steam game install path."""
-    logger.info("Resolving game install path app_id=%s", app_id)
-    path = _require_existing_path(Path(get_app_install_location(app_id)))
-    logger.info("Resolved game install path app_id=%s path=%s", app_id, path)
-    return path
+    return _require_existing_path(Path(get_app_install_location(app_id)))

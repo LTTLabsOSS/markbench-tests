@@ -14,6 +14,9 @@ _YDOTOOL_KEYS = {
     "up": 103,
     "down": 108,
     "enter": 28,
+    "esc": 1,
+    "escape": 1,
+    "space": 57,
     "b": 48,
     "3": 4,
 }
