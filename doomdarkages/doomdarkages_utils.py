@@ -2,7 +2,6 @@
 
 import json
 import logging
-import os
 import re
 import shutil
 import sys
@@ -10,15 +9,11 @@ from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
-from harness_utils.steam import get_app_install_location
+from harness_utils.paths import game_install_path
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 RUN_DIR = SCRIPT_DIRECTORY / "run"
 STEAM_GAME_ID = 3017860
-username = os.getlogin()
-BENCHMARK_PATH = (
-    f"C:\\Users\\{username}\\Saved Games\\id Software\\DOOMTheDarkAges\\base\\benchmark"
-)
 RES_REGEX = re.compile(r"\s*(\d+)\s*[x×]\s*(\d+)")
 
 
@@ -52,8 +47,8 @@ def get_resolution() -> tuple[int, int]:
 def copy_launcher_config() -> None:
     """Copy launcher config to doom launcher config folder"""
     try:
-        launcherconfig_path = Path(
-            get_app_install_location(STEAM_GAME_ID), "launcherData\\base\\configs"
+        launcherconfig_path = (
+            game_install_path(STEAM_GAME_ID) / "launcherData" / "base" / "configs"
         )
         launcherconfig_path.mkdir(parents=True, exist_ok=True)
 
