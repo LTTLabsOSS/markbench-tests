@@ -62,6 +62,17 @@ def user_documents(app_id: int | None = None) -> Path:
     raise RuntimeError("Documents lookup is only supported on Windows and Linux")
 
 
+def user_saved_games(app_id: int | None = None) -> Path:
+    """Returns the native or Proton user Saved Games path."""
+    if is_windows():
+        return _require_existing_path(_require_env_path("USERPROFILE") / "Saved Games")
+    if is_linux():
+        return _require_existing_path(
+            _proton_user_dir(_require_app_id(app_id)) / "Saved Games"
+        )
+    raise RuntimeError("Saved Games lookup is only supported on Windows and Linux")
+
+
 def network_drive_path() -> Path:
     """Returns the platform-specific Labs network drive path."""
     if is_windows():

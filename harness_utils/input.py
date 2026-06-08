@@ -3,6 +3,7 @@
 import logging
 import shutil
 import subprocess
+import time
 
 from harness_utils.platform import is_linux, is_windows
 
@@ -18,6 +19,8 @@ _YDOTOOL_KEYS = {
     "escape": 1,
     "space": 57,
     "b": 48,
+    "q": 16,
+    "x": 45,
     "3": 4,
 }
 
@@ -43,6 +46,11 @@ class _WindowsInputBackend:
 
     def click(self, x: int | None = None, y: int | None = None) -> None:
         self._pydirectinput.click(x=x, y=y)
+
+    def scroll(self, scroll_amount: int) -> None:
+        import pyautogui as gui
+
+        gui.vscroll(scroll_amount)
 
 
 class _YdotoolInputBackend:
@@ -100,6 +108,9 @@ class _YdotoolInputBackend:
             self._run("mousemove", "--absolute", str(x), str(y))
         self._run("click", "0xC0")
 
+    def scroll(self, scroll_amount: int) -> None:
+        self._run("mousemove", "--wheel", "-x", "0", "-y", str(scroll_amount))
+
 
 class InputController:
     """Keyboard and mouse input controller with Windows and Linux backends."""
@@ -147,5 +158,25 @@ class InputController:
         logger.info("Attempting input click x=%s y=%s", x, y)
         self._backend.click(x=x, y=y)
 
+    def scroll(self, scroll_amount: int) -> None:
+        """Scroll the mouse wheel."""
+        logger.info("Attempting input scroll scroll_amount=%s", scroll_amount)
+        self._backend.scroll(scroll_amount)
+        logger.info("Completed input scroll scroll_amount=%s", scroll_amount)
+
 
 user = InputController()
+
+
+def press_n_times(key: str, n: int, pause: float = 0.5) -> None:
+    """Press the same key multiple times."""
+    for _ in range(n):
+        user.press(key)
+        time.sleep(pause)
+
+
+def mouse_scroll_n_times(n: int, scroll_amount: int, pause: float) -> None:
+    """Scroll the mouse wheel multiple times."""
+    for _ in range(n):
+        user.scroll(scroll_amount)
+        time.sleep(pause)
