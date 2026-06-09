@@ -1,6 +1,7 @@
-"""Utility functions for Forza Horizon 6 test script"""
+"""Utility functions for Forza Horizon 5 test script"""
 
 import re
+
 
 def read_resolution(config_path: str) -> tuple[int]:
     """Gets the resolution from local file"""

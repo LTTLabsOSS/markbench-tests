@@ -55,7 +55,7 @@ def run_benchmark():
     setup_start_time = int(time.time())
 
     # Wait for menu to load
-    time.sleep(30)
+    time.sleep(40)
 
     logging.info("Waiting for start prompt...")
     result = kerasService.wait_for_word("start", timeout=30)
