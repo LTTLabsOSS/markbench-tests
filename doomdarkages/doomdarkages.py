@@ -116,7 +116,7 @@ def run_benchmark():
     am.take_screenshot_vulkan(
         "video1.png", ArtifactType.CONFIG_IMAGE, "1st screenshot of video settings menu"
     )
-    mouse_scroll_n_times(6, -200, 0.5)
+    mouse_scroll_n_times(6, -120, 0.5)
     time.sleep(1)
 
     result = find_word("nvidia", vulkan=True, interval=3, timeout=15)
@@ -129,7 +129,7 @@ def run_benchmark():
     am.take_screenshot_vulkan(
         "video2.png", ArtifactType.CONFIG_IMAGE, "2nd screenshot of video settings menu"
     )
-    mouse_scroll_n_times(6, -200, 0.5)
+    mouse_scroll_n_times(6, -120, 0.5)
     time.sleep(1)
 
     result = find_word("advanced", vulkan=True, interval=3, timeout=15)
@@ -140,7 +140,7 @@ def run_benchmark():
     am.take_screenshot_vulkan(
         "video3.png", ArtifactType.CONFIG_IMAGE, "3rd screenshot of video settings menu"
     )
-    mouse_scroll_n_times(5, -200, 0.5)
+    mouse_scroll_n_times(5, -120, 0.5)
     time.sleep(1)
 
     result = find_word("shading", vulkan=True, interval=3, timeout=15)
@@ -153,7 +153,7 @@ def run_benchmark():
     am.take_screenshot_vulkan(
         "video4.png", ArtifactType.CONFIG_IMAGE, "4th screenshot of video settings menu"
     )
-    mouse_scroll_n_times(5, -220, 0.5)
+    mouse_scroll_n_times(5, -120, 0.5)
     time.sleep(0.5)
 
     result = find_word("brightness", vulkan=True, interval=3, timeout=15)
