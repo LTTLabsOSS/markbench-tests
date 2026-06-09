@@ -94,7 +94,7 @@ def run_benchmark():
     logging.info("Saw the main menu. Proceeding.")
     time.sleep(1)
 
-    press_n_times("down", 3, 0.2)
+    press_n_times("down", 3, 0.5)
     user.press("enter")
     time.sleep(1)
 
@@ -104,7 +104,7 @@ def run_benchmark():
         sys.exit(1)
 
     logging.info("Saw the game settings. Proceeding.")
-    press_n_times("q", 2, 0.2)
+    press_n_times("q", 2, 0.5)
     time.sleep(1)
 
     # Screenshotting the display settings
@@ -116,7 +116,7 @@ def run_benchmark():
     am.take_screenshot_vulkan(
         "video1.png", ArtifactType.CONFIG_IMAGE, "1st screenshot of video settings menu"
     )
-    mouse_scroll_n_times(6, -200, 0.2)
+    mouse_scroll_n_times(6, -200, 0.5)
     time.sleep(1)
 
     result = find_word("nvidia", vulkan=True, interval=3, timeout=15)
@@ -129,7 +129,7 @@ def run_benchmark():
     am.take_screenshot_vulkan(
         "video2.png", ArtifactType.CONFIG_IMAGE, "2nd screenshot of video settings menu"
     )
-    mouse_scroll_n_times(6, -200, 0.2)
+    mouse_scroll_n_times(6, -200, 0.5)
     time.sleep(1)
 
     result = find_word("advanced", vulkan=True, interval=3, timeout=15)
@@ -140,7 +140,7 @@ def run_benchmark():
     am.take_screenshot_vulkan(
         "video3.png", ArtifactType.CONFIG_IMAGE, "3rd screenshot of video settings menu"
     )
-    mouse_scroll_n_times(5, -200, 0.2)
+    mouse_scroll_n_times(5, -200, 0.5)
     time.sleep(1)
 
     result = find_word("shading", vulkan=True, interval=3, timeout=15)
@@ -153,8 +153,8 @@ def run_benchmark():
     am.take_screenshot_vulkan(
         "video4.png", ArtifactType.CONFIG_IMAGE, "4th screenshot of video settings menu"
     )
-    mouse_scroll_n_times(5, -220, 0.2)
-    time.sleep(0.2)
+    mouse_scroll_n_times(5, -220, 0.5)
+    time.sleep(0.5)
 
     result = find_word("brightness", vulkan=True, interval=3, timeout=15)
     if not result:
@@ -165,7 +165,7 @@ def run_benchmark():
         "video5.png", ArtifactType.CONFIG_IMAGE, "5th screenshot of video settings menu"
     )
     user.press("escape")
-    time.sleep(0.2)
+    time.sleep(0.5)
 
     # Navigating to the benchmark
     result = find_word("campaign", vulkan=True, interval=3, timeout=20)
@@ -202,7 +202,7 @@ def run_benchmark():
     logging.info("See the benchmarks. Starting the Abyssal Forest benchmark level.")
     time.sleep(1)
 
-    press_n_times("down", 2, 0.2)
+    press_n_times("down", 2, 0.5)
     user.press("enter")
     time.sleep(1)
 
