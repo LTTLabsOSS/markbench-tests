@@ -1,6 +1,7 @@
 """Platform input adapter."""
 
 import logging
+import math
 import shutil
 import subprocess
 import time
@@ -8,6 +9,8 @@ import time
 from harness_utils.platform import is_linux, is_windows
 
 logger = logging.getLogger(__name__)
+
+WINDOWS_WHEEL_DELTA = 120
 
 _YDOTOOL_KEYS = {
     "left": 105,
@@ -25,6 +28,16 @@ _YDOTOOL_KEYS = {
     "x": 45,
     "3": 4,
 }
+
+
+def _windows_delta_to_wheel_ticks(scroll_amount: int) -> int:
+    """Convert Windows wheel delta units to Linux wheel detents."""
+    if scroll_amount == 0:
+        return 0
+
+    direction = 1 if scroll_amount > 0 else -1
+    tick_count = max(1, math.floor(abs(scroll_amount) / WINDOWS_WHEEL_DELTA + 0.5))
+    return direction * tick_count
 
 
 class _WindowsInputBackend:
@@ -111,7 +124,11 @@ class _YdotoolInputBackend:
         self._run("click", "0xC0")
 
     def scroll(self, scroll_amount: int) -> None:
-        self._run("mousemove", "--wheel", "-x", "0", "-y", str(scroll_amount))
+        """Scroll using existing Windows-style wheel delta units."""
+        wheel_ticks = _windows_delta_to_wheel_ticks(scroll_amount)
+        if wheel_ticks == 0:
+            return
+        self._run("mousemove", "--wheel", "-x", "0", "-y", str(wheel_ticks))
 
 
 class InputController:

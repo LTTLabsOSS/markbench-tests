@@ -27,7 +27,7 @@ from harness_utils.keras_service import (
     ScreenShotQuadrant,
     ScreenSplitConfig,
 )
-from harness_utils.misc import mouse_scroll_n_times
+from harness_utils.input import mouse_scroll_n_times
 from harness_utils.output import (
     seconds_to_milliseconds,
     setup_logging,

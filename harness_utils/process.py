@@ -43,6 +43,7 @@ def terminate_process(process_name: str) -> None:
                     command,
                 )
                 process.terminate()
+                # Multi-match termination is disabled for now.
                 logger.info("Linux process termination complete matches=1")
                 return
 

@@ -17,7 +17,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 # pylint: disable=wrong-import-position
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
-from harness_utils.misc import mouse_scroll_n_times
+from harness_utils.input import mouse_scroll_n_times
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,

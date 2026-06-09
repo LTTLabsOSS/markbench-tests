@@ -202,20 +202,6 @@ def clickme(x: int, y: int):
     gui.mouseUp()
 
 
-def mouse_scroll_n_times(n: int, scroll_amount: int, pause: float):
-    """
-    Pyautogui's mouse scroll function often fails to actually scroll in game menus, this functions solves that problem
-
-    n --> the number of times you want to scroll, should be a positive integer
-    scroll_amount --> positive is scroll up, negative is scroll down
-    pause --> the amount of time to pause between subsequent scrolls
-    """
-    gui = _pyautogui()
-    for _ in range(n):
-        gui.vscroll(scroll_amount)
-        time.sleep(pause)
-
-
 def int_time() -> int:
     """Returns the current time in seconds since epoch as an integer"""
     return int(time.time())

@@ -33,7 +33,7 @@ from harness_utils.steam import exec_steam_game, get_build_id
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-PROCESS_NAME = "DOOMTheDarkAges"
+PROCESS_NAME = "DOOMTheDarkAges.exe"
 STEAM_GAME_ID = 3017860
 BENCHMARK_RESULTS_PATH = (
     user_saved_games(STEAM_GAME_ID)
