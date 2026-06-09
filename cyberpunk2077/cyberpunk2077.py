@@ -11,7 +11,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from cyberpunk_utils import copy_no_intro_mod, read_current_resolution
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.input import user
+from harness_utils.input import mangohud_log_toggle, user
 from harness_utils.misc import press_n_times
 from harness_utils.ocr_service import find_word
 from harness_utils.output import (
@@ -19,6 +19,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
+from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
@@ -213,6 +214,9 @@ def run_benchmark():
         logging.info("Did not see settings menu option.")
         sys.exit(1)
 
+    if is_linux():
+        mangohud_log_toggle()
+
     navigate_settings()
 
     # Start the benchmark!
@@ -243,6 +247,8 @@ def run_benchmark():
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     time.sleep(3)
+    if is_linux():
+        mangohud_log_toggle()
     terminate_process(PROCESS_NAME)
     return test_start_time, test_end_time
 

@@ -11,12 +11,14 @@ logger = logging.getLogger(__name__)
 
 _YDOTOOL_KEYS = {
     "left": 105,
+    "leftshift": 42,
     "right": 106,
     "up": 103,
     "down": 108,
     "enter": 28,
     "esc": 1,
     "escape": 1,
+    "f2": 60,
     "space": 57,
     "b": 48,
     "q": 16,
@@ -180,3 +182,10 @@ def mouse_scroll_n_times(n: int, scroll_amount: int, pause: float) -> None:
     for _ in range(n):
         user.scroll(scroll_amount)
         time.sleep(pause)
+
+
+def mangohud_log_toggle() -> None:
+    """Toggle MangoHud logging with Left Shift + F2 via ydotool."""
+    time.sleep(1)
+    user.hotkey("leftshift", "f2")
+    time.sleep(1)

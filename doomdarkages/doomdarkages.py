@@ -13,7 +13,12 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from doomdarkages_utils import copy_launcher_config
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.input import mouse_scroll_n_times, press_n_times, user
+from harness_utils.input import (
+    mangohud_log_toggle,
+    mouse_scroll_n_times,
+    press_n_times,
+    user,
+)
 from harness_utils.ocr_service import find_word
 from harness_utils.output import (
     format_resolution,
@@ -22,6 +27,7 @@ from harness_utils.output import (
     write_report_json,
 )
 from harness_utils.paths import user_saved_games
+from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
@@ -70,6 +76,9 @@ def run_benchmark():
     if not result:
         logging.info("Didn't see title screen. Check settings and try again.")
         sys.exit(1)
+
+    if is_linux():
+        mangohud_log_toggle()
 
     logging.info("Hit the title screen. Continuing")
     time.sleep(2)
@@ -236,6 +245,9 @@ def run_benchmark():
 
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
+
+    if is_linux():
+        mangohud_log_toggle()
 
     terminate_process(PROCESS_NAME)
     am.create_manifest()
