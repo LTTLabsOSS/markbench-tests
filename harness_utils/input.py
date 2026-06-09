@@ -187,5 +187,11 @@ def mouse_scroll_n_times(n: int, scroll_amount: int, pause: float) -> None:
 def mangohud_log_toggle() -> None:
     """Toggle MangoHud logging with Left Shift + F2 via ydotool."""
     time.sleep(1)
-    user.hotkey("leftshift", "f2")
+    user.keyDown("leftshift")
+    time.sleep(0.3)
+    user.keyDown("f2")
+    time.sleep(0.3)
+    user.keyUp("f2")
+    time.sleep(0.3)
+    user.keyUp("leftshift")
     time.sleep(1)
