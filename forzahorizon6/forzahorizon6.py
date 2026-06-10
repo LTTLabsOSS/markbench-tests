@@ -27,9 +27,8 @@ from harness_utils.steam import exec_steam_game
 STEAM_GAME_ID = 2483190
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-PROCESSES = ["ForzaHorizon6.exe"]
-if is_windows():
-    PROCESSES.append("RTSS.exe")
+PROCESS_NAME = "ForzaHorizon6.exe"
+RTSS_PROCESS_NAME = "RTSS.exe"
 
 user.FAILSAFE = False
 
@@ -56,6 +55,13 @@ def start_rtss():
     profile_path = SCRIPT_DIRECTORY / "ForzaHorizon6.exe.cfg"
     copy_rtss_profile(str(profile_path))
     return start_rtss_process()
+
+
+def terminate_game_processes():
+    """Terminates the game and any Windows-only helper processes."""
+    terminate_process(PROCESS_NAME)
+    if is_windows():
+        terminate_process(RTSS_PROCESS_NAME)
 
 
 def run_benchmark():
@@ -90,49 +96,59 @@ def run_benchmark():
 
     # Menu defaults to accessibility submenu, so we need to escape first.
     user.press("escape")
-    time.sleep(0.5)
+    time.sleep(1)
 
     result = find_word("video", timeout=30)
     if not result:
         logging.info("Did not see 'video'. Game didn't load to the settings menu.")
         sys.exit(1)
 
-    logging.info("Video found, clicking and continuing.")
-    user.click(result["x"], result["y"])
+    logging.info("Video found, selecting with keyboard.")
+    press_n_times("down", 6, 1)
+    time.sleep(1)
+    user.press("enter")
     am.take_screenshot("Video_pt.png", ArtifactType.CONFIG_IMAGE, "Video menu")
-    time.sleep(0.2)
+    time.sleep(1)
 
-    press_n_times("down", 20, 0.1)
+    press_n_times("down", 21, 1)
     am.take_screenshot("Video_pt2.png", ArtifactType.CONFIG_IMAGE, "Video menu2")
     user.press("escape")
-    time.sleep(0.5)
+    time.sleep(1)
 
     result = find_word("graphics", timeout=30)
     if not result:
         logging.info("Game didn't load to the settings menu.")
         sys.exit(1)
 
-    logging.info("Graphics found, clicking and continuing.")
-    user.click(result["x"], result["y"])
-    time.sleep(0.2)
-    am.take_screenshot("graphics_pt.png", ArtifactType.CONFIG_IMAGE, "graphics menu")
-    press_n_times("down", 18, 0.1)
-    am.take_screenshot("graphics_pt2.png", ArtifactType.CONFIG_IMAGE, "graphics menu2")
-    time.sleep(0.2)
+    logging.info("Graphics found, selecting with keyboard.")
     user.press("down")
+    time.sleep(1)
+    user.press("enter")
+    time.sleep(1)
+    am.take_screenshot("graphics_pt.png", ArtifactType.CONFIG_IMAGE, "graphics menu")
+    press_n_times("down", 18, 1)
+    am.take_screenshot("graphics_pt2.png", ArtifactType.CONFIG_IMAGE, "graphics menu2")
+    time.sleep(1)
+    user.press("down")
+    time.sleep(1)
 
     result = find_word("benchmark", timeout=10)
     if not result:
         logging.info("Didn't find benchmark in settings.")
         sys.exit(1)
 
-    user.click(result["x"], result["y"])
+    logging.info("Benchmark found, selecting with keyboard.")
+    user.press("enter")
 
     result = find_word("yes", timeout=10)
     if not result:
         logging.info("Didn't find confirmation prompt.")
         sys.exit(1)
-    user.click(result["x"], result["y"])
+
+    logging.info("Confirmation prompt found, selecting yes with keyboard.")
+    user.press("down")
+    time.sleep(1)
+    user.press("enter")
 
     result = find_word("checkpoint", timeout=60)
     if not result:
@@ -158,8 +174,7 @@ def run_benchmark():
     if is_linux():
         mangohud_log_toggle()
 
-    for process_name in PROCESSES:
-        terminate_process(process_name)
+    terminate_game_processes()
     return test_start_time, test_end_time
 
 
@@ -179,6 +194,5 @@ try:
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
-    for process_name in PROCESSES:
-        terminate_process(process_name)
+    terminate_game_processes()
     sys.exit(1)
