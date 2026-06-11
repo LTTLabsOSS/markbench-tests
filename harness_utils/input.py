@@ -123,6 +123,7 @@ class _YdotoolInputBackend:
     def click(self, x: int | None = None, y: int | None = None) -> None:
         if x is not None and y is not None:
             self._run("mousemove", "--absolute", "0", "0")
+            time.sleep(0.1)
             self._run("mousemove", str(x), str(y))
         self._run("click", "0xC0")
 
