@@ -70,9 +70,10 @@ class _WindowsInputBackend:
 
 class _YdotoolInputBackend:
     def __init__(self) -> None:
-        self._ydotool = shutil.which("ydotool")
-        if self._ydotool is None:
+        ydotool = shutil.which("ydotool")
+        if ydotool is None:
             raise RuntimeError("Linux input requires `ydotool` on PATH")
+        self._ydotool = ydotool
 
     def _keycode(self, key: str) -> int:
         normalized_key = key.lower()
@@ -85,32 +86,33 @@ class _YdotoolInputBackend:
             ) from exc
 
     def _run(self, *args: str) -> None:
-        logger.info("Attempting ydotool command args=%s", args)
+        logger.debug("ydotool args=%s", args)
         try:
-            subprocess.run([self._ydotool, *args], check=True)
-        except subprocess.CalledProcessError:
-            logger.exception("Failed ydotool command args=%s", args)
+            subprocess.run(
+                [self._ydotool, *args],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+        except subprocess.CalledProcessError as exc:
+            logger.debug(
+                "ydotool failed args=%s stdout=%s stderr=%s",
+                args,
+                exc.stdout,
+                exc.stderr,
+                exc_info=True,
+            )
             raise
-        logger.info("Completed ydotool command args=%s", args)
 
     def press(self, key: str) -> None:
-        keycode = self._keycode(key)
-        logger.info("Attempting ydotool press key=%s keycode=%s", key, keycode)
         self.keyDown(key)
         self.keyUp(key)
-        logger.info("Completed ydotool press key=%s keycode=%s", key, keycode)
 
     def keyDown(self, key: str) -> None:
-        keycode = self._keycode(key)
-        logger.info("Attempting ydotool keyDown key=%s keycode=%s", key, keycode)
-        self._run("key", f"{keycode}:1")
-        logger.info("Completed ydotool keyDown key=%s keycode=%s", key, keycode)
+        self._run("key", f"{self._keycode(key)}:1")
 
     def keyUp(self, key: str) -> None:
-        keycode = self._keycode(key)
-        logger.info("Attempting ydotool keyUp key=%s keycode=%s", key, keycode)
-        self._run("key", f"{keycode}:0")
-        logger.info("Completed ydotool keyUp key=%s keycode=%s", key, keycode)
+        self._run("key", f"{self._keycode(key)}:0")
 
     def hotkey(self, *keys: str) -> None:
         for key in keys:
@@ -120,7 +122,8 @@ class _YdotoolInputBackend:
 
     def click(self, x: int | None = None, y: int | None = None) -> None:
         if x is not None and y is not None:
-            self._run("mousemove", "--absolute", str(x), str(y))
+            self._run("mousemove", "--absolute", "0", "0")
+            self._run("mousemove", str(x), str(y))
         self._run("click", "0xC0")
 
     def scroll(self, scroll_amount: int) -> None:
@@ -150,38 +153,33 @@ class InputController:
 
     def press(self, key: str) -> None:
         """Press and release a key."""
-        logger.info("Attempting input press key=%s", key)
+        logger.debug("input press key=%s", key)
         self._backend.press(key)
-        logger.info("Completed input press key=%s", key)
 
     def keyDown(self, key: str) -> None:
         """Press and hold a key."""
-        logger.info("Attempting input keyDown key=%s", key)
+        logger.debug("input keyDown key=%s", key)
         self._backend.keyDown(key)
-        logger.info("Completed input keyDown key=%s", key)
 
     def keyUp(self, key: str) -> None:
         """Release a key."""
-        logger.info("Attempting input keyUp key=%s", key)
+        logger.debug("input keyUp key=%s", key)
         self._backend.keyUp(key)
-        logger.info("Completed input keyUp key=%s", key)
 
     def hotkey(self, *keys: str) -> None:
         """Press a key chord."""
-        logger.info("Attempting input hotkey keys=%s", keys)
+        logger.debug("input hotkey keys=%s", keys)
         self._backend.hotkey(*keys)
-        logger.info("Completed input hotkey keys=%s", keys)
 
     def click(self, x: int | None = None, y: int | None = None) -> None:
         """Click the primary mouse button."""
-        logger.info("Attempting input click x=%s y=%s", x, y)
+        logger.debug("input click x=%s y=%s", x, y)
         self._backend.click(x=x, y=y)
 
     def scroll(self, scroll_amount: int) -> None:
         """Scroll the mouse wheel."""
-        logger.info("Attempting input scroll scroll_amount=%s", scroll_amount)
+        logger.debug("input scroll scroll_amount=%s", scroll_amount)
         self._backend.scroll(scroll_amount)
-        logger.info("Completed input scroll scroll_amount=%s", scroll_amount)
 
 
 user = InputController()

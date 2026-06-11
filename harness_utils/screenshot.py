@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def _run_spectacle(output_path: Path) -> None:
-    logger.info("Attempting KDE Spectacle screenshot output=%s", output_path)
+    logger.debug("KDE Spectacle screenshot output=%s", output_path)
     subprocess.run(
         [
             "spectacle",
@@ -30,11 +30,10 @@ def _run_spectacle(output_path: Path) -> None:
         capture_output=True,
         text=True,
     )
-    logger.info("Captured KDE Spectacle screenshot output=%s", output_path)
 
 
 def _run_spectacle_png_bytes() -> bytes:
-    logger.info("Attempting KDE Spectacle screenshot to PNG bytes")
+    logger.debug("KDE Spectacle screenshot to PNG bytes")
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_file:
         output_path = Path(temp_file.name)
     output_path.unlink(missing_ok=True)
@@ -47,7 +46,6 @@ def _run_spectacle_png_bytes() -> bytes:
 
     if not image_bytes:
         raise RuntimeError("Spectacle produced an empty screenshot")
-    logger.info("Captured KDE Spectacle screenshot to PNG bytes")
     return image_bytes
 
 
@@ -83,7 +81,7 @@ def _take_dxcam_file(output_path: Path) -> None:
 def take_screenshot_file(output_path: str | os.PathLike) -> None:
     """Capture a screenshot to a file."""
     path = Path(output_path)
-    logger.info("Capturing screenshot file output=%s", path)
+    logger.debug("Capturing screenshot file output=%s", path)
     if is_windows():
         _take_dxcam_file(path)
         return
