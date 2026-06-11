@@ -62,7 +62,6 @@ def _capture_screen_bytes(vulkan: bool = False):
 
 
 def _query_ocr_service(word: str, vulkan: bool = False) -> Any:
-
     image_bytes = _capture_screen_bytes(vulkan)
     if image_bytes is None:
         return None
@@ -113,14 +112,18 @@ def find_word(
     timeout: int = 0,
     msg: str | None = None,
 ):
+    logging.info("Searching OCR word=%r timeout=%s", word, timeout)
     start_time = monotonic()
     while True:
         result = _query_ocr_service(word, vulkan)
+        elapsed_time = monotonic() - start_time
         if result is not None:
-            logging.debug(str(result))
+            logging.info(
+                "Found OCR word=%r elapsed=%.2fs result=%s", word, elapsed_time, result
+            )
             return result
-        if monotonic() > start_time + timeout:
-            logging.info(msg or f"did not find {word} in {timeout}s")
+        if elapsed_time > timeout:
+            logging.info(msg or f"OCR did not find word={word!r} timeout={timeout}s")
             return None
         sleep(interval)
 

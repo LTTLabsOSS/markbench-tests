@@ -57,25 +57,23 @@ def _decode_image_bytes(image_bytes: bytes) -> np.ndarray:
 
 
 def _capture_dxcam_array() -> np.ndarray | None:
-    logger.info("Attempting Windows screenshot with dxcam")
+    logger.debug("Windows screenshot with dxcam")
     import dxcam
 
     camera = dxcam.create(output_idx=0, output_color="BGR")
     screenshot = camera.grab()
     if screenshot is None:
         return None
-    logger.info("Captured Windows screenshot with dxcam")
     return np.array(screenshot)
 
 
 def _take_dxcam_file(output_path: Path) -> None:
-    logger.info("Attempting Windows screenshot with dxcam output=%s", output_path)
+    logger.debug("Windows screenshot with dxcam output=%s", output_path)
     screenshot = _capture_dxcam_array()
     if screenshot is None:
         raise RuntimeError("Failed to capture screenshot with dxcam")
     if not cv2.imwrite(str(output_path), screenshot):
         raise RuntimeError(f"Failed to write screenshot file: {output_path}")
-    logger.info("Captured Windows screenshot with dxcam output=%s", output_path)
 
 
 def take_screenshot_file(output_path: str | os.PathLike) -> None:
