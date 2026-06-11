@@ -27,9 +27,8 @@ from harness_utils.steam import exec_steam_game
 STEAM_GAME_ID = 1551360
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-PROCESSES = ["ForzaHorizon5.exe"]
-if is_windows():
-    PROCESSES.append("RTSS.exe")
+PROCESS_NAME = "ForzaHorizon5.exe"
+RTSS_PROCESS_NAME = "RTSS.exe"
 
 user.FAILSAFE = False
 
@@ -57,6 +56,13 @@ def start_rtss():
     profile_path = SCRIPT_DIRECTORY / "ForzaHorizon5.exe.cfg"
     copy_rtss_profile(str(profile_path))
     return start_rtss_process()
+
+
+def terminate_game_processes():
+    """Terminates the game and any Windows-only helper processes."""
+    terminate_process(PROCESS_NAME)
+    if is_windows():
+        terminate_process(RTSS_PROCESS_NAME)
 
 
 def run_benchmark():
@@ -155,8 +161,7 @@ def run_benchmark():
     if is_linux():
         mangohud_log_toggle()
 
-    for process_name in PROCESSES:
-        terminate_process(process_name)
+    terminate_game_processes()
     return test_start_time, test_end_time
 
 
@@ -176,6 +181,5 @@ try:
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
-    for process_name in PROCESSES:
-        terminate_process(process_name)
+    terminate_game_processes()
     sys.exit(1)
