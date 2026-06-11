@@ -104,6 +104,7 @@ def run_benchmark():
         sys.exit(1)
 
     logging.info("Video found, selecting with keyboard.")
+    user.click(0, 0)
     press_n_times("down", 6, 1)
     time.sleep(1)
     user.press("enter")

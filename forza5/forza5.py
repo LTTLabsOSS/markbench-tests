@@ -96,6 +96,7 @@ def run_benchmark():
         sys.exit(1)
 
     logging.info("Video found, clicking and continuing.")
+    user.click(0, 0)
     user.click(result["x"], result["y"])
     time.sleep(0.2)
     am.take_screenshot("Video_pt.png", ArtifactType.CONFIG_IMAGE, "Video menu")
