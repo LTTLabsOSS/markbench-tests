@@ -11,6 +11,10 @@ from harness_utils.platform import is_linux, is_windows
 logger = logging.getLogger(__name__)
 
 WINDOWS_WHEEL_DELTA = 120
+LINUX_CLICK_SOURCE_WIDTH = 3840
+LINUX_CLICK_SOURCE_HEIGHT = 2160
+LINUX_CLICK_TARGET_WIDTH = 1920
+LINUX_CLICK_TARGET_HEIGHT = 1080
 
 _YDOTOOL_KEYS = {
     "left": 105,
@@ -38,6 +42,14 @@ def _windows_delta_to_wheel_ticks(scroll_amount: int) -> int:
     direction = 1 if scroll_amount > 0 else -1
     tick_count = max(1, math.floor(abs(scroll_amount) / WINDOWS_WHEEL_DELTA + 0.5))
     return direction * tick_count
+
+
+def _scale_linux_click_coordinates(x: int, y: int) -> tuple[int, int]:
+    """Scale 4K coordinates to the Linux screenshot size."""
+    return (
+        round(x * LINUX_CLICK_TARGET_WIDTH / LINUX_CLICK_SOURCE_WIDTH),
+        round(y * LINUX_CLICK_TARGET_HEIGHT / LINUX_CLICK_SOURCE_HEIGHT),
+    )
 
 
 class _WindowsInputBackend:
@@ -122,9 +134,10 @@ class _YdotoolInputBackend:
 
     def click(self, x: int | None = None, y: int | None = None) -> None:
         if x is not None and y is not None:
+            scaled_x, scaled_y = _scale_linux_click_coordinates(x, y)
             self._run("mousemove", "--absolute", "0", "0")
             time.sleep(0.1)
-            self._run("mousemove", str(x), str(y))
+            self._run("mousemove", str(scaled_x), str(scaled_y))
         self._run("click", "0xC0")
 
     def scroll(self, scroll_amount: int) -> None:
