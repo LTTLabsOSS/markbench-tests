@@ -83,6 +83,7 @@ def run_benchmark():
         sys.exit(1)
 
     if is_linux():
+        user.click(0, 0)
         mangohud_log_toggle()
 
     logging.info("At main menu. Pressing x for options.")
@@ -104,7 +105,6 @@ def run_benchmark():
         sys.exit(1)
 
     logging.info("Video found, selecting with keyboard.")
-    user.click(0, 0)
     press_n_times("down", 6, 1)
     time.sleep(1)
     user.press("enter")
