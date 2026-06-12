@@ -14,6 +14,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 # pylint: disable=wrong-import-position
 from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.input import mangohud_log_toggle
 from harness_utils.keras_service import KerasService
 from harness_utils.misc import LTTGamePad360
 from harness_utils.output import (
@@ -22,6 +23,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
+from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_app_install_location, get_build_id
 
@@ -71,6 +73,8 @@ def run_benchmark(keras_service):
     if keras_service.wait_for_word(word="black", timeout=30, interval=1) is None:
         logging.info("Did not find the welcome screen. Did the game launch correctly?")
         sys.exit(1)
+    if is_linux():
+        mangohud_log_toggle()
     # We pause here to allow the option to enter the menu to appear as sometimes the word black shows up first
     time.sleep(2)
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
@@ -192,6 +196,8 @@ def run_benchmark(keras_service):
 
     test_end_time = int(time.time()) - 1
     time.sleep(5)
+    if is_linux():
+        mangohud_log_toggle()
     am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
     am.copy_file(
         f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}",
