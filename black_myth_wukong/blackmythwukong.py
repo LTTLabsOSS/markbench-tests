@@ -7,7 +7,6 @@ import time
 from argparse import ArgumentParser
 from pathlib import Path
 
-import pydirectinput as user
 import vgamepad as vg
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
@@ -34,8 +33,6 @@ CONFIG_LOCATION = (
     f"{get_app_install_location(STEAM_GAME_ID)}\\b1\\Saved\\Config\\Windows"
 )
 CONFIG_FILENAME = "GameUserSettings.ini"
-
-user.FAILSAFE = False
 
 
 def read_current_resolution():

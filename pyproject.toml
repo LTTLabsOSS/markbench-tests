@@ -12,7 +12,7 @@ dependencies = [
     "pywin32>=311; sys_platform == 'win32'",
     "pyyaml>=6.0.3",
     "requests>=2.32.5",
-    "vgamepad>=0.1.0; sys_platform == 'win32'",
+    "vgamepad>=0.1.0",
 ]
 
 [project.optional-dependencies]
@@ -20,6 +20,7 @@ windows = []
 
 linux = [
     # System dependencies: ydotool, ydotoold, spectacle
+    # Linux virtual gamepad requires pre-provisioned /dev/uinput access.
 ]
 
 [tool.ruff]

@@ -9,6 +9,26 @@ This script navigates the menus of the Black Myth Wukong Benchmark tool and runs
 - Keras OCR service
 - Vgamepad
 
+### Linux vgamepad setup
+
+Linux vgamepad support is experimental and uses `/dev/uinput`. The harness must run without `sudo`; provision `/dev/uinput` access during machine setup, not at benchmark runtime.
+
+For an interactive login session, install a udev rule like:
+
+```udev
+KERNEL=="uinput", SUBSYSTEM=="misc", TAG+="uaccess", OPTIONS+="static_node=uinput"
+```
+
+For a service or non-seat bench user, prefer a dedicated group provisioned by an administrator:
+
+```udev
+KERNEL=="uinput", SUBSYSTEM=="misc", GROUP="uinput", MODE="0660", OPTIONS+="static_node=uinput"
+```
+
+Then add the benchmark user to that group during setup. Do not rely on runtime `sudo chmod`; the Python process should be able to open `/dev/uinput` as its normal user before the harness starts.
+
+This only covers the virtual gamepad dependency path. Proton, Steam, and the game install path still need validation on the target Linux bench.
+
 ## Options
 
 - `kerasHost`: string representing the IP address of the Keras service. e.x. `0.0.0.0`
