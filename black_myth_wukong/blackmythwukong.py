@@ -4,7 +4,6 @@ import logging
 import re
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 import vgamepad as vg
@@ -15,7 +14,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 # pylint: disable=wrong-import-position
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import mangohud_log_toggle
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.misc import LTTGamePad360
 from harness_utils.output import (
     format_resolution,
@@ -23,16 +22,17 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
+from harness_utils.paths import game_install_path
 from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
-from harness_utils.steam import exec_steam_game, get_app_install_location, get_build_id
+from harness_utils.steam import exec_steam_game, get_build_id
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "b1-Win64-Shipping.exe"
 STEAM_GAME_ID = 3132990
 CONFIG_LOCATION = (
-    f"{get_app_install_location(STEAM_GAME_ID)}\\b1\\Saved\\Config\\Windows"
+    game_install_path(STEAM_GAME_ID) / "b1" / "Saved" / "Config" / "Windows"
 )
 CONFIG_FILENAME = "GameUserSettings.ini"
 
@@ -41,7 +41,7 @@ def read_current_resolution():
     """Reads resolutions settings from local game file"""
     height_pattern = re.compile(r"LastUserConfirmedResolutionSizeY=(\d+)")
     width_pattern = re.compile(r"LastUserConfirmedResolutionSizeX=(\d+)")
-    cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
+    cfg = CONFIG_LOCATION / CONFIG_FILENAME
     height_value = 0
     width_value = 0
     with open(cfg, encoding="utf-8") as file:
@@ -62,7 +62,7 @@ def start_game():
     logging.info("Launching Game from Steam")
 
 
-def run_benchmark(keras_service):
+def run_benchmark():
     """Starts the benchmark"""
     start_game()
     gamepad = LTTGamePad360()
@@ -70,7 +70,7 @@ def run_benchmark(keras_service):
     am = ArtifactManager(LOG_DIRECTORY)
     time.sleep(20)
 
-    if keras_service.wait_for_word(word="black", timeout=30, interval=1) is None:
+    if find_word(word="black", timeout=30, interval=1) is None:
         logging.info("Did not find the welcome screen. Did the game launch correctly?")
         sys.exit(1)
     if is_linux():
@@ -80,7 +80,7 @@ def run_benchmark(keras_service):
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(2)
 
-    if keras_service.wait_for_word(word="settings", timeout=30, interval=1) is None:
+    if find_word(word="settings", timeout=30, interval=1) is None:
         logging.info("Did not find the settings option. Did the game launch correctly?")
         sys.exit(1)
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
@@ -88,7 +88,7 @@ def run_benchmark(keras_service):
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(0.5)
 
-    if keras_service.wait_for_word(word="loop", timeout=30, interval=1) is None:
+    if find_word(word="loop", timeout=30, interval=1) is None:
         logging.info(
             "Did not find the benchmark settings menu. Did the game navigate to the settings correctly?"
         )
@@ -97,7 +97,7 @@ def run_benchmark(keras_service):
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(0.5)
 
-    if keras_service.wait_for_word(word="calibration", timeout=30, interval=1) is None:
+    if find_word(word="calibration", timeout=30, interval=1) is None:
         logging.info(
             "Did not find the display settings menu. Did the game navigate the settings correctly?"
         )
@@ -111,7 +111,7 @@ def run_benchmark(keras_service):
     time.sleep(0.5)
 
     # We do a little toggling here in order to get the settings to update correctly, because wukong has no true full screen option
-    if keras_service.wait_for_word(word="windowed", timeout=30, interval=1) is None:
+    if find_word(word="windowed", timeout=30, interval=1) is None:
         logging.info(
             "Did not find the keyword 'windowed'. Did the game select the display mode setting correctly?"
         )
@@ -136,7 +136,7 @@ def run_benchmark(keras_service):
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(0.5)
 
-    if keras_service.wait_for_word(word="super", timeout=30, interval=1) is None:
+    if find_word(word="super", timeout=30, interval=1) is None:
         logging.info(
             "Did not find the top of the graphics menu. Did the game navigate the settings menu correctly?"
         )
@@ -147,7 +147,7 @@ def run_benchmark(keras_service):
 
     gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP, n=9, pause=0.5)
 
-    if keras_service.wait_for_word(word="reflection", timeout=30, interval=1) is None:
+    if find_word(word="reflection", timeout=30, interval=1) is None:
         logging.info(
             "Did not find the bottom of the graphics menu. Did the game scroll down the graphics settings menu correctly?"
         )
@@ -161,7 +161,7 @@ def run_benchmark(keras_service):
     gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B, n=2, pause=0.5)
     time.sleep(2)
 
-    if keras_service.wait_for_word(word="benchmark", timeout=30, interval=1) is None:
+    if find_word(word="benchmark", timeout=30, interval=1) is None:
         logging.info(
             "Did not find the option to start the benchmark. Did the game exit the settings menu correctly?"
         )
@@ -169,7 +169,7 @@ def run_benchmark(keras_service):
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(2)
 
-    if keras_service.wait_for_word(word="confirm", timeout=30, interval=1) is None:
+    if find_word(word="confirm", timeout=30, interval=1) is None:
         logging.info(
             "Did not find the confirmation to start the benchmark. Did the game select the start benchmark option correctly?"
         )
@@ -181,7 +181,7 @@ def run_benchmark(keras_service):
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
-    result = keras_service.wait_for_word("current", interval=0.5, timeout=100)
+    result = find_word("current", interval=1, timeout=100)
     if not result:
         logging.info("Could not find current. Unable to mark start time!")
         sys.exit(1)
@@ -190,7 +190,7 @@ def run_benchmark(keras_service):
 
     time.sleep(142)
 
-    if keras_service.wait_for_word(word="result", timeout=30, interval=1) is None:
+    if find_word(word="result", timeout=30, interval=1) is None:
         logging.info("Did not find result screen. Did the benchmark run?")
         sys.exit(1)
 
@@ -200,7 +200,7 @@ def run_benchmark(keras_service):
         mangohud_log_toggle()
     am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
     am.copy_file(
-        f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}",
+        CONFIG_LOCATION / CONFIG_FILENAME,
         ArtifactType.CONFIG_TEXT,
         "GameUserSettings.ini",
     )
@@ -219,22 +219,7 @@ def run_benchmark(keras_service):
 
 def main():
     """entry point"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    args = parser.parse_args()
-    keras_service = KerasService(args.keras_host, args.keras_port)
-    start_time, endtime = run_benchmark(keras_service)
+    start_time, endtime = run_benchmark()
     height, width = read_current_resolution()
     report = {
         "resolution": format_resolution(width, height),
