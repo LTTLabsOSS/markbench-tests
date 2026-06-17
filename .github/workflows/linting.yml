@@ -2,7 +2,7 @@ name: Linting
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   # For more info see:
@@ -40,4 +40,4 @@ jobs:
       - name: Analysing the code with pylint
         if: steps.changed-files-python.outputs.any_changed == 'true'
         run: |
-          python -m pylint ${{ steps.changed-files-python.outputs.all_changed_files }} 
+          python -m pylint ${{ steps.changed-files-python.outputs.all_changed_files }}

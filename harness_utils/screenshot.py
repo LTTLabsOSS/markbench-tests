@@ -8,6 +8,7 @@ import tempfile
 from pathlib import Path
 
 import cv2
+import mss
 import numpy as np
 
 from harness_utils.platform import is_linux, is_windows
@@ -76,12 +77,24 @@ def _take_dxcam_file(output_path: Path) -> None:
         raise RuntimeError(f"Failed to write screenshot file: {output_path}")
 
 
+def _capture_mss_array() -> np.ndarray:
+    logger.debug("Screenshot with mss")
+    with mss.mss() as sct:
+        return np.array(sct.grab(sct.monitors[1]))
+
+
+def _take_mss_file(output_path: Path) -> None:
+    logger.debug("Screenshot with mss output=%s", output_path)
+    with mss.mss() as sct:
+        sct.shot(output=str(output_path))
+
+
 def take_screenshot_file(output_path: str | os.PathLike) -> None:
     """Capture a screenshot to a file."""
     path = Path(output_path)
     logger.debug("Capturing screenshot file output=%s", path)
     if is_windows():
-        _take_dxcam_file(path)
+        _take_mss_file(path)
         return
     if is_linux():
         _run_spectacle(path)
@@ -92,7 +105,9 @@ def take_screenshot_file(output_path: str | os.PathLike) -> None:
 def capture_screenshot_array(vulkan: bool = False) -> np.ndarray | None:
     """Capture a screenshot as an array."""
     if is_windows():
-        return _capture_dxcam_array()
+        if vulkan:
+            return _capture_dxcam_array()
+        return _capture_mss_array()
     if is_linux():
         return _decode_image_bytes(_run_spectacle_png_bytes())
     raise RuntimeError("Screenshot capture is only supported on Windows and Linux")
@@ -105,7 +120,8 @@ def capture_screenshot_jpg_bytes(vulkan: bool = False) -> io.BytesIO | None:
         return None
 
     _, encoded_image = cv2.imencode(".jpg", screenshot)
-    return io.BytesIO(encoded_image)
+    encoded_bytes: bytes = encoded_image.tobytes()
+    return io.BytesIO(encoded_bytes)
 
 
 def capture_screenshot_png_bytes(vulkan: bool = False) -> io.BytesIO | None:
@@ -118,4 +134,5 @@ def capture_screenshot_png_bytes(vulkan: bool = False) -> io.BytesIO | None:
         return None
 
     _, encoded_image = cv2.imencode(".png", screenshot)
-    return io.BytesIO(encoded_image)
+    encoded_bytes: bytes = encoded_image.tobytes()
+    return io.BytesIO(encoded_bytes)
