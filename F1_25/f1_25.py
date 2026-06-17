@@ -23,7 +23,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.steam import (
     exec_steam_run_command,
     get_app_install_location,
@@ -57,23 +57,23 @@ def find_latest_result_file(base_path):
     return max(result_files, key=lambda path: path.stat().st_mtime)
 
 
-def find_settings() -> any:
+def find_settings():
     """Look for and enter settings"""
-    if not kerasService.look_for_word("settings", attempts=5, interval=3):
+    if not kerasService.wait_for_word("settings", interval=3, timeout=15):
         logging.info("Didn't find settings!")
         sys.exit(1)
     user.press("enter")
     time.sleep(1.5)
 
 
-def find_graphics() -> any:
+def find_graphics():
     """Look for and enter graphics settings"""
-    if not kerasService.look_for_word("graphics", attempts=5, interval=3):
+    if not kerasService.wait_for_word("graphics", interval=3, timeout=15):
         logging.info("Didn't find graphics!")
         sys.exit(1)
     user.press("right")
     time.sleep(0.2)
-    user.press("enter")   
+    user.press("enter")
     time.sleep(1.5)
 
 
@@ -140,7 +140,7 @@ def run_benchmark():
     time.sleep(20)
 
     navigate_startup()
-    offline_menu()  
+    offline_menu()
 
     # Navigate menus and take screenshots using the artifact manager
     result = kerasService.wait_for_word("theatre", interval=3, timeout=60)
@@ -206,7 +206,7 @@ def run_benchmark():
     time.sleep(0.2)
 
     # Navigate benchmark menu
-    if not kerasService.look_for_word("weather", attempts=5, interval=3):
+    if not kerasService.wait_for_word("weather", interval=3, timeout=15):
         logging.info("Didn't find weather!")
         sys.exit(1)
 
@@ -266,7 +266,7 @@ def run_benchmark():
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
 
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     am.create_manifest()
 
     return test_start_time, test_end_time
@@ -298,5 +298,5 @@ try:
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     sys.exit(1)
