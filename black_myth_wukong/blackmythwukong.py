@@ -13,7 +13,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 # pylint: disable=wrong-import-position
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.input import mangohud_log_toggle
+from harness_utils.input import mangohud_log_toggle, user
 from harness_utils.ocr_service import find_word
 from harness_utils.misc import LTTGamePad360
 from harness_utils.output import (
@@ -42,17 +42,17 @@ def read_current_resolution():
     height_pattern = re.compile(r"LastUserConfirmedResolutionSizeY=(\d+)")
     width_pattern = re.compile(r"LastUserConfirmedResolutionSizeX=(\d+)")
     cfg = CONFIG_LOCATION / CONFIG_FILENAME
-    height_value = 0
-    width_value = 0
+    height_value: int = 0
+    width_value: int = 0
     with open(cfg, encoding="utf-8") as file:
         lines = file.readlines()
         for line in lines:
             height_match = height_pattern.search(line)
             width_match = width_pattern.search(line)
             if height_match is not None:
-                height_value = height_match.group(1)
+                height_value = int(height_match.group(1))
             if width_match is not None:
-                width_value = width_match.group(1)
+                width_value = int(width_match.group(1))
     return (height_value, width_value)
 
 
@@ -75,6 +75,11 @@ def run_benchmark():
         sys.exit(1)
     if is_linux():
         mangohud_log_toggle()
+        benchmark_result = find_word(word="benchmark", timeout=30, interval=1)
+        if benchmark_result:
+            user.move_mouse(benchmark_result["x"], benchmark_result["y"])
+        else:
+            logging.info("Did not find 'benchmark' for mouse move.")
     # We pause here to allow the option to enter the menu to appear as sometimes the word black shows up first
     time.sleep(2)
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)

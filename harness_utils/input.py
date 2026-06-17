@@ -1,5 +1,6 @@
 """Platform input adapter."""
 
+import importlib
 import logging
 import math
 import shutil
@@ -54,10 +55,8 @@ def _scale_linux_click_coordinates(x: int, y: int) -> tuple[int, int]:
 
 class _WindowsInputBackend:
     def __init__(self, controller: "InputController") -> None:
-        import pydirectinput
-
-        pydirectinput.FAILSAFE = controller.FAILSAFE
-        self._pydirectinput = pydirectinput
+        self._pydirectinput = importlib.import_module("pydirectinput")
+        setattr(self._pydirectinput, "FAILSAFE", controller.FAILSAFE)
 
     def press(self, key: str) -> None:
         self._pydirectinput.press(key)
@@ -71,7 +70,14 @@ class _WindowsInputBackend:
     def hotkey(self, *keys: str) -> None:
         self._pydirectinput.hotkey(*keys)
 
+    def move_mouse(self, x: int, y: int) -> None:
+        self._pydirectinput.moveTo(x=x, y=y)
+
     def click(self, x: int | None = None, y: int | None = None) -> None:
+        if x is not None and y is not None:
+            self.move_mouse(x, y)
+            self._pydirectinput.click()
+            return
         self._pydirectinput.click(x=x, y=y)
 
     def scroll(self, scroll_amount: int) -> None:
@@ -132,12 +138,15 @@ class _YdotoolInputBackend:
         for key in reversed(keys):
             self.keyUp(key)
 
+    def move_mouse(self, x: int, y: int) -> None:
+        scaled_x, scaled_y = _scale_linux_click_coordinates(x, y)
+        self._run("mousemove", "--absolute", "0", "0")
+        time.sleep(0.1)
+        self._run("mousemove", str(scaled_x), str(scaled_y))
+
     def click(self, x: int | None = None, y: int | None = None) -> None:
         if x is not None and y is not None:
-            scaled_x, scaled_y = _scale_linux_click_coordinates(x, y)
-            self._run("mousemove", "--absolute", "0", "0")
-            time.sleep(0.1)
-            self._run("mousemove", str(scaled_x), str(scaled_y))
+            self.move_mouse(x, y)
         self._run("click", "0xC0")
 
     def scroll(self, scroll_amount: int) -> None:
@@ -184,6 +193,11 @@ class InputController:
         """Press a key chord."""
         logger.debug("input hotkey keys=%s", keys)
         self._backend.hotkey(*keys)
+
+    def move_mouse(self, x: int, y: int) -> None:
+        """Move the mouse pointer without clicking."""
+        logger.debug("input move_mouse x=%s y=%s", x, y)
+        self._backend.move_mouse(x, y)
 
     def click(self, x: int | None = None, y: int | None = None) -> None:
         """Click the primary mouse button."""
