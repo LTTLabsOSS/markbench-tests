@@ -16,7 +16,7 @@ from ffmpeg_cpu_utils import (
     current_time_ms,
     ffmpeg_present,
     is_video_source_present,
-    vmaf_supported,
+    vmaf_supported
 )
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
@@ -31,15 +31,19 @@ TEST_OPTIONS = {
 }
 
 parser = ArgumentParser()
-parser.add_argument("--encoder", dest="encoder", required=True)
+parser.add_argument(
+    "--encoder", 
+    dest="encoder",
+    required=True
+)
 
 parser.add_argument(
-    "-a",
-    "--architecture",
+    "-a", 
+    "--architecture", 
     dest="architecture",
     help="Architecture type",
     required=True,
-    choices=TEST_OPTIONS.keys(),
+    choices=TEST_OPTIONS.keys()
 )
 
 args = parser.parse_args()
@@ -50,6 +54,7 @@ FFMPEG_BUILD = TEST_OPTIONS[args.architecture]
 VMAF_VERSION = "vmaf_v0.6.1neg"
 INPUT_VIDEO = SCRIPT_DIRECTORY / "big_buck_bunny_1080p24.y4m"
 OUTPUT_VIDEO = SCRIPT_DIRECTORY / "output.mp4"
+
 
 
 def main():  # pylint: disable=too-many-locals too-many-branches
@@ -117,12 +122,15 @@ def main():  # pylint: disable=too-many-locals too-many-branches
         vmaf_score = None
         vmaf_duration = None
         if vmaf_supported(args.architecture):
+
             logging.info("Beginning VMAF")
             start_vmaf_time = current_time_ms()
             source_path = INPUT_VIDEO
             encoded_path = OUTPUT_VIDEO
             vmaf_model_path = f"../vmaf/{VMAF_VERSION}.json"
-            filter_complex = f"libvmaf=model=path={vmaf_model_path}:n_threads=10:log_path=vmafout.txt"
+            filter_complex = (
+                f"libvmaf=model=path={vmaf_model_path}:n_threads=10:log_path=vmafout.txt"
+            )
             argument_list = [
                 "-i",
                 str(source_path),
@@ -140,10 +148,7 @@ def main():  # pylint: disable=too-many-locals too-many-branches
             with open(vmaf_log_path, "w+", encoding="utf-8") as vmaf_log:
                 logging.info("Calculating VMAF...")
                 subprocess.run(
-                    [ffmpeg_exe_path, *argument_list],
-                    cwd=ffmpeg_exe_path.parent,
-                    stderr=vmaf_log,
-                    check=True,
+                    [ffmpeg_exe_path, *argument_list], cwd=ffmpeg_exe_path.parent, stderr=vmaf_log, check=True
                 )
                 vmaf_log.flush()
                 vmaf_log.seek(0)
@@ -179,13 +184,11 @@ def main():  # pylint: disable=too-many-locals too-many-branches
             "end_time": end_time,
         }
         if vmaf_score is not None:
-            report.update(
-                {
-                    "vmaf_version": VMAF_VERSION,
-                    "vmaf_score": vmaf_score,
-                    "vmaf_duration": vmaf_duration,
-                }
-            )
+            report.update({
+                "vmaf_version": VMAF_VERSION,
+                "vmaf_score": vmaf_score,
+                "vmaf_duration": vmaf_duration,
+            })
         write_report_json(LOG_DIRECTORY, "report.json", report)
     except Exception as e:
         logging.error("Something went wrong running the benchmark!")
