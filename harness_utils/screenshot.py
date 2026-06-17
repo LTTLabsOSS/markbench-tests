@@ -120,8 +120,7 @@ def capture_screenshot_jpg_bytes(vulkan: bool = False) -> io.BytesIO | None:
         return None
 
     _, encoded_image = cv2.imencode(".jpg", screenshot)
-    encoded_bytes: bytes = encoded_image.tobytes()
-    return io.BytesIO(encoded_bytes)
+    return io.BytesIO(encoded_image)
 
 
 def capture_screenshot_png_bytes(vulkan: bool = False) -> io.BytesIO | None:
@@ -134,5 +133,4 @@ def capture_screenshot_png_bytes(vulkan: bool = False) -> io.BytesIO | None:
         return None
 
     _, encoded_image = cv2.imencode(".png", screenshot)
-    encoded_bytes: bytes = encoded_image.tobytes()
-    return io.BytesIO(encoded_bytes)
+    return io.BytesIO(encoded_image)
