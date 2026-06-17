@@ -47,7 +47,7 @@ def start_rtss():
     return start_rtss_process()
 
 
-def run_benchmark() -> tuple[float]:
+def run_benchmark() -> tuple[int, int]:
     """Run the benchmark"""
     start_rtss()
     # Give RTSS time to start
@@ -161,8 +161,8 @@ def run_benchmark() -> tuple[float]:
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %s seconds", elapsed_test_time)
 
-    for process_name in PROCESSES:
-        terminate_process(process_name)
+    for proc_name in PROCESSES:
+        terminate_process(proc_name)
     am.create_manifest()
 
     return test_start_time, test_end_time

@@ -1,7 +1,3 @@
-[DESIGN]
-# Maximum number of branch for function / method body
-max-branches = 15
-
 [MESSAGES CONTROL]
 disable=
     import-error,
@@ -13,4 +9,8 @@ disable=
     broad-exception-raised,
     fixme,
     c-extension-no-member,
-    duplicate-code
+    duplicate-code,
+    missing-module-docstring,
+    missing-function-docstring,
+    import-outside-toplevel,
+    invalid-name
