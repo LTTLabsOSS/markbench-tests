@@ -14,8 +14,8 @@ sys.path.insert(1, PARENT_DIRECTORY)
 # pylint: disable=wrong-import-position
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import mangohud_log_toggle, user
-from harness_utils.ocr_service import find_word
 from harness_utils.misc import LTTGamePad360
+from harness_utils.ocr_service import find_word
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -80,10 +80,8 @@ def run_benchmark():
             user.move_mouse(benchmark_result["x"], benchmark_result["y"])
         else:
             logging.info("Did not find 'benchmark' for mouse move.")
-    # We pause here to allow the option to enter the menu to appear as sometimes the word black shows up first
-    time.sleep(2)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
-    time.sleep(2)
+            gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+            time.sleep(2)
 
     if find_word(word="settings", timeout=30, interval=1) is None:
         logging.info("Did not find the settings option. Did the game launch correctly?")
