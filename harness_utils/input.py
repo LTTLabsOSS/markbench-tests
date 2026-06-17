@@ -61,10 +61,10 @@ class _WindowsInputBackend:
     def press(self, key: str) -> None:
         self._pydirectinput.press(key)
 
-    def keyDown(self, key: str) -> None:
+    def key_down(self, key: str) -> None:
         self._pydirectinput.keyDown(key)
 
-    def keyUp(self, key: str) -> None:
+    def key_up(self, key: str) -> None:
         self._pydirectinput.keyUp(key)
 
     def hotkey(self, *keys: str) -> None:
@@ -123,20 +123,20 @@ class _YdotoolInputBackend:
             raise
 
     def press(self, key: str) -> None:
-        self.keyDown(key)
-        self.keyUp(key)
+        self.key_down(key)
+        self.key_up(key)
 
-    def keyDown(self, key: str) -> None:
+    def key_down(self, key: str) -> None:
         self._run("key", f"{self._keycode(key)}:1")
 
-    def keyUp(self, key: str) -> None:
+    def key_up(self, key: str) -> None:
         self._run("key", f"{self._keycode(key)}:0")
 
     def hotkey(self, *keys: str) -> None:
         for key in keys:
-            self.keyDown(key)
+            self.key_down(key)
         for key in reversed(keys):
-            self.keyUp(key)
+            self.key_up(key)
 
     def move_mouse(self, x: int, y: int) -> None:
         scaled_x, scaled_y = _scale_linux_click_coordinates(x, y)
@@ -179,15 +179,15 @@ class InputController:
         logger.debug("input press key=%s", key)
         self._backend.press(key)
 
-    def keyDown(self, key: str) -> None:
+    def key_down(self, key: str) -> None:
         """Press and hold a key."""
-        logger.debug("input keyDown key=%s", key)
-        self._backend.keyDown(key)
+        logger.debug("input key_down key=%s", key)
+        self._backend.key_down(key)
 
-    def keyUp(self, key: str) -> None:
+    def key_up(self, key: str) -> None:
         """Release a key."""
-        logger.debug("input keyUp key=%s", key)
-        self._backend.keyUp(key)
+        logger.debug("input key_up key=%s", key)
+        self._backend.key_up(key)
 
     def hotkey(self, *keys: str) -> None:
         """Press a key chord."""
@@ -230,11 +230,11 @@ def mouse_scroll_n_times(n: int, scroll_amount: int, pause: float) -> None:
 def mangohud_log_toggle() -> None:
     """Toggle MangoHud logging with Left Shift + F2 via ydotool."""
     time.sleep(1)
-    user.keyDown("leftshift")
+    user.key_down("leftshift")
     time.sleep(0.3)
-    user.keyDown("f2")
+    user.key_down("f2")
     time.sleep(0.3)
-    user.keyUp("f2")
+    user.key_up("f2")
     time.sleep(0.3)
-    user.keyUp("leftshift")
+    user.key_up("leftshift")
     time.sleep(1)

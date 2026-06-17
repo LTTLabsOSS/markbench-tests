@@ -11,40 +11,9 @@ from pathlib import Path
 from zipfile import ZipFile
 
 import requests
+import vgamepad as vg
 
 from harness_utils.input import user
-
-try:
-    import vgamepad as vg
-except ImportError:
-
-    class _MissingGamepadBase:
-        def __init__(self, *args, **kwargs):
-            pass
-
-        def __getattr__(self, _name):
-            def _noop(*args, **kwargs):
-                return None
-
-            return _noop
-
-    class _MissingXusbButton:
-        XUSB_GAMEPAD_DPAD_DOWN = None
-
-    class _MissingDs4Buttons:
-        DS4_BUTTON_CROSS = None
-
-    class _MissingDs4DpadDirections:
-        DS4_BUTTON_DPAD_SOUTH = None
-
-    class _MissingVGamepad:
-        VX360Gamepad = _MissingGamepadBase
-        VDS4Gamepad = _MissingGamepadBase
-        XUSB_BUTTON = _MissingXusbButton
-        DS4_BUTTONS = _MissingDs4Buttons
-        DS4_DPAD_DIRECTIONS = _MissingDs4DpadDirections
-
-    vg = _MissingVGamepad()
 
 user.FAILSAFE = False
 
@@ -247,7 +216,7 @@ def extract_file_from_archive(
         zip_object.extract(member_path, path=destination_dir)
 
 
-def find_eg_game_version(gamefoldername: str) -> str:
+def find_eg_game_version(gamefoldername: str) -> str | None:
     """Find the version of the specific game (e.g., AlanWake2) from the launcher installed data."""
     installerdat = r"C:\ProgramData\Epic\UnrealEngineLauncher\LauncherInstalled.dat"
 
