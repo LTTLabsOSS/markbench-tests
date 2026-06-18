@@ -217,7 +217,7 @@ def run_benchmark():
     time.sleep(1)
     logging.info("Navigating to the Video tab.")
     gamepad.button_press_n_times(
-        button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT, n=4, pause=0.8
+        button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT, n=5, pause=0.8
     )
     time.sleep(1)
 
