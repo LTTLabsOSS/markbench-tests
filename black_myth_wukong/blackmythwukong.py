@@ -75,13 +75,12 @@ def run_benchmark():
         sys.exit(1)
     if is_linux():
         mangohud_log_toggle()
-        benchmark_result = find_word(word="benchmark", timeout=30, interval=1)
-        if benchmark_result:
-            user.move_mouse(benchmark_result["x"], benchmark_result["y"])
-        else:
-            logging.info("Did not find 'benchmark' for mouse move.")
-            gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
-            time.sleep(2)
+    else:
+        gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+
+    benchmark_result = find_word(word="benchmark", timeout=30, interval=1)
+    if benchmark_result:
+        user.move_mouse(benchmark_result["x"], benchmark_result["y"])
 
     if find_word(word="settings", timeout=30, interval=1) is None:
         logging.info("Did not find the settings option. Did the game launch correctly?")
