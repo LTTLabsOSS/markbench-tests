@@ -108,7 +108,7 @@ def _query_ocr_service(word: str, vulkan: bool = False) -> Any:
 def find_word(
     word: str,
     vulkan: bool = False,
-    interval: int = 0,
+    interval: float = 0,
     timeout: int = 0,
     msg: str | None = None,
 ):

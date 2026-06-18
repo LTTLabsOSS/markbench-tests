@@ -6,24 +6,15 @@ import sys
 import time
 from pathlib import Path
 
-import pydirectinput as user
-from shadow_of_the_tomb_raider_utils import (
-    get_args,
-    get_latest_file_report,
-    get_resolution,
-)
+from shadow_of_the_tomb_raider_utils import get_latest_file_report, get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 # pylint: disable=wrong-import-position
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import (
-    KerasService,
-    ScreenShotDivideMethod,
-    ScreenShotQuadrant,
-    ScreenSplitConfig,
-)
+from harness_utils.input import user
+from harness_utils.ocr_service import find_word
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -46,30 +37,21 @@ def start_game():
     return exec_steam_game(STEAM_GAME_ID, game_params=["-nolauncher"])
 
 
-def run_benchmark(keras_service, am):
+def run_benchmark(am):
     """Start game via Steam and enter fullscreen mode"""
     setup_start_time = int(time.time())
     start_game()
     time.sleep(10)
 
-    #Check for if no display adapter warning is up
-    if keras_service.wait_for_word(word="adapter", timeout=30, interval=1):
+    # Check for if no display adapter warning is up
+    if find_word(word="adapter", timeout=30, interval=1):
         user.press("enter")
 
-    #Check for if notification for services unavailable is up
-    if keras_service.wait_for_word(word="unavailable", timeout=30, interval=1):
+    # Check for if notification for services unavailable is up
+    if find_word(word="unavailable", timeout=30, interval=1):
         user.press("enter")
 
-    ss_config = ScreenSplitConfig(
-        divide_method=ScreenShotDivideMethod.HORIZONTAL, quadrant=ScreenShotQuadrant.TOP
-    )
-
-    if (
-        keras_service.wait_for_word(
-            word="options", timeout=30, interval=1, split_config=ss_config
-        )
-        is None
-    ):
+    if find_word(word="options", timeout=30, interval=1) is None:
         logging.info("Did not find the options menu. Did the game launch correctly?")
         sys.exit(1)
 
@@ -84,7 +66,7 @@ def run_benchmark(keras_service, am):
     user.press("enter")
     time.sleep(1)
 
-    if keras_service.wait_for_word(word="graphics", timeout=30, interval=1) is None:
+    if find_word(word="graphics", timeout=30, interval=1) is None:
         logging.info("Did not find the graphics menu. Did the menu get stuck?")
         sys.exit(1)
 
@@ -99,7 +81,7 @@ def run_benchmark(keras_service, am):
     user.press("enter")
     time.sleep(1)
 
-    if keras_service.wait_for_word(word="benchmark", timeout=30, interval=1) is None:
+    if find_word(word="benchmark", timeout=30, interval=1) is None:
         logging.info(
             "Did not find the benchmark option on the screen. Did the menu get stuck?"
         )
@@ -123,7 +105,7 @@ def run_benchmark(keras_service, am):
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
-    if keras_service.wait_for_word(word="fps", timeout=60, interval=0.5) is None:
+    if find_word(word="fps", timeout=60, interval=0.5) is None:
         logging.info("Did not find the FPS counter. Did the benchmark crash?")
         sys.exit(1)
     test_start_time = int(time.time())
@@ -133,7 +115,7 @@ def run_benchmark(keras_service, am):
 
     test_end_time = int(time.time())
 
-    result = keras_service.wait_for_word(word="tomb", timeout=10, interval=0.1)
+    result = find_word(word="tomb", timeout=10, interval=0.1)
     if result is None:
         logging.error(
             "Unable to find the loading screen. Using default end time value."
@@ -141,7 +123,7 @@ def run_benchmark(keras_service, am):
     else:
         test_end_time = int(time.time())
 
-    if keras_service.wait_for_word(word="results", timeout=60, interval=1) is None:
+    if find_word(word="results", timeout=60, interval=1) is None:
         logging.error("Results screen after running benchmark not found, exiting.")
         sys.exit(1)
 
@@ -181,10 +163,8 @@ def run_benchmark(keras_service, am):
 def main():
     """entry point"""
     setup_logging(LOG_DIRECTORY)
-    args = get_args()
-    keras_service = KerasService(args.keras_host, args.keras_port)
     am = ArtifactManager(LOG_DIRECTORY)
-    run_benchmark(keras_service, am)
+    run_benchmark(am)
 
 
 if __name__ == "__main__":

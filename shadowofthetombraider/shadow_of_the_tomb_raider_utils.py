@@ -2,12 +2,12 @@
 
 import os
 import winreg
-from argparse import ArgumentParser
 from pathlib import Path
 
 
-def get_reg(name) -> any:
+def get_reg(name):
     """Get registry key value"""
+
     reg_path = r"SOFTWARE\Eidos Montreal\Shadow of the Tomb Raider\Graphics"
     try:
         registry_key = winreg.OpenKey(
@@ -20,29 +20,11 @@ def get_reg(name) -> any:
         return None
 
 
-def get_resolution() -> tuple[int]:
+def get_resolution() -> tuple[int, int]:
     """Get resolution from registry"""
     width = get_reg("FullscreenWidth")
     height = get_reg("FullscreenHeight")
     return (height, width)
-
-
-def get_args() -> any:
-    """Returns command line arg values"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    return parser.parse_args()
 
 
 def get_latest_file_report(directory: Path):
