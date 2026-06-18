@@ -9,7 +9,7 @@ from shutil import copy
 
 import yaml
 
-from harness_utils.platform import is_linux, is_windows
+from harness_utils.platform import is_windows
 from harness_utils.screenshot import (
     capture_screenshot_file,
     capture_screenshot_png_bytes,
@@ -175,13 +175,8 @@ class ArtifactManager:
             if image_bytes is None:
                 raise RuntimeError("Failed to capture screenshot.")
             Path(output_filepath).write_bytes(image_bytes.getbuffer())
-        elif is_linux():
-            capture_screenshot_file(output_filepath)
         else:
-            raise RuntimeError(
-                "Vulkan screenshot capture is only supported on Windows and Linux"
-            )
-
+            capture_screenshot_file(output_filepath)
         artifact = Artifact(filename, artifact_type, description)
         self.artifacts.append(artifact)
         logger.info("Captured Vulkan artifact screenshot filename=%s", filename)
