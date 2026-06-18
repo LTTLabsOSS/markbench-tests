@@ -82,9 +82,6 @@ def run_benchmark():
     if benchmark_result:
         user.move_mouse(benchmark_result["x"], benchmark_result["y"])
 
-    if find_word(word="settings", timeout=30, interval=1) is None:
-        logging.info("Did not find the settings option. Did the game launch correctly?")
-        sys.exit(1)
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
     time.sleep(0.5)
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
