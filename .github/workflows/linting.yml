@@ -2,7 +2,7 @@ name: Linting
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   # For more info see:
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Get Python changed files
         id: changed-files-python
-        uses: tj-actions/changed-files@v39
+        uses: tj-actions/changed-files@v46
         with:
           files: |
             *.py
@@ -40,4 +40,4 @@ jobs:
       - name: Analysing the code with pylint
         if: steps.changed-files-python.outputs.any_changed == 'true'
         run: |
-          python -m pylint ${{ steps.changed-files-python.outputs.all_changed_files }} 
+          python -m pylint ${{ steps.changed-files-python.outputs.all_changed_files }}

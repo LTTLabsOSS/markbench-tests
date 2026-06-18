@@ -18,7 +18,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 
 CINEBENCH_PATH = r"C:\Cinebench2026\Cinebench.exe"
 GPU_TEST = "g_CinebenchGpuTest=true"
@@ -94,7 +94,7 @@ try:
         time.sleep(args.duration_seconds)
         if proc.poll() is None:
             logging.info("Stress duration reached. Terminating Cinebench.")
-            terminate_processes(Path(CINEBENCH_PATH).name)
+            terminate_process(Path(CINEBENCH_PATH).name)
             proc.kill()
         proc.wait()
 

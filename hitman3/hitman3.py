@@ -103,7 +103,7 @@ def run_benchmark():
 
     time.sleep(5)
 
-    result = kerasService.look_for_word("crowd", attempts=20, interval=1)
+    result = kerasService.wait_for_word("crowd", timeout=20, interval=1)
     if not result:
         logging.info(
             "Did not find the statistics in the corner. Did the benchmark launch?"
@@ -116,7 +116,7 @@ def run_benchmark():
         benchmark_time
     )  # sleep during the benchmark which is indicated based on the benchmark detected.
 
-    result = kerasService.look_for_word("overall", attempts=20, interval=1)
+    result = kerasService.wait_for_word("overall", timeout=20, interval=1)
     if not result:
         logging.info("Did not find the overall FPS score. Did the benchmark crash?")
         raise RuntimeError("Benchmark failed.")

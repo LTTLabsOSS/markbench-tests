@@ -1,4 +1,4 @@
-"""F1 23 test script"""
+"""F1 25 test script"""
 
 import logging
 import os.path
@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 import pydirectinput as user
-from f1_23_utils import get_resolution
+from f1_25_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -23,7 +23,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.steam import (
     exec_steam_run_command,
     get_app_install_location,
@@ -32,17 +32,18 @@ from harness_utils.steam import (
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-PROCESS_NAME = "F1_23"
-STEAM_GAME_ID = 2108330
+PROCESS_NAME = "F1_25"
+STEAM_GAME_ID = 3059520
 VIDEO_PATH = Path(get_app_install_location(STEAM_GAME_ID)) / "videos"
 
 username = os.getlogin()
-CONFIG_PATH = f"C:\\Users\\{username}\\Documents\\My Games\\F1 23\\hardwaresettings"
+CONFIG_PATH = f"C:\\Users\\{username}\\Documents\\My Games\\F1 25\\hardwaresettings"
 CONFIG_FILENAME = "hardware_settings_config.xml"
 CONFIG = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
-BENCHMARK_RESULTS_PATH = f"C:\\Users\\{username}\\Documents\\My Games\\F1 23\\benchmark"
+BENCHMARK_RESULTS_PATH = f"C:\\Users\\{username}\\Documents\\My Games\\F1 25\\benchmark"
 
 intro_videos = [VIDEO_PATH / "attract.bk2", VIDEO_PATH / "cm_f1_sting.bk2"]
+user.FAILSAFE = False
 
 
 def find_latest_result_file(base_path):
@@ -56,18 +57,18 @@ def find_latest_result_file(base_path):
     return max(result_files, key=lambda path: path.stat().st_mtime)
 
 
-def find_settings() -> any:
+def find_settings():
     """Look for and enter settings"""
-    if not kerasService.look_for_word("settings", attempts=5, interval=3):
+    if not kerasService.wait_for_word("settings", interval=3, timeout=15):
         logging.info("Didn't find settings!")
         sys.exit(1)
     user.press("enter")
     time.sleep(1.5)
 
 
-def find_graphics() -> any:
+def find_graphics():
     """Look for and enter graphics settings"""
-    if not kerasService.look_for_word("graphics", attempts=5, interval=3):
+    if not kerasService.wait_for_word("graphics", interval=3, timeout=15):
         logging.info("Didn't find graphics!")
         sys.exit(1)
     user.press("right")
@@ -78,7 +79,7 @@ def find_graphics() -> any:
 
 def navigate_startup():
     """press space through the warnings and navigate startup menus"""
-    result = kerasService.wait_for_word("product", timeout=40)
+    result = kerasService.wait_for_word("product", timeout=80)
     if not result:
         logging.info("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
@@ -97,15 +98,36 @@ def navigate_startup():
         sys.exit(1)
 
     logging.info("Hit the title screen. Continuing")
+    time.sleep(1)
     user.press("enter")
     time.sleep(1)
 
     # cancel logging into ea services
-    result = kerasService.wait_for_word("login", timeout=50)
+    result = kerasService.wait_for_word("login", timeout=10)
     if result:
+        time.sleep(1)
         logging.info("Cancelling logging in.")
         user.press("enter")
         time.sleep(2)
+
+    # acknowledge services error
+    result = kerasService.wait_for_word("services", timeout=10)
+    if result:
+        time.sleep(1)
+        logging.info("Acknowledging services error")
+        user.press("enter")
+        time.sleep(2)
+
+
+def offline_menu():
+    result = kerasService.wait_for_word("network", timeout=10)
+    if not result:
+        logging.info("Didn't find the keyword 'network'")
+        return
+    time.sleep(1)
+    user.press("down")
+    time.sleep(0.5)
+    user.press("enter")
 
 
 def run_benchmark():
@@ -115,8 +137,10 @@ def run_benchmark():
     am = ArtifactManager(LOG_DIRECTORY)
 
     setup_start_time = int(time.time())
-    time.sleep(2)
+    time.sleep(20)
+
     navigate_startup()
+    offline_menu()
 
     # Navigate menus and take screenshots using the artifact manager
     result = kerasService.wait_for_word("theatre", interval=3, timeout=60)
@@ -124,13 +148,11 @@ def run_benchmark():
         logging.info("Didn't land on the main menu!")
         sys.exit(1)
 
-    logging.info("Saw the options! we are good to go!")
+    logging.info("Main screen detected.")
     time.sleep(1)
 
-    press_n_times("down", 7, 0.2)
-    user.press("enter")
+    user.press("tab")
     time.sleep(2)
-    find_settings()
     find_graphics()
 
     # Navigate to video settings
@@ -144,6 +166,8 @@ def run_benchmark():
             "Didn't find the keyword 'vsync'. Did the program navigate to the video mode menu correctly?"
         )
         sys.exit(1)
+    press_n_times("down", 18, 0.2)
+
     am.take_screenshot(
         "video.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings menu"
     )
@@ -163,12 +187,12 @@ def run_benchmark():
         ArtifactType.CONFIG_IMAGE,
         "first screenshot of graphics settings",
     )
-    press_n_times("down", 30, 0.2)
+    press_n_times("down", 29, 0.2)
 
-    result = kerasService.wait_for_word("chromatic", interval=3, timeout=60)
+    result = kerasService.wait_for_word("hair", interval=3, timeout=60)
     if not result:
         logging.info(
-            "Didn't find the keyword 'chromatic'. Did we navigate the menu correctly?"
+            "Didn't find the keyword 'hair'. Did we navigate the menu correctly?"
         )
         sys.exit(1)
 
@@ -177,12 +201,12 @@ def run_benchmark():
         ArtifactType.CONFIG_IMAGE,
         "second screenshot of graphics settings",
     )
-    press_n_times("up", 29, 0.2)
+    press_n_times("up", 28, 0.2)
     user.press("enter")
     time.sleep(0.2)
 
     # Navigate benchmark menu
-    if not kerasService.look_for_word("weather", attempts=5, interval=3):
+    if not kerasService.wait_for_word("weather", interval=3, timeout=15):
         logging.info("Didn't find weather!")
         sys.exit(1)
 
@@ -242,7 +266,7 @@ def run_benchmark():
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
 
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     am.create_manifest()
 
     return test_start_time, test_end_time
@@ -274,5 +298,5 @@ try:
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     sys.exit(1)

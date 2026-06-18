@@ -21,7 +21,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.steam import (
     exec_steam_game,
     get_build_id,
@@ -58,14 +58,6 @@ def wait_for_word(keras_service, word, timeout=30, interval=1, why: str = ""):
     result = keras_service.wait_for_word(word, timeout=timeout, interval=interval)
     if not result:
         raise RuntimeError(f"Did not find {word} to {why}")
-    return result
-
-
-def look_for_word(keras_service, word, attempts=10, interval=1, why: str = ""):
-    """Function for looking for word"""
-    result = keras_service.look_for_word(word, attempts=attempts, interval=interval)
-    if not result:
-        raise RuntimeError(f"Did not find {word} to {why}.")
     return result
 
 
@@ -126,8 +118,8 @@ def identify_settings():
 def navigate_settings(keras_service, am):
     """Navigates the settings menu and takes screenshots for traceability"""
 
-    result = look_for_word(
-        keras_service, word="video", why="find the video menu button"
+    result = wait_for_word(
+        keras_service, word="video", timeout=10, interval=1, why="find the video menu button"
     )
 
     gui.moveTo(result["x"], result["y"])
@@ -142,8 +134,8 @@ def navigate_settings(keras_service, am):
         "video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings"
     )
 
-    result = look_for_word(
-        keras_service, word="advanced", why="find the advanced video menu"
+    result = wait_for_word(
+        keras_service, word="advanced", timeout=10, interval=1, why="find the advanced video menu"
     )
 
     gui.moveTo(result["x"], result["y"])
@@ -158,8 +150,8 @@ def navigate_settings(keras_service, am):
         "first picture of advanced video settings",
     )
 
-    result = look_for_word(
-        keras_service, word="boost", why="identify we're in the advanced video menu"
+    result = wait_for_word(
+        keras_service, word="boost", timeout=10, interval=1, why="identify we're in the advanced video menu"
     )
 
     gui.moveTo(result["x"], result["y"])
@@ -180,7 +172,7 @@ def execute_benchmark(keras_service):
     """Starts the benchmark"""
     logging.info("Starting benchmark")
 
-    result = look_for_word(keras_service, word="play", why="click the play tab")
+    result = wait_for_word(keras_service, word="play", timeout=10, interval=1, why="click the play tab")
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -188,7 +180,7 @@ def execute_benchmark(keras_service):
     gui.mouseUp()
     time.sleep(0.2)
 
-    result = look_for_word(keras_service, word="workshop", why="click the workshop tab")
+    result = wait_for_word(keras_service, word="workshop", timeout=10, interval=1, why="click the workshop tab")
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -196,7 +188,7 @@ def execute_benchmark(keras_service):
     gui.mouseUp()
     time.sleep(0.2)
 
-    result = look_for_word(keras_service, word="fps", why="click the benchmark icon")
+    result = wait_for_word(keras_service, word="fps", timeout=10, interval=1, why="click the benchmark icon")
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -204,7 +196,7 @@ def execute_benchmark(keras_service):
     gui.mouseUp()
     time.sleep(0.2)
 
-    result = look_for_word(keras_service, word="go", why="start the benchmark")
+    result = wait_for_word(keras_service, word="go", timeout=10, interval=1, why="start the benchmark")
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -277,7 +269,7 @@ def run_benchmark(keras_service):
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     am.create_manifest()
 
     return test_start_time, test_end_time
@@ -324,4 +316,4 @@ if __name__ == "__main__":
         logging.exception(ex)
         sys.exit(1)
     finally:
-        terminate_processes(PROCESS_NAME)
+        terminate_process(PROCESS_NAME)
