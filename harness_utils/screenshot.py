@@ -122,10 +122,10 @@ def capture_screenshot_png_bytes(vulkan: bool = False):
     """Capture a screenshot and encode it as PNG bytes."""
     if is_linux():
         return io.BytesIO(_run_spectacle_png_bytes())
+    else:
+        screenshot = capture_screenshot_array(vulkan)
+        if screenshot is None:
+            return None
 
-    screenshot = capture_screenshot_array(vulkan)
-    if screenshot is None:
-        return None
-
-    _, encoded_image = cv2.imencode(".png", screenshot)
+        _, encoded_image = cv2.imencode(".png", screenshot)
     return io.BytesIO(encoded_image)
