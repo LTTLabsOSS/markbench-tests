@@ -146,8 +146,8 @@ def run_benchmark():
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %.2f seconds", elapsed_test_time)
 
-    for proc_name in PROCESSES:
-        terminate_process(proc_name)
+    for process_name in PROCESSES:
+        terminate_process(process_name)
     return test_start_time, test_end_time
 
 
