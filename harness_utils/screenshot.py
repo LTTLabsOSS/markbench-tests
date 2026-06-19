@@ -2,7 +2,6 @@
 
 import io
 import logging
-import os
 import subprocess
 import tempfile
 from pathlib import Path
@@ -16,7 +15,7 @@ from harness_utils.platform import is_linux, is_windows
 logger = logging.getLogger(__name__)
 
 
-def _run_spectacle(output_path: Path) -> None:
+def _run_spectacle(output_path: Path):
     logger.debug("KDE Spectacle screenshot output=%s", output_path)
     subprocess.run(
         [
@@ -89,17 +88,13 @@ def _take_mss_file(output_path: Path) -> None:
         sct.shot(output=str(output_path))
 
 
-def take_screenshot_file(output_path: str | os.PathLike) -> None:
+def capture_screenshot_file(output_path: Path):
     """Capture a screenshot to a file."""
-    path = Path(output_path)
-    logger.debug("Capturing screenshot file output=%s", path)
+    logger.debug("Capturing screenshot file output=%s", output_path)
     if is_windows():
-        _take_mss_file(path)
-        return
-    if is_linux():
-        _run_spectacle(path)
-        return
-    raise RuntimeError("Screenshot capture is only supported on Windows and Linux")
+        _take_dxcam_file(output_path)
+    else:
+        _run_spectacle(output_path)
 
 
 def capture_screenshot_array(vulkan: bool = False) -> np.ndarray | None:
@@ -123,7 +118,7 @@ def capture_screenshot_jpg_bytes(vulkan: bool = False) -> io.BytesIO | None:
     return io.BytesIO(encoded_image)
 
 
-def capture_screenshot_png_bytes(vulkan: bool = False) -> io.BytesIO | None:
+def capture_screenshot_png_bytes(vulkan: bool = False):
     """Capture a screenshot and encode it as PNG bytes."""
     if is_linux():
         return io.BytesIO(_run_spectacle_png_bytes())

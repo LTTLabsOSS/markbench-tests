@@ -83,9 +83,9 @@ def run_benchmark():
         sys.exit(1)
 
     if is_linux():
-        user.click(0, 0)
         mangohud_log_toggle()
 
+    user.move_mouse(0, 0)
     logging.info("At main menu. Pressing x for options.")
     user.press("x")
 
@@ -174,6 +174,7 @@ def run_benchmark():
 
     if is_linux():
         mangohud_log_toggle()
+        user.move_mouse(0, 0)
 
     terminate_game_processes()
     return test_start_time, test_end_time
