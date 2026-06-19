@@ -95,7 +95,6 @@ def capture_screenshot_file(output_path: Path):
         _take_dxcam_file(output_path)
     else:
         _run_spectacle(output_path)
-    return None
 
 
 def capture_screenshot_array(vulkan: bool = False) -> np.ndarray | None:
@@ -123,10 +122,10 @@ def capture_screenshot_png_bytes(vulkan: bool = False):
     """Capture a screenshot and encode it as PNG bytes."""
     if is_linux():
         return io.BytesIO(_run_spectacle_png_bytes())
-    else:
-        screenshot = capture_screenshot_array(vulkan)
-        if screenshot is None:
-            return None
 
-        _, encoded_image = cv2.imencode(".png", screenshot)
+    screenshot = capture_screenshot_array(vulkan)
+    if screenshot is None:
+        return None
+
+    _, encoded_image = cv2.imencode(".png", screenshot)
     return io.BytesIO(encoded_image)
