@@ -64,6 +64,7 @@ def _capture_dxcam_array() -> np.ndarray | None:
     screenshot = camera.grab()
     if screenshot is None:
         return None
+    camera.release()
     return np.array(screenshot)
 
 
