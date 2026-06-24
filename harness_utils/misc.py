@@ -10,12 +10,18 @@ from argparse import ArgumentParser
 from pathlib import Path
 from zipfile import ZipFile
 
-import pyautogui as gui
-import pydirectinput as user
 import requests
 import vgamepad as vg
 
+from harness_utils.input import user
+
 user.FAILSAFE = False
+
+
+def _pyautogui():
+    import pyautogui as gui
+
+    return gui
 
 
 class LTTGamePad360(vg.VX360Gamepad):
@@ -157,24 +163,12 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
 
 def clickme(x: int, y: int):
     """Pyautogui's click function sucks, this should do the trick"""
+    gui = _pyautogui()
     gui.moveTo(x, y)
     time.sleep(0.2)
     gui.mouseDown()
     time.sleep(0.2)
     gui.mouseUp()
-
-
-def mouse_scroll_n_times(n: int, scroll_amount: int, pause: float):
-    """
-    Pyautogui's mouse scroll function often fails to actually scroll in game menus, this functions solves that problem
-
-    n --> the number of times you want to scroll, should be a positive integer
-    scroll_amount --> positive is scroll up, negative is scroll down
-    pause --> the amount of time to pause between subsequent scrolls
-    """
-    for _ in range(n):
-        gui.vscroll(scroll_amount)
-        time.sleep(pause)
 
 
 def int_time() -> int:
@@ -222,7 +216,7 @@ def extract_file_from_archive(
         zip_object.extract(member_path, path=destination_dir)
 
 
-def find_eg_game_version(gamefoldername: str) -> str:
+def find_eg_game_version(gamefoldername: str) -> str | None:
     """Find the version of the specific game (e.g., AlanWake2) from the launcher installed data."""
     installerdat = r"C:\ProgramData\Epic\UnrealEngineLauncher\LauncherInstalled.dat"
 

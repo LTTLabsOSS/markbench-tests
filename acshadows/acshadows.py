@@ -22,7 +22,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
 USERNAME = getpass.getuser()
@@ -235,7 +235,7 @@ def run_benchmark(keras_service):
 
     time.sleep(5)
 
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
 
     am.create_manifest()
 
@@ -277,5 +277,5 @@ if __name__ == "__main__":
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")
         logging.exception(ex)
-        terminate_processes(PROCESS_NAME)
+        terminate_process(PROCESS_NAME)
         sys.exit(1)

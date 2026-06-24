@@ -21,7 +21,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.steam import (
     exec_steam_run_command,
     get_build_id,
@@ -61,8 +61,8 @@ def check_vram_alert(attempts: int) -> bool:
     """Look for VRAM alert in menu"""
     logging.info("Checking for VRAM alert prompt")
     for _ in range(attempts):
-        alert_result = kerasService.look_for_word("alert")
-        locate_result = kerasService.look_for_word("locate")
+        alert_result = kerasService.wait_for_word("alert")
+        locate_result = kerasService.wait_for_word("locate")
         if locate_result is not None:
             return False
         if alert_result is not None:
@@ -112,7 +112,7 @@ def run_benchmark() -> tuple[float]:
         escape_vram_alert()
 
     # Make sure the game started correctly
-    result = kerasService.look_for_word("locate", 10, 5)
+    result = kerasService.wait_for_word("locate", interval=5, timeout=50)
     if not result:
         logging.info("Could not find prompt to open menu!")
         sys.exit(1)
@@ -226,7 +226,7 @@ def run_benchmark() -> tuple[float]:
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %s seconds", elapsed_test_time)
 
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     am.create_manifest()
 
     return test_start_time, test_end_time
@@ -251,5 +251,5 @@ try:
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     sys.exit(1)

@@ -102,7 +102,7 @@ result = keras_service.wait_for_word("options", timeout=30, interval=1)
 
 # this will send a screenshot to keras every 1 second ato keras and look for the word "continue" in it
 # this function call will block until it has tried 20 times
-result = keras_service.look_for_word("continue", attempts=20, interval=1)
+result = keras_service.wait_for_word("continue", timeout=20, interval=1)
 ```
 
 You can optionally check only half the screen, or 1/4 of the screen. This shrinks the amount of screenshot that Keras has to search for a word which means a faster result time.
@@ -113,7 +113,7 @@ First import ScreenSplitConfig, ScreenShotDivideMethod, and ScreenShotQuadrant
 from harness_utils.keras_service import KerasService, ScreenSplitConfig, ScreenShotDivideMethod, ScreenShotQuadrant
 ```
 
-Then create your ScreenSplitConfig object and pass it to the look_for_word or wait_for_word functions.
+Then create your ScreenSplitConfig object and pass it to the wait_for_word function.
 
 ```python
 # this config will split the screen horizontally and look in the top of the screen

@@ -27,7 +27,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.steam import get_app_install_location
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -77,7 +77,7 @@ def run_benchmark(keras_host, keras_port):
         )
         sys.exit(1)
 
-    result = keras_service.look_for_word("settings", attempts=10, interval=1)
+    result = keras_service.wait_for_word("settings", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the settings button. Is there something wrong on the screen?"
@@ -95,7 +95,7 @@ def run_benchmark(keras_host, keras_port):
     time.sleep(0.2)
     user.press("esc")
 
-    result = keras_service.look_for_word("load", attempts=10, interval=1)
+    result = keras_service.wait_for_word("load", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the load save menu. Is there something wrong on the screen?"
@@ -109,7 +109,7 @@ def run_benchmark(keras_host, keras_port):
     gui.mouseUp()
     time.sleep(2)
 
-    result = keras_service.look_for_word("latest", attempts=10, interval=1)
+    result = keras_service.wait_for_word("latest", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the load latest save button. Did keras click correctly?"
@@ -130,7 +130,7 @@ def run_benchmark(keras_host, keras_port):
         )
         sys.exit(1)
 
-    result = keras_service.look_for_word("overview", attempts=10, interval=1)
+    result = keras_service.wait_for_word("overview", timeout=10, interval=1)
     if not result:
         logging.info("Did not find the overview in the corner. Did the game load?")
         sys.exit(1)
@@ -169,7 +169,7 @@ def run_benchmark(keras_host, keras_port):
     # Exit
     score = find_score_in_log()
     logging.info("The one year passed in %s seconds", score)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     am.create_manifest()
 
     return test_start_time, test_end_time, score
@@ -215,5 +215,5 @@ if __name__ == "__main__":
     except Exception as ex:
         logging.error("Something went wrong running the benchmark!")
         logging.exception(ex)
-        terminate_processes(PROCESS_NAME)
+        terminate_process(PROCESS_NAME)
         sys.exit(1)

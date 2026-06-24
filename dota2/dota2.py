@@ -26,7 +26,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -107,7 +107,7 @@ def screenshot_settings():
     gui.mouseUp()
     time.sleep(0.2)
 
-    result = kerasService.look_for_word(word="video", attempts=10, interval=1)
+    result = kerasService.wait_for_word(word="video", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the video menu button. Did Keras enter settings correctly?"
@@ -227,7 +227,7 @@ def run_benchmark():
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     am.create_manifest()
     return test_start_time, test_end_time
 
@@ -245,5 +245,5 @@ try:
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     sys.exit(1)

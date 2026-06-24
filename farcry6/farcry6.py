@@ -18,14 +18,14 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.keras_service import KerasService
-from harness_utils.misc import mouse_scroll_n_times, press_n_times
+from harness_utils.input import mouse_scroll_n_times, press_n_times
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
@@ -57,14 +57,14 @@ def run_benchmark():
     time.sleep(25)
 
     # skipping game intros
-    result = kerasService.look_for_word("government", attempts=20, interval=1)
+    result = kerasService.wait_for_word("government", timeout=20, interval=1)
     if not result:
         logging.info("Did not see 'government'. Did the game start?")
         sys.exit(1)
 
     skip_logo_screens()
 
-    result = kerasService.look_for_word("original", attempts=20, interval=1)
+    result = kerasService.wait_for_word("original", timeout=20, interval=1)
     if not result:
         logging.info("Did not see the Far Cry 6 intro video. Did the game crash?")
         sys.exit(1)
@@ -75,11 +75,11 @@ def run_benchmark():
     time.sleep(2)
 
     # navigating the menus to get to the video settings
-    result = kerasService.look_for_word("later", attempts=5, interval=1)
+    result = kerasService.wait_for_word("later", timeout=5, interval=1)
     if result:
         user.press("escape")
 
-    result = kerasService.look_for_word("options", attempts=10, interval=1)
+    result = kerasService.wait_for_word("options", timeout=10, interval=1)
     if not result:
         logging.info("Did not find the main menu. Did the game skip the intros?")
         sys.exit(1)
@@ -91,7 +91,7 @@ def run_benchmark():
     gui.mouseUp()
     time.sleep(2)
 
-    result = kerasService.look_for_word("video", attempts=10, interval=1)
+    result = kerasService.wait_for_word("video", timeout=10, interval=1)
     if not result:
         logging.info("Did not find the options menu. Did keras click incorrectly?")
         sys.exit(1)
@@ -104,7 +104,7 @@ def run_benchmark():
     time.sleep(2)
 
     # grabbing screenshots of all the video settings
-    result = kerasService.look_for_word("adapter", attempts=10, interval=1)
+    result = kerasService.wait_for_word("adapter", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the Video Adapter setting in the monitor options. Did keras navigate wrong?"
@@ -119,7 +119,7 @@ def run_benchmark():
 
     user.press("e")
 
-    result = kerasService.look_for_word("filtering", attempts=10, interval=1)
+    result = kerasService.wait_for_word("filtering", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the Texture Filtering setting in the quality options. Did keras navigate wrong?"
@@ -134,7 +134,7 @@ def run_benchmark():
 
     mouse_scroll_n_times(8, -800, 0.2)
 
-    result = kerasService.look_for_word("shading", attempts=10, interval=1)
+    result = kerasService.wait_for_word("shading", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the FidelityFX Variable Shading setting in the quality options. Did keras navigate wrong?"
@@ -149,7 +149,7 @@ def run_benchmark():
 
     press_n_times("e", 2, 0.2)
 
-    result = kerasService.look_for_word("lock", attempts=10, interval=1)
+    result = kerasService.wait_for_word("lock", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the Enable Framerate Lock setting in the advanced options. Did keras navigate wrong?"
@@ -166,7 +166,7 @@ def run_benchmark():
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
-    result = kerasService.look_for_word("toggle", attempts=10, interval=1)
+    result = kerasService.wait_for_word("toggle", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the toggle ui button in the lower right. Did the benchmark crash?"
@@ -190,7 +190,7 @@ def run_benchmark():
     time.sleep(1)
 
     # Exit
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     am.copy_file(XML_FILE, ArtifactType.CONFIG_TEXT, "config file")
     am.create_manifest()
 
@@ -223,5 +223,5 @@ try:
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     sys.exit(1)

@@ -29,7 +29,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
@@ -79,7 +79,7 @@ def safe_terminate(process_names: list[str]):
     """Terminate multiple processes safely."""
     for pname in process_names:
         try:
-            terminate_processes(pname)
+            terminate_process(pname)
         except Exception as e:
             logging.info(
                 "Process '%s' could not be terminated (may not exist): %s", pname, e
