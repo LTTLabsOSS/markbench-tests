@@ -81,6 +81,7 @@ def run_benchmark():
     benchmark_result = find_word(word="benchmark", timeout=30, interval=1)
     if benchmark_result and is_linux():
         user.move_mouse(benchmark_result["x"], benchmark_result["y"])
+    time.sleep(3)
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
     time.sleep(0.5)
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
