@@ -21,7 +21,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.steam import (
     exec_steam_run_command,
     get_build_id,
@@ -166,7 +166,7 @@ def run_benchmark() -> tuple[float]:
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %s seconds", elapsed_test_time)
 
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     am.create_manifest()
     time.sleep(15)
     return test_start_time, test_end_time
@@ -191,5 +191,5 @@ try:
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     sys.exit(1)

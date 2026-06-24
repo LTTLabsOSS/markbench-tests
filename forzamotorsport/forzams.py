@@ -20,7 +20,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.rtss import copy_rtss_profile, start_rtss_process
 from harness_utils.steam import exec_steam_run_command, get_build_id
 
@@ -47,7 +47,7 @@ def start_rtss():
     return start_rtss_process()
 
 
-def run_benchmark() -> tuple[float]:
+def run_benchmark() -> tuple[int, int]:
     """Run the benchmark"""
     start_rtss()
     # Give RTSS time to start
@@ -161,7 +161,8 @@ def run_benchmark() -> tuple[float]:
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %s seconds", elapsed_test_time)
 
-    terminate_processes(*PROCESSES)
+    for proc_name in PROCESSES:
+        terminate_process(proc_name)
     am.create_manifest()
 
     return test_start_time, test_end_time
@@ -186,5 +187,6 @@ try:
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
-    terminate_processes(*PROCESSES)
+    for process_name in PROCESSES:
+        terminate_process(process_name)
     sys.exit(1)

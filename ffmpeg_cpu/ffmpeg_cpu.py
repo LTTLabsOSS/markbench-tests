@@ -177,7 +177,7 @@ def main():  # pylint: disable=too-many-locals too-many-branches
             "test_parameter": str(args.encoder),
             "architecture": args.architecture,
             "ffmpeg_build": FFMPEG_BUILD,
-            "encoding_fps": encoding_fps,
+            "score": encoding_fps,
             "unit": "frames per second",
             "encoding_duration": logged_encoding_duration_seconds,
             "start_time": start_encoding_time,

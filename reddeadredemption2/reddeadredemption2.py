@@ -22,7 +22,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_run_command, get_build_id
 
 STEAM_GAME_ID = 1174180
@@ -52,13 +52,13 @@ def run_benchmark():
     time.sleep(80)
 
     # patch to look for seasonal popup
-    result = kerasService.look_for_word_vulkan("strange", attempts=30, interval=1)
+    result = kerasService.wait_for_word_vulkan("strange", timeout=30)
     if result:
         user.press("enter")
         time.sleep(3)
 
     # Press Z to enter settings
-    result = kerasService.look_for_word_vulkan("settings", attempts=30, interval=1)
+    result = kerasService.wait_for_word_vulkan("settings", timeout=30)
     if not result:
         logging.info("Did not find the settings menu. Did the game launch?")
         sys.exit(1)
@@ -67,7 +67,7 @@ def run_benchmark():
 
     # Enter graphics menu
     ## ensure we are starting from the top left of the screen
-    result = kerasService.look_for_word_vulkan("graphics", attempts=5, interval=1)
+    result = kerasService.wait_for_word_vulkan("graphics", timeout=5)
     if not result:
         logging.info("Did not find the graphics menu. Did keras get stuck?")
         sys.exit(1)
@@ -80,7 +80,7 @@ def run_benchmark():
     time.sleep(3)
 
     # Take pictures of the graphics settings
-    result = kerasService.look_for_word_vulkan("resolution", attempts=5, interval=1)
+    result = kerasService.wait_for_word_vulkan("resolution", timeout=5)
     if not result:
         logging.info(
             "Did not find the resolution setting. Did the game navigate correctly?"
@@ -90,12 +90,12 @@ def run_benchmark():
         "Graphics1.png", ArtifactType.RESULTS_IMAGE, "1st Graphics Screenshot"
     )
 
-    result = kerasService.look_for_word_vulkan("nvidia", attempts=5, interval=1)
+    result = kerasService.wait_for_word_vulkan("nvidia", timeout=5)
     if result:
         logging.info("NVIDIA card is installed, navigating accordingly.")
         press_n_times("down", 26, 0.2)
 
-        result = kerasService.look_for_word_vulkan("mode", attempts=5, interval=1)
+        result = kerasService.wait_for_word_vulkan("mode", timeout=5)
         if not result:
             logging.info(
                 "Did not find the FSR mode description. Did it navigate correctly?"
@@ -106,7 +106,7 @@ def run_benchmark():
         )
         press_n_times("down", 14, 0.2)
 
-        result = kerasService.look_for_word_vulkan("long", attempts=5, interval=1)
+        result = kerasService.wait_for_word_vulkan("long", timeout=5)
         if not result:
             logging.info(
                 "Did not find the Long Shadows settings. Did it navigate correctly?"
@@ -117,9 +117,7 @@ def run_benchmark():
         )
         press_n_times("down", 15, 0.2)
 
-        result = kerasService.look_for_word_vulkan(
-            "tessellation", attempts=5, interval=1
-        )
+        result = kerasService.wait_for_word_vulkan("tessellation", timeout=5)
         if not result:
             logging.info(
                 "Did not find the Tree Tessellation settings. Did Keras navigate correctly?"
@@ -133,7 +131,7 @@ def run_benchmark():
         logging.info("NVIDIA card not detected on screen, navigating accordingly.")
         press_n_times("down", 26, 0.2)
 
-        result = kerasService.look_for_word_vulkan("msaa", attempts=5, interval=1)
+        result = kerasService.wait_for_word_vulkan("msaa", timeout=5)
         if not result:
             logging.info(
                 "Did not find the MSAA settings. Did Keras navigate correctly?"
@@ -144,7 +142,7 @@ def run_benchmark():
         )
         press_n_times("down", 14, 0.2)
 
-        result = kerasService.look_for_word_vulkan("reflection", attempts=5, interval=1)
+        result = kerasService.wait_for_word_vulkan("reflection", timeout=5)
         if not result:
             logging.info(
                 "Did not find the Water Reflection Quality settings. Did Keras navigate correctly?"
@@ -155,9 +153,7 @@ def run_benchmark():
         )
         press_n_times("down", 12, 0.2)
 
-        result = kerasService.look_for_word_vulkan(
-            "tessellation", attempts=5, interval=1
-        )
+        result = kerasService.wait_for_word_vulkan("tessellation", timeout=5)
         if not result:
             logging.info(
                 "Did not find the Tree Tessellation settings. Did Keras navigate correctly?"
@@ -168,7 +164,7 @@ def run_benchmark():
         )
 
     # Run benchmark by holding X for 2 seconds
-    result = kerasService.look_for_word_vulkan("benchmark", attempts=5, interval=1)
+    result = kerasService.wait_for_word_vulkan("benchmark", timeout=5)
     if not result:
         logging.info(
             "Did not see the Run Benchmark Test at the bottom of the screen. Did navigation mess up?"
@@ -184,7 +180,7 @@ def run_benchmark():
     user.press("enter")
 
     # Looking for the word Stop to mark the in time
-    result = kerasService.look_for_word_vulkan("stop", attempts=60, interval=1)
+    result = kerasService.wait_for_word_vulkan("stop", timeout=60, interval = 1)
     if not result:
         logging.info(
             "Did not find the stop benchmarking in the corner. Did the benchmark crash?"
@@ -194,7 +190,7 @@ def run_benchmark():
 
     # Wait for the benchmark to complete
     time.sleep(270)  # 4 min, 30 seconds.
-    result = kerasService.look_for_word_vulkan("end", attempts=30, interval=1)
+    result = kerasService.wait_for_word_vulkan("end", timeout=30, interval=1)
     if not result:
         logging.info("Did not find the end results screen. Did the benchmark crash?")
         sys.exit(1)
@@ -207,7 +203,7 @@ def run_benchmark():
     am.copy_file(Path(CONFIG_FULL_PATH), ArtifactType.RESULTS_TEXT, "system.xml")
 
     # Exit
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     am.create_manifest()
     time.sleep(50)  # sleeping to let the rockstar processes finish closing
     return test_start_time, test_end_time
@@ -239,5 +235,5 @@ try:
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     sys.exit(1)

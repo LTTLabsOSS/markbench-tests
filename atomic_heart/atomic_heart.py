@@ -22,7 +22,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.steam import (
     exec_steam_run_command,
     get_app_install_location,
@@ -108,7 +108,7 @@ def run_benchmark():
     user.press("space")
 
     # This is for the menu checking for if there's a continue option
-    result = kerasService.look_for_word("continue", attempts=20, interval=1)
+    result = kerasService.wait_for_word("continue", timeout=20, interval=1)
     if result:
         logging.info("Continue option available, navigating accordingly.")
         press_n_times("s", 3, 0.5)
@@ -191,7 +191,7 @@ def run_benchmark():
     logging.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Exit
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     am.create_manifest()
 
     return test_start_time, test_end_time
@@ -223,5 +223,5 @@ try:
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     sys.exit(1)

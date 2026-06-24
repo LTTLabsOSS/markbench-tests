@@ -28,7 +28,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.steam import (
     exec_steam_run_command,
     get_app_install_location,
@@ -67,7 +67,7 @@ def run_benchmark():
     time.sleep(30)
     am = ArtifactManager(LOG_DIRECTORY)
 
-    result = kerasService.look_for_word_vulkan("options", attempts=30, interval=1)
+    result = kerasService.wait_for_word_vulkan("options", timeout=30)
     if not result:
         logging.info("Did not find the options menu. Did the game launch?")
         sys.exit(1)
@@ -77,14 +77,14 @@ def run_benchmark():
     time.sleep(0.2)
     user.press("enter")
 
-    result = kerasService.look_for_word_vulkan("display", attempts=10, interval=1)
+    result = kerasService.wait_for_word_vulkan("display", timeout=10)
     if not result:
         logging.info("Did not find the display menu. Did keras navigate correctly?")
         sys.exit(1)
 
     gui.press("pgdn")
 
-    result = kerasService.look_for_word_vulkan("customise", attempts=10, interval=1)
+    result = kerasService.wait_for_word_vulkan("customise", timeout=10)
     if not result:
         logging.info(
             "Did not find the customize graphics detail option. Did navigate correctly?"
@@ -139,7 +139,7 @@ def run_benchmark():
     logging.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Exit
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     am.create_manifest()
     time.sleep(5)
     restore_exe()
@@ -173,5 +173,5 @@ try:
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     sys.exit(1)

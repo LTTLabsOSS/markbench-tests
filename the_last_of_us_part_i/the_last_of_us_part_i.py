@@ -21,7 +21,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.process import terminate_processes
+from harness_utils.process import terminate_process
 from harness_utils.steam import (
     exec_steam_run_command,
     get_registry_active_user,
@@ -241,7 +241,7 @@ def run_benchmark():
     navigate_main_menu(am)
 
     # press load save
-    result = kerasService.look_for_word("yes", attempts=10, interval=1)
+    result = kerasService.wait_for_word("yes", timeout=10, interval=1)
     if not result:
         logging.info("Did not load the save")
         sys.exit(1)
@@ -279,7 +279,7 @@ def run_benchmark():
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     time.sleep(3)
 
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
 
     am.create_manifest()
 
@@ -316,5 +316,5 @@ try:
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
-    terminate_processes(PROCESS_NAME)
+    terminate_process(PROCESS_NAME)
     sys.exit(1)

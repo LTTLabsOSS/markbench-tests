@@ -1,4 +1,4 @@
-"""Utility functions supporting F1 24 test script."""
+"""Utility functions supporting F1 25 test script."""
 
 import re
 import sys
@@ -9,7 +9,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.paths import user_documents
 
-STEAM_GAME_ID = 2488620
+STEAM_GAME_ID = 3059520
 
 
 def get_resolution() -> tuple[int, int]:
@@ -17,14 +17,14 @@ def get_resolution() -> tuple[int, int]:
     cfg = (
         user_documents(STEAM_GAME_ID)
         / "My Games"
-        / "F1 24"
+        / "F1 25"
         / "hardwaresettings"
         / "hardware_settings_config.xml"
     )
     resolution = re.compile(r'<resolution width="(\d+)" height="(\d+)"')
     height = 0
     width = 0
-    with cfg.open(encoding="utf-8") as file:
+    with open(cfg, encoding="utf-8") as file:
         lines = file.readlines()
         for line in lines:
             match = resolution.search(line)
