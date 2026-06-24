@@ -129,13 +129,13 @@ def main():
         "end_time": seconds_to_milliseconds(end_time),
         "unit": "Score",
         "score": scores["Ray tracing"], # Just using Ray Tracing as score field for now. Need to process other score values later.
-        "Raytracing": scores["Ray tracing"],
+        "Raytracing": scores["Ray Tracing"],
         "Acceleration Structure Builds": scores["Acceleration Structure Builds"],
         "Rasterization": scores["Rasterization"],
         "Compute": scores["Compute"],
-        "Workgraphs": scores["Workgraphs"],
+        "Workgraphs": scores["Work Graphs"],
         "Driver": scores["Driver"],
-        "Energy": scores["Energy"],
+        "Energy": scores["Energy Consumption"],
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
