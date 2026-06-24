@@ -73,15 +73,19 @@ def run_benchmark():
     if find_word(word="black", timeout=30, interval=1) is None:
         logging.info("Did not find the welcome screen. Did the game launch correctly?")
         sys.exit(1)
+    time.sleep(5)
     if is_linux():
         mangohud_log_toggle()
     else:
         gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
 
     benchmark_result = find_word(word="benchmark", timeout=30, interval=1)
-    if benchmark_result and is_linux():
+    if benchmark_result is None:
+        logging.info("did not find main menu")
+        sys.exit(1)
+    if is_linux():
         user.move_mouse(benchmark_result["x"], benchmark_result["y"])
-    time.sleep(3)
+    time.sleep(1)
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
     time.sleep(0.5)
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
