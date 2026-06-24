@@ -105,6 +105,10 @@ def navigate_startup():
         user.press("enter")
         time.sleep(2)
 
+    if find_word("chat", timeout=3) is not None:
+        time.sleep(1)
+        user.press("enter")
+        time.sleep(1)
     # acknowledge services error
     result = find_word("services", timeout=10)
     if result:
