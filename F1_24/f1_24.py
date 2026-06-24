@@ -106,7 +106,7 @@ def navigate_startup():
 
 def offline_menu():
     """Navigateout of the offline menu"""
-    result = find_word("network", timeout=20)
+    result = find_word("services", timeout=20)
     if not result:
         logging.info("Didn't find the keyword 'network'")
         return
