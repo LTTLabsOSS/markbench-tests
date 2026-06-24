@@ -48,7 +48,10 @@
     "webxprt",
     "wukong",
     "vgamepad",
-    "DaVinci"
+    "DaVinci",
+    "uinput",
+    "uaccess",
+    "udev"
   ],
   "ignoreRegExpList": ["import .*"]
 }
