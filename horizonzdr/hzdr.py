@@ -110,7 +110,7 @@ def run_benchmark() -> tuple[float]:
         if kerasService.wait_for_word(word="generation", timeout=3):
             user.press("up")
             user.press("up")
-        else:                
+        else:
             user.press("down")
             user.press("down")
             user.press("down")
