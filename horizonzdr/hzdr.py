@@ -123,13 +123,17 @@ def run_benchmark() -> tuple[float]:
         #KNOWN LIMITATION  we can maybe pull the max refresh some other way if we care about whether the display is not 144Hz max, so as to handle all edge cases here.
         while kerasService.wait_for_word(word="144", timeout=1) is None:
             user.press("right")
-            #Apply Hz setting once it is correct, then go up one so the proper settings are in view for the screenshot
-            if kerasService.wait_for_word(word="144", timeout=3):
-                user.press("r")
-                user.press("enter")
-                time.sleep(1)
-                user.press("enter")
-                user.press("up")
+        #Apply Hz setting once it is correct, then go up one so the proper settings are in view for the screenshot
+        user.press("r")
+        user.press("enter")
+        time.sleep(1)
+        user.press("enter")
+        user.press("up")
+        user.press("up")
+        user.press("up")
+        user.press("up")
+        user.press("up")
+        user.press("up")
     am.take_screenshot(
         "display1.png", ArtifactType.CONFIG_IMAGE, "1st picture of display settings"
     )
