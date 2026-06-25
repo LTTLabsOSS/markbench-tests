@@ -130,7 +130,6 @@ def run_benchmark() -> tuple[float]:
                 time.sleep(1)
                 user.press("enter")
                 user.press("up")
-        
     am.take_screenshot(
         "display1.png", ArtifactType.CONFIG_IMAGE, "1st picture of display settings"
     )
