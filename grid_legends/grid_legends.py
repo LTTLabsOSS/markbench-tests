@@ -91,7 +91,7 @@ def run_benchmark(keras_service):
     if keras_service.wait_for_word(word="press", timeout=80, interval=1) is None:
         logging.error("Game didn't load to start screen. Did the game load?")
         sys.exit(1)
-
+    user.click()
     logging.info("Game started. Entering main menu")
     time.sleep(4)
     user.press("enter")
