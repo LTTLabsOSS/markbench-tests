@@ -48,9 +48,8 @@ def read_output_stats(index):
         height = config.get("SCORE", "SCORE_SCREENHEIGHT")
         return f"{width} x {height}"
 
-       except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:  # pylint: disable=broad-except
         logging.warning("Error reading %s: %s", ini_path, e)
-
         logging.info("Attempt %d/%d - waiting for results...", attempt + 1, retries)
         time.sleep(delay)
 
