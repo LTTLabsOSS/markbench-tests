@@ -13,7 +13,6 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import user
-from harness_utils.misc import press_n_times
 from harness_utils.ocr_service import find_word
 from harness_utils.output import (
     seconds_to_milliseconds,
@@ -29,7 +28,7 @@ RESULTS_DIRECTORY = Path("C:/Users/Labs/Downloads/ffxiv-dawntrail-bench_v11/ffxi
 
 user.FAILSAFE = False
 
-# Possible ini locations
+# Possible ini locations, its like this cause I was getting pathing issues
 POSSIBLE_INI_PATHS = [
     Path(r"C:\Users\Labs\Downloads\ffxiv-dawntrail-bench_v11\ffxivbenchmarklauncher.ini"),
     Path(r"C:\Users\Labs\Documents\My Games\FINAL FANTASY XIV - DAWNTRAIL\ffxivbenchmarklauncher.ini"),
@@ -93,7 +92,6 @@ def navigate_to_settings():
     """navigate from main launcher menu to settings menu"""
     result = find_word("settings", timeout=10)
     user.click(int(result['x']), int(result['y']))
-    logging.info(result['x'], result['y'])
 
 
 
