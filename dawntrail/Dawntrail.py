@@ -38,7 +38,6 @@ def read_output_stats(index):
             logging.warning("[SCORE] section missing in %s", INI_PATH)
         else:
             logging.info("[SCORE] section found!")
-            
         if index == 0:
             return config.getint("SCORE", "SCORE")
 
