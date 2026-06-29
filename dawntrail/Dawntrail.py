@@ -39,22 +39,28 @@ def read_output_stats(index: int, retries: int = 8, delay: int = 3):
 
     for attempt in range(retries):
         for ini_path in POSSIBLE_INI_PATHS:
-            if ini_path.exists():
-                logging.info("Found results file: %s", ini_path)
-                try:
-                    config.read(str(ini_path))
-                    if "SCORE" in config:
-                        logging.info("[SCORE] section found!")
-                        if index == 0:
-                            return config.getint("SCORE", "SCORE")
-                        else:
-                            width = config.get("SCORE", "SCORE_SCREENWIDTH")
-                            height = config.get("SCORE", "SCORE_SCREENHEIGHT")
-                            return f"{width} x {height}"
-                    else:
-                        logging.warning("[SCORE] section missing in %s", ini_path)
-                except Exception as e:  # pylint: disable=broad-except
-                    logging.warning("Error reading %s: %s", ini_path, e)
+            if not ini_path.exists():
+                continue
+
+            logging.info("Found results file: %s", ini_path)
+            try:
+                config.read(str(ini_path))
+                if "SCORE" not in config:
+                    logging.warning("[SCORE] section missing in %s", ini_path)
+                    continue
+
+                logging.info("[SCORE] section found!")
+
+                if index == 0:
+                    return config.getint("SCORE", "SCORE")
+
+                # Resolution
+                width = config.get("SCORE", "SCORE_SCREENWIDTH")
+                height = config.get("SCORE", "SCORE_SCREENHEIGHT")
+                return f"{width} x {height}"
+
+            except Exception as e:  # pylint: disable=broad-except
+                logging.warning("Error reading %s: %s", ini_path, e)
 
         logging.info("Attempt %d/%d - waiting for results...", attempt + 1, retries)
         time.sleep(delay)
@@ -63,6 +69,7 @@ def read_output_stats(index: int, retries: int = 8, delay: int = 3):
     logging.error("Could not find valid results after all attempts.")
     for p in POSSIBLE_INI_PATHS:
         logging.error("  - %s (exists: %s)", p, p.exists())
+
     raise RuntimeError("Could not read SCORE section from results ini")
 
 
@@ -75,7 +82,7 @@ def start_game():
     if windows:
         windows[0].minimize()
 
-    os.startfile(r"C:\Users\Labs\Downloads\ffxiv-dawntrail-bench_v11\ffxiv-dawntrail-bench.exe")
+    os.startfile(r"C:\Users\Labs\Downloads\ffxiv-dawntrail-bench_v11\ffxiv-dawntrail-bench.exe")  # pylint: disable=no-member
 
 
 def navigate_to_settings():
