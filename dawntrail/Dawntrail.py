@@ -29,17 +29,16 @@ def read_output_stats(index):
     """Read benchmark results from the ini file."""
     config = configparser.ConfigParser()
     logging.info("Looking for benchmark results ini file...")
-    logging.info("Found results file: %s", ini_path)
+    logging.info("Found results file: %s", INI_PATH)
 
     try:
-        config.read(str(ini_path))
+        config.read(str(INI_PATH))
 
         if "SCORE" not in config:
-            logging.warning("[SCORE] section missing in %s", ini_path)
-            continue
-
-        logging.info("[SCORE] section found!")
-
+            logging.warning("[SCORE] section missing in %s", INI_PATH)
+        else:
+            logging.info("[SCORE] section found!")
+            
         if index == 0:
             return config.getint("SCORE", "SCORE")
 
@@ -49,15 +48,10 @@ def read_output_stats(index):
         return f"{width} x {height}"
 
     except Exception as e:  # pylint: disable=broad-except
-        logging.warning("Error reading %s: %s", ini_path, e)
-        logging.info("Attempt %d/%d - waiting for results...", attempt + 1, retries)
-        time.sleep(delay)
+        logging.warning("Error reading %s: %s", INI_PATH, e)
 
     # Final debug info
     logging.error("Could not find valid results after all attempts.")
-    for p in POSSIBLE_INI_PATHS:
-        logging.error("  - %s (exists: %s)", p, p.exists())
-
     raise RuntimeError("Could not read SCORE section from results ini")
 
 
