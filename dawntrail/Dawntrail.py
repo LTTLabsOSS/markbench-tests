@@ -63,7 +63,6 @@ def read_output_stats(index: int, retries: int = 8, delay: int = 3):
     logging.error("Could not find valid results after all attempts.")
     for p in POSSIBLE_INI_PATHS:
         logging.error("  - %s (exists: %s)", p, p.exists())
-
     raise RuntimeError("Could not read SCORE section from results ini")
 
 
