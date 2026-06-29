@@ -33,21 +33,17 @@ POSSIBLE_INI_PATHS = [
     Path(r"C:\Users\Labs\Downloads\ffxiv-dawntrail-bench_v11\ffxivbenchmarklauncher.ini"),
     Path(r"C:\Users\Labs\Documents\My Games\FINAL FANTASY XIV - DAWNTRAIL\ffxivbenchmarklauncher.ini"),
     Path.home() / "Documents" / "My Games" / "FINAL FANTASY XIV - DAWNTRAIL" / "ffxivbenchmarklauncher.ini",
-    Path(r"C:\Users\Labs\Downloads\ffxiv-dawntrail-bench_v11\output.ini"),  # sometimes different name
+    Path(r"C:\Users\Labs\Downloads\ffxiv-dawntrail-bench_v11\output.ini")# sometimes different name
 ]
-
 def read_output_stats(index: int, retries=8, delay=3):
     config = configparser.ConfigParser()
-    
     logging.info("Looking for benchmark results ini file...")
-
     for attempt in range(retries):
         for ini_path in POSSIBLE_INI_PATHS:
             if ini_path.exists():
                 logging.info(f"✅ Found results file: {ini_path}")
                 try:
                     config.read(str(ini_path))
-                    
                     if 'SCORE' in config:
                         logging.info("✅ [SCORE] section found!")
                         if index == 0:
@@ -58,21 +54,16 @@ def read_output_stats(index: int, retries=8, delay=3):
                             return f"{width} x {height}"
                     else:
                         logging.warning(f"[SCORE] section missing in {ini_path}")
-                        
                 except Exception as e:
                     logging.warning(f"Error reading {ini_path}: {e}")
-        
         logging.info(f"Attempt {attempt+1}/{retries} - waiting for results...")
         time.sleep(delay)
-    
     # Final debug info
     logging.error("❌ Could not find valid results after all attempts.")
     logging.error("Searched in these locations:")
     for p in POSSIBLE_INI_PATHS:
         logging.error(f"  - {p} (exists: {p.exists()})")
-    
-    raise RuntimeError("Could not read SCORE section from results ini")
-
+    raise RuntimeError("Could not read SCORE section from results ini"
     
 def start_game():
     logging.info("Starting Program...")
@@ -93,12 +84,9 @@ def navigate_to_settings():
     result = find_word("settings", timeout=10)
     user.click(int(result['x']), int(result['y']))
 
-
-
 def navigate_settings() -> None:
     """Simulate inputs to navigate the main menu"""
     navigate_to_settings()
-
     user.press("tab")
     time.sleep(0.5)
     am.take_screenshot(
@@ -125,24 +113,17 @@ def navigate_settings() -> None:
     user.press("tab")
     user.press("enter")
 
-
-
 def run_benchmark():
     """Start the benchmark"""
-
     # Start game via Steam and enter fullscreen mode
     setup_start_time = int(time.time())
     start_game()
-
     time.sleep(5)
-
     navigate_settings()
-
     # Start the benchmark!
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
-
     user.press("tab")
     user.press("down")
     user.press("down")
@@ -151,9 +132,7 @@ def run_benchmark():
     user.press("up")
     user.press("up")
     user.click(startpos[0], startpos[1])
-    
     test_start_time = int(time.time()) - 5
-
     logging.info("Benchmark started. Waiting for benchmark to complete.")
     time.sleep(180)
     result = find_word("total", timeout=300, interval=0.5)
@@ -164,7 +143,6 @@ def run_benchmark():
     am.take_screenshot(
         "results.png", ArtifactType.RESULTS_IMAGE, "results of benchmark"
     )
-
     test_end_time = int(time.time()) - 2
     time.sleep(2)
     elapsed_test_time = round((test_end_time - test_start_time), 2)
