@@ -1,0 +1,9 @@
+friendly_name: "FFXIV Dawntrail"
+executable: "Dawntrail.py"
+process_name: "ffxiv-dawntrail-bench.exe"
+output_dir: "run"
+options:
+  - name: kerasHost
+    type: input
+  - name: kerasPort
+    type: input

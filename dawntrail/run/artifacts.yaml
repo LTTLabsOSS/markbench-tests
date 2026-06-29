@@ -1,0 +1,9 @@
+- filename: graphics.png
+  type: config_image
+  description: graphics settings menu
+- filename: display.png
+  type: config_image
+  description: display settings menu
+- filename: results.png
+  type: results_image
+  description: results of benchmark

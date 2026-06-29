@@ -1,0 +1,954 @@
+[INFO] (10:08:12) Starting Program...
+[INFO] (10:08:12) [Win32Window(hWnd=5180846)]
+[INFO] (10:08:17) C:\Users\Labs\Downloads\ffxiv-dawntrail-bench_v11\ffxivbenchmarklauncher.ini
+[INFO] (10:08:17) Navigating launcher
+[DEBUG] (10:08:17) Searching OCR word='settings' timeout=10
+[DEBUG] (10:08:17) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:08:17) Screenshot with mss
+[DEBUG] (10:08:17) Found OCR config file. Using config/default values.
+[DEBUG] (10:08:17) Resolved OCR url: host=10.69.1.43, port=5000
+[DEBUG] (10:08:17) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:08:17) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 36
+[DEBUG] (10:08:17) Found OCR word='settings' elapsed=0.41s result={'result': 'found', 'x': 2268, 'y': 1206}
+[DEBUG] (10:08:17) input click x=2268 y=1206
+[DEBUG] (10:08:18) input press key=tab
+[INFO] (10:08:18) Attempting artifact screenshot filename=graphics.png type=config_image description=graphics settings menu
+[DEBUG] (10:08:18) Capturing screenshot file output=C:\Markbench\harnesses\dawntrail\run\graphics.png
+[DEBUG] (10:08:18) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:08:18) Windows screenshot with dxcam output=C:\Markbench\harnesses\dawntrail\run\graphics.png
+[DEBUG] (10:08:18) Windows screenshot with dxcam
+[DEBUG] (10:08:18) CoInitializeEx(None, 2)
+[DEBUG] (10:08:18) Release <POINTER(IDXGIFactory1) ptr=0x1b2ff3e5020 at 1b2996406d0>
+[DEBUG] (10:08:19) Release <POINTER(IDXGIAdapter1) ptr=0x1b2fee5c400 at 1b2996407d0>
+[DEBUG] (10:08:19) Release <POINTER(ID3D11Device) ptr=0x1b298b63250 at 1b299640c50>
+[DEBUG] (10:08:19) Release <POINTER(ID3D11DeviceContext) ptr=0x1b298b649e8 at 1b299640cd0>
+[DEBUG] (10:08:19) Release <POINTER(ID3D11DeviceContext) ptr=0x1b298b649e8 at 1b299640d50>
+[DEBUG] (10:08:19) Using IDXGIOutput5.DuplicateOutput1 for capture.
+[INFO] (10:08:19) Captured artifact screenshot filename=graphics.png
+[DEBUG] (10:08:19) input press key=right
+[DEBUG] (10:08:19) input press key=right
+[DEBUG] (10:08:19) input press key=right
+[DEBUG] (10:08:20) input press key=right
+[INFO] (10:08:20) Attempting artifact screenshot filename=display.png type=config_image description=display settings menu
+[DEBUG] (10:08:20) Capturing screenshot file output=C:\Markbench\harnesses\dawntrail\run\display.png
+[DEBUG] (10:08:20) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:08:20) Windows screenshot with dxcam output=C:\Markbench\harnesses\dawntrail\run\display.png
+[DEBUG] (10:08:20) Windows screenshot with dxcam
+[INFO] (10:08:20) Dropping released DXCamera instance for device=0 output=0 backend=dxgi.
+[DEBUG] (10:08:20) Using IDXGIOutput5.DuplicateOutput1 for capture.
+[INFO] (10:08:20) Captured artifact screenshot filename=display.png
+[DEBUG] (10:08:20) input press key=right
+[DEBUG] (10:08:21) input press key=right
+[DEBUG] (10:08:21) input press key=right
+[DEBUG] (10:08:21) input press key=tab
+[DEBUG] (10:08:21) input press key=tab
+[DEBUG] (10:08:22) input press key=tab
+[DEBUG] (10:08:22) input press key=tab
+[DEBUG] (10:08:22) input press key=tab
+[DEBUG] (10:08:23) input press key=tab
+[DEBUG] (10:08:23) input press key=tab
+[DEBUG] (10:08:23) input press key=tab
+[DEBUG] (10:08:24) input press key=tab
+[DEBUG] (10:08:24) input press key=enter
+[INFO] (10:08:24) Harness setup took 12.000000 seconds
+[DEBUG] (10:08:24) input press key=tab
+[DEBUG] (10:08:24) input press key=down
+[DEBUG] (10:08:25) input press key=down
+[DEBUG] (10:08:25) Searching OCR word='start' timeout=10
+[DEBUG] (10:08:25) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:08:25) Screenshot with mss
+[DEBUG] (10:08:25) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:08:25) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 36
+[DEBUG] (10:08:25) Found OCR word='start' elapsed=0.38s result={'result': 'found', 'x': 2268, 'y': 1270}
+[DEBUG] (10:08:25) input press key=up
+[DEBUG] (10:08:26) input press key=up
+[DEBUG] (10:08:26) input click x=2268 y=1270
+[INFO] (10:08:26) Benchmark started. Waiting for benchmark to complete.
+[DEBUG] (10:11:26) Searching OCR word='total' timeout=300
+[DEBUG] (10:11:26) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:26) Screenshot with mss
+[DEBUG] (10:11:26) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:27) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:27) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:27) Screenshot with mss
+[DEBUG] (10:11:27) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:27) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:28) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:28) Screenshot with mss
+[DEBUG] (10:11:28) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:28) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:28) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:28) Screenshot with mss
+[DEBUG] (10:11:29) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:29) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:29) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:29) Screenshot with mss
+[DEBUG] (10:11:29) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:29) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:30) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:30) Screenshot with mss
+[DEBUG] (10:11:30) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:30) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:31) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:31) Screenshot with mss
+[DEBUG] (10:11:31) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:31) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:31) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:31) Screenshot with mss
+[DEBUG] (10:11:31) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:31) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:32) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:32) Screenshot with mss
+[DEBUG] (10:11:32) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:32) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:33) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:33) Screenshot with mss
+[DEBUG] (10:11:33) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:33) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:33) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:33) Screenshot with mss
+[DEBUG] (10:11:34) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:34) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:34) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:34) Screenshot with mss
+[DEBUG] (10:11:34) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:34) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:35) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:35) Screenshot with mss
+[DEBUG] (10:11:35) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:35) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:36) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:36) Screenshot with mss
+[DEBUG] (10:11:36) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:36) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:36) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:36) Screenshot with mss
+[DEBUG] (10:11:36) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:37) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:37) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:37) Screenshot with mss
+[DEBUG] (10:11:37) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:37) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:38) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:38) Screenshot with mss
+[DEBUG] (10:11:38) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:38) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:39) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:39) Screenshot with mss
+[DEBUG] (10:11:39) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:39) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:39) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:39) Screenshot with mss
+[DEBUG] (10:11:39) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:40) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:40) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:40) Screenshot with mss
+[DEBUG] (10:11:40) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:40) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:41) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:41) Screenshot with mss
+[DEBUG] (10:11:41) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:41) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:41) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:41) Screenshot with mss
+[DEBUG] (10:11:42) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:42) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:42) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:42) Screenshot with mss
+[DEBUG] (10:11:42) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:42) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:43) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:43) Screenshot with mss
+[DEBUG] (10:11:43) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:43) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:44) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:44) Screenshot with mss
+[DEBUG] (10:11:44) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:44) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:44) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:44) Screenshot with mss
+[DEBUG] (10:11:45) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:45) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:45) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:45) Screenshot with mss
+[DEBUG] (10:11:45) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:45) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:46) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:46) Screenshot with mss
+[DEBUG] (10:11:46) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:46) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:47) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:47) Screenshot with mss
+[DEBUG] (10:11:47) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:47) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:47) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:47) Screenshot with mss
+[DEBUG] (10:11:47) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:48) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:48) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:48) Screenshot with mss
+[DEBUG] (10:11:48) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:48) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:49) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:49) Screenshot with mss
+[DEBUG] (10:11:49) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:49) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:50) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:50) Screenshot with mss
+[DEBUG] (10:11:50) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:50) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:50) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:50) Screenshot with mss
+[DEBUG] (10:11:50) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:50) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:51) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:51) Screenshot with mss
+[DEBUG] (10:11:51) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:51) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:52) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:52) Screenshot with mss
+[DEBUG] (10:11:52) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:52) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:52) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:52) Screenshot with mss
+[DEBUG] (10:11:53) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:53) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:53) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:53) Screenshot with mss
+[DEBUG] (10:11:53) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:53) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:54) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:54) Screenshot with mss
+[DEBUG] (10:11:54) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:54) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:55) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:55) Screenshot with mss
+[DEBUG] (10:11:55) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:55) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:55) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:55) Screenshot with mss
+[DEBUG] (10:11:56) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:56) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:56) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:56) Screenshot with mss
+[DEBUG] (10:11:56) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:56) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:57) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:57) Screenshot with mss
+[DEBUG] (10:11:57) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:57) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:58) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:58) Screenshot with mss
+[DEBUG] (10:11:58) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:58) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:58) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:58) Screenshot with mss
+[DEBUG] (10:11:58) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:59) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:11:59) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:11:59) Screenshot with mss
+[DEBUG] (10:11:59) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:11:59) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:00) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:00) Screenshot with mss
+[DEBUG] (10:12:00) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:00) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:01) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:01) Screenshot with mss
+[DEBUG] (10:12:01) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:01) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:01) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:01) Screenshot with mss
+[DEBUG] (10:12:01) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:01) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:02) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:02) Screenshot with mss
+[DEBUG] (10:12:02) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:02) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:03) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:03) Screenshot with mss
+[DEBUG] (10:12:03) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:03) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:03) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:03) Screenshot with mss
+[DEBUG] (10:12:04) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:04) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:04) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:04) Screenshot with mss
+[DEBUG] (10:12:04) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:04) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:05) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:05) Screenshot with mss
+[DEBUG] (10:12:05) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:05) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:06) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:06) Screenshot with mss
+[DEBUG] (10:12:06) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:06) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:06) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:06) Screenshot with mss
+[DEBUG] (10:12:06) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:07) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:07) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:07) Screenshot with mss
+[DEBUG] (10:12:07) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:07) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:08) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:08) Screenshot with mss
+[DEBUG] (10:12:08) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:08) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:09) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:09) Screenshot with mss
+[DEBUG] (10:12:09) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:09) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:09) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:09) Screenshot with mss
+[DEBUG] (10:12:09) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:10) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:10) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:10) Screenshot with mss
+[DEBUG] (10:12:10) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:10) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:11) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:11) Screenshot with mss
+[DEBUG] (10:12:11) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:11) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:11) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:11) Screenshot with mss
+[DEBUG] (10:12:12) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:12) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:12) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:12) Screenshot with mss
+[DEBUG] (10:12:12) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:12) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:13) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:13) Screenshot with mss
+[DEBUG] (10:12:13) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:13) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:14) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:14) Screenshot with mss
+[DEBUG] (10:12:14) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:14) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:14) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:14) Screenshot with mss
+[DEBUG] (10:12:14) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:15) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:15) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:15) Screenshot with mss
+[DEBUG] (10:12:15) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:15) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:16) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:16) Screenshot with mss
+[DEBUG] (10:12:16) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:16) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:17) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:17) Screenshot with mss
+[DEBUG] (10:12:17) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:17) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:17) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:17) Screenshot with mss
+[DEBUG] (10:12:17) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:17) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:18) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:18) Screenshot with mss
+[DEBUG] (10:12:18) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:18) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:19) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:19) Screenshot with mss
+[DEBUG] (10:12:19) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:19) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:19) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:19) Screenshot with mss
+[DEBUG] (10:12:20) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:20) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:20) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:20) Screenshot with mss
+[DEBUG] (10:12:20) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:20) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:21) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:21) Screenshot with mss
+[DEBUG] (10:12:21) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:21) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:22) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:22) Screenshot with mss
+[DEBUG] (10:12:22) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:22) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:22) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:22) Screenshot with mss
+[DEBUG] (10:12:22) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:23) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:23) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:23) Screenshot with mss
+[DEBUG] (10:12:23) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:23) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:24) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:24) Screenshot with mss
+[DEBUG] (10:12:24) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:24) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:25) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:25) Screenshot with mss
+[DEBUG] (10:12:25) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:25) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:25) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:25) Screenshot with mss
+[DEBUG] (10:12:25) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:26) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:26) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:26) Screenshot with mss
+[DEBUG] (10:12:26) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:26) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:27) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:27) Screenshot with mss
+[DEBUG] (10:12:27) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:27) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:28) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:28) Screenshot with mss
+[DEBUG] (10:12:28) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:28) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:28) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:28) Screenshot with mss
+[DEBUG] (10:12:28) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:28) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:29) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:29) Screenshot with mss
+[DEBUG] (10:12:29) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:29) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:30) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:30) Screenshot with mss
+[DEBUG] (10:12:30) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:30) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:30) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:30) Screenshot with mss
+[DEBUG] (10:12:31) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:31) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:31) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:31) Screenshot with mss
+[DEBUG] (10:12:31) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:31) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:32) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:32) Screenshot with mss
+[DEBUG] (10:12:32) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:32) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:33) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:33) Screenshot with mss
+[DEBUG] (10:12:33) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:33) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:33) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:33) Screenshot with mss
+[DEBUG] (10:12:34) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:34) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:34) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:34) Screenshot with mss
+[DEBUG] (10:12:34) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:34) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:35) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:35) Screenshot with mss
+[DEBUG] (10:12:35) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:35) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:36) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:36) Screenshot with mss
+[DEBUG] (10:12:36) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:36) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:36) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:36) Screenshot with mss
+[DEBUG] (10:12:36) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:37) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:37) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:37) Screenshot with mss
+[DEBUG] (10:12:37) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:37) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:38) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:38) Screenshot with mss
+[DEBUG] (10:12:38) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:38) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:39) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:39) Screenshot with mss
+[DEBUG] (10:12:39) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:39) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:39) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:39) Screenshot with mss
+[DEBUG] (10:12:39) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:39) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:40) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:40) Screenshot with mss
+[DEBUG] (10:12:40) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:40) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:41) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:41) Screenshot with mss
+[DEBUG] (10:12:41) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:41) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:41) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:41) Screenshot with mss
+[DEBUG] (10:12:42) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:42) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:42) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:42) Screenshot with mss
+[DEBUG] (10:12:42) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:42) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:43) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:43) Screenshot with mss
+[DEBUG] (10:12:43) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:43) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:44) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:44) Screenshot with mss
+[DEBUG] (10:12:44) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:44) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:44) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:44) Screenshot with mss
+[DEBUG] (10:12:44) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:44) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:45) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:45) Screenshot with mss
+[DEBUG] (10:12:45) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:45) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:46) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:46) Screenshot with mss
+[DEBUG] (10:12:46) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:46) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:46) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:46) Screenshot with mss
+[DEBUG] (10:12:46) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:46) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:47) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:47) Screenshot with mss
+[DEBUG] (10:12:47) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:47) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:48) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:48) Screenshot with mss
+[DEBUG] (10:12:48) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:48) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:48) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:48) Screenshot with mss
+[DEBUG] (10:12:48) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:49) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:49) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:49) Screenshot with mss
+[DEBUG] (10:12:49) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:49) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:50) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:50) Screenshot with mss
+[DEBUG] (10:12:50) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:50) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:51) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:51) Screenshot with mss
+[DEBUG] (10:12:51) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:51) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:51) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:51) Screenshot with mss
+[DEBUG] (10:12:51) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:51) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:52) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:52) Screenshot with mss
+[DEBUG] (10:12:52) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:52) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:53) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:53) Screenshot with mss
+[DEBUG] (10:12:53) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:53) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:53) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:53) Screenshot with mss
+[DEBUG] (10:12:53) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:54) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:54) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:54) Screenshot with mss
+[DEBUG] (10:12:54) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:54) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:55) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:55) Screenshot with mss
+[DEBUG] (10:12:55) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:55) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:55) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:55) Screenshot with mss
+[DEBUG] (10:12:56) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:56) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:56) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:56) Screenshot with mss
+[DEBUG] (10:12:56) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:56) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:57) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:57) Screenshot with mss
+[DEBUG] (10:12:57) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:57) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:58) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:58) Screenshot with mss
+[DEBUG] (10:12:58) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:58) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:58) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:58) Screenshot with mss
+[DEBUG] (10:12:58) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:59) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:12:59) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:12:59) Screenshot with mss
+[DEBUG] (10:12:59) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:12:59) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:00) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:00) Screenshot with mss
+[DEBUG] (10:13:00) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:00) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:01) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:01) Screenshot with mss
+[DEBUG] (10:13:01) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:01) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:01) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:01) Screenshot with mss
+[DEBUG] (10:13:01) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:02) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:02) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:02) Screenshot with mss
+[DEBUG] (10:13:02) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:02) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:03) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:03) Screenshot with mss
+[DEBUG] (10:13:03) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:03) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:04) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:04) Screenshot with mss
+[DEBUG] (10:13:04) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:04) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:04) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:04) Screenshot with mss
+[DEBUG] (10:13:04) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:04) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:05) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:05) Screenshot with mss
+[DEBUG] (10:13:05) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:05) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:06) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:06) Screenshot with mss
+[DEBUG] (10:13:06) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:06) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:06) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:06) Screenshot with mss
+[DEBUG] (10:13:07) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:07) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:07) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:07) Screenshot with mss
+[DEBUG] (10:13:07) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:07) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:08) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:08) Screenshot with mss
+[DEBUG] (10:13:08) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:08) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:09) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:09) Screenshot with mss
+[DEBUG] (10:13:09) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:09) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:09) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:09) Screenshot with mss
+[DEBUG] (10:13:09) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:10) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:10) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:10) Screenshot with mss
+[DEBUG] (10:13:10) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:10) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:11) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:11) Screenshot with mss
+[DEBUG] (10:13:11) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:11) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:11) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:11) Screenshot with mss
+[DEBUG] (10:13:12) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:12) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:12) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:12) Screenshot with mss
+[DEBUG] (10:13:12) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:12) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:13) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:13) Screenshot with mss
+[DEBUG] (10:13:13) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:13) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:14) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:14) Screenshot with mss
+[DEBUG] (10:13:14) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:14) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:14) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:14) Screenshot with mss
+[DEBUG] (10:13:14) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:14) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:15) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:15) Screenshot with mss
+[DEBUG] (10:13:15) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:15) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:16) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:16) Screenshot with mss
+[DEBUG] (10:13:16) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:16) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:16) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:16) Screenshot with mss
+[DEBUG] (10:13:17) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:17) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:17) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:17) Screenshot with mss
+[DEBUG] (10:13:17) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:17) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:18) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:18) Screenshot with mss
+[DEBUG] (10:13:18) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:18) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:19) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:19) Screenshot with mss
+[DEBUG] (10:13:19) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:19) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:19) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:19) Screenshot with mss
+[DEBUG] (10:13:19) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:20) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:20) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:20) Screenshot with mss
+[DEBUG] (10:13:20) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:20) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:21) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:21) Screenshot with mss
+[DEBUG] (10:13:21) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:21) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:21) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:21) Screenshot with mss
+[DEBUG] (10:13:22) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:22) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:22) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:22) Screenshot with mss
+[DEBUG] (10:13:22) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:22) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:23) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:23) Screenshot with mss
+[DEBUG] (10:13:23) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:23) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:24) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:24) Screenshot with mss
+[DEBUG] (10:13:24) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:24) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:24) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:24) Screenshot with mss
+[DEBUG] (10:13:24) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:25) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:25) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:25) Screenshot with mss
+[DEBUG] (10:13:25) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:25) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:26) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:26) Screenshot with mss
+[DEBUG] (10:13:26) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:26) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:27) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:27) Screenshot with mss
+[DEBUG] (10:13:27) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:27) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:27) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:27) Screenshot with mss
+[DEBUG] (10:13:27) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:27) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:28) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:28) Screenshot with mss
+[DEBUG] (10:13:28) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:28) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:29) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:29) Screenshot with mss
+[DEBUG] (10:13:29) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:29) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:29) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:29) Screenshot with mss
+[DEBUG] (10:13:29) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:30) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:30) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:30) Screenshot with mss
+[DEBUG] (10:13:30) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:30) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:31) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:31) Screenshot with mss
+[DEBUG] (10:13:31) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:31) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:32) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:32) Screenshot with mss
+[DEBUG] (10:13:32) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:32) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:32) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:32) Screenshot with mss
+[DEBUG] (10:13:32) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:32) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:33) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:33) Screenshot with mss
+[DEBUG] (10:13:33) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:33) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:34) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:34) Screenshot with mss
+[DEBUG] (10:13:34) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:34) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:34) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:34) Screenshot with mss
+[DEBUG] (10:13:34) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:35) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:35) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:35) Screenshot with mss
+[DEBUG] (10:13:35) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:35) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:36) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:36) Screenshot with mss
+[DEBUG] (10:13:36) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:36) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:36) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:36) Screenshot with mss
+[DEBUG] (10:13:37) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:37) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:37) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:37) Screenshot with mss
+[DEBUG] (10:13:37) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:37) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:38) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:38) Screenshot with mss
+[DEBUG] (10:13:38) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:38) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:39) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:39) Screenshot with mss
+[DEBUG] (10:13:39) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:39) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:39) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:39) Screenshot with mss
+[DEBUG] (10:13:39) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:40) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:40) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:40) Screenshot with mss
+[DEBUG] (10:13:40) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:40) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:41) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:41) Screenshot with mss
+[DEBUG] (10:13:41) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:41) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:42) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:42) Screenshot with mss
+[DEBUG] (10:13:42) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:42) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:42) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:42) Screenshot with mss
+[DEBUG] (10:13:42) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:42) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:43) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:43) Screenshot with mss
+[DEBUG] (10:13:43) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:43) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:44) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:44) Screenshot with mss
+[DEBUG] (10:13:44) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:44) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:44) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:44) Screenshot with mss
+[DEBUG] (10:13:44) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:45) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:45) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:45) Screenshot with mss
+[DEBUG] (10:13:45) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:45) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:46) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:46) Screenshot with mss
+[DEBUG] (10:13:46) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:46) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:47) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:47) Screenshot with mss
+[DEBUG] (10:13:47) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:47) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:47) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:47) Screenshot with mss
+[DEBUG] (10:13:47) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:47) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:48) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:48) Screenshot with mss
+[DEBUG] (10:13:48) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:48) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:49) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:49) Screenshot with mss
+[DEBUG] (10:13:49) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:49) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:49) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:49) Screenshot with mss
+[DEBUG] (10:13:50) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:50) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:50) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:50) Screenshot with mss
+[DEBUG] (10:13:50) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:50) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:51) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:51) Screenshot with mss
+[DEBUG] (10:13:51) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:51) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:52) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:52) Screenshot with mss
+[DEBUG] (10:13:52) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:52) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:52) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:52) Screenshot with mss
+[DEBUG] (10:13:52) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:52) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:53) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:53) Screenshot with mss
+[DEBUG] (10:13:53) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:53) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:54) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:54) Screenshot with mss
+[DEBUG] (10:13:54) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:54) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:54) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:54) Screenshot with mss
+[DEBUG] (10:13:55) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:55) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:55) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:55) Screenshot with mss
+[DEBUG] (10:13:55) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:55) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:56) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:56) Screenshot with mss
+[DEBUG] (10:13:56) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:56) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:56) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:56) Screenshot with mss
+[DEBUG] (10:13:57) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:57) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:57) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:57) Screenshot with mss
+[DEBUG] (10:13:57) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:57) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:58) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:58) Screenshot with mss
+[DEBUG] (10:13:58) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:58) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:58) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:58) Screenshot with mss
+[DEBUG] (10:13:59) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:59) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:13:59) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:13:59) Screenshot with mss
+[DEBUG] (10:13:59) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:13:59) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:14:00) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:14:00) Screenshot with mss
+[DEBUG] (10:14:00) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:14:00) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:14:01) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:14:01) Screenshot with mss
+[DEBUG] (10:14:01) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:14:01) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:14:01) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:14:01) Screenshot with mss
+[DEBUG] (10:14:01) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:14:01) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 22
+[DEBUG] (10:14:02) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:14:02) Screenshot with mss
+[DEBUG] (10:14:02) Starting new HTTP connection (1): 10.69.1.43:5000
+[DEBUG] (10:14:02) http://10.69.1.43:5000 "POST /process HTTP/1.1" 200 34
+[DEBUG] (10:14:02) Found OCR word='total' elapsed=155.92s result={'result': 'found', 'x': 68, 'y': 1966}
+[INFO] (10:14:07) Attempting artifact screenshot filename=results.png type=results_image description=results of benchmark
+[DEBUG] (10:14:07) Capturing screenshot file output=C:\Markbench\harnesses\dawntrail\run\results.png
+[DEBUG] (10:14:07) Checking Windows platform: os=Windows result=True
+[DEBUG] (10:14:07) Windows screenshot with dxcam output=C:\Markbench\harnesses\dawntrail\run\results.png
+[DEBUG] (10:14:07) Windows screenshot with dxcam
+[DEBUG] (10:14:07) Using IDXGIOutput5.DuplicateOutput1 for capture.
+[INFO] (10:14:08) Captured artifact screenshot filename=results.png
+[INFO] (10:14:10) Benchmark took 345.000000 seconds
+[INFO] (10:14:13) Terminating process_name=ffxiv-dawntrail-bench.exe
+[DEBUG] (10:14:13) Checking Windows platform: os=Windows result=True
+[INFO] (10:14:13) Terminating Windows process pid=30808 name=ffxiv-dawntrail-bench.exe
+[INFO] (10:14:13) Windows process termination complete matches=1
+[INFO] (10:14:13) Looking for benchmark results ini file...
+[INFO] (10:14:13) \u2705 Found results file: C:\Users\Labs\Downloads\ffxiv-dawntrail-bench_v11\ffxivbenchmarklauncher.ini
+[INFO] (10:14:13) \u2705 [SCORE] section found!
+[INFO] (10:14:13) Looking for benchmark results ini file...
+[INFO] (10:14:13) \u2705 Found results file: C:\Users\Labs\Downloads\ffxiv-dawntrail-bench_v11\ffxivbenchmarklauncher.ini
+[INFO] (10:14:13) \u2705 [SCORE] section found!
