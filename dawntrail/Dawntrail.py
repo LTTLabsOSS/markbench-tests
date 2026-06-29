@@ -22,45 +22,34 @@ from harness_utils.process import terminate_process
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "ffxiv-dawntrail-bench.exe"
-
-# Possible ini locations
-POSSIBLE_INI_PATHS = [
-    Path(r"C:\Users\Labs\Downloads\ffxiv-dawntrail-bench_v11\ffxivbenchmarklauncher.ini"),
-    Path(r"C:\Users\Labs\Documents\My Games\FINAL FANTASY XIV - DAWNTRAIL\ffxivbenchmarklauncher.ini"),
-    Path.home() / "Documents" / "My Games" / "FINAL FANTASY XIV - DAWNTRAIL" / "ffxivbenchmarklauncher.ini",
-    Path(r"C:\Users\Labs\Downloads\ffxiv-dawntrail-bench_v11\output.ini"),
-]
+INI_PATH = Path(r"C:\Users\Labs\Downloads\ffxiv-dawntrail-bench_v11\ffxivbenchmarklauncher.ini")
 
 
-def read_output_stats(index: int, retries: int = 8, delay: int = 3):
+def read_output_stats(index):
     """Read benchmark results from the ini file."""
     config = configparser.ConfigParser()
     logging.info("Looking for benchmark results ini file...")
+    logging.info("Found results file: %s", ini_path)
 
-    for attempt in range(retries):
-        for ini_path in POSSIBLE_INI_PATHS:
-            if not ini_path.exists():
-                continue
+    try:
+        config.read(str(ini_path))
 
-            logging.info("Found results file: %s", ini_path)
-            try:
-                config.read(str(ini_path))
-                if "SCORE" not in config:
-                    logging.warning("[SCORE] section missing in %s", ini_path)
-                    continue
+        if "SCORE" not in config:
+            logging.warning("[SCORE] section missing in %s", ini_path)
+            continue
 
-                logging.info("[SCORE] section found!")
+        logging.info("[SCORE] section found!")
 
-                if index == 0:
-                    return config.getint("SCORE", "SCORE")
+        if index == 0:
+            return config.getint("SCORE", "SCORE")
 
-                # Resolution
-                width = config.get("SCORE", "SCORE_SCREENWIDTH")
-                height = config.get("SCORE", "SCORE_SCREENHEIGHT")
-                return f"{width} x {height}"
+        # Return resolution
+        width = config.get("SCORE", "SCORE_SCREENWIDTH")
+        height = config.get("SCORE", "SCORE_SCREENHEIGHT")
+        return f"{width} x {height}"
 
-            except Exception as e:  # pylint: disable=broad-except
-                logging.warning("Error reading %s: %s", ini_path, e)
+       except Exception as e:  # pylint: disable=broad-except
+        logging.warning("Error reading %s: %s", ini_path, e)
 
         logging.info("Attempt %d/%d - waiting for results...", attempt + 1, retries)
         time.sleep(delay)
@@ -82,7 +71,8 @@ def start_game():
     if windows:
         windows[0].minimize()
 
-    os.startfile(r"C:\Users\Labs\Downloads\ffxiv-dawntrail-bench_v11\ffxiv-dawntrail-bench.exe")  # pylint: disable=no-member
+    # pylint: disable=no-member
+    os.startfile(r"C:\Users\Labs\Downloads\ffxiv-dawntrail-bench_v11\ffxiv-dawntrail-bench.exe")
 
 
 def navigate_to_settings():
@@ -143,8 +133,7 @@ def run_benchmark():
 
     time.sleep(180)
 
-    result = find_word("total", timeout=300, interval=0.5)
-    if not result:
+    if not find_word("total", timeout=300, interval=0.5):
         logging.error("Did not see results screen. Marking as DNF.")
         sys.exit(1)
 
@@ -161,7 +150,7 @@ def run_benchmark():
     return test_start_time, test_end_time
 
 
-# ====================== Main ======================
+# ====================== Main Execution ======================
 setup_logging(LOG_DIRECTORY)
 am = ArtifactManager(LOG_DIRECTORY)
 
