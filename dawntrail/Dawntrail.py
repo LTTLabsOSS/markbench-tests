@@ -62,9 +62,9 @@ def copy_from_network_drive() -> Path:
 
 def get_results_txt():
     directory = Path("C:/ffxiv-dawntrail-bench_v11/ffxiv-dawntrail-bench_v11/")
-    latest_txt = max(directory.glob("*.txt"), 
-    key=lambda f: f.stat().st_mtime, 
-    default=None)    
+    latest_txt = max(directory.glob("*.txt"),
+    key=lambda f: f.stat().st_mtime,
+    default=None)
     if not latest_txt:
         logging.info("No .txt result file found")
         return None
@@ -76,16 +76,16 @@ def read_output_stats(path):
         sys.exit(1)
     latest_txt = path
     print(f"Reading results from: {latest_txt.name}")
-        
+
     text = latest_txt.read_text(encoding="utf-8", errors="ignore")
-        
+
     # Extract the values using regex
     score_match = re.search(r"Score:\s*(\d+)", text)
     resolution_match = re.search(r"Screen Size:\s*(\d+x\d+)", text)
-    loading_match = re.search(r"Total Loading Time\s+(\d+\.?\d*)\s*sec", text)    
+    loading_match = re.search(r"Total Loading Time\s+(\d+\.?\d*)\s*sec", text)
     score = int(score_match.group(1)) if score_match else None
     resolution = resolution_match.group(1) if resolution_match else None
-    total_loading_time = float(loading_match.group(1)) if loading_match else None   
+    total_loading_time = float(loading_match.group(1)) if loading_match else None
     return {
         "score": score,
         "resolution": resolution,
@@ -139,7 +139,7 @@ def run_benchmark():
     delete_all_txt()
     terminate_process(PROCESS_NAME)
     terminate_process(DX_PROCESS_NAME)
-    """Run the full benchmark sequence."""
+    #"""Run the full benchmark sequence."""
     setup_start_time = int(time.time())
     start_game()
     time.sleep(5)
@@ -149,7 +149,7 @@ def run_benchmark():
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %.2f seconds", elapsed_setup_time)
- 
+
     # Start benchmark
     user.press("tab")
     user.press("down")
