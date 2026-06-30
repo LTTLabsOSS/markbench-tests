@@ -83,7 +83,7 @@ def _capture_mss_array() -> np.ndarray:
         return np.array(sct.grab(sct.monitors[1]))
 
 
-def _take_mss_file(output_path: Path) -> None:
+def take_mss_file(output_path: Path) -> None:
     logger.debug("Screenshot with mss output=%s", output_path)
     with mss.mss() as sct:
         sct.shot(output=str(output_path))
