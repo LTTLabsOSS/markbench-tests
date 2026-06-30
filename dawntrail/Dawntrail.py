@@ -2,13 +2,16 @@ import logging
 import sys
 import time
 import os
-import configparser
+import shutil
+import re
+import zipfile
 import pygetwindow as gw
 from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.paths import network_drive_path
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import user
 from harness_utils.ocr_service import find_word
@@ -22,37 +25,80 @@ from harness_utils.process import terminate_process
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "ffxiv-dawntrail-bench.exe"
-INI_PATH = Path(r"C:\Users\Labs\Downloads\ffxiv-dawntrail-bench_v11\ffxivbenchmarklauncher.ini")
+DX_PROCESS_NAME = "ffxiv_dx11.exe"
+ROOT_DIR = "C:/"
 
 
-def read_output_stats(index):
-    """Read benchmark results from the ini file."""
-    config = configparser.ConfigParser()
-    logging.info("Looking for benchmark results ini file...")
-    logging.info("Found results file: %s", INI_PATH)
+def delete_all_txt():
+    directory = Path("C:/ffxiv-dawntrail-bench_v11/ffxiv-dawntrail-bench_v11/")
+    for file in directory.glob("*.txt"):
+        file.unlink(missing_ok=True)
+    print("All .txt files deleted.")
 
-    try:
-        config.read(str(INI_PATH))
+def copy_from_network_drive() -> Path:
+    """Copies ZIP from network drive and extracts it."""
+    src_path = (
+        network_drive_path()
+        / "03_ProcessingFiles"
+        / "ffxiv-dawntrail-bench_v11.zip"
+    )
+    
+    zip_path = Path("C:/ffxiv-dawntrail-bench_v11.zip")
+    extract_to = Path("C:/ffxiv-dawntrail-bench_v11")
+    
+    logging.info("Copying benchmark zip: %s -> %s", src_path, zip_path)
+    
+    # Copy the zip file
+    shutil.copyfile(src_path, zip_path)
+    
+    # Extract it
+    logging.info("Extracting to: %s", extract_to)
+    extract_to.mkdir(parents=True, exist_ok=True)
+    
+    with zipfile.ZipFile(zip_path) as zf:
+        zf.extractall(extract_to)
+    
+    logging.info("Extraction complete!")
+    if zip_path.is_file():
+        zip_path.unlink()# Deletes the file
+        print(f"Deleted zip file: {zip_path.name}")
+    else:
+        print("Zip file not found")
+    return extract_to
 
-        if "SCORE" not in config:
-            logging.warning("[SCORE] section missing in %s", INI_PATH)
-        else:
-            logging.info("[SCORE] section found!")
-        if index == 0:
-            return config.getint("SCORE", "SCORE")
+def get_results_txt():
+    directory = Path("C:/ffxiv-dawntrail-bench_v11/ffxiv-dawntrail-bench_v11/")
+    latest_txt = max(directory.glob("*.txt"), 
+    key=lambda f: f.stat().st_mtime, 
+    default=None)    
+    if not latest_txt:
+        logging.info("No .txt result file found")
+        return None
+    return Path(directory) / latest_txt
 
-        # Return resolution
-        width = config.get("SCORE", "SCORE_SCREENWIDTH")
-        height = config.get("SCORE", "SCORE_SCREENHEIGHT")
-        return f"{width} x {height}"
 
-    except Exception as e:  # pylint: disable=broad-except
-        logging.warning("Error reading %s: %s", INI_PATH, e)
-
-    # Final debug info
-    logging.error("Could not find valid results after all attempts.")
-    raise RuntimeError("Could not read SCORE section from results ini")
-
+def read_output_stats(path):
+    if not FileExistsError(path):
+        logging.info("File not found from path")
+        sys.exit(1)
+    latest_txt = path
+    print(f"Reading results from: {latest_txt.name}")
+        
+    text = latest_txt.read_text(encoding="utf-8", errors="ignore")
+        
+    # Extract the values using regex
+    score_match = re.search(r"Score:\s*(\d+)", text)
+    resolution_match = re.search(r"Screen Size:\s*(\d+x\d+)", text)
+    loading_match = re.search(r"Total Loading Time\s+(\d+\.?\d*)\s*sec", text)    
+    score = int(score_match.group(1)) if score_match else None
+    resolution = resolution_match.group(1) if resolution_match else None
+    total_loading_time = float(loading_match.group(1)) if loading_match else None   
+    return {
+        "score": score,
+        "resolution": resolution,
+        "total_loading_time": total_loading_time,
+        "file_path": str(latest_txt)
+    }
 
 def start_game():
     """Launch the benchmark executable."""
@@ -64,7 +110,7 @@ def start_game():
         windows[0].minimize()
 
     # pylint: disable=no-member
-    os.startfile(r"C:\Users\Labs\Downloads\ffxiv-dawntrail-bench_v11\ffxiv-dawntrail-bench.exe")
+    os.startfile(r"C:\ffxiv-dawntrail-bench_v11\ffxiv-dawntrail-bench_v11\ffxiv-dawntrail-bench.exe")
 
 
 def navigate_to_settings():
@@ -97,6 +143,9 @@ def navigate_settings() -> None:
 
 
 def run_benchmark():
+    delete_all_txt()
+    terminate_process(PROCESS_NAME)
+    terminate_process(DX_PROCESS_NAME)
     """Run the full benchmark sequence."""
     setup_start_time = int(time.time())
     start_game()
@@ -107,7 +156,7 @@ def run_benchmark():
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %.2f seconds", elapsed_setup_time)
-
+ 
     # Start benchmark
     user.press("tab")
     user.press("down")
@@ -126,7 +175,7 @@ def run_benchmark():
     time.sleep(180)
 
     if not find_word("total", timeout=300, interval=0.5):
-        logging.error("Did not see results screen. Marking as DNF.")
+        logging.info("Did not see results screen. Marking as DNF.")
         sys.exit(1)
 
     time.sleep(5)
@@ -137,8 +186,11 @@ def run_benchmark():
     logging.info("Benchmark took %.2f seconds", elapsed_test_time)
 
     time.sleep(3)
-    terminate_process(PROCESS_NAME)
-
+    result = find_word("save", timeout=30)
+    user.click(result['x'], result['y'])
+    logging.info("Saving results txt...")
+    time.sleep(1)
+    am.copy_file(get_results_txt(),ArtifactType.RESULTS_TEXT, "Results txt file" )
     return test_start_time, test_end_time
 
 
@@ -147,12 +199,22 @@ setup_logging(LOG_DIRECTORY)
 am = ArtifactManager(LOG_DIRECTORY)
 
 try:
+    path = Path("C:/ffxiv-dawntrail-bench_v11")
+    if path.exists():
+        print("File already in C:/")
+    else:
+        print("No file found, copying from L:/ drive...")
+        copy_from_network_drive()
     start_time, end_time = run_benchmark()
-    resolution = read_output_stats(1)
-    score = read_output_stats(0)
+    logging.info(read_output_stats(get_results_txt()))
+    resolution = read_output_stats(get_results_txt())['resolution']
+    score = read_output_stats(get_results_txt())['score']
+    load_time = read_output_stats(get_results_txt())['total_loading_time']
 
     report = {
-        "score": str(score),
+        "score": str(load_time),
+        "unit": "seconds",
+        "fps_score": str(score),
         "resolution": str(resolution),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
@@ -160,9 +222,13 @@ try:
 
     am.create_manifest()
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    terminate_process(PROCESS_NAME)
+    terminate_process(DX_PROCESS_NAME)
+    terminate_process("Notepad.exe")
 
 except Exception as e:  # pylint: disable=broad-except
-    logging.error("Something went wrong running the benchmark!")
+    logging.info("Something went wrong running the benchmark!")
     logging.exception(e)
     terminate_process(PROCESS_NAME)
+    terminate_process(DX_PROCESS_NAME)
     sys.exit(1)
