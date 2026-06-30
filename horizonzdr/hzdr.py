@@ -65,7 +65,8 @@ def run_benchmark() -> tuple[float]:
     am = ArtifactManager(LOG_DIRECTORY)
 
     time.sleep(10)
-
+    #skip intro
+    user.press("esc")
     # Make sure the game started correctly
     if kerasService.wait_for_word(word="quit", timeout=30, interval=1) is None:
         logging.info("Could not find the main menu. Did the game load?")
@@ -90,6 +91,49 @@ def run_benchmark() -> tuple[float]:
     if kerasService.wait_for_word(word="monitor", timeout=30, interval=1) is None:
         logging.info("Did not find the display settings menu. Did the menu get stuck?")
         sys.exit(1)
+    #Check if its fullscreen only and not exclusive fullscreen
+    if kerasService.wait_for_word(word="exclusive", timeout=3) is None:
+        user.press("down")
+        user.press("right")
+        #Resets focus to first position before applying settings
+        user.press("up")
+        user.press("r")
+        user.press("enter")
+        time.sleep(1)
+        user.press("enter")
+    #Checks frame rate setting, sometimes this can be incorrect even if it is set to exclusive fullscreen
+    if kerasService.wait_for_word(word="144", timeout=3) is None:
+        user.press("down")
+        #Sometimes when the screen refreshes if the setting is changed from fullscreen to exclusive, the cursor highlights on v-sync because technically it moves it to the center so the game picks that up as a focusing movement.
+        #This checks if we are in the proper position by going down one and seeing if we can see 'generation' from frame generation, which should not be visible if we are in the correct focus location
+        #Either position once known is routed to the correct position via this if/else statement
+        if kerasService.wait_for_word(word="generation", timeout=3):
+            user.press("up")
+            user.press("up")
+        else:
+            user.press("down")
+            user.press("down")
+            user.press("down")
+            user.press("down")
+            user.press("down")
+            user.press("right")
+        #This while loop is for the case when we switch to exclusive fullscreen from fullscreen, occasionally it will set to 30Hz, we want to get to 144Hz
+        #So we should be highlighted on refresh rate at this point, it will (if not 144) do the first user.input("right") then check for 144, if not present it will continue pressing right and checking after for 144
+        #This solves arbitrary steps to get to 144Hz, and sets us up if we want to alter that target hz setting we can just change the word variable below.
+        #KNOWN LIMITATION  we can maybe pull the max refresh some other way if we care about whether the display is not 144Hz max, so as to handle all edge cases here.
+        while kerasService.wait_for_word(word="144", timeout=1) is None:
+            user.press("right")
+        #Apply Hz setting once it is correct, then go up one so the proper settings are in view for the screenshot
+        user.press("r")
+        user.press("enter")
+        time.sleep(1)
+        user.press("enter")
+        user.press("up")
+        user.press("up")
+        user.press("up")
+        user.press("up")
+        user.press("up")
+        user.press("up")
     am.take_screenshot(
         "display1.png", ArtifactType.CONFIG_IMAGE, "1st picture of display settings"
     )
