@@ -42,22 +42,16 @@ def copy_from_network_drive() -> Path:
         / "03_ProcessingFiles"
         / "ffxiv-dawntrail-bench_v11.zip"
     )
-    
     zip_path = Path("C:/ffxiv-dawntrail-bench_v11.zip")
     extract_to = Path("C:/ffxiv-dawntrail-bench_v11")
-    
     logging.info("Copying benchmark zip: %s -> %s", src_path, zip_path)
-    
     # Copy the zip file
     shutil.copyfile(src_path, zip_path)
-    
     # Extract it
     logging.info("Extracting to: %s", extract_to)
     extract_to.mkdir(parents=True, exist_ok=True)
-    
     with zipfile.ZipFile(zip_path) as zf:
         zf.extractall(extract_to)
-    
     logging.info("Extraction complete!")
     if zip_path.is_file():
         zip_path.unlink()# Deletes the file
@@ -75,7 +69,6 @@ def get_results_txt():
         logging.info("No .txt result file found")
         return None
     return Path(directory) / latest_txt
-
 
 def read_output_stats(path):
     if not FileExistsError(path):
@@ -199,23 +192,23 @@ setup_logging(LOG_DIRECTORY)
 am = ArtifactManager(LOG_DIRECTORY)
 
 try:
-    path = Path("C:/ffxiv-dawntrail-bench_v11")
-    if path.exists():
+    pathf = Path("C:/ffxiv-dawntrail-bench_v11")
+    if pathf.exists():
         print("File already in C:/")
     else:
         print("No file found, copying from L:/ drive...")
         copy_from_network_drive()
     start_time, end_time = run_benchmark()
     logging.info(read_output_stats(get_results_txt()))
-    resolution = read_output_stats(get_results_txt())['resolution']
-    score = read_output_stats(get_results_txt())['score']
+    resolutionf = read_output_stats(get_results_txt())['resolution']
+    scoref = read_output_stats(get_results_txt())['score']
     load_time = read_output_stats(get_results_txt())['total_loading_time']
 
     report = {
         "score": str(load_time),
         "unit": "seconds",
-        "fps_score": str(score),
-        "resolution": str(resolution),
+        "fps_score": str(scoref),
+        "resolution": str(resolutionf),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
     }
