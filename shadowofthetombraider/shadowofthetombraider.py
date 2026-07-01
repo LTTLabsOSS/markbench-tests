@@ -71,7 +71,8 @@ def run_benchmark(am):
         sys.exit(1)
 
     logging.info("found graphics")
-
+    # wait for menu to fully move
+    time.sleep(1)
     user.press("down")
     time.sleep(0.5)
     user.press("down")
@@ -79,7 +80,7 @@ def run_benchmark(am):
     user.press("down")
     time.sleep(0.5)
     user.press("enter")
-    time.sleep(1)
+    time.sleep(3)
 
     if find_word(word="benchmark", timeout=30, interval=1) is None:
         logging.info(
