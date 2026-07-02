@@ -80,7 +80,7 @@ def run_benchmark(am):
     user.press("down")
     time.sleep(0.5)
     user.press("enter")
-    time.sleep(3)
+    time.sleep(4)
 
     if find_word(word="benchmark", timeout=30, interval=1) is None:
         logging.info(
@@ -92,6 +92,8 @@ def run_benchmark(am):
         "display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings"
     )
 
+    user.press("up")
+    time.sleep(0.5)
     user.press("right")
     am.take_screenshot(
         "graphics.png", ArtifactType.CONFIG_IMAGE, "picture of graphics settings"
