@@ -179,7 +179,7 @@ def analyze_drive_rates(csv_path: str, sourceletter: str = None):
         "drives": [{"name": d["name"], "letter": d["letter"]} for d in drives],
     }
 
-def copy_from_network_drive(path) -> Any:
+def copy_from_network_drive(path):
     if not Path(path).is_file():
         #"""Copies video file from network drive to the source drive."""
         logging.info("File not found on source drive. Attempting file copy")
@@ -187,6 +187,8 @@ def copy_from_network_drive(path) -> Any:
         if path.is_file():
             logging.info("File successfully copied to source drive")
             return path
+        else:
+            return None
     else:
         logging.info("File already exists on source drive, skipping copy.")
         return path
