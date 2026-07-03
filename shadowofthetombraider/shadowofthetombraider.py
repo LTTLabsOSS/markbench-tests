@@ -71,7 +71,8 @@ def run_benchmark(am):
         sys.exit(1)
 
     logging.info("found graphics")
-
+    # wait for menu to fully move
+    time.sleep(1)
     user.press("down")
     time.sleep(0.5)
     user.press("down")
@@ -79,7 +80,7 @@ def run_benchmark(am):
     user.press("down")
     time.sleep(0.5)
     user.press("enter")
-    time.sleep(1)
+    time.sleep(4)
 
     if find_word(word="benchmark", timeout=30, interval=1) is None:
         logging.info(
@@ -91,11 +92,8 @@ def run_benchmark(am):
         "display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings"
     )
 
-    # press up until we have DISPLAY highlighted so we can flip to the graphics tab
-    for _ in range(21):
-        user.press("up")
-        time.sleep(0.2)
-
+    user.press("up")
+    time.sleep(0.5)
     user.press("right")
     am.take_screenshot(
         "graphics.png", ArtifactType.CONFIG_IMAGE, "picture of graphics settings"

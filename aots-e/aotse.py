@@ -73,7 +73,7 @@ def run_benchmark():
 
     time.sleep(10)
 
-    result = kerasService.wait_for_word("preparing", interval=3, timeout=60)
+    result = kerasService.wait_for_word("preparing", interval=1, timeout=60)
     if not result:
         logging.info("Did not see the benchmark starting.")
         sys.exit(1)
@@ -85,7 +85,7 @@ def run_benchmark():
 
     time.sleep(15)
 
-    result = kerasService.wait_for_word("259", timeout=60, interval=0.2)
+    result = kerasService.wait_for_word("59", timeout=60, interval=0.2)
     if not result:
         logging.info("Benchmark didn't start.")
         sys.exit(1)

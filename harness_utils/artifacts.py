@@ -13,6 +13,7 @@ from harness_utils.platform import is_windows
 from harness_utils.screenshot import (
     capture_screenshot_file,
     capture_screenshot_png_bytes,
+    take_mss_file,
 )
 
 logger = logging.getLogger(__name__)
@@ -140,7 +141,7 @@ class ArtifactManager:
             artifact_type.value,
             description,
         )
-        capture_screenshot_file(self.output_path / filename)
+        take_mss_file(self.output_path / filename)
         artifact = Artifact(filename, artifact_type, description)
         self.artifacts.append(artifact)
         logger.info("Captured artifact screenshot filename=%s", filename)
