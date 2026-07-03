@@ -5,6 +5,7 @@ Downloads test video from the L:/ drive to an indicated source drive, them trans
 ## Prerequisites
 
 - Python 3.10+
+- *More than one drive in the system*
 - Connection to L: drive
 
 ## Options
