@@ -188,9 +188,8 @@ def copy_from_network_drive(path):
             logging.info("File successfully copied to source drive")
             return path
         return None
-    else:
-        logging.info("File already exists on source drive, skipping copy.")
-        return path
+    logging.info("File already exists on source drive, skipping copy.")
+    return path
 
 def get_args_drive():
     """Gets script arguments"""
