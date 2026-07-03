@@ -256,7 +256,7 @@ report = {
         "score": avg_write,
         "unit": "MB/s",
         "read_score": avg_read,
-        "unit": "MB/s",
+        "read_unit": "MB/s",
         "target_drive": write_drive_name,
         "source_drive": read_drive_name,
         "start_time": seconds_to_milliseconds(start_time),
