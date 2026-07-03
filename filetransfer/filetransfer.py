@@ -54,8 +54,8 @@ def _parse_csv_line(line):
         i += 1
     fields.append(''.join(field))
     return fields
- 
- 
+
+
 def _to_float(val):
     if val is None:
         return None
@@ -66,12 +66,12 @@ def _to_float(val):
         return float(val)
     except ValueError:
         return None
- 
- 
+
+
 def _col_values(data_rows, idx):
     return [row[idx] if idx < len(row) else "" for row in data_rows]
- 
- 
+
+
 def _last_nonempty(data_rows, idx):
     last_val = None
     for row in data_rows:
@@ -79,14 +79,14 @@ def _last_nonempty(data_rows, idx):
         if v is not None and v.strip() != "":
             last_val = v
     return last_val.strip() if last_val else None
- 
- 
+
+
 def _extract_letter(descriptor):
     # Matches the trailing "[C:]" / "[D:]" style drive-letter tag
     m = re.search(r"\[([A-Za-z]):\]", descriptor or "")
     return f"{m.group(1).upper()}:" if m else None
- 
- 
+
+
 def _normalize_letter(letter):
     if letter is None:
         return None
@@ -94,14 +94,14 @@ def _normalize_letter(letter):
     if not letter.endswith(":"):
         letter += ":"
     return letter
- 
- 
+
+
 def _build_drives(raw_header, data_rows, read_col_name, write_col_name):
     """Match Read/Write Rate columns that share the same footer descriptor
     (the actual drive identity string) into one entry per drive."""
     read_indices = [i for i, h in enumerate(raw_header) if h == read_col_name]
     write_indices = [i for i, h in enumerate(raw_header) if h == write_col_name]
- 
+
     drives_by_descriptor = {}
     for idx in read_indices:
         desc = _last_nonempty(data_rows, idx)
@@ -111,7 +111,7 @@ def _build_drives(raw_header, data_rows, read_col_name, write_col_name):
         desc = _last_nonempty(data_rows, idx)
         if desc is not None:
             drives_by_descriptor.setdefault(desc, {})["write_idx"] = idx
- 
+
     drives = [
         {
             "name": desc,
@@ -123,8 +123,8 @@ def _build_drives(raw_header, data_rows, read_col_name, write_col_name):
     ]
     drives.sort(key=lambda d: (d["read_idx"] if d["read_idx"] is not None else 1 << 30))
     return drives
- 
- 
+
+
 def _collect_rates(data_rows, drives, target_omit):
     read_vals = []
     write_vals = []
@@ -140,8 +140,8 @@ def _collect_rates(data_rows, drives, target_omit):
                 v for v in (_to_float(x) for x in _col_values(data_rows, d["write_idx"])) if v is not None
             )
     return read_vals, write_vals
- 
- 
+
+
 def analyze_drive_rates(csv_path: str, sourceletter: str = None):
     """
     Reads an HWiNFO-style CSV log (no external libraries). Detects all drives
@@ -156,23 +156,23 @@ def analyze_drive_rates(csv_path: str, sourceletter: str = None):
     """
     with open(csv_path, 'r', encoding='utf-8') as f:
         raw_lines = [line.rstrip('\n').rstrip('\r') for line in f]
- 
+
     lines = [ln for ln in raw_lines if ln != ""]
     if not lines:
         return {"avg_read": None, "avg_write": None, "drives": []}
- 
+
     rows = [_parse_csv_line(ln) for ln in lines]
     raw_header = [h.strip() for h in rows[0]]
     data_rows = rows[1:]
- 
+
     drives = _build_drives(raw_header, data_rows, "Read Rate [MB/s]", "Write Rate [MB/s]")
- 
+
     target_omit = _normalize_letter(sourceletter)
     read_vals, write_vals = _collect_rates(data_rows, drives, target_omit)
- 
+
     avg_read = sum(read_vals) / len(read_vals) if read_vals else None
     avg_write = sum(write_vals) / len(write_vals) if write_vals else None
- 
+
     return {
         "avg_read": avg_read,
         "avg_write": avg_write,
