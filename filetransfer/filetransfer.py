@@ -205,12 +205,12 @@ def get_args_drive():
 def run_benchmark(filepath):
     """Copies file from specified drive and extracts it."""
     if Path(dest_path).is_dir():
-        logging.info(f"Destination dir found, continuing...")
+        logging.info("Destination dir found, continuing...")
     else:
         logging.info("Destination dir not found... Creating...")
         os.makedirs(dest_path, exist_ok=True)
     logging.info("Starting HWiNFO...")
-    process = subprocess.Popen(
+    process = subprocess.Popen( # pylint: disable=consider-using-with
     [
         r"C:\Markbench\hwinfo_cli\hwinfo_cli.exe",
         "--out", r"C:\Markbench\harnesses\filetransfer\run\drives.csv",
@@ -236,7 +236,7 @@ def run_benchmark(filepath):
     test_end_time = int(time.time())
     if Path(file_path).is_file():
         Path(file_path).unlink()
-        logging.info(f"Deleted file: {Path(dest_path).name}")
+        logging.info("Deleted file")
     else:
         logging.info("File not found... Some error during file transfer.")
     return test_start_time, test_end_time
