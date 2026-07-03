@@ -13,7 +13,7 @@ from argparse import ArgumentParser
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import ArtifactManager
 from harness_utils.output import (
     seconds_to_milliseconds,
     setup_logging,
@@ -170,26 +170,23 @@ def analyze_drive_rates(csv_path: str, sourceletter: str = None):
     target_omit = _normalize_letter(sourceletter)
     read_vals, write_vals = _collect_rates(data_rows, drives, target_omit)
 
-    avg_read = sum(read_vals) / len(read_vals) if read_vals else None
-    avg_write = sum(write_vals) / len(write_vals) if write_vals else None
+    vavg_read = sum(read_vals) / len(read_vals) if read_vals else None
+    vavg_write = sum(write_vals) / len(write_vals) if write_vals else None
 
     return {
-        "avg_read": avg_read,
-        "avg_write": avg_write,
+        "avg_read": vavg_read,
+        "avg_write": vavg_write,
         "drives": [{"name": d["name"], "letter": d["letter"]} for d in drives],
     }
 
 def copy_from_network_drive(path):
     if not Path(path).is_file():
-        """Copies video file from network drive to the source drive."""
+        #"""Copies video file from network drive to the source drive."""
         logging.info("File not found on source drive. Attempting file copy")
         shutil.copyfile(ntwrk_src_path, path)
         if path.is_file():
             logging.info("File successfully copied to source drive")
             return path
-        else:
-            logging.info("Some issue prevented network transfer...")
-            return
     else:
         logging.info("File already exists on source drive, skipping copy.")
         return path
@@ -208,7 +205,7 @@ def get_args_drive():
 def run_benchmark(filepath):
     """Copies file from specified drive and extracts it."""
     if Path(dest_path).is_dir():
-        logging.info(f"Destination dir found, continuing: {Path(dest_path).name}")
+        logging.info(f"Destination dir found, continuing...")
     else:
         logging.info("Destination dir not found... Creating...")
         os.makedirs(dest_path, exist_ok=True)
