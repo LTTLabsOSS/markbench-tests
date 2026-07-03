@@ -187,8 +187,7 @@ def copy_from_network_drive(path):
         if path.is_file():
             logging.info("File successfully copied to source drive")
             return path
-        else:
-            return None
+        return None
     else:
         logging.info("File already exists on source drive, skipping copy.")
         return path
