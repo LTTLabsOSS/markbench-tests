@@ -42,7 +42,7 @@ def analyze_drive_rates(csv_path: str, sourceletter: str = None):
     """
     read_col_name = "Read Rate [MB/s]"
     write_col_name = "Write Rate [MB/s]"
- 
+
     def parse_csv_line(line):
         fields = []
         field = []
@@ -71,18 +71,18 @@ def analyze_drive_rates(csv_path: str, sourceletter: str = None):
             i += 1
         fields.append(''.join(field))
         return fields
- 
+
     with open(csv_path, 'r', encoding='utf-8') as f:
         raw_lines = [line.rstrip('\n').rstrip('\r') for line in f]
- 
+
     lines = [ln for ln in raw_lines if ln != ""]
     if not lines:
         return {"avg_read": None, "avg_write": None, "drives": []}
- 
+
     rows = [parse_csv_line(ln) for ln in lines]
     raw_header = [h.strip() for h in rows[0]]
     data_rows = rows[1:]
- 
+
     def to_float(val):
         if val is None:
             return None
@@ -93,10 +93,10 @@ def analyze_drive_rates(csv_path: str, sourceletter: str = None):
             return float(val)
         except ValueError:
             return None
- 
+
     def col_values(idx):
         return [row[idx] if idx < len(row) else "" for row in data_rows]
- 
+
     def last_nonempty(idx):
         last_val = None
         for row in data_rows:
@@ -104,16 +104,16 @@ def analyze_drive_rates(csv_path: str, sourceletter: str = None):
             if v is not None and v.strip() != "":
                 last_val = v
         return last_val.strip() if last_val else None
- 
+
     # Find every occurrence of Read Rate / Write Rate columns (one pair per drive)
     read_indices = [i for i, h in enumerate(raw_header) if h == read_col_name]
     write_indices = [i for i, h in enumerate(raw_header) if h == write_col_name]
- 
+
     def extract_letter(descriptor):
         # Matches the trailing "[C:]" / "[D:]" style drive-letter tag
         m = re.search(r"\[([A-Za-z]):\]", descriptor or "")
         return f"{m.group(1).upper()}:" if m else None
- 
+
     # Build one entry per drive by matching read/write columns that share
     # the same footer descriptor (the actual drive identity string)
     drives_by_descriptor = {}
@@ -127,7 +127,7 @@ def analyze_drive_rates(csv_path: str, sourceletter: str = None):
         if desc is None:
             continue
         drives_by_descriptor.setdefault(desc, {})["write_idx"] = idx
- 
+
     drives = []
     for desc, idxs in drives_by_descriptor.items():
         drives.append({
@@ -136,10 +136,9 @@ def analyze_drive_rates(csv_path: str, sourceletter: str = None):
             "read_idx": idxs.get("read_idx"),
             "write_idx": idxs.get("write_idx"),
         })
- 
+
     # Preserve column order for stable/predictable output
     drives.sort(key=lambda d: (d["read_idx"] if d["read_idx"] is not None else 1 << 30))
- 
     def normalize_letter(letter):
         if letter is None:
             return None
@@ -147,9 +146,8 @@ def analyze_drive_rates(csv_path: str, sourceletter: str = None):
         if not letter.endswith(":"):
             letter += ":"
         return letter
- 
+
     target_omit = normalize_letter(sourceletter)
- 
     read_vals = []
     write_vals = []
     for d in drives:
@@ -159,17 +157,15 @@ def analyze_drive_rates(csv_path: str, sourceletter: str = None):
             read_vals.extend(v for v in (to_float(x) for x in col_values(d["read_idx"])) if v is not None)
         if d["write_idx"] is not None:
             write_vals.extend(v for v in (to_float(x) for x in col_values(d["write_idx"])) if v is not None)
- 
+
     avg_read = sum(read_vals) / len(read_vals) if read_vals else None
     avg_write = sum(write_vals) / len(write_vals) if write_vals else None
- 
+
     return {
         "avg_read": avg_read,
         "avg_write": avg_write,
         "drives": [{"name": d["name"], "letter": d["letter"]} for d in drives],
     }
-
-
 
 def copy_from_network_drive(path):
     if not Path(path).is_file():
@@ -185,7 +181,6 @@ def copy_from_network_drive(path):
     else:
         logging.info("File already exists on source drive, skipping copy.")
         return path
-
 
 def get_args_drive():
     """Gets script arguments"""
