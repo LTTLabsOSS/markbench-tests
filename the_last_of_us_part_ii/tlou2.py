@@ -282,9 +282,13 @@ def main():
         reset_savedata()
 
         start_time, end_time = run_benchmark()
-        resolution_tuple = get_current_resolution()
+        width, height = get_current_resolution()
+        if width is None or height is None:
+            logging.error("Could not read resolution")
+            sys.exit(1)
+
         report = {
-            "resolution": format_resolution(resolution_tuple[0], resolution_tuple[1]),
+            "resolution": format_resolution(width, height),
             "start_time": seconds_to_milliseconds(
                 start_time
             ),  # seconds to milliseconds
