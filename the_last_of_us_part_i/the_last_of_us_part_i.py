@@ -229,7 +229,7 @@ def run_benchmark():
     am = ArtifactManager(LOG_DIRECTORY)
     time.sleep(10)
 
-    result = kerasService.wait_for_word("press", interval=1, timeout=5)
+    result = kerasService.wait_for_word("press", interval=5, timeout=120)
     if not result:
         logging.info("Did not see start screen")
         sys.exit(1)
