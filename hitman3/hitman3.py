@@ -67,7 +67,7 @@ def run_benchmark():
     selected_benchmark_name, benchmark_time = benchmark_check()
     exec_steam_run_command(STEAM_GAME_ID)
 
-    time.sleep(20)
+    time.sleep(2)
     location = gui.locateOnScreen(
         f"{SCRIPT_DIRECTORY}\\screenshots\\options.png", confidence=0.7
     )  # luckily this seems to be a set resolution for the button
