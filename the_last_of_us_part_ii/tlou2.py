@@ -8,14 +8,13 @@ import time
 import winreg  # for accessing settings, including resolution, in the registry
 from pathlib import Path
 
-import pydirectinput as user
-
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
-from harness_utils.misc import find_word, int_time, keras_args, press_n_times
+from harness_utils.input import press_n_times, user
+from harness_utils.misc import int_time
+from harness_utils.ocr_service import find_word
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -111,27 +110,29 @@ def read_registry_value(key_path, value_name):
         return None
 
 
-def run_benchmark(keras_service: KerasService) -> tuple:
+def run_benchmark() -> tuple:
     """Starts Game, Sets Settings, and Runs Benchmark"""
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int_time()
     am = ArtifactManager(LOG_DIRECTORY)
 
-    if keras_service.wait_for_word(word="sony", timeout=60, interval=0.2) is None:
+    if find_word("sony", timeout=60, interval=0.2) is None:
         logging.error("Couldn't find 'sony'")
     else:
         user.press("escape")
 
-    find_word(keras_service, "story", "Couldn't find main menu : 'story'")
+    if find_word("story", timeout=30, interval=1) is None:
+        logging.error("Couldn't find main menu : 'story'")
+        sys.exit(1)
 
     press_n_times("down", 2)
 
     # navigate settings
-    navigate_settings(am, keras_service)
+    navigate_settings(am)
 
-    find_word(
-        keras_service, "story", "Couldn't find main menu the second time : 'story'"
-    )
+    if find_word("story", timeout=30, interval=1) is None:
+        logging.error("Couldn't find main menu the second time : 'story'")
+        sys.exit(1)
 
     press_n_times("up", 2)
 
@@ -141,7 +142,7 @@ def run_benchmark(keras_service: KerasService) -> tuple:
 
     user.press("space")
 
-    if keras_service.wait_for_word(word="continue", timeout=5, interval=0.2) is None:
+    if find_word("continue", timeout=5, interval=0.2) is None:
         user.press("down")
     else:
         press_n_times("down", 2)
@@ -154,7 +155,7 @@ def run_benchmark(keras_service: KerasService) -> tuple:
 
     time.sleep(0.3)
 
-    if keras_service.wait_for_word(word="autosave", timeout=5, interval=0.2) is None:
+    if find_word("autosave", timeout=5, interval=0.2) is None:
         user.press("space")
 
     else:
@@ -179,7 +180,7 @@ def run_benchmark(keras_service: KerasService) -> tuple:
 
     # time of benchmark usually is 4:23 = 263 seconds
 
-    if keras_service.wait_for_word(word="man", timeout=100, interval=0.2) is not None:
+    if find_word("man", timeout=100, interval=0.2) is not None:
         test_start_time = int_time() - 14
         time.sleep(240)
 
@@ -187,7 +188,7 @@ def run_benchmark(keras_service: KerasService) -> tuple:
         logging.error("couldn't find 'man'")
         time.sleep(150)
 
-    if keras_service.wait_for_word(word="rush", timeout=100, interval=0.2) is not None:
+    if find_word("rush", timeout=100, interval=0.2) is not None:
         time.sleep(3)
         test_end_time = int_time()
 
@@ -205,14 +206,16 @@ def run_benchmark(keras_service: KerasService) -> tuple:
     return test_start_time, test_end_time
 
 
-def navigate_settings(am: ArtifactManager, keras: KerasService) -> None:
+def navigate_settings(am: ArtifactManager) -> None:
     """Navigate through settings and take screenshots.
     Exits to main menu after taking screenshots.
     """
 
     user.press("space")
 
-    find_word(keras, "display", "Couldn't find display")
+    if find_word("display", timeout=30, interval=1) is None:
+        logging.error("Couldn't find display")
+        sys.exit(1)
 
     time.sleep(5)  # slow cards may miss the first down
 
@@ -222,13 +225,17 @@ def navigate_settings(am: ArtifactManager, keras: KerasService) -> None:
 
     time.sleep(0.5)
 
-    find_word(keras, "resolution", "Couldn't find resolution")
+    if find_word("resolution", timeout=30, interval=1) is None:
+        logging.error("Couldn't find resolution")
+        sys.exit(1)
 
     am.take_screenshot("display1.png", ArtifactType.CONFIG_IMAGE, "display settings 1")
 
     user.press("up")
 
-    find_word(keras, "brightness", "Couldn't find brightness")
+    if find_word("brightness", timeout=30, interval=1) is None:
+        logging.error("Couldn't find brightness")
+        sys.exit(1)
 
     am.take_screenshot("display2.png", ArtifactType.CONFIG_IMAGE, "display settings 2")
 
@@ -236,7 +243,9 @@ def navigate_settings(am: ArtifactManager, keras: KerasService) -> None:
 
     time.sleep(0.5)
 
-    find_word(keras, "preset", "Couldn't find preset")
+    if find_word("preset", timeout=30, interval=1) is None:
+        logging.error("Couldn't find preset")
+        sys.exit(1)
 
     am.take_screenshot(
         "graphics1.png", ArtifactType.CONFIG_IMAGE, "graphics settings 1"
@@ -244,7 +253,9 @@ def navigate_settings(am: ArtifactManager, keras: KerasService) -> None:
 
     user.press("up")
 
-    find_word(keras, "dirt", "Couldn't find dirt")
+    if find_word("dirt", timeout=30, interval=1) is None:
+        logging.error("Couldn't find dirt")
+        sys.exit(1)
 
     am.take_screenshot(
         "graphics3.png", ArtifactType.CONFIG_IMAGE, "graphics settings 3"
@@ -252,7 +263,9 @@ def navigate_settings(am: ArtifactManager, keras: KerasService) -> None:
 
     press_n_times("up", 13)
 
-    find_word(keras, "scattering", "Couldn't find scattering")
+    if find_word("scattering", timeout=30, interval=1) is None:
+        logging.error("Couldn't find scattering")
+        sys.exit(1)
 
     am.take_screenshot(
         "graphics2.png", ArtifactType.CONFIG_IMAGE, "graphics settings 2"
@@ -266,14 +279,16 @@ def main():
     try:
         logging.info("Starting The Last of Us Part II benchmark")
 
-        keras_service = KerasService(keras_args().keras_host, keras_args().keras_port)
-
         reset_savedata()
 
-        start_time, end_time = run_benchmark(keras_service)
-        resolution_tuple = get_current_resolution()
+        start_time, end_time = run_benchmark()
+        width, height = get_current_resolution()
+        if width is None or height is None:
+            logging.error("Could not read resolution")
+            sys.exit(1)
+
         report = {
-            "resolution": format_resolution(resolution_tuple[0], resolution_tuple[1]),
+            "resolution": format_resolution(width, height),
             "start_time": seconds_to_milliseconds(
                 start_time
             ),  # seconds to milliseconds

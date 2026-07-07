@@ -93,12 +93,15 @@ def navigate_startup():
         sys.exit(1)
 
     logging.info("Hit the title screen. Continuing")
+    user.click()
+    time.sleep(0.3)
     user.press("enter")
     time.sleep(1)
 
     # cancel logging into ea services
     result = find_word("login", timeout=20)
     if result:
+        time.sleep(3)
         logging.info("Cancelling logging in.")
         user.press("enter")
         time.sleep(2)
@@ -110,6 +113,7 @@ def offline_menu():
     if not result:
         logging.info("Didn't find the keyword 'network'")
         return
+    time.sleep(5)
     user.press("down")
     time.sleep(0.5)
     user.press("enter")
