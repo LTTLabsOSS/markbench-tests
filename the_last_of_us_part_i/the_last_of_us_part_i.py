@@ -227,7 +227,7 @@ def run_benchmark():
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int(time.time())
     am = ArtifactManager(LOG_DIRECTORY)
-    time.sleep(10)
+    time.sleep(30)
 
     result = kerasService.wait_for_word("press", interval=5, timeout=120)
     if not result:
