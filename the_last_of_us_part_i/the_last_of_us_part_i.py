@@ -41,14 +41,14 @@ def take_screenshots(am: ArtifactManager) -> None:
     logging.info("Taking screenshots of benchmark settings")
 
     # navigating to the display menu
-    result = kerasService.wait_for_word("options", interval=3, timeout=60)
+    result = kerasService.wait_for_word("options", interval=1, timeout=5)
     if not result:
         logging.info("Did not see main menu. Did something mess up?")
         sys.exit(1)
     press_n_times("s", 2, 0.2)
     user.press("enter")
 
-    result = kerasService.wait_for_word("display", interval=3, timeout=60)
+    result = kerasService.wait_for_word("display", interval=1, timeout=5)
     if not result:
         logging.info(
             "Did not see options menu (looking for display). Did something mess up?"
@@ -58,7 +58,7 @@ def take_screenshots(am: ArtifactManager) -> None:
     user.press("enter")
 
     # taking the display menu screenshots
-    result = kerasService.wait_for_word("aspect", interval=3, timeout=60)
+    result = kerasService.wait_for_word("aspect", interval=1, timeout=5)
     if not result:
         logging.info("Did not see aspect ratio setting. Did something mess up?")
         sys.exit(1)
@@ -67,7 +67,7 @@ def take_screenshots(am: ArtifactManager) -> None:
     )
     press_n_times("s", 14, 0.2)
 
-    result = kerasService.wait_for_word("safezone", interval=3, timeout=60)
+    result = kerasService.wait_for_word("safezone", interval=1, timeout=5)
     if not result:
         logging.info("Did not see safezone scale setting. Did something mess up?")
         sys.exit(1)
@@ -76,7 +76,7 @@ def take_screenshots(am: ArtifactManager) -> None:
     )
     press_n_times("s", 7, 0.2)
 
-    result = kerasService.wait_for_word("gore", interval=3, timeout=60)
+    result = kerasService.wait_for_word("gore", interval=1, timeout=5)
     if not result:
         logging.info("Did not see gore setting. Did something mess up?")
         sys.exit(1)
@@ -86,7 +86,7 @@ def take_screenshots(am: ArtifactManager) -> None:
 
     # navigating to the graphics menu
     user.press("backspace")
-    result = kerasService.wait_for_word("graphics", interval=3, timeout=60)
+    result = kerasService.wait_for_word("graphics", interval=1, timeout=5)
     if not result:
         logging.info(
             "Did not see options menu (looking for graphics). Did something mess up?"
@@ -96,7 +96,7 @@ def take_screenshots(am: ArtifactManager) -> None:
     user.press("enter")
 
     # taking the graphics screenshots
-    result = kerasService.wait_for_word("preset", interval=3, timeout=60)
+    result = kerasService.wait_for_word("preset", interval=1, timeout=5)
     if not result:
         logging.info("Did not see graphics preset setting. Did something mess up?")
         sys.exit(1)
@@ -105,7 +105,7 @@ def take_screenshots(am: ArtifactManager) -> None:
     )
     press_n_times("s", 10, 0.2)
 
-    result = kerasService.wait_for_word("sampling", interval=3, timeout=60)
+    result = kerasService.wait_for_word("sampling", interval=1, timeout=5)
     if not result:
         logging.info(
             "Did not see texture sampling quality setting. Did something mess up?"
@@ -116,7 +116,7 @@ def take_screenshots(am: ArtifactManager) -> None:
     )
     press_n_times("s", 7, 0.2)
 
-    result = kerasService.wait_for_word("point", interval=3, timeout=60)
+    result = kerasService.wait_for_word("point", interval=1, timeout=5)
     if not result:
         logging.info(
             "Did not see point lights shadow resolution setting. Did something mess up?"
@@ -127,7 +127,7 @@ def take_screenshots(am: ArtifactManager) -> None:
     )
     press_n_times("s", 8, 0.2)
 
-    result = kerasService.wait_for_word("tracing", interval=3, timeout=60)
+    result = kerasService.wait_for_word("tracing", interval=1, timeout=5)
     if not result:
         logging.info(
             "Did not see screen space cone tracing setting. Did something mess up?"
@@ -138,7 +138,7 @@ def take_screenshots(am: ArtifactManager) -> None:
     )
     press_n_times("s", 7, 0.2)
 
-    result = kerasService.wait_for_word("scattering", interval=3, timeout=60)
+    result = kerasService.wait_for_word("scattering", interval=1, timeout=5)
     if not result:
         logging.info(
             "Did not see screen space sub-surface scattering setting. Did something mess up?"
@@ -149,7 +149,7 @@ def take_screenshots(am: ArtifactManager) -> None:
     )
     press_n_times("s", 6, 0.2)
 
-    result = kerasService.wait_for_word("bloom", interval=3, timeout=60)
+    result = kerasService.wait_for_word("bloom", interval=1, timeout=5)
     if not result:
         logging.info("Did not see bloom resolution setting. Did something mess up?")
         sys.exit(1)
@@ -158,7 +158,7 @@ def take_screenshots(am: ArtifactManager) -> None:
     )
     press_n_times("s", 6, 0.2)
 
-    result = kerasService.wait_for_word("ambient", interval=3, timeout=60)
+    result = kerasService.wait_for_word("ambient", interval=1, timeout=5)
     if not result:
         logging.info(
             "Did not see ambient character density setting. Did something mess up?"
@@ -172,7 +172,7 @@ def take_screenshots(am: ArtifactManager) -> None:
     # navigating back to main menu
     press_n_times("backspace", 2, 0.2)
 
-    result = kerasService.wait_for_word("behind", interval=3, timeout=60)
+    result = kerasService.wait_for_word("behind", interval=1, timeout=5)
     if not result:
         logging.info(
             "Did not see main menu after taking the graphics screenshots. Did something mess up?"
@@ -192,14 +192,14 @@ def navigate_main_menu(am: ArtifactManager) -> None:
 
     # Copy the autosave here
     copy_autosave()
-    time.sleep(30)
+    time.sleep(5)
 
     # navigating to the load menu
     press_n_times("w", 2, 0.2)
     user.press("space")
     time.sleep(0.5)
 
-    result = kerasService.wait_for_word("load", interval=3, timeout=60)
+    result = kerasService.wait_for_word("load", interval=1, timeout=5)
     if not result:
         logging.info("Did not see story menu. Did something mess up?")
         sys.exit(1)
@@ -210,13 +210,12 @@ def navigate_main_menu(am: ArtifactManager) -> None:
     time.sleep(0.5)
 
     # Verify in the load section
-    result = kerasService.wait_for_word("hometown", interval=3, timeout=60)
+    result = kerasService.wait_for_word("hometown", interval=1, timeout=5)
     if not result:
         logging.info(
             "Did not saves to load. Did something mess up? Or did you forget to delete the saves?"
         )
         sys.exit(1)
-
 
     # load the save
     user.press("space")
@@ -230,11 +229,10 @@ def run_benchmark():
     am = ArtifactManager(LOG_DIRECTORY)
     time.sleep(10)
 
-    result = kerasService.wait_for_word("press", interval=3, timeout=60)
+    result = kerasService.wait_for_word("press", interval=1, timeout=5)
     if not result:
         logging.info("Did not see start screen")
         sys.exit(1)
-
 
     # copy_autosave()
 
