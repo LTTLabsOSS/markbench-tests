@@ -41,14 +41,6 @@ def _steamid64_to_account_id(steamid64: str) -> int:
     return account_id
 
 
-def get_steam_library_paths() -> list[Path]:
-    """Returns the default Steam library root path."""
-    logger.info("Resolving Steam library path")
-    paths = [Path(get_steam_folder_path())]
-    logger.info("Resolved Steam library paths: %s", paths)
-    return paths
-
-
 def get_steam_folder_path() -> str:
     """Gets the path to the Steam installation directory."""
     logger.info("Resolving Steam folder path")
