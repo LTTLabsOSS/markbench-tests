@@ -192,15 +192,10 @@ def exec_steam_game(game_id: int, steam_path=None, game_params=None) -> Popen:
     """
     if game_params is None:
         game_params = []
+    if steam_path is None:
+        steam_path = get_steam_exe_path()
 
-    if steam_path is None and is_linux():
-        command = [get_steam_exe_path(), "-applaunch", str(game_id), *game_params]
-        logger.info("Built Linux Steam command: %s", " ".join(command))
-    else:
-        if steam_path is None:
-            steam_path = get_steam_exe_path()
-        command = [steam_path, "-applaunch", str(game_id)] + game_params
-
+    command = [steam_path, "-applaunch", str(game_id), *game_params]
     logger.info("Launching Steam game command: %s", ", ".join(command))
     return Popen(command)
 
