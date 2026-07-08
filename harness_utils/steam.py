@@ -15,15 +15,6 @@ WINDOWS_STEAM_EXE = WINDOWS_STEAM_ROOT / "steam.exe"
 STEAMID64_ACCOUNT_ID_OFFSET = 76561197960265728
 
 
-def get_run_game_id_command(game_id: int) -> str:
-    """Returns the steam run game id command with the given game ID"""
-    command = "steam://rungameid/" + str(game_id)
-    logger.debug(
-        "Generated Steam run game command game_id=%s command=%s", game_id, command
-    )
-    return command
-
-
 def _load_vdf_file(file_path: Path, description: str) -> dict:
     vdf = import_module("vdf")
     try:
@@ -177,7 +168,7 @@ def exec_steam_run_command(game_id: int, steam_path=None) -> Popen:
     To launch a game with provided arguments,
     see the function `exec_steam_game`.
     """
-    steam_run_arg = get_run_game_id_command(game_id)
+    steam_run_arg = "steam://rungameid/" + str(game_id)
     if steam_path is None:
         steam_path = get_steam_exe_path()
     logger.info("Launching Steam run command: %s %s", steam_path, steam_run_arg)
