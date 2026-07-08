@@ -213,6 +213,46 @@ class InputController:
 user = InputController()
 
 
+def press(sequence: str, pause: float = 0.3) -> None:
+    """Press keys described by a comma-separated sequence like ``up*2, down*3``."""
+    steps = [step.strip() for step in sequence.split(",")]
+
+    for step in steps:
+        if not step:
+            continue
+
+        key, separator, count_text = step.partition("*")
+        key = key.strip()
+        if not key:
+            continue
+
+        count = 1
+        if separator:
+            count_text = count_text.strip()
+            if not count_text:
+                logger.warning(
+                    "Skipping press step with missing repeat count: %r", step
+                )
+                continue
+            try:
+                count = int(count_text)
+            except ValueError:
+                logger.warning(
+                    "Skipping press step with invalid repeat count: %r", step
+                )
+                continue
+            if count < 1:
+                logger.warning(
+                    "Skipping press step with non-positive repeat count: %r", step
+                )
+                continue
+
+        for press_index in range(count):
+            user.press(key)
+            if press_index + 1 < count:
+                time.sleep(pause)
+
+
 def press_n_times(key: str, n: int, pause: float = 0.5) -> None:
     """Press the same key multiple times."""
     for _ in range(n):

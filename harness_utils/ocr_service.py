@@ -9,7 +9,6 @@ from typing import Any
 
 import requests
 
-from harness_utils.input import user
 from harness_utils.screenshot import capture_screenshot_jpg_bytes
 
 CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "configs" / "config.toml"
@@ -33,29 +32,20 @@ def get_ocr_url(
             ocr_port = str(ocr.get("port", ocr_port))
         logging.debug("Found OCR config file. Using config/default values.")
     else:
-        logging.debug("OCR config file not found. Falling back to CLI args.")
-        parser = ArgumentParser()
-        parser.add_argument(
-            "--kerasHost",
-            dest="keras_host",
-            help="Host for Keras OCR service",
-            required=True,
+        logging.debug(
+            "OCR config file not found. Using defaults unless CLI overrides exist."
         )
-        parser.add_argument(
-            "--kerasPort",
-            dest="keras_port",
-            help="Port for Keras OCR service",
-            required=True,
-        )
-        args = parser.parse_args()
-        host = str(args.keras_host)
-        ocr_port = str(args.keras_port)
+        parser = ArgumentParser(add_help=False)
+        parser.add_argument("--ocrHost", "--kerasHost", dest="ocr_host")
+        parser.add_argument("--ocrPort", "--kerasPort", dest="ocr_port")
+        args, _ = parser.parse_known_args()
+        host = str(args.ocr_host or host)
+        ocr_port = str(args.ocr_port or ocr_port)
 
     host = str(ip_addr) if ip_addr is not None else host
     ocr_port = str(port) if port is not None else ocr_port
     logging.debug("Resolved OCR url: host=%s, port=%s", host, ocr_port)
     return f"http://{host}:{ocr_port}/process"
-
 
 
 def _query_ocr_service(word: str, vulkan: bool = False) -> Any:
@@ -71,12 +61,13 @@ def _query_ocr_service(word: str, vulkan: bool = False) -> Any:
             files={"file": image_bytes},
             timeout=OCR_REQUEST_TIMEOUT,
         )
-    except requests.exceptions.Timeout:
+    except requests.exceptions.Timeout as exc:
         logging.warning(
-            "OCR service timed out after %ss while searching for word=%r url=%s",
+            "OCR service timed out after %ss while searching for word=%r url=%s error=%s",
             OCR_REQUEST_TIMEOUT,
             word,
             url,
+            exc,
         )
         return None
     except requests.exceptions.ConnectionError as exc:
@@ -99,7 +90,16 @@ def _query_ocr_service(word: str, vulkan: bool = False) -> Any:
     if not response.ok or "not found" in response.text:
         return None
 
-    return json.loads(response.text)
+    try:
+        return json.loads(response.text)
+    except json.JSONDecodeError as exc:
+        logging.warning(
+            "OCR service returned invalid JSON while searching for word=%r url=%s error=%s",
+            word,
+            url,
+            exc,
+        )
+        return None
 
 
 def find_word(
@@ -123,42 +123,3 @@ def find_word(
             logging.debug(msg or f"OCR did not find word={word!r} timeout={timeout}s")
             return None
         sleep(interval)
-
-
-def press(sequence: str, pause: float = 0.3) -> None:
-    """Press keys described by a comma-separated sequence like ``up*2, down*3``."""
-    steps = [step.strip() for step in sequence.split(",")]
-
-    for step in steps:
-        if not step:
-            continue
-
-        key, separator, count_text = step.partition("*")
-        key = key.strip()
-        if not key:
-            continue
-
-        count = 1
-        if separator:
-            count_text = count_text.strip()
-            if not count_text:
-                logging.warning(
-                    "Skipping press step with missing repeat count: %r", step
-                )
-                continue
-            if not count_text.isdigit():
-                logging.warning(
-                    "Skipping press step with invalid repeat count: %r", step
-                )
-                continue
-            count = int(count_text)
-            if count < 1:
-                logging.warning(
-                    "Skipping press step with non-positive repeat count: %r", step
-                )
-                continue
-
-        for press_index in range(count):
-            user.press(key)
-            if press_index + 1 < count:
-                sleep(pause)
