@@ -12,6 +12,7 @@ dependencies = [
     "pywin32>=311; sys_platform == 'win32'",
     "pyyaml>=6.0.3",
     "requests>=2.32.5",
+    "vdf>=3.4",
     "vgamepad>=0.1.0",
 ]
 
