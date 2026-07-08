@@ -96,7 +96,9 @@ def get_steam_library_paths() -> list[Path]:
     elif is_linux():
         paths = [Path(get_steam_folder_path())]
     else:
-        raise RuntimeError("Steam library lookup is only supported on Windows and Linux")
+        raise RuntimeError(
+            "Steam library lookup is only supported on Windows and Linux"
+        )
     logger.info("Resolved Steam library paths: %s", paths)
     return paths
 
@@ -207,7 +209,9 @@ def get_app_install_location(app_id: int) -> str:
         )
         return path
 
-    raise RuntimeError("Steam app install lookup is only supported on Windows and Linux")
+    raise RuntimeError(
+        "Steam app install lookup is only supported on Windows and Linux"
+    )
 
 
 def get_proton_prefix(app_id: int) -> Path:
