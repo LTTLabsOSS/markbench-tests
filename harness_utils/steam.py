@@ -7,7 +7,7 @@ from importlib import import_module
 from pathlib import Path
 from subprocess import Popen
 
-from harness_utils.platform import is_linux, is_windows, require_linux, require_windows
+from harness_utils.platform import is_linux, is_windows
 
 logger = logging.getLogger(__name__)
 
@@ -145,7 +145,8 @@ def get_registry_active_user() -> int:
     use the Steam3 account ID value.
     """
     logger.info("Resolving most recent Steam user")
-    require_windows("Steam active user lookup")
+    if not is_windows():
+        raise RuntimeError("Steam active user lookup requires Windows")
     login_users_path = WINDOWS_STEAM_ROOT / "config" / "loginusers.vdf"
     data = _load_vdf_file(login_users_path, "Steam login users file")
     users = _get_vdf_value(data, "users")
@@ -196,28 +197,20 @@ def _read_app_manifest_value(manifest_path: Path, value_name: str) -> str | None
 def get_app_install_location(app_id: int) -> str:
     """Given the Steam App ID, gets the install directory."""
     logger.info("Resolving Steam app install location app_id=%s", app_id)
-    if is_windows() or is_linux():
-        manifest_path = get_app_manifest_path(app_id)
-        install_dir = _read_app_manifest_value(manifest_path, "installdir")
-        if not install_dir:
-            raise RuntimeError(
-                f"Steam app manifest missing installdir: {manifest_path}"
-            )
-        path = str(manifest_path.parent / "common" / install_dir)
-        logger.info(
-            "Resolved Steam app install location app_id=%s path=%s", app_id, path
-        )
-        return path
-
-    raise RuntimeError(
-        "Steam app install lookup is only supported on Windows and Linux"
-    )
+    manifest_path = get_app_manifest_path(app_id)
+    install_dir = _read_app_manifest_value(manifest_path, "installdir")
+    if not install_dir:
+        raise RuntimeError(f"Steam app manifest missing installdir: {manifest_path}")
+    path = str(manifest_path.parent / "common" / install_dir)
+    logger.info("Resolved Steam app install location app_id=%s path=%s", app_id, path)
+    return path
 
 
 def get_proton_prefix(app_id: int) -> Path:
     """Returns the Proton prefix path for a Steam app."""
     logger.info("Resolving Proton prefix app_id=%s", app_id)
-    require_linux("Proton prefix lookup")
+    if not is_linux():
+        raise RuntimeError("Proton prefix lookup requires Linux")
     path = get_app_manifest_path(app_id).parent / "compatdata" / str(app_id) / "pfx"
     logger.info("Resolved Proton prefix app_id=%s path=%s", app_id, path)
     return path
@@ -261,19 +254,14 @@ def get_build_id(game_id: int) -> str | None:
     """Gets the build ID of a game from the Steam installation directory"""
     logger.info("Resolving Steam build ID game_id=%s", game_id)
 
-    if is_windows() or is_linux():
-        manifest_path = get_app_manifest_path(game_id)
-        logger.debug("Checking Steam build ID manifest path=%s", manifest_path)
-        if not manifest_path.exists():
-            logger.warning("Game folder not found when looking for game version")
-            return None
-        build_id = _read_app_manifest_value(manifest_path, "buildid")
-        if build_id is not None:
-            logger.info(
-                "Resolved Steam build ID game_id=%s build_id=%s", game_id, build_id
-            )
-            return build_id
-        logger.warning("No 'buildid' found in the file when looking for game version")
+    manifest_path = get_app_manifest_path(game_id)
+    logger.debug("Checking Steam build ID manifest path=%s", manifest_path)
+    if not manifest_path.exists():
+        logger.warning("Game folder not found when looking for game version")
         return None
-
-    raise RuntimeError("Steam build ID lookup is only supported on Windows and Linux")
+    build_id = _read_app_manifest_value(manifest_path, "buildid")
+    if build_id is not None:
+        logger.info("Resolved Steam build ID game_id=%s build_id=%s", game_id, build_id)
+        return build_id
+    logger.warning("No 'buildid' found in the file when looking for game version")
+    return None
