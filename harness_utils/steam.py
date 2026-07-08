@@ -1,7 +1,6 @@
 """Utility functions related to using Steam for running games."""
 
 import logging
-import os
 import shutil
 from importlib import import_module
 from pathlib import Path
@@ -23,15 +22,6 @@ def get_run_game_id_command(game_id: int) -> str:
         "Generated Steam run game command game_id=%s command=%s", game_id, command
     )
     return command
-
-
-def _linux_steam_root() -> Path:
-    import pwd
-
-    username = pwd.getpwuid(os.getuid()).pw_name
-    path = Path("/home") / username / ".local" / "share" / "Steam"
-    logger.debug("Linux Steam root path: %s", path)
-    return path
 
 
 def _load_vdf_file(file_path: Path, description: str) -> dict:
@@ -75,7 +65,7 @@ def get_steam_folder_path() -> str:
         logger.info("Using default Windows Steam folder path=%s", WINDOWS_STEAM_ROOT)
         return str(WINDOWS_STEAM_ROOT)
     if is_linux():
-        root = _linux_steam_root()
+        root = Path.home() / ".local" / "share" / "Steam"
         logger.info("Resolved Linux Steam folder path=%s", root)
         return str(root)
     raise RuntimeError("Steam folder lookup is only supported on Windows and Linux")
