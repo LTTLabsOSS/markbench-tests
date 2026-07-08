@@ -3,7 +3,6 @@
 import os
 import re
 import winreg
-from argparse import ArgumentParser
 
 
 def export_registry_key(hive, subkey, input_file):
@@ -86,21 +85,3 @@ def get_resolution(config_file: str) -> tuple[int]:
                 height = height_match.group(1)
 
     return (height, width)
-
-
-def get_args() -> any:
-    """Get command line arguments"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    return parser.parse_args()

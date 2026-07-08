@@ -3,7 +3,6 @@
 import logging
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 import pydirectinput as user
@@ -17,7 +16,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -44,14 +43,14 @@ def run_benchmark():
     start_game()
 
     t1 = int(time.time())
-    optimizing_shaders = kerasService.wait_for_word("optimize", interval=1, timeout=10)
+    optimizing_shaders = find_word("optimize", interval=1, timeout=10)
     if optimizing_shaders:
         time.sleep(40)
 
     # wait for menu to load
     time.sleep(20)
 
-    options_present = kerasService.wait_for_word("options", interval=1, timeout=60)
+    options_present = find_word("options", interval=1, timeout=60)
     if options_present is None:
         raise ValueError("game did not load within time")
 
@@ -63,7 +62,7 @@ def run_benchmark():
     user.press("enter")
     time.sleep(4)
 
-    visuals = kerasService.wait_for_word("visuals", interval=1, timeout=10)
+    visuals = find_word("visuals", interval=1, timeout=10)
     if visuals is None:
         raise ValueError("on the wrong menu!")
 
@@ -96,7 +95,7 @@ def run_benchmark():
     user.press("altleft")
     time.sleep(0.5)
 
-    benchmark = kerasService.wait_for_word("benchmark", interval=1, timeout=10)
+    benchmark = find_word("benchmark", interval=1, timeout=10)
     if benchmark is None:
         raise ValueError("could not find benchmark button")
 
@@ -109,13 +108,13 @@ def run_benchmark():
     duration = round((t2 - t1), 2)
     logging.info("Harness setup took %d seconds", duration)
 
-    result = kerasService.wait_for_word("fps", interval=0.5, timeout=30)
+    result = find_word("fps", interval=0.5, timeout=30)
     if result is None:
         raise ValueError("benchmark didn't start on time or at all")
 
     benchmark_start = int(time.time())
     time.sleep(110)
-    result = kerasService.wait_for_word("options", interval=0.5, timeout=30)
+    result = find_word("options", interval=0.5, timeout=30)
     if result is None:
         raise ValueError(
             "did not detect end of benchmark, should have landed back in main menu"
@@ -129,21 +128,6 @@ def run_benchmark():
 
 
 try:
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    args = parser.parse_args()
-    kerasService = KerasService(args.keras_host, args.keras_port)
     am = ArtifactManager(LOG_DIRECTORY)
     start_time, end_time = run_benchmark()
     height, width = read_resolution()

@@ -4,7 +4,6 @@ import logging
 import os
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 import pydirectinput as user
@@ -14,7 +13,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.misc import press_n_times, remove_files
 from harness_utils.output import (
     format_resolution,
@@ -54,7 +53,7 @@ user.FAILSAFE = False
 
 def navigate_game_menus(am: ArtifactManager):
     """Navigate in game menus and take screenshots where appropriate"""
-    result = kerasService.wait_for_word("vsync", timeout=25)
+    result = find_word("vsync", timeout=25)
     if not result:
         logging.info(
             "Did not see display menu. Did we navigate to the options correctly?"
@@ -66,7 +65,7 @@ def navigate_game_menus(am: ArtifactManager):
 
     user.press("e")
     time.sleep(0.5)
-    result = kerasService.wait_for_word("dlss", timeout=25)
+    result = find_word("dlss", timeout=25)
     if not result:
         logging.info(
             "Did not see the top of quality menu. Did we navigate to the quality menu correctly?"
@@ -78,7 +77,7 @@ def navigate_game_menus(am: ArtifactManager):
 
     user.press("w")
     time.sleep(0.5)
-    result = kerasService.wait_for_word("vegetation", timeout=25)
+    result = find_word("vegetation", timeout=25)
     if not result:
         logging.info(
             "Did not see the bottom of quality menu. Did we scroll the quality menu correctly?"
@@ -100,7 +99,7 @@ def run_benchmark():
 
     time.sleep(10)
 
-    result = kerasService.wait_for_word("press", timeout=25)
+    result = find_word("press", timeout=25)
     if not result:
         logging.info("Did not see start screen")
         sys.exit(1)
@@ -108,7 +107,7 @@ def run_benchmark():
     user.press("space")
 
     # This is for the menu checking for if there's a continue option
-    result = kerasService.wait_for_word("continue", timeout=20, interval=1)
+    result = find_word("continue", timeout=20, interval=1)
     if result:
         logging.info("Continue option available, navigating accordingly.")
         press_n_times("s", 3, 0.5)
@@ -146,7 +145,7 @@ def run_benchmark():
     time.sleep(10)
 
     # This is for the loading screen continue
-    result = kerasService.wait_for_word("continue", interval=1, timeout=80)
+    result = find_word("continue", interval=1, timeout=80)
     if not result:
         logging.info(
             "Did not see the option to continue. Check settings and try again."
@@ -159,7 +158,7 @@ def run_benchmark():
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
-    result = kerasService.wait_for_word("vibes", interval=0.5, timeout=250)
+    result = find_word("vibes", interval=0.5, timeout=250)
     if not result:
         logging.info("Good vibes were not found! Could not mark the start time.")
         sys.exit(1)
@@ -168,7 +167,7 @@ def run_benchmark():
 
     time.sleep(216)  # Wait for benchmark till the end time
 
-    result = kerasService.wait_for_word("83", interval=0.5, timeout=250)
+    result = find_word("83", interval=0.5, timeout=250)
     if not result:
         logging.info("Waypoint distance was not found! Could not mark the end time.")
         sys.exit(1)
@@ -177,7 +176,7 @@ def run_benchmark():
 
     time.sleep(13)  # wait for No Rest For the Wicked Quest
 
-    result = kerasService.wait_for_word("wicked", interval=1, timeout=250)
+    result = find_word("wicked", interval=1, timeout=250)
     if not result:
         logging.info(
             "Wicked was not found! Did harness not wait long enough? Or test was too long?"
@@ -199,15 +198,6 @@ def run_benchmark():
 
 setup_logging(LOG_DIRECTORY)
 
-parser = ArgumentParser()
-parser.add_argument(
-    "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
-)
-parser.add_argument(
-    "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
-)
-args = parser.parse_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
 
 try:
     start_time, end_time = run_benchmark()

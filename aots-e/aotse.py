@@ -19,7 +19,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -73,7 +73,7 @@ def run_benchmark():
 
     time.sleep(10)
 
-    result = kerasService.wait_for_word("preparing", interval=1, timeout=60)
+    result = find_word("preparing", interval=1, timeout=60)
     if not result:
         logging.info("Did not see the benchmark starting.")
         sys.exit(1)
@@ -85,7 +85,7 @@ def run_benchmark():
 
     time.sleep(15)
 
-    result = kerasService.wait_for_word("59", timeout=60, interval=0.2)
+    result = find_word("59", timeout=60, interval=0.2)
     if not result:
         logging.info("Benchmark didn't start.")
         sys.exit(1)
@@ -108,7 +108,6 @@ def run_benchmark():
 setup_logging(LOG_DIRECTORY)
 
 args = get_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
 am = ArtifactManager(LOG_DIRECTORY)
 
 try:

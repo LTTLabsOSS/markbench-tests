@@ -11,7 +11,6 @@ import vgamepad as vg
 from rocket_league_utils import (
     copy_replay,
     find_epic_executable,
-    get_args,
     get_resolution,
 )
 
@@ -19,7 +18,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.misc import LTTGamePadDS4, find_eg_game_version
 from harness_utils.output import (
     format_resolution,
@@ -44,9 +43,6 @@ gamepad = LTTGamePadDS4()
 
 setup_logging(LOG_DIRECTORY)
 
-args = get_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
-
 
 def get_run_game_id_command(game_id: int) -> str:
     """Build string to launch game"""
@@ -54,9 +50,8 @@ def get_run_game_id_command(game_id: int) -> str:
 
 
 def camera_cycle(max_attempts=10):
-    """Continuously looks for a word using kerasService. If not found in the given time, presses a button.
+    """Continuously looks for a word. If not found in the given time, presses a button.
 
-    :param kerasService: Object that has the method wait_for_word().
     :param gamepad: The gamepad object to send button presses.
     :param word: The word to look for.
     :param max_attempts: Maximum times to check before stopping.
@@ -65,7 +60,7 @@ def camera_cycle(max_attempts=10):
     """
     for _ in range(max_attempts):
         # Try finding the word within check_duration seconds
-        found = kerasService.wait_for_word(word="player", timeout=0.4, interval=0.2)
+        found = find_word(word="player", timeout=0.4, interval=0.2)
 
         if found:
             return True  # Stop checking
@@ -98,25 +93,25 @@ def run_benchmark():
     time.sleep(30)  # wait for game to load into main menu
 
     # Looking for Syncing Failed message
-    if kerasService.wait_for_word(word="failed", timeout=5, interval=1):
+    if find_word(word="failed", timeout=5, interval=1):
         gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
 
     time.sleep(2)
     # Looking for press start
-    if kerasService.wait_for_word(word="press", timeout=30, interval=1) is None:
+    if find_word(word="press", timeout=30, interval=1) is None:
         logging.error("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
 
     # Looking for news menu close button
-    if kerasService.wait_for_word(word="close", timeout=5, interval=1):
+    if find_word(word="close", timeout=5, interval=1):
         gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CIRCLE)
 
     time.sleep(3)
 
     # Navigating main menu by going to the bottom of the menu first:
-    if kerasService.wait_for_word(word="profile", timeout=60, interval=0.5) is None:
+    if find_word(word="profile", timeout=60, interval=0.5) is None:
         logging.error("Main menu didn't show up. Check settings and try again.")
         sys.exit(1)
 
@@ -135,7 +130,7 @@ def run_benchmark():
     time.sleep(1)
 
     # Entering the match history screen and starting the replay:
-    if kerasService.wait_for_word(word="history", timeout=60, interval=0.5) is None:
+    if find_word(word="history", timeout=60, interval=0.5) is None:
         logging.error(
             "Didn't navigate to the replays. Check menu options for any anomalies."
         )
@@ -146,12 +141,12 @@ def run_benchmark():
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(1)
 
-    if kerasService.wait_for_word(word="recent", timeout=10, interval=1):
+    if find_word(word="recent", timeout=10, interval=1):
         logging.info("In Match History menu, navigating to Saved Replays.")
         gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT)
         time.sleep(1)
 
-    if kerasService.wait_for_word(word="watch", timeout=60, interval=0.5) is None:
+    if find_word(word="watch", timeout=60, interval=0.5) is None:
         logging.error(
             "Didn't navigate to the saved replays correctly. Check menu options for any anomalies."
         )
@@ -164,7 +159,7 @@ def run_benchmark():
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
 
     # Beginning the "benchmark":
-    if kerasService.wait_for_word(word="special", timeout=60, interval=0.5) is None:
+    if find_word(word="special", timeout=60, interval=0.5) is None:
         logging.error("Game didn't load map. Check settings and try again.")
         sys.exit(1)
 
@@ -182,7 +177,7 @@ def run_benchmark():
     # wait for benchmark to complete
     time.sleep(359)
 
-    if kerasService.wait_for_word(word="turbopolsa", timeout=10, interval=1) is None:
+    if find_word(word="turbopolsa", timeout=10, interval=1) is None:
         logging.info(
             "Couldn't turbopolsa on the field. Did the benchmark play all the way through?"
         )
@@ -194,7 +189,7 @@ def run_benchmark():
 
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_OPTIONS)
 
-    if kerasService.wait_for_word(word="paused", timeout=10, interval=1) is None:
+    if find_word(word="paused", timeout=10, interval=1) is None:
         logging.info("Couldn't find the settings option. Did the pause menu open?")
         sys.exit(1)
 
@@ -210,7 +205,7 @@ def run_benchmark():
     gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(0.4)
 
-    if kerasService.wait_for_word(word="audio", timeout=10, interval=1) is None:
+    if find_word(word="audio", timeout=10, interval=1) is None:
         logging.info("Couldn't find the audio tab. Did the settings menu open?")
         sys.exit(1)
 
@@ -221,9 +216,9 @@ def run_benchmark():
     )
     time.sleep(1)
 
-    if kerasService.wait_for_word(word="window", timeout=10, interval=1) is None:
+    if find_word(word="window", timeout=10, interval=1) is None:
         logging.info(
-            "Couldn't find the window settings header. Did Keras see the right menu?"
+            "Couldn't find the window settings header. Did OCR see the right menu?"
         )
         sys.exit(1)
 

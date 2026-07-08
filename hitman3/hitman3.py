@@ -10,7 +10,6 @@ from pathlib import Path
 import psutil
 import pyautogui as gui
 from hitman3_utils import (
-    get_args,
     get_benchmark_name,
     get_resolution,
     process_registry_file,
@@ -20,7 +19,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.output import (
     seconds_to_milliseconds,
     setup_logging,
@@ -103,7 +102,7 @@ def run_benchmark():
 
     time.sleep(5)
 
-    result = kerasService.wait_for_word("crowd", timeout=20, interval=1)
+    result = find_word("crowd", timeout=20, interval=1)
     if not result:
         logging.info(
             "Did not find the statistics in the corner. Did the benchmark launch?"
@@ -116,7 +115,7 @@ def run_benchmark():
         benchmark_time
     )  # sleep during the benchmark which is indicated based on the benchmark detected.
 
-    result = kerasService.wait_for_word("overall", timeout=20, interval=1)
+    result = find_word("overall", timeout=20, interval=1)
     if not result:
         logging.info("Did not find the overall FPS score. Did the benchmark crash?")
         raise RuntimeError("Benchmark failed.")
@@ -139,9 +138,6 @@ def run_benchmark():
 
 
 setup_logging(LOG_DIRECTORY)
-
-args = get_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
 
 try:
     test_start_time, test_end_time, benchmark_name = run_benchmark()

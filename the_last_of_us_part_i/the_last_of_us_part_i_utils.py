@@ -7,7 +7,6 @@ import shutil
 import sys
 import logging
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
@@ -18,24 +17,6 @@ from harness_utils.steam import get_registry_active_user
 USERFOLDER = os.environ["USERPROFILE"]
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 TLOU_SAVE = SCRIPT_DIRECTORY.joinpath("SAVEFILE0A")
-
-
-def get_args() -> any:
-    """Get command line arg values"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    return parser.parse_args()
 
 
 def get_windowed_resolution(lines: list[str]):

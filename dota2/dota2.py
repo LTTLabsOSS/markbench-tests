@@ -10,7 +10,6 @@ import pydirectinput as user
 from dota2_utils import (
     copy_config,
     copy_replay,
-    get_args,
     get_resolution,
     verify_replay,
 )
@@ -19,7 +18,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -37,8 +36,6 @@ STEAM_GAME_ID = 570
 
 setup_logging(LOG_DIRECTORY)
 
-args = get_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
 am = ArtifactManager(LOG_DIRECTORY)
 
 user.FAILSAFE = False
@@ -107,10 +104,10 @@ def screenshot_settings():
     gui.mouseUp()
     time.sleep(0.2)
 
-    result = kerasService.wait_for_word(word="video", timeout=10, interval=1)
+    result = find_word(word="video", timeout=10, interval=1)
     if not result:
         logging.info(
-            "Did not find the video menu button. Did Keras enter settings correctly?"
+            "Did not find the video menu button. Did OCR enter settings correctly?"
         )
         sys.exit(1)
 
@@ -121,7 +118,7 @@ def screenshot_settings():
     time.sleep(0.2)
     gui.mouseUp()
     time.sleep(0.2)
-    if kerasService.wait_for_word(word="resolution", timeout=30, interval=1) is None:
+    if find_word(word="resolution", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
@@ -131,7 +128,7 @@ def screenshot_settings():
 
     user.press("down")
 
-    if kerasService.wait_for_word(word="api", timeout=30, interval=1) is None:
+    if find_word(word="api", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
@@ -141,7 +138,7 @@ def screenshot_settings():
 
     user.press("down")
 
-    if kerasService.wait_for_word(word="direct", timeout=30, interval=1) is None:
+    if find_word(word="direct", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
@@ -160,7 +157,7 @@ def load_the_benchmark():
     time.sleep(1)
     console_command("exec_async benchmark_load")
     time.sleep(5)
-    if kerasService.wait_for_word(word="directed", timeout=30, interval=1) is None:
+    if find_word(word="directed", timeout=30, interval=1) is None:
         logging.info("Did not find the directed camera. Did the replay load?")
         sys.exit(1)
     console_command("sv_cheats true")
@@ -177,7 +174,7 @@ def run_benchmark():
     time.sleep(10)  # wait for game to load into main menu
 
     # waiting about a minute for the main menu to appear
-    if kerasService.wait_for_word(word="heroes", timeout=80, interval=1) is None:
+    if find_word(word="heroes", timeout=80, interval=1) is None:
         logging.error("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
@@ -195,7 +192,7 @@ def run_benchmark():
     # Default fallback start time
     test_start_time = int(time.time())
 
-    result = kerasService.wait_for_word(word="2560", timeout=30, interval=0.1)
+    result = find_word(word="2560", timeout=30, interval=0.1)
     if result is None:
         logging.error("Unable to find Leshrac's HP. Using default start time value.")
     else:
@@ -207,7 +204,7 @@ def run_benchmark():
     # Default fallback end time
     test_end_time = int(time.time())
 
-    result = kerasService.wait_for_word(word="1195", timeout=30, interval=0.1)
+    result = find_word(word="1195", timeout=30, interval=0.1)
     if result is None:
         logging.error(
             "Unable to find gold count of 1195. Using default end time value."
@@ -218,7 +215,7 @@ def run_benchmark():
 
     time.sleep(2)
 
-    if kerasService.wait_for_word(word="heroes", timeout=25, interval=1) is None:
+    if find_word(word="heroes", timeout=25, interval=1) is None:
         logging.error("Main menu after running benchmark not found, exiting")
         sys.exit(1)
 
