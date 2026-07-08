@@ -60,45 +60,10 @@ def _steamid64_to_account_id(steamid64: str) -> int:
     return account_id
 
 
-def _windows_library_folders() -> list[Path]:
-    paths = [WINDOWS_STEAM_ROOT]
-    library_files = [
-        WINDOWS_STEAM_ROOT / "steamapps" / "libraryfolders.vdf",
-        WINDOWS_STEAM_ROOT / "config" / "libraryfolders.vdf",
-    ]
-
-    for library_file in library_files:
-        if not library_file.exists():
-            continue
-        data = _load_vdf_file(library_file, "Steam library folders file")
-        library_folders = _get_vdf_value(data, "libraryfolders")
-        if not isinstance(library_folders, dict):
-            continue
-        for index, library_folder in library_folders.items():
-            if isinstance(library_folder, dict):
-                library_path = _get_vdf_value(library_folder, "path")
-            elif str(index).isdigit() and isinstance(library_folder, str):
-                library_path = library_folder
-            else:
-                library_path = None
-            if library_path:
-                path = Path(library_path)
-                if path not in paths:
-                    paths.append(path)
-    return paths
-
-
 def get_steam_library_paths() -> list[Path]:
-    """Returns the configured Steam library root paths."""
-    logger.info("Resolving Steam library paths")
-    if is_windows():
-        paths = _windows_library_folders()
-    elif is_linux():
-        paths = [Path(get_steam_folder_path())]
-    else:
-        raise RuntimeError(
-            "Steam library lookup is only supported on Windows and Linux"
-        )
+    """Returns the default Steam library root path."""
+    logger.info("Resolving Steam library path")
+    paths = [Path(get_steam_folder_path())]
     logger.info("Resolved Steam library paths: %s", paths)
     return paths
 
