@@ -5,7 +5,6 @@ import os
 import re
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 import pyautogui as gui
@@ -16,7 +15,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 # pylint: disable=wrong-import-position
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.input import mouse_scroll_n_times
 from harness_utils.output import (
     format_resolution,
@@ -79,7 +78,7 @@ def skip_logo_screens() -> None:
     time.sleep(0.5)
 
 
-def run_benchmark(keras_service):
+def run_benchmark():
     """Starts the benchmark"""
     cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
     start_game()
@@ -87,7 +86,7 @@ def run_benchmark(keras_service):
     am = ArtifactManager(LOG_DIRECTORY)
     time.sleep(5)
 
-    result = keras_service.wait_for_word("warning", timeout=50, interval=5)
+    result = find_word("warning", timeout=50, interval=5)
     if not result:
         logging.info("Did not see warnings. Did the game start?")
         sys.exit(1)
@@ -95,7 +94,7 @@ def run_benchmark(keras_service):
     skip_logo_screens()
     time.sleep(2)
 
-    result = keras_service.wait_for_word("options", timeout=10, interval=1)
+    result = find_word("options", timeout=10, interval=1)
     if not result:
         logging.info("Did not find the options menu. Did the game skip the intros?")
         sys.exit(1)
@@ -106,8 +105,8 @@ def run_benchmark(keras_service):
     time.sleep(0.2)
     gui.mouseUp()
 
-    if keras_service.wait_for_word(word="brightness", timeout=30, interval=1) is None:
-        logging.info("Did not find the main menu. Did Keras click correctly?")
+    if find_word(word="brightness", timeout=30, interval=1) is None:
+        logging.info("Did not find the main menu. Did OCR click correctly?")
         sys.exit(1)
 
     am.take_screenshot(
@@ -115,7 +114,7 @@ def run_benchmark(keras_service):
     )
     time.sleep(0.5)
 
-    result = keras_service.wait_for_word("advanced", timeout=10, interval=1)
+    result = find_word("advanced", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the advanced options menu. Did the game navigate to options correctly?"
@@ -128,9 +127,9 @@ def run_benchmark(keras_service):
     time.sleep(0.2)
     gui.mouseUp()
 
-    if keras_service.wait_for_word(word="water", timeout=30, interval=1) is None:
+    if find_word(word="water", timeout=30, interval=1) is None:
         logging.info(
-            "Did not find the keyword 'water' in the menu. Did Keras navigate to the advanced menu correctly?"
+            "Did not find the keyword 'water' in the menu. Did OCR navigate to the advanced menu correctly?"
         )
         sys.exit(1)
 
@@ -141,10 +140,10 @@ def run_benchmark(keras_service):
     )
     time.sleep(0.5)
 
-    result = keras_service.wait_for_word("water", timeout=10, interval=1)
+    result = find_word("water", timeout=10, interval=1)
     if not result:
         logging.info(
-            "Did not find the keyword 'water' in the menu. Did Keras navigate to the advanced menu correctly?"
+            "Did not find the keyword 'water' in the menu. Did OCR navigate to the advanced menu correctly?"
         )
         sys.exit(1)
     gui.moveTo(result["x"], result["y"])
@@ -152,9 +151,9 @@ def run_benchmark(keras_service):
 
     # Scroll to the middle of the advanced menu
     mouse_scroll_n_times(15, -1, 0.1)
-    if keras_service.wait_for_word(word="heat", timeout=30, interval=1) is None:
+    if find_word(word="heat", timeout=30, interval=1) is None:
         logging.info(
-            "Did not find the keyword 'heat' in the menu. Did Keras scroll down the advanced menu far enough?"
+            "Did not find the keyword 'heat' in the menu. Did OCR scroll down the advanced menu far enough?"
         )
         sys.exit(1)
     am.take_screenshot(
@@ -166,9 +165,9 @@ def run_benchmark(keras_service):
 
     # Scroll to the bottom of the advanced menu
     mouse_scroll_n_times(15, -1, 0.1)
-    if keras_service.wait_for_word(word="bodies", timeout=30, interval=1) is None:
+    if find_word(word="bodies", timeout=30, interval=1) is None:
         logging.info(
-            "Did not find the keyword 'bodies' in the menu. Did Keras scroll down the advanced menu far enough?"
+            "Did not find the keyword 'bodies' in the menu. Did OCR scroll down the advanced menu far enough?"
         )
         sys.exit(1)
     am.take_screenshot(
@@ -178,7 +177,7 @@ def run_benchmark(keras_service):
     )
     time.sleep(0.5)
 
-    result = keras_service.wait_for_word("bench", timeout=10, interval=1)
+    result = find_word("bench", timeout=10, interval=1)
     if not result:
         logging.info("Did not find the benchmark menu. Did the game skip the intros?")
         sys.exit(1)
@@ -194,7 +193,7 @@ def run_benchmark(keras_service):
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
-    result = keras_service.wait_for_word("fps", interval=0.5, timeout=100)
+    result = find_word("fps", interval=0.5, timeout=100)
     if not result:
         logging.info("Could not find FPS. Unable to mark start time!")
         sys.exit(1)
@@ -203,7 +202,7 @@ def run_benchmark(keras_service):
 
     time.sleep(90)  # Wait time for battle benchmark
 
-    result = keras_service.wait_for_word("summary", interval=0.2, timeout=250)
+    result = find_word("summary", interval=0.2, timeout=250)
     if not result:
         logging.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?"
@@ -230,22 +229,7 @@ def run_benchmark(keras_service):
 
 def main():
     """entry point"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    args = parser.parse_args()
-    keras_service = KerasService(args.keras_host, args.keras_port)
-    start_time, endtime = run_benchmark(keras_service)
+    start_time, endtime = run_benchmark()
     height, width = read_current_resolution()
     report = {
         "resolution": format_resolution(width, height),

@@ -4,9 +4,7 @@ import json
 import logging
 import os
 import re
-import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 from zipfile import ZipFile
 
@@ -250,31 +248,3 @@ def find_eg_game_version(gamefoldername: str) -> str | None:
         print(f"Error: {e}")
 
     return None
-
-
-def find_word(keras_service, word, msg, timeout=30, interval=1):
-    """Function to call Keras service to find a word in the screen"""
-    if (
-        keras_service.wait_for_word(word=word, timeout=timeout, interval=interval)
-        is None
-    ):
-        logging.error(msg)
-        sys.exit(1)
-
-
-def keras_args():
-    """helper function to get args for keras"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    return parser.parse_args()

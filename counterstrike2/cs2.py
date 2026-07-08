@@ -3,7 +3,6 @@
 import logging
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 import pyautogui as gui
@@ -14,7 +13,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -53,9 +52,9 @@ def start_game():
     return exec_steam_game(STEAM_GAME_ID, game_params=["-console", "+fps_max 0"])
 
 
-def wait_for_word(keras_service, word, timeout=30, interval=1, why: str = ""):
+def wait_for_word(word, timeout=30, interval=1, why: str = ""):
     """Function for wait for word"""
-    result = keras_service.wait_for_word(word, timeout=timeout, interval=interval)
+    result = find_word(word, timeout=timeout, interval=interval)
     if not result:
         raise RuntimeError(f"Did not find {word} to {why}")
     return result
@@ -115,12 +114,10 @@ def identify_settings():
     time.sleep(0.2)
 
 
-def navigate_settings(keras_service, am):
+def navigate_settings(am):
     """Navigates the settings menu and takes screenshots for traceability"""
 
-    result = wait_for_word(
-        keras_service, word="video", timeout=10, interval=1, why="find the video menu button"
-    )
+    result = wait_for_word(word="video", timeout=10, interval=1, why="find the video menu button")
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -128,15 +125,13 @@ def navigate_settings(keras_service, am):
     gui.mouseUp()
     time.sleep(0.2)
 
-    wait_for_word(keras_service, word="brightness", why="find the video settings")
+    wait_for_word(word="brightness", why="find the video settings")
 
     am.take_screenshot(
         "video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings"
     )
 
-    result = wait_for_word(
-        keras_service, word="advanced", timeout=10, interval=1, why="find the advanced video menu"
-    )
+    result = wait_for_word(word="advanced", timeout=10, interval=1, why="find the advanced video menu")
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -150,16 +145,14 @@ def navigate_settings(keras_service, am):
         "first picture of advanced video settings",
     )
 
-    result = wait_for_word(
-        keras_service, word="boost", timeout=10, interval=1, why="identify we're in the advanced video menu"
-    )
+    result = wait_for_word(word="boost", timeout=10, interval=1, why="identify we're in the advanced video menu")
 
     gui.moveTo(result["x"], result["y"])
     time.sleep(1)
     gui.scroll(-6000000)
     time.sleep(1)
 
-    wait_for_word(keras_service, word="particle", why="verify we scrolled correctly")
+    wait_for_word(word="particle", why="verify we scrolled correctly")
 
     am.take_screenshot(
         "advanced_video_2.png",
@@ -168,11 +161,11 @@ def navigate_settings(keras_service, am):
     )
 
 
-def execute_benchmark(keras_service):
+def execute_benchmark():
     """Starts the benchmark"""
     logging.info("Starting benchmark")
 
-    result = wait_for_word(keras_service, word="play", timeout=10, interval=1, why="click the play tab")
+    result = wait_for_word(word="play", timeout=10, interval=1, why="click the play tab")
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -180,7 +173,7 @@ def execute_benchmark(keras_service):
     gui.mouseUp()
     time.sleep(0.2)
 
-    result = wait_for_word(keras_service, word="workshop", timeout=10, interval=1, why="click the workshop tab")
+    result = wait_for_word(word="workshop", timeout=10, interval=1, why="click the workshop tab")
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -188,7 +181,7 @@ def execute_benchmark(keras_service):
     gui.mouseUp()
     time.sleep(0.2)
 
-    result = wait_for_word(keras_service, word="fps", timeout=10, interval=1, why="click the benchmark icon")
+    result = wait_for_word(word="fps", timeout=10, interval=1, why="click the benchmark icon")
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -196,7 +189,7 @@ def execute_benchmark(keras_service):
     gui.mouseUp()
     time.sleep(0.2)
 
-    result = wait_for_word(keras_service, word="go", timeout=10, interval=1, why="start the benchmark")
+    result = wait_for_word(word="go", timeout=10, interval=1, why="start the benchmark")
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -205,7 +198,7 @@ def execute_benchmark(keras_service):
     time.sleep(0.2)
 
 
-def run_benchmark(keras_service):
+def run_benchmark():
     """Run cs2 benchmark"""
     setup_start_time = int(time.time())
     start_game()
@@ -213,21 +206,18 @@ def run_benchmark(keras_service):
     time.sleep(20)  # wait for game to load into main menu
 
     wait_for_word(
-        keras_service,
         word="play",
         why="verify that the game has loaded to the main menu",
     )
 
     identify_settings()
 
-    navigate_settings(keras_service, am)
+    navigate_settings(am)
 
-    execute_benchmark(keras_service)
+    execute_benchmark()
 
     time.sleep(3)
-    wait_for_word(
-        keras_service, word="benchmark", why="verify that the benchmark has started"
-    )
+    wait_for_word(word="benchmark", why="verify that the benchmark has started")
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
@@ -237,7 +227,7 @@ def run_benchmark(keras_service):
     # Default fallback start time
     test_start_time = int(time.time())
 
-    result = keras_service.wait_for_word(word="roll", timeout=30, interval=0.1)
+    result = find_word(word="roll", timeout=30, interval=0.1)
     if result is None:
         logging.error("Didn't see 'lets roll'. Did the map load?")
     else:
@@ -250,7 +240,6 @@ def run_benchmark(keras_service):
     test_end_time = int(time.time())
 
     wait_for_word(
-        keras_service,
         word="console",
         why="verify the console has opened to show the results",
     )
@@ -277,24 +266,7 @@ def run_benchmark(keras_service):
 
 def main():
     """entry point to test script"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    args = parser.parse_args()
-
-    keras_service = KerasService(args.keras_host, args.keras_port)
-
-    start_time, end_time = run_benchmark(keras_service)
+    start_time, end_time = run_benchmark()
 
     height, width = get_resolution()
     report = {

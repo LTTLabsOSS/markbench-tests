@@ -4,7 +4,6 @@ import logging
 import re
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 import pydirectinput as user
@@ -14,8 +13,8 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 # pylint: disable=wrong-import-position
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
-from harness_utils.misc import find_word, int_time, press_n_times
+from harness_utils.ocr_service import find_word
+from harness_utils.misc import int_time, press_n_times
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -155,7 +154,7 @@ def navi_settings(am):
     user.press("esc")
 
 
-def run_benchmark(keras_service):
+def run_benchmark():
     """runs the benchmark"""
     delete_videos()
     start_game()
@@ -163,20 +162,22 @@ def run_benchmark(keras_service):
     am = ArtifactManager(LOG_DIRECTORY)
     time.sleep(15)
 
-    if keras_service.wait_for_word(word="hardware", timeout=30, interval=1) is None:
+    if find_word(word="hardware", timeout=30, interval=1) is None:
         logging.info("did not find hardware")
     else:
         user.mouseDown()
         time.sleep(0.2)
         user.press("space")
 
-    if keras_service.wait_for_word(word="animus", timeout=130, interval=1) is None:
+    if find_word(word="animus", timeout=130, interval=1) is None:
         logging.info("did not find main menu")
         sys.exit(1)
 
     user.press("f1")
 
-    find_word(keras_service, "system", "Couldn't find 'System' button")
+    if find_word("system", timeout=30, interval=1) is None:
+        logging.error("Couldn't find 'System' button")
+        sys.exit(1)
 
     user.press("down")
 
@@ -184,17 +185,15 @@ def run_benchmark(keras_service):
 
     user.press("space")
 
-    find_word(
-        keras_service,
-        "benchmark",
-        "couldn't find 'benchmark' on screen before settings",
-    )
+    if find_word("benchmark", timeout=30, interval=1) is None:
+        logging.error("couldn't find 'benchmark' on screen before settings")
+        sys.exit(1)
 
     navi_settings(am)
 
-    find_word(
-        keras_service, "benchmark", "couldn't find 'benchmark' on screen after settings"
-    )
+    if find_word("benchmark", timeout=30, interval=1) is None:
+        logging.error("couldn't find 'benchmark' on screen after settings")
+        sys.exit(1)
 
     user.press("down")
 
@@ -206,7 +205,7 @@ def run_benchmark(keras_service):
     elapsed_setup_time = setup_end_time - setup_start_time
     logging.info("Setup took %d seconds", elapsed_setup_time)
 
-    if keras_service.wait_for_word(word="benchmark", timeout=50, interval=1) is None:
+    if find_word(word="benchmark", timeout=50, interval=1) is None:
         logging.info("did not find benchmark")
         sys.exit(1)
 
@@ -214,7 +213,9 @@ def run_benchmark(keras_service):
 
     time.sleep(100)
 
-    find_word(keras_service, "results", "did not find results screen", 60)
+    if find_word("results", timeout=60, interval=1) is None:
+        logging.error("did not find results screen")
+        sys.exit(1)
 
     test_end_time = int_time() - 2
 
@@ -244,22 +245,7 @@ def run_benchmark(keras_service):
 
 def main():
     """entry point"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    args = parser.parse_args()
-    keras_service = KerasService(args.keras_host, args.keras_port)
-    start_time, endtime = run_benchmark(keras_service)
+    start_time, endtime = run_benchmark()
     height, width = read_current_resolution()
     report = {
         "resolution": format_resolution(width, height),
