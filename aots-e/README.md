@@ -6,7 +6,7 @@ This benchmark runs one of the built in benchmarks for the game.
 
 - Python 3.10+
 - Ashes of the Singularity installed
-- Keras OCR service
+- OCR service
 
 ## Options
 

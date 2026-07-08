@@ -6,7 +6,3 @@ options:
   - name: benchmark
     type: select
     values: [battle,mom]
-  - name: kerasHost
-    type: input
-  - name: kerasPort
-    type: input

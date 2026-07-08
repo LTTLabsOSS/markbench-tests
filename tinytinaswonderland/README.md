@@ -6,12 +6,7 @@ This test launches Tiny Tina's Wonderlands, navigates to the in-game benchmark, 
 
 - Python 3.10+
 - Tiny Tina's Wonderlands installed
-- Keras OCR service
-
-## Options
-
-- `kerasHost`: string representing the IP address of the Keras service. e.x. `0.0.0.0`
-- `kerasPort`: string representing the port of the Keras service. e.x. `8080`
+- OCR service
 
 ## Output
 

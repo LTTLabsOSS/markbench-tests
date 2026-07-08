@@ -5,13 +5,8 @@ This benchmark uses the CS2 FPS Benchmark in the Steam workshop created by Angel
 
 - Python 3.10+
 - Counter-Strike 2 installed
-- Keras OCR service
+- OCR service
 - Subscribing to the above Steam Workshop benchmark
-
-## Options
-
-- `kerasHost`: string representing the IP address of the Keras service. e.x. `0.0.0.0` 
-- `kerasPort`: string representing the port of the Keras service. e.x. `8080`
 
 ## Output
 

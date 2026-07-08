@@ -6,13 +6,8 @@ The test uses a modified version of the guide's `benchmark.cfg` file originally 
 
 - Python 3.10+
 - Dota 2 installed
-- Keras OCR service
+- OCR service
 - Replay file named `benchmark.dem` copied to harness directory. This is the same file used by the benchmarking guide mentioned above. It can be downloaded [here](https://mega.nz/file/2ZlTiSaZ#byo4nSBjcsP8wsfKQAhFDuOMd0N9flUxtB8QZ4C5tSM)
-
-## Options
-
-- `kerasHost`: string representing the IP address of the Keras service. e.x. `0.0.0.0` 
-- `kerasPort`: string representing the port of the Keras service. e.x. `8080`
 
 ## Output
 

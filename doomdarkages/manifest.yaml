@@ -3,8 +3,3 @@ executable: "doomdarkages.py"
 process_name: "DOOMTheDarkAges.exe"
 hidden: 0
 output_dir: "run"
-options:
-  - name: kerasHost
-    type: input
-  - name: kerasPort
-    type: input

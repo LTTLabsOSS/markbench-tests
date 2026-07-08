@@ -5,12 +5,7 @@ This benchmark runs a canned benchmark built into the Marvel Rivals settings.
 
 - Python 3.10+
 - Marvel Rivals installed on Steam
-- Keras OCR service
-
-## Options
-
-- `kerasHost`: string representing the IP address of the Keras service. e.x. `0.0.0.0` 
-- `kerasPort`: string representing the port of the Keras service. e.x. `8080`
+- OCR service
 
 ## Output
 
