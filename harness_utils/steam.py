@@ -122,18 +122,17 @@ def get_registry_active_user() -> int:
 def get_app_manifest_path(app_id: int) -> Path:
     """Returns the Steam app manifest path for the given app ID."""
     logger.info("Resolving Steam app manifest path app_id=%s", app_id)
-    manifest_name = f"appmanifest_{app_id}.acf"
-
-    for library_path in get_steam_library_paths():
-        manifest_path = library_path / "steamapps" / manifest_name
-        logger.debug("Checking Steam app manifest path=%s", manifest_path)
-        if manifest_path.exists():
-            logger.info(
-                "Resolved Steam app manifest path app_id=%s path=%s",
-                app_id,
-                manifest_path,
-            )
-            return manifest_path
+    manifest_path = (
+        Path(get_steam_folder_path()) / "steamapps" / f"appmanifest_{app_id}.acf"
+    )
+    logger.debug("Checking Steam app manifest path=%s", manifest_path)
+    if manifest_path.exists():
+        logger.info(
+            "Resolved Steam app manifest path app_id=%s path=%s",
+            app_id,
+            manifest_path,
+        )
+        return manifest_path
 
     raise RuntimeError(f"Steam app manifest not found for app_id={app_id}")
 
@@ -178,7 +177,7 @@ def exec_steam_run_command(game_id: int, steam_path=None) -> Popen:
     To launch a game with provided arguments,
     see the function `exec_steam_game`.
     """
-    steam_run_arg = "steam://rungameid/" + str(game_id)
+    steam_run_arg = get_run_game_id_command(game_id)
     if steam_path is None:
         steam_path = get_steam_exe_path()
     logger.info("Launching Steam run command: %s %s", steam_path, steam_run_arg)
@@ -206,9 +205,6 @@ def get_build_id(game_id: int) -> str | None:
 
     manifest_path = get_app_manifest_path(game_id)
     logger.debug("Checking Steam build ID manifest path=%s", manifest_path)
-    if not manifest_path.exists():
-        logger.warning("Game folder not found when looking for game version")
-        return None
     build_id = _read_app_manifest_value(manifest_path, "buildid")
     if build_id is not None:
         logger.info("Resolved Steam build ID game_id=%s build_id=%s", game_id, build_id)
