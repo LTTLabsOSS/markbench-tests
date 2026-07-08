@@ -132,9 +132,7 @@ def run_benchmark():
 
         result = find_word("msaa", vulkan=True, timeout=5)
         if not result:
-            logging.info(
-                "Did not find the MSAA settings. Did OCR navigate correctly?"
-            )
+            logging.info("Did not find the MSAA settings. Did OCR navigate correctly?")
             sys.exit(1)
         am.take_screenshot_vulkan(
             "Graphics2.png", ArtifactType.RESULTS_IMAGE, "2nd Graphics Screenshot"
@@ -179,7 +177,7 @@ def run_benchmark():
     user.press("enter")
 
     # Looking for the word Stop to mark the in time
-    result = find_word("stop", vulkan=True, timeout=60, interval = 1)
+    result = find_word("stop", vulkan=True, timeout=60, interval=1)
     if not result:
         logging.info(
             "Did not find the stop benchmarking in the corner. Did the benchmark crash?"

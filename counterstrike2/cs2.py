@@ -117,7 +117,9 @@ def identify_settings():
 def navigate_settings(am):
     """Navigates the settings menu and takes screenshots for traceability"""
 
-    result = wait_for_word(word="video", timeout=10, interval=1, why="find the video menu button")
+    result = wait_for_word(
+        word="video", timeout=10, interval=1, why="find the video menu button"
+    )
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -131,7 +133,9 @@ def navigate_settings(am):
         "video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings"
     )
 
-    result = wait_for_word(word="advanced", timeout=10, interval=1, why="find the advanced video menu")
+    result = wait_for_word(
+        word="advanced", timeout=10, interval=1, why="find the advanced video menu"
+    )
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -145,7 +149,12 @@ def navigate_settings(am):
         "first picture of advanced video settings",
     )
 
-    result = wait_for_word(word="boost", timeout=10, interval=1, why="identify we're in the advanced video menu")
+    result = wait_for_word(
+        word="boost",
+        timeout=10,
+        interval=1,
+        why="identify we're in the advanced video menu",
+    )
 
     gui.moveTo(result["x"], result["y"])
     time.sleep(1)
@@ -165,7 +174,9 @@ def execute_benchmark():
     """Starts the benchmark"""
     logging.info("Starting benchmark")
 
-    result = wait_for_word(word="play", timeout=10, interval=1, why="click the play tab")
+    result = wait_for_word(
+        word="play", timeout=10, interval=1, why="click the play tab"
+    )
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -173,7 +184,9 @@ def execute_benchmark():
     gui.mouseUp()
     time.sleep(0.2)
 
-    result = wait_for_word(word="workshop", timeout=10, interval=1, why="click the workshop tab")
+    result = wait_for_word(
+        word="workshop", timeout=10, interval=1, why="click the workshop tab"
+    )
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
@@ -181,7 +194,9 @@ def execute_benchmark():
     gui.mouseUp()
     time.sleep(0.2)
 
-    result = wait_for_word(word="fps", timeout=10, interval=1, why="click the benchmark icon")
+    result = wait_for_word(
+        word="fps", timeout=10, interval=1, why="click the benchmark icon"
+    )
 
     gui.moveTo(result["x"], result["y"])
     gui.mouseDown()
