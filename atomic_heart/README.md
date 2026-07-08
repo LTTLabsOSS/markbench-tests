@@ -10,7 +10,12 @@ Starts a new game and waits through intro sequence. Ends once the intro sequence
 
 - Python 3.10+
 - Atomic Heart installed
-- OCR service
+- Keras OCR service
+
+## Options
+
+- `kerasHost`: string representing the IP address of the Keras service. e.x. `0.0.0.0` 
+- `kerasPort`: string representing the port of the Keras service. e.x. `8080`
 
 ## Output
 

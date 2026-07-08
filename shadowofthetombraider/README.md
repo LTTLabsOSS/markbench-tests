@@ -6,7 +6,12 @@ This script navigates through the game menus to the built in benchmark and runs 
 
 - Python 3.10+
 - Shadow of the Tomb Raider installed via Steam
-- OCR service
+- Keras OCR service
+
+## Options
+
+- `kerasHost`: string representing the IP address of the Keras service. e.x. `0.0.0.0` 
+- `kerasPort`: string representing the port of the Keras service. e.x. `8080`
 
 ## Output
 

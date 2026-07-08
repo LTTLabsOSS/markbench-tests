@@ -6,7 +6,12 @@ This script navigates through in-game menus to the built in benchmark and runs i
 
 - Python 3.10+
 - Total War: Pharaoh installed
-- OCR service
+- Keras OCR service
+
+## Options
+
+- `kerasHost`: string representing the IP address of the Keras service. e.x. `0.0.0.0`
+- `kerasPort`: string representing the port of the Keras service. e.x. `8080`
 
 ## Output
 

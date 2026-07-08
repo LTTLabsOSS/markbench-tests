@@ -3,3 +3,8 @@ executable: "grid_legends.py"
 process_name: "GridLegends.exe"
 hidden: 0
 output_dir: "run"
+options:
+  - name: kerasHost
+    type: input
+  - name: kerasPort
+    type: input

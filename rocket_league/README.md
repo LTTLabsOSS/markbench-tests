@@ -6,8 +6,13 @@ This test launches a replay of Rocket League. The replay is from RLCS Season 9 N
 
 - Python 3.10+
 - Rocket League installed via Epic Games
-- OCR service
+- Keras OCR service
 - Vgamepad
+
+## Options
+
+- `kerasHost`: string representing the IP address of the Keras service. e.x. `0.0.0.0` 
+- `kerasPort`: string representing the port of the Keras service. e.x. `8080`
 
 ## Output
 

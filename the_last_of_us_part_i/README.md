@@ -6,7 +6,12 @@ This script loads the game at a specific checkpoint then waits for the scene to 
 
 - Python 3.10+
 - The Last of Us Part I installed
-- OCR service
+- Keras OCR service
+
+## Options
+
+- `kerasHost`: string representing the IP address of the Keras service. e.x. `0.0.0.0` 
+- `kerasPort`: string representing the port of the Keras service. e.x. `8080`
 
 ## Test Setup
 
