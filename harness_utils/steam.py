@@ -45,8 +45,16 @@ def get_steam_folder_path() -> str:
     """Gets the path to the Steam installation directory."""
     logger.debug("Resolving Steam folder path")
     if is_windows():
-        logger.debug("Using default Windows Steam folder path=%s", WINDOWS_STEAM_ROOT)
-        return str(WINDOWS_STEAM_ROOT)
+        if WINDOWS_STEAM_ROOT.exists():
+            logger.debug(
+                "Using default Windows Steam folder path=%s", WINDOWS_STEAM_ROOT
+            )
+            return str(WINDOWS_STEAM_ROOT)
+        logger.warning(
+            "Default Windows Steam folder path not found, using registry fallback: %s",
+            WINDOWS_STEAM_ROOT,
+        )
+        return _read_steam_registry_string(r"Software\Valve\Steam", "SteamPath")
     if is_linux():
         root = Path.home() / ".local" / "share" / "Steam"
         logger.debug("Resolved Linux Steam folder path=%s", root)
@@ -58,10 +66,16 @@ def get_steam_exe_path() -> str:
     """Gets the path to the Steam executable."""
     logger.debug("Resolving Steam executable path")
     if is_windows():
-        logger.debug(
-            "Using default Windows Steam executable path=%s", WINDOWS_STEAM_EXE
+        if WINDOWS_STEAM_EXE.exists():
+            logger.debug(
+                "Using default Windows Steam executable path=%s", WINDOWS_STEAM_EXE
+            )
+            return str(WINDOWS_STEAM_EXE)
+        logger.warning(
+            "Default Windows Steam executable not found, using registry fallback: %s",
+            WINDOWS_STEAM_EXE,
         )
-        return str(WINDOWS_STEAM_EXE)
+        return _read_steam_registry_string(r"Software\Valve\Steam", "SteamExe")
     if is_linux():
         steam = shutil.which("steam")
         if steam:
@@ -78,16 +92,8 @@ def get_steamapps_common_path() -> str:
     return path
 
 
-def get_active_steam_account_id() -> int:
-    """Returns the most recent Steam user's Steam3 account ID.
-
-    Steam stores users as SteamID64 values in loginusers.vdf, while userdata folders
-    use the Steam3 account ID value.
-    """
-    logger.debug("Resolving most recent Steam account ID")
-    if not is_windows():
-        raise RuntimeError("Steam active user lookup requires Windows")
-    login_users_path = WINDOWS_STEAM_ROOT / "config" / "loginusers.vdf"
+def _get_active_steam_account_id_from_login_users() -> int:
+    login_users_path = Path(get_steam_folder_path()) / "config" / "loginusers.vdf"
     data = _load_vdf_file(login_users_path, "Steam login users file")
     users = _get_vdf_value(data, "users")
     if not isinstance(users, dict):
@@ -106,12 +112,31 @@ def get_active_steam_account_id() -> int:
     raise RuntimeError(f"No most recent Steam user found in: {login_users_path}")
 
 
+def get_active_steam_account_id() -> int:
+    """Returns the most recent Steam user's Steam3 account ID.
+
+    Steam stores users as SteamID64 values in loginusers.vdf, while userdata folders
+    use the Steam3 account ID value. Falls back to Steam's ActiveUser registry value
+    if loginusers.vdf cannot be read.
+    """
+    logger.debug("Resolving most recent Steam account ID")
+    if not is_windows():
+        raise RuntimeError("Steam active user lookup requires Windows")
+
+    try:
+        return _get_active_steam_account_id_from_login_users()
+    except RuntimeError as err:
+        logger.warning(
+            "Steam login user lookup failed, using registry fallback: %s", err
+        )
+        return _get_active_steam_account_id_from_registry()
+
+
 def get_app_manifest_path(app_id: int) -> Path:
     """Returns the Steam app manifest path for the given app ID."""
     logger.debug("Resolving Steam app manifest path app_id=%s", app_id)
-    manifest_path = (
-        Path(get_steam_folder_path()) / "steamapps" / f"appmanifest_{app_id}.acf"
-    )
+    manifest_name = f"appmanifest_{app_id}.acf"
+    manifest_path = Path(get_steam_folder_path()) / "steamapps" / manifest_name
     logger.debug("Checking Steam app manifest path=%s", manifest_path)
     if manifest_path.exists():
         logger.debug(
@@ -120,6 +145,25 @@ def get_app_manifest_path(app_id: int) -> Path:
             manifest_path,
         )
         return manifest_path
+
+    if is_windows():
+        logger.warning(
+            "Steam app manifest not found, using registry fallback app_id=%s path=%s",
+            app_id,
+            manifest_path,
+        )
+        install_location = _get_app_install_location_from_registry(app_id)
+        manifest_path = (Path(install_location) / ".." / ".." / manifest_name).resolve()
+        logger.debug(
+            "Checking Steam app manifest registry fallback path=%s", manifest_path
+        )
+        if manifest_path.exists():
+            logger.debug(
+                "Resolved Steam app manifest path app_id=%s path=%s",
+                app_id,
+                manifest_path,
+            )
+            return manifest_path
 
     raise RuntimeError(f"Steam app manifest not found for app_id={app_id}")
 
@@ -138,13 +182,26 @@ def _read_app_manifest_value(manifest_path: Path, value_name: str) -> str | None
 def get_app_install_location(app_id: int) -> str:
     """Given the Steam App ID, gets the install directory."""
     logger.debug("Resolving Steam app install location app_id=%s", app_id)
-    manifest_path = get_app_manifest_path(app_id)
-    install_dir = _read_app_manifest_value(manifest_path, "installdir")
-    if not install_dir:
-        raise RuntimeError(f"Steam app manifest missing installdir: {manifest_path}")
-    path = str(manifest_path.parent / "common" / install_dir)
-    logger.debug("Resolved Steam app install location app_id=%s path=%s", app_id, path)
-    return path
+    try:
+        manifest_path = get_app_manifest_path(app_id)
+        install_dir = _read_app_manifest_value(manifest_path, "installdir")
+        if not install_dir:
+            raise RuntimeError(
+                f"Steam app manifest missing installdir: {manifest_path}"
+            )
+        path = str(manifest_path.parent / "common" / install_dir)
+        logger.debug(
+            "Resolved Steam app install location app_id=%s path=%s", app_id, path
+        )
+        return path
+    except RuntimeError as err:
+        if is_windows():
+            logger.warning(
+                "Steam app manifest install lookup failed, using registry fallback: %s",
+                err,
+            )
+            return _get_app_install_location_from_registry(app_id)
+        raise
 
 
 def get_proton_prefix(app_id: int) -> Path:
@@ -200,3 +257,69 @@ def get_build_id(game_id: int) -> str | None:
         return build_id
     logger.warning("No 'buildid' found in the file when looking for game version")
     return None
+
+
+def _read_steam_registry_value(
+    reg_path: str, value_name: str, *, local_machine: bool = False
+) -> str | int:
+    logger.debug("Reading Steam registry value path=%s value=%s", reg_path, value_name)
+    winreg = import_module("winreg")
+    root_key = winreg.HKEY_LOCAL_MACHINE if local_machine else winreg.HKEY_CURRENT_USER
+    try:
+        reg_key = winreg.OpenKey(root_key, reg_path, 0, winreg.KEY_READ)
+        try:
+            value, _ = winreg.QueryValueEx(reg_key, value_name)
+        finally:
+            winreg.CloseKey(reg_key)
+    except OSError as err:
+        raise RuntimeError(
+            f"Could not read Steam registry value: {reg_path}\\{value_name}"
+        ) from err
+
+    logger.debug(
+        "Read Steam registry value path=%s value=%s result=%s",
+        reg_path,
+        value_name,
+        value,
+    )
+    return value
+
+
+def _read_steam_registry_string(
+    reg_path: str, value_name: str, *, local_machine: bool = False
+) -> str:
+    value = _read_steam_registry_value(
+        reg_path, value_name, local_machine=local_machine
+    )
+    if not isinstance(value, str) or not value:
+        raise RuntimeError(
+            f"Steam registry value is not a string: {reg_path}\\{value_name}"
+        )
+    return value
+
+
+def _get_active_steam_account_id_from_registry() -> int:
+    value = _read_steam_registry_value(
+        r"Software\Valve\Steam\ActiveProcess", "ActiveUser"
+    )
+    try:
+        account_id = int(value)
+    except (TypeError, ValueError) as err:
+        raise RuntimeError(f"Invalid Steam ActiveUser registry value: {value}") from err
+    if account_id <= 0:
+        raise RuntimeError(f"Invalid Steam ActiveUser registry value: {value}")
+    logger.debug("Resolved Steam active account ID from registry=%s", account_id)
+    return account_id
+
+
+def _get_app_install_location_from_registry(app_id: int) -> str:
+    reg_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App " + str(
+        app_id
+    )
+    path = _read_steam_registry_string(reg_path, "InstallLocation", local_machine=True)
+    logger.debug(
+        "Resolved Steam app install location from registry app_id=%s path=%s",
+        app_id,
+        path,
+    )
+    return path
