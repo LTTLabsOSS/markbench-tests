@@ -24,7 +24,7 @@ from harness_utils.output import (
 from harness_utils.process import terminate_process
 from harness_utils.steam import (
     exec_steam_run_command,
-    get_registry_active_user,
+    get_active_steam_account_id,
 )
 
 STEAM_GAME_ID = 1888930
@@ -291,7 +291,7 @@ setup_logging(LOG_DIRECTORY)
 
 try:
     start_time, end_time = run_benchmark()
-    steam_id = get_registry_active_user()
+    steam_id = get_active_steam_account_id()
     config_path = (
         Path(os.environ["USERPROFILE"])
         / "Saved Games"

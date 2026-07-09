@@ -11,13 +11,13 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.steam import (
     get_app_install_location,
-    get_registry_active_user,
+    get_active_steam_account_id,
     get_steam_folder_path,
 )
 
 STEAM_GAME_ID = 570
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-STEAM_USER_ID = get_registry_active_user()
+STEAM_USER_ID = get_active_steam_account_id()
 DEFAULT_INSTALL_PATH = Path(
     r"C:\Program Files (x86)\Steam\steamapps\common\dota 2 beta"
 )

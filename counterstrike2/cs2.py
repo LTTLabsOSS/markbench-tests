@@ -24,7 +24,7 @@ from harness_utils.process import terminate_process
 from harness_utils.steam import (
     exec_steam_game,
     get_build_id,
-    get_registry_active_user,
+    get_active_steam_account_id,
     get_steam_folder_path,
 )
 
@@ -33,7 +33,7 @@ LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "cs2.exe"
 STEAM_GAME_ID = 730
 
-STEAM_USER_ID = get_registry_active_user()
+STEAM_USER_ID = get_active_steam_account_id()
 CFG = Path(
     get_steam_folder_path(),
     "userdata",
