@@ -195,7 +195,7 @@ def navigate_settings() -> None:
     am.take_screenshot("video.png", ArtifactType.CONFIG_IMAGE, "video menu")
 
     user.press("b")
-    time.sleep(0.5)
+    time.sleep(1)
     user.press("enter")
 
 

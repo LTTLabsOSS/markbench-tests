@@ -116,7 +116,7 @@ def run_benchmark():
     am.take_screenshot_vulkan(
         "video1.png", ArtifactType.CONFIG_IMAGE, "1st screenshot of video settings menu"
     )
-    mouse_scroll_n_times(6, -120, 0.5)
+    mouse_scroll_n_times(7, -120, 0.5)
     time.sleep(1)
 
     result = find_word("nvidia", vulkan=True, interval=3, timeout=15)
