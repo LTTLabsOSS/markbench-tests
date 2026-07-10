@@ -163,7 +163,7 @@ class InputController:
     FAILSAFE: bool
 
     def __init__(self) -> None:
-        self.FAILSAFE = True
+        self.FAILSAFE = False
         self._backend = self._create_backend()
         logger.debug("Initialized InputController FAILSAFE=%s", self.FAILSAFE)
 
