@@ -19,7 +19,7 @@ def terminate_process(process_name: str) -> None:
     if is_windows():
         for process in psutil.process_iter(["pid", "name"]):
             process_name_current = process.info.get("name") or ""
-            if process_name in process_name_current:
+            if process_name.lower() in process_name_current.lower():
                 logger.debug(
                     "Terminating process pid=%s name=%s",
                     process.info.get("pid"),
@@ -33,11 +33,10 @@ def terminate_process(process_name: str) -> None:
         return
 
     if is_linux():
-        process_name_lower = process_name.lower()
         for process in psutil.process_iter(["pid", "name", "cmdline"]):
             command = " ".join(process.info.get("cmdline") or [])
 
-            if process_name_lower in command.lower():
+            if process_name.lower() in command.lower():
                 logger.debug(
                     "Terminating process pid=%s name=%s command=%s",
                     process.info.get("pid"),
@@ -48,9 +47,8 @@ def terminate_process(process_name: str) -> None:
                     process.terminate()
                 except psutil.Error as err:
                     logger.warning("Failed to terminate process: %s", err)
-                return
 
-        logger.debug("Process not found: %s", process_name)
+        logger.debug("Process termination complete")
         return
 
     logger.warning("Process termination unsupported on this platform")
@@ -59,6 +57,7 @@ def terminate_process(process_name: str) -> None:
 def is_process_running(process_name):
     """check if given process is running"""
     for process in psutil.process_iter(["pid", "name"]):
-        if process.info["name"] == process_name:
+        process_name_current = process.info.get("name") or ""
+        if process_name_current.lower() == process_name.lower():
             return process
     return None
