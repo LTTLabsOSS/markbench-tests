@@ -13,7 +13,6 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import press_n_times, user
-from harness_utils.misc import int_time
 from harness_utils.ocr_service import find_word
 from harness_utils.output import (
     format_resolution,
@@ -113,7 +112,7 @@ def read_registry_value(key_path, value_name):
 def run_benchmark() -> tuple:
     """Starts Game, Sets Settings, and Runs Benchmark"""
     exec_steam_run_command(STEAM_GAME_ID)
-    setup_start_time = int_time()
+    setup_start_time = int(time.time())
     am = ArtifactManager(LOG_DIRECTORY)
 
     if find_word("sony", timeout=60, interval=0.2) is None:
@@ -173,7 +172,7 @@ def run_benchmark() -> tuple:
 
     user.press("space")
 
-    setup_end_time = test_start_time = test_end_time = int_time()
+    setup_end_time = test_start_time = test_end_time = int(time.time())
 
     elapsed_setup_time = setup_end_time - setup_start_time
     logging.info("Setup took %f seconds", elapsed_setup_time)
@@ -181,7 +180,7 @@ def run_benchmark() -> tuple:
     # time of benchmark usually is 4:23 = 263 seconds
 
     if find_word("man", timeout=100, interval=0.2) is not None:
-        test_start_time = int_time() - 14
+        test_start_time = int(time.time()) - 14
         time.sleep(240)
 
     else:
@@ -190,11 +189,11 @@ def run_benchmark() -> tuple:
 
     if find_word("rush", timeout=100, interval=0.2) is not None:
         time.sleep(3)
-        test_end_time = int_time()
+        test_end_time = int(time.time())
 
     else:
         logging.error("couldn't find 'rush', marks end of benchmark")
-        test_end_time = int_time()
+        test_end_time = int(time.time())
 
     elapsed_test_time = test_end_time - test_start_time
     logging.info("Test took %f seconds", elapsed_test_time)
