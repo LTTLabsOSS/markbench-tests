@@ -6,6 +6,8 @@ from importlib import import_module
 from pathlib import Path
 from subprocess import Popen
 
+import vdf
+
 from harness_utils.platform import is_linux, is_windows
 
 logger = logging.getLogger(__name__)
@@ -16,7 +18,6 @@ STEAMID64_ACCOUNT_ID_OFFSET = 76561197960265728
 
 
 def _load_vdf_file(file_path: Path, description: str) -> dict:
-    vdf = import_module("vdf")
     try:
         with open(file_path, encoding="utf-8") as file:
             return vdf.load(file)
