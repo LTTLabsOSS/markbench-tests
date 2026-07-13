@@ -16,12 +16,6 @@ from harness_utils.input import user
 user.FAILSAFE = False
 
 
-def _pyautogui():
-    import pyautogui as gui
-
-    return gui
-
-
 class LTTGamePad360(vg.VX360Gamepad):
     """
     Class extension for the virtual game pad library
@@ -159,16 +153,6 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
             time.sleep(pause)
 
 
-def clickme(x: int, y: int):
-    """Pyautogui's click function sucks, this should do the trick"""
-    gui = _pyautogui()
-    gui.moveTo(x, y)
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-
-
 def int_time() -> int:
     """Returns the current time in seconds since epoch as an integer"""
     return int(time.time())
@@ -198,12 +182,6 @@ def download_file(download_url: str, destination: Path) -> None:
     response = requests.get(download_url, allow_redirects=True, timeout=120)
     with open(destination, "wb") as f:
         f.write(response.content)
-
-
-def extract_archive(zip_file: Path, destination_dir: Path) -> None:
-    """Extract all contents of an archive"""
-    with ZipFile(zip_file, "r") as zip_object:
-        zip_object.extractall(path=destination_dir)
 
 
 def extract_file_from_archive(
