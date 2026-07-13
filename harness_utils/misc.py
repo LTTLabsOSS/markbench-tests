@@ -8,10 +8,6 @@ import time
 
 import vgamepad as vg
 
-from harness_utils.input import user
-
-user.FAILSAFE = False
-
 
 class LTTGamePad360(vg.VX360Gamepad):
     """
@@ -148,13 +144,6 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
         for _ in range(n):
             self.single_dpad_press(direction)
             time.sleep(pause)
-
-
-def press_n_times(key: str, n: int, pause: float = 0.5):
-    """A helper function press the same button multiple times"""
-    for _ in range(n):
-        user.press(key)
-        time.sleep(pause)
 
 
 def remove_files(paths: list[str]) -> None:

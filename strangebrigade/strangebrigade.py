@@ -21,7 +21,8 @@ from harness_utils.keras_service import (
     ScreenShotQuadrant,
     ScreenSplitConfig,
 )
-from harness_utils.misc import press_n_times, remove_files
+from harness_utils.input import press_n_times
+from harness_utils.misc import remove_files
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,

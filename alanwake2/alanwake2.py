@@ -14,8 +14,9 @@ sys.path.insert(1, PARENT_DIRECTORY)
 # pylint: disable=wrong-import-position
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
-from harness_utils.misc import find_eg_game_version, press_n_times
+from harness_utils.misc import find_eg_game_version
 from harness_utils.output import setup_logging, write_report_json
 from harness_utils.process import terminate_process
 
@@ -80,10 +81,8 @@ def run_benchmark():
     logging.info("Navigating to options to get some screenshots")
     press_n_times("down", 4, 0.2)
 
-    if find_word(word="continue", interval=0.5, timeout=2.5) is None:
-        logging.info(
-            "Continue option not listed, navigating accordingly."
-            )
+    if find_word(word="continue", interval=0.5, timeout=3) is None:
+        logging.info("Continue option not listed, navigating accordingly.")
         press_n_times("up", 2, 0.2)
 
     user.press("enter")
@@ -117,10 +116,7 @@ def run_benchmark():
         "second screenshot of graphics settings",
     )
     press_n_times("down", 10, 0.2)
-    if (
-        find_word(word="transparency", timeout=60, interval=0.5)
-        is None
-    ):
+    if find_word(word="transparency", timeout=60, interval=0.5) is None:
         logging.error(
             "Did not see Transparency. Did it navigate to graphics correctly?"
         )

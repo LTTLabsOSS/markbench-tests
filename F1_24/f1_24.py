@@ -12,8 +12,8 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.input import user
-from harness_utils.misc import press_n_times, remove_files
+from harness_utils.input import press_n_times, user
+from harness_utils.misc import remove_files
 from harness_utils.ocr_service import find_word
 from harness_utils.output import (
     format_resolution,
