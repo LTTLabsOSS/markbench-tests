@@ -109,12 +109,27 @@ def capture_screenshot_array(vulkan: bool = False) -> np.ndarray | None:
     raise RuntimeError("Screenshot capture is only supported on Windows and Linux")
 
 
-def capture_screenshot_jpg_bytes(vulkan: bool = False) -> io.BytesIO | None:
+def _crop_screenshot(screenshot: np.ndarray, crop: str | None) -> np.ndarray:
+    if crop is None:
+        return screenshot
+
+    height, width = screenshot.shape[:2]
+    if crop == "top_left":
+        return screenshot[0 : height // 2, 0 : width // 2]
+    if crop == "top_right":
+        return screenshot[0 : height // 2, width // 2 : width]
+    raise ValueError(f"Unsupported screenshot crop: {crop}")
+
+
+def capture_screenshot_jpg_bytes(
+    vulkan: bool = False, crop: str | None = None
+) -> io.BytesIO | None:
     """Capture a screenshot and encode it as JPG bytes."""
     screenshot = capture_screenshot_array(vulkan)
     if screenshot is None:
         return None
 
+    screenshot = _crop_screenshot(screenshot, crop)
     _, encoded_image = cv2.imencode(".jpg", screenshot)
     return io.BytesIO(encoded_image)
 
