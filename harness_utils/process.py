@@ -1,13 +1,9 @@
 """Functions related to managing processes"""
 
 import logging
-
 import psutil
 
-from harness_utils.platform import is_linux, is_windows
-
 logger = logging.getLogger(__name__)
-
 
 def terminate_process(process_name: str) -> None:
     """Finds a given process name and terminates it"""
