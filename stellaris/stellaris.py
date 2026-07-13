@@ -4,7 +4,6 @@ import logging
 import os
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 import pyautogui as gui
@@ -20,7 +19,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -51,9 +50,8 @@ def console_command(command):
     user.press("enter")
 
 
-def run_benchmark(keras_host, keras_port):
+def run_benchmark():
     """Starts the benchmark"""
-    keras_service = KerasService(keras_host, keras_port)
     copy_benchmarkfiles()
     copy_benchmarksave()
     start_game()
@@ -61,7 +59,7 @@ def run_benchmark(keras_host, keras_port):
     time.sleep(5)
     am = ArtifactManager(LOG_DIRECTORY)
 
-    patchnotes = keras_service.wait_for_word("close", interval=0.5, timeout=100)
+    patchnotes = find_word("close", interval=0.5, timeout=100)
     if patchnotes:
         gui.moveTo(patchnotes["x"], patchnotes["y"])
         time.sleep(0.2)
@@ -70,14 +68,14 @@ def run_benchmark(keras_host, keras_port):
         gui.mouseUp()
         time.sleep(0.2)
 
-    result = keras_service.wait_for_word("credits", interval=0.5, timeout=100)
+    result = find_word("credits", interval=0.5, timeout=100)
     if not result:
         logging.info(
             "Could not find the paused notification. Unable to mark start time!"
         )
         sys.exit(1)
 
-    result = keras_service.wait_for_word("settings", timeout=10, interval=1)
+    result = find_word("settings", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the settings button. Is there something wrong on the screen?"
@@ -95,7 +93,7 @@ def run_benchmark(keras_host, keras_port):
     time.sleep(0.2)
     user.press("esc")
 
-    result = keras_service.wait_for_word("load", timeout=10, interval=1)
+    result = find_word("load", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the load save menu. Is there something wrong on the screen?"
@@ -109,10 +107,10 @@ def run_benchmark(keras_host, keras_port):
     gui.mouseUp()
     time.sleep(2)
 
-    result = keras_service.wait_for_word("latest", timeout=10, interval=1)
+    result = find_word("latest", timeout=10, interval=1)
     if not result:
         logging.info(
-            "Did not find the load latest save button. Did keras click correctly?"
+            "Did not find the load latest save button. Did OCR click correctly?"
         )
         sys.exit(1)
 
@@ -123,14 +121,14 @@ def run_benchmark(keras_host, keras_port):
     gui.mouseUp()
     time.sleep(0.5)
 
-    result = keras_service.wait_for_word("paused", interval=0.5, timeout=100)
+    result = find_word("paused", interval=0.5, timeout=100)
     if not result:
         logging.info(
             "Could not find the paused notification. Unable to mark start time!"
         )
         sys.exit(1)
 
-    result = keras_service.wait_for_word("overview", timeout=10, interval=1)
+    result = find_word("overview", timeout=10, interval=1)
     if not result:
         logging.info("Did not find the overview in the corner. Did the game load?")
         sys.exit(1)
@@ -150,7 +148,7 @@ def run_benchmark(keras_host, keras_port):
     test_start_time = int(time.time())
     time.sleep(30)
 
-    result = keras_service.wait_for_word("finished", interval=0.2, timeout=250)
+    result = find_word("finished", interval=0.2, timeout=250)
     if not result:
         logging.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?"
@@ -177,24 +175,7 @@ def run_benchmark(keras_host, keras_port):
 
 def main():
     """entry point to test script"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    args = parser.parse_args()
-
-    test_start_time, test_end_time, score = run_benchmark(
-        args.keras_host, args.keras_port
-    )
+    test_start_time, test_end_time, score = run_benchmark()
     height, width = read_current_resolution()
     report = {
         "resolution": format_resolution(width, height),

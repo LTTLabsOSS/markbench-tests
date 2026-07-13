@@ -5,7 +5,6 @@ import os
 import subprocess
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 import pyautogui as gui
@@ -16,7 +15,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.input import mouse_scroll_n_times
 from harness_utils.output import (
     format_resolution,
@@ -51,7 +50,7 @@ def start_game():
     return process
 
 
-def run_benchmark(keras_service):
+def run_benchmark():
     """Run Marvel Rivals benchmark"""
     setup_start_time = int(time.time())
     start_game()
@@ -71,7 +70,7 @@ def run_benchmark(keras_service):
     time.sleep(60)  # wait for game to load into main menu
 
     # launching into the game menu
-    result = keras_service.wait_for_word("start", timeout=30, interval=1)
+    result = find_word("start", timeout=30, interval=1)
     if not result:
         logging.info("Did not find the title screen. Did the game load?")
         sys.exit(1)
@@ -82,13 +81,13 @@ def run_benchmark(keras_service):
     time.sleep(20)
 
     # checking if a marketing notification has come up
-    result = keras_service.wait_for_word("view", timeout=15, interval=1)
+    result = find_word("view", timeout=15, interval=1)
     if result:
         user.press("escape")
         time.sleep(0.5)
 
     # navigating to the video settings and taking screenshots
-    result = keras_service.wait_for_word("play", timeout=30, interval=1)
+    result = find_word("play", timeout=30, interval=1)
     if not result:
         logging.info(
             "Did not find the play menu. Did it click the mouse to start the game?"
@@ -97,7 +96,7 @@ def run_benchmark(keras_service):
     user.press("escape")
     time.sleep(0.5)
 
-    result = keras_service.wait_for_word("settings", timeout=30, interval=1)
+    result = find_word("settings", timeout=30, interval=1)
     if not result:
         logging.info(
             "Did not find the settings menu. Did it open the menu with escape?"
@@ -111,7 +110,7 @@ def run_benchmark(keras_service):
     gui.mouseUp()
     time.sleep(1)
 
-    result = keras_service.wait_for_word("brightness", timeout=30, interval=1)
+    result = find_word("brightness", timeout=30, interval=1)
     if not result:
         logging.info(
             "Did not find the brightness option. Did the game load into the display options?"
@@ -125,7 +124,7 @@ def run_benchmark(keras_service):
     mouse_scroll_n_times(10, -800, 0.2)
     time.sleep(0.5)
 
-    result = keras_service.wait_for_word("foliage", timeout=30, interval=1)
+    result = find_word("foliage", timeout=30, interval=1)
     if not result:
         logging.info("Did not find the foliage option. Did it scroll down far enough?")
         sys.exit(1)
@@ -139,7 +138,7 @@ def run_benchmark(keras_service):
     mouse_scroll_n_times(10, 800, 0.2)
     time.sleep(1)
 
-    result = keras_service.wait_for_word("run", timeout=30, interval=1)
+    result = find_word("run", timeout=30, interval=1)
     if not result:
         logging.info(
             "Did not find the Performance Test. Did it scroll back up properly?"
@@ -153,9 +152,9 @@ def run_benchmark(keras_service):
     gui.mouseUp()
     time.sleep(1)
 
-    result = keras_service.wait_for_word("start", timeout=30, interval=1)
+    result = find_word("start", timeout=30, interval=1)
     if not result:
-        logging.info("Did not find the Start Test button. Keras click correctly?")
+        logging.info("Did not find the Start Test button. Did OCR click correctly?")
         sys.exit(1)
 
     gui.moveTo(result["x"], result["y"])
@@ -172,7 +171,7 @@ def run_benchmark(keras_service):
     time.sleep(2)
 
     # looking for the FPS data graph
-    result = keras_service.wait_for_word("fps", timeout=30, interval=1)
+    result = find_word("fps", timeout=30, interval=1)
     if not result:
         logging.info("Did not find the FPS graph. Did the replay start?")
         sys.exit(1)
@@ -181,7 +180,7 @@ def run_benchmark(keras_service):
     time.sleep(98)
 
     # checking that first round has finished
-    result = keras_service.wait_for_word("again", timeout=30, interval=1)
+    result = find_word("again", timeout=30, interval=1)
     if not result:
         logging.info("Didn't see the results screen. Did the test crash?")
         sys.exit(1)
@@ -207,24 +206,7 @@ def run_benchmark(keras_service):
 
 def main():
     """entry point to test script"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    args = parser.parse_args()
-
-    keras_service = KerasService(args.keras_host, args.keras_port)
-
-    start_time, end_time = run_benchmark(keras_service)
+    start_time, end_time = run_benchmark()
 
     height, width = read_resolution()
     report = {

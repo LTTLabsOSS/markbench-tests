@@ -7,13 +7,13 @@ import time
 from pathlib import Path
 
 import pydirectinput as user
-from returnal_utils import get_args, get_resolution
+from returnal_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.misc import press_n_times, remove_files
 from harness_utils.output import (
     format_resolution,
@@ -61,8 +61,8 @@ def check_vram_alert(attempts: int) -> bool:
     """Look for VRAM alert in menu"""
     logging.info("Checking for VRAM alert prompt")
     for _ in range(attempts):
-        alert_result = kerasService.wait_for_word("alert")
-        locate_result = kerasService.wait_for_word("locate")
+        alert_result = find_word("alert")
+        locate_result = find_word("locate")
         if locate_result is not None:
             return False
         if alert_result is not None:
@@ -112,7 +112,7 @@ def run_benchmark() -> tuple[float]:
         escape_vram_alert()
 
     # Make sure the game started correctly
-    result = kerasService.wait_for_word("locate", interval=5, timeout=50)
+    result = find_word("locate", interval=5, timeout=50)
     if not result:
         logging.info("Could not find prompt to open menu!")
         sys.exit(1)
@@ -128,7 +128,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(1)
 
     # Verify that we have navigated to the video settings menu and take a screenshot
-    if kerasService.wait_for_word(word="aspect", timeout=30, interval=1) is None:
+    if find_word(word="aspect", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
     am.take_screenshot(
@@ -139,7 +139,7 @@ def run_benchmark() -> tuple[float]:
     user.press("e")
     time.sleep(1)
 
-    if kerasService.wait_for_word(word="vsync", timeout=30, interval=1) is None:
+    if find_word(word="vsync", timeout=30, interval=1) is None:
         logging.info("Did not find the graphics settings menu. Did the menu get stuck?")
         sys.exit(1)
     am.take_screenshot(
@@ -149,7 +149,7 @@ def run_benchmark() -> tuple[float]:
     )
 
     # We check for a keyword that indicates DLSS is active because this changes how we navigate the menu
-    if kerasService.wait_for_word(word="sharpness", timeout=10, interval=1) is None:
+    if find_word(word="sharpness", timeout=10, interval=1) is None:
         logging.info("No DLSS Settings Detected")
         # Scroll down graphics menu
         press_n_times("down", 15, 0.2)
@@ -158,7 +158,7 @@ def run_benchmark() -> tuple[float]:
         # Scroll down graphics menu
         press_n_times("down", 17, 0.2)
 
-    if kerasService.wait_for_word(word="volumetric", timeout=30, interval=1) is None:
+    if find_word(word="volumetric", timeout=30, interval=1) is None:
         logging.info(
             "Did not find the keyword 'volumetric'. Did the the menu scroll correctly?"
         )
@@ -172,7 +172,7 @@ def run_benchmark() -> tuple[float]:
     # Scroll down graphics menu
     press_n_times("down", 15, 0.2)
 
-    if kerasService.wait_for_word(word="hdr", timeout=30, interval=1) is None:
+    if find_word(word="hdr", timeout=30, interval=1) is None:
         logging.info(
             "Did not find the keyword 'hdr'. Did the the menu scroll correctly?"
         )
@@ -192,7 +192,7 @@ def run_benchmark() -> tuple[float]:
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
     logging.info("Setup took %s seconds", elapsed_setup_time)
 
-    result = kerasService.wait_for_word("performance", interval=0.2, timeout=30)
+    result = find_word("performance", interval=0.2, timeout=30)
     if not result:
         logging.info("Performance graph was not found! Could not mark the start time.")
         sys.exit(1)
@@ -203,13 +203,13 @@ def run_benchmark() -> tuple[float]:
     time.sleep(112)
 
     # Wait for results screen to display info
-    result = kerasService.wait_for_word("lost", interval=0.1, timeout=11)
+    result = find_word("lost", interval=0.1, timeout=11)
     if not result:
         logging.info("Didn't see signal lost. Could not mark the proper end time!")
 
     test_end_time = round(int(time.time()) - 2)
 
-    result = kerasService.wait_for_word("benchmark", interval=0.5, timeout=15)
+    result = find_word("benchmark", interval=0.5, timeout=15)
     if not result:
         logging.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?"
@@ -233,9 +233,6 @@ def run_benchmark() -> tuple[float]:
 
 
 setup_logging(LOG_DIRECTORY)
-
-args = get_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
 
 try:
     start_time, end_time = run_benchmark()

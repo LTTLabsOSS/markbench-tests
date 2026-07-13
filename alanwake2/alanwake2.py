@@ -3,7 +3,6 @@
 import logging
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 from subprocess import Popen
 
@@ -15,7 +14,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 # pylint: disable=wrong-import-position
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.misc import find_eg_game_version, press_n_times
 from harness_utils.output import setup_logging, write_report_json
 from harness_utils.process import terminate_process
@@ -50,29 +49,29 @@ def run_benchmark():
     start_game()
     time.sleep(10)  # wait for game to load into main menu
 
-    if kerasService.wait_for_word(word="saving", timeout=30, interval=1) is None:
+    if find_word(word="saving", timeout=30, interval=1) is None:
         logging.error("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
     user.press("enter")
 
-    if kerasService.wait_for_word(word="warning", timeout=30, interval=1) is None:
+    if find_word(word="warning", timeout=30, interval=1) is None:
         logging.error("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
     user.press("enter")
 
-    if kerasService.wait_for_word(word="continue", timeout=30, interval=1) is None:
+    if find_word(word="continue", timeout=30, interval=1) is None:
         logging.error("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
     user.press("enter")
 
-    if kerasService.wait_for_word(word="house", timeout=10, interval=0.5):
+    if find_word(word="house", timeout=10, interval=0.5):
         user.press("esc")
 
     # Navigating main menu:
-    is_load_present = kerasService.wait_for_word("load", interval=1, timeout=5)
+    is_load_present = find_word("load", interval=1, timeout=5)
     if is_load_present is None:
         raise ValueError(
             "Load game option does not exist. Did the save get copied correctly?"
@@ -81,7 +80,7 @@ def run_benchmark():
     logging.info("Navigating to options to get some screenshots")
     press_n_times("down", 4, 0.2)
 
-    if kerasService.wait_for_word(word="continue", interval=0.5, timeout=2.5) is None:
+    if find_word(word="continue", interval=0.5, timeout=2.5) is None:
         logging.info(
             "Continue option not listed, navigating accordingly."
             )
@@ -89,13 +88,13 @@ def run_benchmark():
 
     user.press("enter")
     time.sleep(0.2)
-    if kerasService.wait_for_word(word="graphics", timeout=60, interval=0.5) is None:
+    if find_word(word="graphics", timeout=60, interval=0.5) is None:
         logging.error(
             "Graphics options not available. Did it navigate to the options correctly?"
         )
         sys.exit(1)
     press_n_times("e", 2, 0.2)
-    if kerasService.wait_for_word(word="quality", timeout=60, interval=0.5) is None:
+    if find_word(word="quality", timeout=60, interval=0.5) is None:
         logging.error(
             "Did not see quality preset. Did it navigate to graphics correctly?"
         )
@@ -107,7 +106,7 @@ def run_benchmark():
     )
     time.sleep(0.2)
     press_n_times("down", 19, 0.2)
-    if kerasService.wait_for_word(word="terrain", timeout=60, interval=0.5) is None:
+    if find_word(word="terrain", timeout=60, interval=0.5) is None:
         logging.error(
             "Did not see Terrain Quality. Did it navigate to graphics correctly?"
         )
@@ -119,7 +118,7 @@ def run_benchmark():
     )
     press_n_times("down", 10, 0.2)
     if (
-        kerasService.wait_for_word(word="transparency", timeout=60, interval=0.5)
+        find_word(word="transparency", timeout=60, interval=0.5)
         is None
     ):
         logging.error(
@@ -141,7 +140,7 @@ def run_benchmark():
     time.sleep(2)
 
     # Loading the save
-    if kerasService.wait_for_word(word="heart", timeout=60, interval=0.5) is None:
+    if find_word(word="heart", timeout=60, interval=0.5) is None:
         logging.error(
             "Heart not showing in loadable games. Did the save get copied correctly?"
         )
@@ -155,7 +154,7 @@ def run_benchmark():
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
 
     # Starting the benchmark:
-    if kerasService.wait_for_word(word="recap", timeout=80, interval=0.5) is None:
+    if find_word(word="recap", timeout=80, interval=0.5) is None:
         logging.error("Didn't see the word recap. Did the save game load?")
         sys.exit(1)
 
@@ -164,7 +163,7 @@ def run_benchmark():
     # wait for benchmark to complete
     time.sleep(170)
 
-    if kerasService.wait_for_word(word="insane", timeout=60, interval=0.5) is None:
+    if find_word(word="insane", timeout=60, interval=0.5) is None:
         logging.error("Didn't see the word insane. Did the game crash?")
         sys.exit(1)
     test_end_time = int(time.time())
@@ -178,22 +177,7 @@ def run_benchmark():
 
 
 try:
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    args = parser.parse_args()
     setup_logging(LOG_DIRECTORY)
-    kerasService = KerasService(args.keras_host, args.keras_port)
     am = ArtifactManager(LOG_DIRECTORY)
     start_time, end_time = run_benchmark()
     height, width = get_resolution()

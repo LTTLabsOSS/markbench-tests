@@ -4,7 +4,6 @@ import logging
 import os
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 import pyautogui as gui
@@ -15,7 +14,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.misc import press_n_times
 from harness_utils.output import (
     format_resolution,
@@ -61,7 +60,7 @@ def run_benchmark():
     time.sleep(30)
 
     logging.info("Waiting for start prompt...")
-    result = kerasService.wait_for_word("start", timeout=30)
+    result = find_word("start", timeout=30)
     if not result:
         logging.info("Game didn't start.")
         sys.exit(1)
@@ -70,7 +69,7 @@ def run_benchmark():
     user.press("x")
     time.sleep(2)
 
-    result = kerasService.wait_for_word("video", timeout=30)
+    result = find_word("video", timeout=30)
     if not result:
         logging.info("Game didn't load to the settings menu.")
         sys.exit(1)
@@ -91,7 +90,7 @@ def run_benchmark():
     user.press("escape")
     time.sleep(1)
 
-    result = kerasService.wait_for_word("graphics", timeout=30)
+    result = find_word("graphics", timeout=30)
     if not result:
         logging.info("Game didn't load to the settings menu.")
         sys.exit(1)
@@ -111,7 +110,7 @@ def run_benchmark():
     user.press("down")
     time.sleep(1)
 
-    result = kerasService.wait_for_word("benchmark", timeout=12)
+    result = find_word("benchmark", timeout=12)
     if not result:
         logging.info("Didn't find benchmark in settings.")
         sys.exit(1)
@@ -125,7 +124,7 @@ def run_benchmark():
     user.press("enter")
     time.sleep(0.2)
 
-    result = kerasService.wait_for_word("checkpoint", timeout=360)
+    result = find_word("checkpoint", timeout=360)
     if not result:
         logging.info("Benchmark didn't start.")
         sys.exit(1)
@@ -137,7 +136,7 @@ def run_benchmark():
 
     time.sleep(95)  # wait for benchmark to finish 95 seconds
 
-    result = kerasService.wait_for_word("results", timeout=25)
+    result = find_word("results", timeout=25)
     if not result:
         logging.info("Results screen was not found!")
         sys.exit(1)
@@ -153,15 +152,6 @@ def run_benchmark():
 
 setup_logging(LOG_DIRECTORY)
 
-parser = ArgumentParser()
-parser.add_argument(
-    "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
-)
-parser.add_argument(
-    "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
-)
-args = parser.parse_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
 am = ArtifactManager(LOG_DIRECTORY)
 
 try:

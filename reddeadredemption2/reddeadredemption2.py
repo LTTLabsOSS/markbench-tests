@@ -4,7 +4,6 @@ import getpass
 import logging
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 import pydirectinput as user
@@ -14,7 +13,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.misc import press_n_times
 from harness_utils.output import (
     format_resolution,
@@ -52,13 +51,13 @@ def run_benchmark():
     time.sleep(80)
 
     # patch to look for seasonal popup
-    result = kerasService.wait_for_word_vulkan("strange", timeout=30)
+    result = find_word("strange", vulkan=True, timeout=30)
     if result:
         user.press("enter")
         time.sleep(3)
 
     # Press Z to enter settings
-    result = kerasService.wait_for_word_vulkan("settings", timeout=30)
+    result = find_word("settings", vulkan=True, timeout=30)
     if not result:
         logging.info("Did not find the settings menu. Did the game launch?")
         sys.exit(1)
@@ -67,9 +66,9 @@ def run_benchmark():
 
     # Enter graphics menu
     ## ensure we are starting from the top left of the screen
-    result = kerasService.wait_for_word_vulkan("graphics", timeout=5)
+    result = find_word("graphics", vulkan=True, timeout=5)
     if not result:
-        logging.info("Did not find the graphics menu. Did keras get stuck?")
+        logging.info("Did not find the graphics menu. Did OCR get stuck?")
         sys.exit(1)
     user.press("up")
     user.press("up")
@@ -80,7 +79,7 @@ def run_benchmark():
     time.sleep(3)
 
     # Take pictures of the graphics settings
-    result = kerasService.wait_for_word_vulkan("resolution", timeout=5)
+    result = find_word("resolution", vulkan=True, timeout=5)
     if not result:
         logging.info(
             "Did not find the resolution setting. Did the game navigate correctly?"
@@ -90,12 +89,12 @@ def run_benchmark():
         "Graphics1.png", ArtifactType.RESULTS_IMAGE, "1st Graphics Screenshot"
     )
 
-    result = kerasService.wait_for_word_vulkan("nvidia", timeout=5)
+    result = find_word("nvidia", vulkan=True, timeout=5)
     if result:
         logging.info("NVIDIA card is installed, navigating accordingly.")
         press_n_times("down", 26, 0.2)
 
-        result = kerasService.wait_for_word_vulkan("mode", timeout=5)
+        result = find_word("mode", vulkan=True, timeout=5)
         if not result:
             logging.info(
                 "Did not find the FSR mode description. Did it navigate correctly?"
@@ -106,7 +105,7 @@ def run_benchmark():
         )
         press_n_times("down", 14, 0.2)
 
-        result = kerasService.wait_for_word_vulkan("long", timeout=5)
+        result = find_word("long", vulkan=True, timeout=5)
         if not result:
             logging.info(
                 "Did not find the Long Shadows settings. Did it navigate correctly?"
@@ -117,10 +116,10 @@ def run_benchmark():
         )
         press_n_times("down", 15, 0.2)
 
-        result = kerasService.wait_for_word_vulkan("tessellation", timeout=5)
+        result = find_word("tessellation", vulkan=True, timeout=5)
         if not result:
             logging.info(
-                "Did not find the Tree Tessellation settings. Did Keras navigate correctly?"
+                "Did not find the Tree Tessellation settings. Did OCR navigate correctly?"
             )
             sys.exit(1)
         am.take_screenshot_vulkan(
@@ -131,21 +130,19 @@ def run_benchmark():
         logging.info("NVIDIA card not detected on screen, navigating accordingly.")
         press_n_times("down", 26, 0.2)
 
-        result = kerasService.wait_for_word_vulkan("msaa", timeout=5)
+        result = find_word("msaa", vulkan=True, timeout=5)
         if not result:
-            logging.info(
-                "Did not find the MSAA settings. Did Keras navigate correctly?"
-            )
+            logging.info("Did not find the MSAA settings. Did OCR navigate correctly?")
             sys.exit(1)
         am.take_screenshot_vulkan(
             "Graphics2.png", ArtifactType.RESULTS_IMAGE, "2nd Graphics Screenshot"
         )
         press_n_times("down", 14, 0.2)
 
-        result = kerasService.wait_for_word_vulkan("reflection", timeout=5)
+        result = find_word("reflection", vulkan=True, timeout=5)
         if not result:
             logging.info(
-                "Did not find the Water Reflection Quality settings. Did Keras navigate correctly?"
+                "Did not find the Water Reflection Quality settings. Did OCR navigate correctly?"
             )
             sys.exit(1)
         am.take_screenshot_vulkan(
@@ -153,10 +150,10 @@ def run_benchmark():
         )
         press_n_times("down", 12, 0.2)
 
-        result = kerasService.wait_for_word_vulkan("tessellation", timeout=5)
+        result = find_word("tessellation", vulkan=True, timeout=5)
         if not result:
             logging.info(
-                "Did not find the Tree Tessellation settings. Did Keras navigate correctly?"
+                "Did not find the Tree Tessellation settings. Did OCR navigate correctly?"
             )
             sys.exit(1)
         am.take_screenshot_vulkan(
@@ -164,7 +161,7 @@ def run_benchmark():
         )
 
     # Run benchmark by holding X for 2 seconds
-    result = kerasService.wait_for_word_vulkan("benchmark", timeout=5)
+    result = find_word("benchmark", vulkan=True, timeout=5)
     if not result:
         logging.info(
             "Did not see the Run Benchmark Test at the bottom of the screen. Did navigation mess up?"
@@ -180,7 +177,7 @@ def run_benchmark():
     user.press("enter")
 
     # Looking for the word Stop to mark the in time
-    result = kerasService.wait_for_word_vulkan("stop", timeout=60, interval = 1)
+    result = find_word("stop", vulkan=True, timeout=60, interval=1)
     if not result:
         logging.info(
             "Did not find the stop benchmarking in the corner. Did the benchmark crash?"
@@ -190,7 +187,7 @@ def run_benchmark():
 
     # Wait for the benchmark to complete
     time.sleep(270)  # 4 min, 30 seconds.
-    result = kerasService.wait_for_word_vulkan("end", timeout=30, interval=1)
+    result = find_word("end", vulkan=True, timeout=30, interval=1)
     if not result:
         logging.info("Did not find the end results screen. Did the benchmark crash?")
         sys.exit(1)
@@ -211,15 +208,6 @@ def run_benchmark():
 
 setup_logging(LOG_DIRECTORY)
 
-parser = ArgumentParser()
-parser.add_argument(
-    "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
-)
-parser.add_argument(
-    "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
-)
-args = parser.parse_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
 
 try:
     start_time, end_time = run_benchmark()

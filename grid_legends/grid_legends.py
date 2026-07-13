@@ -5,7 +5,6 @@ import os
 import re
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 import pydirectinput as user
@@ -15,7 +14,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 # pylint: disable=wrong-import-position
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -57,30 +56,12 @@ def get_resolution() -> tuple[int]:
     return (height, width)
 
 
-def get_args() -> any:
-    """Returns command line arg values"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    return parser.parse_args()
-
-
 def start_game():
     """Launch the game"""
     return exec_steam_game(STEAM_GAME_ID)
 
 
-def run_benchmark(keras_service):
+def run_benchmark():
     """Run Grid Legends benchmark"""
     setup_start_time = int(time.time())
     start_game()
@@ -88,7 +69,7 @@ def run_benchmark(keras_service):
 
     time.sleep(20)  # wait for game to load to the start screen
 
-    if keras_service.wait_for_word(word="press", timeout=80, interval=1) is None:
+    if find_word(word="press", timeout=80, interval=1) is None:
         logging.error("Game didn't load to start screen. Did the game load?")
         sys.exit(1)
     user.click()
@@ -98,7 +79,7 @@ def run_benchmark(keras_service):
     time.sleep(2)
 
     # waiting about a minute for the main menu to appear
-    if keras_service.wait_for_word(word="home", timeout=80, interval=1) is None:
+    if find_word(word="home", timeout=80, interval=1) is None:
         logging.error("Game didn't load to main menu. Check settings and try again.")
         sys.exit(1)
 
@@ -112,7 +93,7 @@ def run_benchmark(keras_service):
     user.press("enter")
     time.sleep(0.2)
 
-    if keras_service.wait_for_word(word="basic", timeout=30, interval=0.1) is None:
+    if find_word(word="basic", timeout=30, interval=0.1) is None:
         logging.error("Didn't basic video options. Did the menu navigate correctly?")
         sys.exit(1)
     am.take_screenshot(
@@ -122,7 +103,7 @@ def run_benchmark(keras_service):
     user.press("f3")
     time.sleep(0.2)
 
-    if keras_service.wait_for_word(word="benchmark", timeout=30, interval=0.1) is None:
+    if find_word(word="benchmark", timeout=30, interval=0.1) is None:
         logging.error(
             "Didn't reach advanced video options. Did the menu navigate correctly?"
         )
@@ -136,7 +117,7 @@ def run_benchmark(keras_service):
     user.press("up")
     time.sleep(0.2)
 
-    if keras_service.wait_for_word(word="shading", timeout=30, interval=0.1) is None:
+    if find_word(word="shading", timeout=30, interval=0.1) is None:
         logging.error(
             "Didn't reach bottom of advanced video settings. Did the menu navigate correctly?"
         )
@@ -156,14 +137,14 @@ def run_benchmark(keras_service):
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
 
-    if keras_service.wait_for_word(word="manzi", timeout=120, interval=0.1) is None:
+    if find_word(word="manzi", timeout=120, interval=0.1) is None:
         logging.error("Didn't see Valentino Manzi. Did the benchmark load?")
         sys.exit(1)
     test_start_time = int(time.time())
 
     time.sleep(136)
     # TODO -> Mark benchmark start time using video OCR by looking for a players name
-    if keras_service.wait_for_word(word="results", timeout=30, interval=0.1) is None:
+    if find_word(word="results", timeout=30, interval=0.1) is None:
         logging.error(
             "Didn't see results screen for the benchmark. Could not mark start time! Did the benchmark crash?"
         )
@@ -184,9 +165,7 @@ def run_benchmark(keras_service):
 
 def main():
     """entry point"""
-    args = get_args()
-    keras_service = KerasService(args.keras_host, args.keras_port)
-    start_time, end_time = run_benchmark(keras_service)
+    start_time, end_time = run_benchmark()
     elapsed_test_time = round((end_time - start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     terminate_process(PROCESS_NAME)

@@ -7,35 +7,16 @@ import shutil
 import sys
 import logging
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.steam import get_registry_active_user
+from harness_utils.steam import get_active_steam_account_id
 
 USERFOLDER = os.environ["USERPROFILE"]
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 TLOU_SAVE = SCRIPT_DIRECTORY.joinpath("SAVEFILE0A")
-
-
-def get_args() -> any:
-    """Get command line arg values"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    return parser.parse_args()
 
 
 def get_windowed_resolution(lines: list[str]):
@@ -130,7 +111,7 @@ def copy_autosave():
     Existing destination is replaced.
     """
     src_autosave_dir = Path(TLOU_SAVE)
-    steam_user_id = str(get_registry_active_user())
+    steam_user_id = str(get_active_steam_account_id())
     dest_savedata_dir = Path(
         USERFOLDER,
         "Saved Games",

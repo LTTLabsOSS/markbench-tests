@@ -17,4 +17,5 @@ disable=
     missing-module-docstring,
     missing-function-docstring,
     import-outside-toplevel,
-    invalid-name
+    invalid-name,
+    too-many-return-statements

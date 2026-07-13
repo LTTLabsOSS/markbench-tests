@@ -7,13 +7,13 @@ import winreg
 from pathlib import Path
 
 import pydirectinput as user
-from hzdr_utils import get_args, get_resolution, process_registry_file
+from hzdr_utils import get_resolution, process_registry_file
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.misc import remove_files
 from harness_utils.output import (
     format_resolution,
@@ -65,10 +65,10 @@ def run_benchmark() -> tuple[float]:
     am = ArtifactManager(LOG_DIRECTORY)
 
     time.sleep(10)
-    #skip intro
+    # skip intro
     user.press("esc")
     # Make sure the game started correctly
-    if kerasService.wait_for_word(word="quit", timeout=30, interval=1) is None:
+    if find_word(word="quit", timeout=30, interval=1) is None:
         logging.info("Could not find the main menu. Did the game load?")
         sys.exit(1)
 
@@ -80,7 +80,7 @@ def run_benchmark() -> tuple[float]:
     user.press("enter")
     time.sleep(0.5)
 
-    if kerasService.wait_for_word(word="language", timeout=30, interval=1) is None:
+    if find_word(word="language", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
@@ -88,26 +88,26 @@ def run_benchmark() -> tuple[float]:
     time.sleep(0.5)
 
     # Verify that we have navigated to the display settings menu and take a screenshot
-    if kerasService.wait_for_word(word="monitor", timeout=30, interval=1) is None:
+    if find_word(word="monitor", timeout=30, interval=1) is None:
         logging.info("Did not find the display settings menu. Did the menu get stuck?")
         sys.exit(1)
-    #Check if its fullscreen only and not exclusive fullscreen
-    if kerasService.wait_for_word(word="exclusive", timeout=3) is None:
+    # Check if its fullscreen only and not exclusive fullscreen
+    if find_word(word="exclusive", timeout=3) is None:
         user.press("down")
         user.press("right")
-        #Resets focus to first position before applying settings
+        # Resets focus to first position before applying settings
         user.press("up")
         user.press("r")
         user.press("enter")
         time.sleep(1)
         user.press("enter")
-    #Checks frame rate setting, sometimes this can be incorrect even if it is set to exclusive fullscreen
-    if kerasService.wait_for_word(word="144", timeout=3) is None:
+    # Checks frame rate setting, sometimes this can be incorrect even if it is set to exclusive fullscreen
+    if find_word(word="144", timeout=3) is None:
         user.press("down")
-        #Sometimes when the screen refreshes if the setting is changed from fullscreen to exclusive, the cursor highlights on v-sync because technically it moves it to the center so the game picks that up as a focusing movement.
-        #This checks if we are in the proper position by going down one and seeing if we can see 'generation' from frame generation, which should not be visible if we are in the correct focus location
-        #Either position once known is routed to the correct position via this if/else statement
-        if kerasService.wait_for_word(word="generation", timeout=3):
+        # Sometimes when the screen refreshes if the setting is changed from fullscreen to exclusive, the cursor highlights on v-sync because technically it moves it to the center so the game picks that up as a focusing movement.
+        # This checks if we are in the proper position by going down one and seeing if we can see 'generation' from frame generation, which should not be visible if we are in the correct focus location
+        # Either position once known is routed to the correct position via this if/else statement
+        if find_word(word="generation", timeout=3):
             user.press("up")
             user.press("up")
         else:
@@ -117,13 +117,13 @@ def run_benchmark() -> tuple[float]:
             user.press("down")
             user.press("down")
             user.press("right")
-        #This while loop is for the case when we switch to exclusive fullscreen from fullscreen, occasionally it will set to 30Hz, we want to get to 144Hz
-        #So we should be highlighted on refresh rate at this point, it will (if not 144) do the first user.input("right") then check for 144, if not present it will continue pressing right and checking after for 144
-        #This solves arbitrary steps to get to 144Hz, and sets us up if we want to alter that target hz setting we can just change the word variable below.
-        #KNOWN LIMITATION  we can maybe pull the max refresh some other way if we care about whether the display is not 144Hz max, so as to handle all edge cases here.
-        while kerasService.wait_for_word(word="144", timeout=1) is None:
+        # This while loop is for the case when we switch to exclusive fullscreen from fullscreen, occasionally it will set to 30Hz, we want to get to 144Hz
+        # So we should be highlighted on refresh rate at this point, it will (if not 144) do the first user.input("right") then check for 144, if not present it will continue pressing right and checking after for 144
+        # This solves arbitrary steps to get to 144Hz, and sets us up if we want to alter that target hz setting we can just change the word variable below.
+        # KNOWN LIMITATION  we can maybe pull the max refresh some other way if we care about whether the display is not 144Hz max, so as to handle all edge cases here.
+        while find_word(word="144", timeout=1) is None:
             user.press("right")
-        #Apply Hz setting once it is correct, then go up one so the proper settings are in view for the screenshot
+        # Apply Hz setting once it is correct, then go up one so the proper settings are in view for the screenshot
         user.press("r")
         user.press("enter")
         time.sleep(1)
@@ -141,7 +141,7 @@ def run_benchmark() -> tuple[float]:
     user.press("up")
     time.sleep(0.5)
 
-    if kerasService.wait_for_word(word="upscale", timeout=30, interval=1) is None:
+    if find_word(word="upscale", timeout=30, interval=1) is None:
         logging.info("Did not find the upscale settings. Did the menu not scroll?")
         sys.exit(1)
     am.take_screenshot(
@@ -152,7 +152,7 @@ def run_benchmark() -> tuple[float]:
     user.press("e")
     time.sleep(0.5)
 
-    if kerasService.wait_for_word(word="preset", timeout=30, interval=1) is None:
+    if find_word(word="preset", timeout=30, interval=1) is None:
         logging.info("Did not find the graphics settings menu. Did the menu get stuck?")
         sys.exit(1)
     am.take_screenshot(
@@ -162,7 +162,7 @@ def run_benchmark() -> tuple[float]:
     user.press("up")
     time.sleep(0.5)
 
-    if kerasService.wait_for_word(word="sharpness", timeout=30, interval=1) is None:
+    if find_word(word="sharpness", timeout=30, interval=1) is None:
         logging.info("Did not find the sharpness settings. Did the menu not scroll?")
         sys.exit(1)
     am.take_screenshot(
@@ -178,7 +178,7 @@ def run_benchmark() -> tuple[float]:
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
     logging.info("Setup took %s seconds", elapsed_setup_time)
 
-    if kerasService.wait_for_word(word="continue", timeout=120, interval=1) is None:
+    if find_word(word="continue", timeout=120, interval=1) is None:
         logging.info(
             "Did not find the continue button. Did the game not finish loading?"
         )
@@ -192,7 +192,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(180)
 
     # Wait for results screen to display info
-    if kerasService.wait_for_word(word="results", timeout=20, interval=0.1) is None:
+    if find_word(word="results", timeout=20, interval=0.1) is None:
         logging.info(
             "Did not find the results screen. Did the game not finish the benchmark?"
         )
@@ -217,9 +217,6 @@ def run_benchmark() -> tuple[float]:
 
 
 setup_logging(LOG_DIRECTORY)
-
-args = get_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
 
 try:
     start_time, end_time = run_benchmark()

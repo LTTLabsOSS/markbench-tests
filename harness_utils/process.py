@@ -12,42 +12,45 @@ logger = logging.getLogger(__name__)
 def terminate_process(process_name: str) -> None:
     """Finds a given process name and terminates it"""
     if not process_name:
-        logger.info("Skipping process termination for empty process name")
+        logger.debug("No process name provided")
         return
 
-    logger.info("Terminating process_name=%s", process_name)
+    logger.debug("Terminating process: %s", process_name)
     if is_windows():
-        matches = 0
-        for process in psutil.process_iter():
-            process_name_current = process.name()
+        for process in psutil.process_iter(["pid", "name"]):
+            process_name_current = process.info.get("name") or ""
             if process_name in process_name_current:
-                logger.info(
-                    "Terminating Windows process pid=%s name=%s",
-                    process.pid,
+                logger.debug(
+                    "Terminating process pid=%s name=%s",
+                    process.info.get("pid"),
                     process_name_current,
                 )
-                process.terminate()
-                matches += 1
-        logger.info("Windows process termination complete matches=%s", matches)
+                try:
+                    process.terminate()
+                except psutil.Error as err:
+                    logger.warning("Failed to terminate process: %s", err)
+        logger.debug("Process termination complete")
         return
 
     if is_linux():
+        process_name_lower = process_name.lower()
         for process in psutil.process_iter(["pid", "name", "cmdline"]):
-            command = " ".join(process.info.get("cmdline") or "")
+            command = " ".join(process.info.get("cmdline") or [])
 
-            if process_name in command:
-                logger.info(
-                    "Terminating Linux process pid=%s name=%s command=%s",
+            if process_name_lower in command.lower():
+                logger.debug(
+                    "Terminating process pid=%s name=%s command=%s",
                     process.info.get("pid"),
                     process.info.get("name"),
                     command,
                 )
-                process.terminate()
-                # Multi-match termination is disabled for now.
-                logger.info("Linux process termination complete matches=1")
+                try:
+                    process.terminate()
+                except psutil.Error as err:
+                    logger.warning("Failed to terminate process: %s", err)
                 return
 
-        logger.info("Linux process termination complete matches=0")
+        logger.debug("Process not found: %s", process_name)
         return
 
     logger.warning("Process termination unsupported on this platform")

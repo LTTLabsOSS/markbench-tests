@@ -7,13 +7,13 @@ import time
 from pathlib import Path
 
 import pydirectinput as user
-from forzams_utils import get_args, get_resolution
+from forzams_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.misc import press_n_times
 from harness_utils.output import (
     seconds_to_milliseconds,
@@ -60,7 +60,7 @@ def run_benchmark() -> tuple[int, int]:
     time.sleep(50)
 
     # Make sure the game started correctly
-    if kerasService.wait_for_word(word="play", timeout=30, interval=1) is None:
+    if find_word(word="play", timeout=30, interval=1) is None:
         logging.info("Could not find the main menu. Did the game load?")
         sys.exit(1)
 
@@ -68,7 +68,7 @@ def run_benchmark() -> tuple[int, int]:
     user.press("f")
     time.sleep(1)
 
-    if kerasService.wait_for_word(word="contrast", timeout=30, interval=1) is None:
+    if find_word(word="contrast", timeout=30, interval=1) is None:
         logging.info(
             "Did not find the accessibility settings menu. Did the menu get stuck?"
         )
@@ -82,7 +82,7 @@ def run_benchmark() -> tuple[int, int]:
     time.sleep(0.5)
 
     # Verify that we have navigated to the video settings menu and take a screenshot
-    if kerasService.wait_for_word(word="resolution", timeout=30, interval=1) is None:
+    if find_word(word="resolution", timeout=30, interval=1) is None:
         logging.info("Did not find the display settings menu. Did the menu get stuck?")
         sys.exit(1)
 
@@ -92,7 +92,7 @@ def run_benchmark() -> tuple[int, int]:
     user.press("]")
     time.sleep(0.5)
 
-    if kerasService.wait_for_word(word="filtering", timeout=30, interval=1) is None:
+    if find_word(word="filtering", timeout=30, interval=1) is None:
         logging.info("Did not find the graphics settings menu. Did the menu get stuck?")
         sys.exit(1)
     am.take_screenshot(
@@ -101,7 +101,7 @@ def run_benchmark() -> tuple[int, int]:
 
     press_n_times("down", 15, 0.5)
 
-    if kerasService.wait_for_word(word="particle", timeout=30, interval=1) is None:
+    if find_word(word="particle", timeout=30, interval=1) is None:
         logging.info(
             "Did not find the particle effect settings. Did the menu get stuck?"
         )
@@ -116,7 +116,7 @@ def run_benchmark() -> tuple[int, int]:
     user.press("down")
     time.sleep(0.5)
 
-    if kerasService.wait_for_word(word="flare", timeout=30, interval=1) is None:
+    if find_word(word="flare", timeout=30, interval=1) is None:
         logging.info("Did not find the lens flare settings. Did the menu get stuck?")
         sys.exit(1)
     am.take_screenshot(
@@ -134,7 +134,7 @@ def run_benchmark() -> tuple[int, int]:
 
     time.sleep(15)
 
-    if kerasService.wait_for_word(word="results", timeout=60, interval=0.5) is None:
+    if find_word(word="results", timeout=60, interval=0.5) is None:
         logging.info("Did not find the results screen. Did the game load?")
         sys.exit(1)
     am.take_screenshot(
@@ -147,7 +147,7 @@ def run_benchmark() -> tuple[int, int]:
     time.sleep(180)
 
     # Wait for results screen to display info
-    if kerasService.wait_for_word(word="results", timeout=15, interval=0.5) is None:
+    if find_word(word="results", timeout=15, interval=0.5) is None:
         logging.info(
             "Did not find the results screen. Did the game crash during the run?"
         )
@@ -169,9 +169,6 @@ def run_benchmark() -> tuple[int, int]:
 
 
 setup_logging(LOG_DIRECTORY)
-
-args = get_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
 
 try:
     start_time, end_time = run_benchmark()

@@ -4,7 +4,6 @@ import logging
 import re
 import shutil
 import sys
-from argparse import ArgumentParser
 from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
@@ -12,34 +11,16 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.steam import (
     get_app_install_location,
-    get_registry_active_user,
+    get_active_steam_account_id,
     get_steam_folder_path,
 )
 
 STEAM_GAME_ID = 570
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-STEAM_USER_ID = get_registry_active_user()
+STEAM_USER_ID = get_active_steam_account_id()
 DEFAULT_INSTALL_PATH = Path(
     r"C:\Program Files (x86)\Steam\steamapps\common\dota 2 beta"
 )
-
-
-def get_args() -> any:
-    """Returns command line arg values"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    return parser.parse_args()
 
 
 def get_install_path():

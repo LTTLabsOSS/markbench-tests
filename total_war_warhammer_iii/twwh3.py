@@ -15,7 +15,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -73,7 +73,7 @@ def run_benchmark():
     time.sleep(5)
     am = ArtifactManager(LOG_DIRECTORY)
 
-    result = kerasService.wait_for_word("warning", timeout=50, interval=5)
+    result = find_word("warning", timeout=50, interval=5)
     if not result:
         logging.info("Did not see warnings. Did the game start?")
         sys.exit(1)
@@ -81,7 +81,7 @@ def run_benchmark():
     skip_logo_screens()
     time.sleep(2)
 
-    result = kerasService.wait_for_word("options", timeout=10, interval=1)
+    result = find_word("options", timeout=10, interval=1)
     if not result:
         logging.info("Did not find the options menu. Did the game skip the intros?")
         sys.exit(1)
@@ -97,7 +97,7 @@ def run_benchmark():
         "main.png", ArtifactType.CONFIG_IMAGE, "picture of basic settings"
     )
 
-    result = kerasService.wait_for_word("ad", timeout=10, interval=1)
+    result = find_word("ad", timeout=10, interval=1)
     if not result:
         logging.info("Did not find the advanced menu. Did the game skip the intros?")
         sys.exit(1)
@@ -113,7 +113,7 @@ def run_benchmark():
         "advanced.png", ArtifactType.CONFIG_IMAGE, "picture of advanced settings"
     )
 
-    result = kerasService.wait_for_word("bench", timeout=10, interval=1)
+    result = find_word("bench", timeout=10, interval=1)
     if not result:
         logging.info("Did not find the benchmark menu. Did the game skip the intros?")
         sys.exit(1)
@@ -124,7 +124,7 @@ def run_benchmark():
     time.sleep(0.2)
     gui.mouseUp()
     if args.benchmark != "battle":
-        result = kerasService.wait_for_word("mirrors", timeout=10, interval=1)
+        result = find_word("mirrors", timeout=10, interval=1)
         gui.moveTo(result["x"], result["y"])
         time.sleep(0.2)
         gui.mouseDown()
@@ -138,7 +138,7 @@ def run_benchmark():
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
-    result = kerasService.wait_for_word("fps", interval=0.5, timeout=100)
+    result = find_word("fps", interval=0.5, timeout=100)
     if not result:
         logging.info("Could not find FPS. Unable to mark start time!")
         sys.exit(1)
@@ -150,7 +150,7 @@ def run_benchmark():
     else:
         time.sleep(100)  # Wait time for battle benchmark
 
-    result = kerasService.wait_for_word("summary", interval=0.2, timeout=250)
+    result = find_word("summary", interval=0.2, timeout=250)
     if not result:
         logging.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?"
@@ -189,14 +189,7 @@ parser.add_argument(
     metavar="benchmark",
     required=True,
 )
-parser.add_argument(
-    "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
-)
-parser.add_argument(
-    "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
-)
 args = parser.parse_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
 
 try:
     start_time, endtime = run_benchmark()
