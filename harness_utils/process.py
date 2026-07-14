@@ -1,9 +1,13 @@
 """Functions related to managing processes"""
 
 import logging
+
 import psutil
 
+from harness_utils.platform import is_windows
+
 logger = logging.getLogger(__name__)
+
 
 def terminate_process(process_name: str) -> None:
     """Finds a given process name and terminates it"""
@@ -13,7 +17,10 @@ def terminate_process(process_name: str) -> None:
 
     logger.debug("Terminating process: %s", process_name)
     for process in psutil.process_iter(["pid", "name", "cmdline"]):
-        command = " ".join(process.info.get("cmdline") or [])
+        if is_windows():
+            command = process.info.get("name") or ""
+        else:
+            command = " ".join(process.info.get("cmdline") or [])
 
         if process_name.lower() in command.lower():
             logger.debug(
