@@ -1,5 +1,0 @@
-{
-  "ignorePaths": [".*/", "*.py"],
-  "allowCompoundWords": true,
-  "ignoreRegExpList": ["import .*"]
-}
