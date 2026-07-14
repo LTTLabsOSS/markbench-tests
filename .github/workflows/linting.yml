@@ -15,6 +15,7 @@ jobs:
       - uses: streetsidesoftware/cspell-action@v8
         with:
           files: "**/*.md"
+          incremental_files_only: false
 
   exec_pylint:
     runs-on: ubuntu-latest
