@@ -93,10 +93,8 @@ def run_benchmark():
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
-
-    result = find_word(
-        "strange", interval=0.5, timeout=100, vulkan=True, crop="top_right"
-    )
+    time.sleep(1)
+    result = find_word("strange", timeout=100, vulkan=True )
     if not result:
         logging.info("Could not find FPS. Unable to mark start time!")
         sys.exit(1)
