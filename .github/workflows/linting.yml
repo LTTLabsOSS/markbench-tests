@@ -20,23 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - name: Get Python changed files
-        id: changed-files-python
-        uses: tj-actions/changed-files@v46
+      - uses: astral-sh/ruff-action@278981a28ce3188b1e39527901f38254bf3aac89 # v4.1.0
         with:
-          files: |
-            *.py
-            **/*.py
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.10"
-      - name: Install dependencies
-        if: steps.changed-files-python.outputs.any_changed == 'true'
-        run: |
-          python -m pip install --upgrade pip
-          pip install pylint
-      - name: Analysing the code with pylint
-        if: steps.changed-files-python.outputs.any_changed == 'true'
-        run: |
-          python -m pylint ${{ steps.changed-files-python.outputs.all_changed_files }}
+          version: "0.15.21"
+          args: "check --output-format=github"
