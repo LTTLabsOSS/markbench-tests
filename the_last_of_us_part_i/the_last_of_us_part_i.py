@@ -30,7 +30,7 @@ from harness_utils.steam import (
 STEAM_GAME_ID = 1888930
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-PROCESS_NAME = "tlou"
+PROCESS_NAME = "tlou-i.exe"
 
 user.FAILSAFE = False
 

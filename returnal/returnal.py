@@ -32,7 +32,7 @@ from harness_utils.steam import (
 STEAM_GAME_ID = 1649240
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-PROCESS_NAME = "Returnal"
+PROCESS_NAME = "Returnal-Win64-Shipping.exe"
 LOCAL_USER_SETTINGS = (
     Path(os.getenv("LOCALAPPDATA"))
     / "Returnal"

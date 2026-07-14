@@ -25,7 +25,7 @@ from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_run_command, get_build_id
 
 STEAM_GAME_ID = 1174180
-PROCESS_NAME = "RDR2"
+PROCESS_NAME = "RDR2.exe"
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 CONFIG_FULL_PATH = Path(

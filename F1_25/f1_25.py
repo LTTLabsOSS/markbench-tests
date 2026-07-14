@@ -27,7 +27,7 @@ from harness_utils.steam import exec_steam_game, get_build_id
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-PROCESS_NAME = "F1_25"
+PROCESS_NAME = "F1_25.exe"
 STEAM_GAME_ID = 3059520
 VIDEO_PATH = game_install_path(STEAM_GAME_ID) / "videos"
 
