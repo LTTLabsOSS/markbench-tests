@@ -9,13 +9,15 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from zipfile import ZipFile
+
+import requests
 
 # pylint: disable=no-name-in-module
 from win32api import HIWORD, LOWORD, GetFileVersionInfo
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
-from harness_utils.misc import download_file, extract_file_from_archive
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 
@@ -70,11 +72,12 @@ def download_scene(scene: BlenderScene) -> None:
 
     try:
         logging.info("downloading %s from internet...", scene.file_name)
-        download_file(scene.download_url, destination)
+        response = requests.get(scene.download_url, allow_redirects=True, timeout=120)
+        with open(destination, "wb") as f:
+            f.write(response.content)
         if scene.name == "bmw":
-            extract_file_from_archive(
-                destination, "bmw27/bmw27_cpu.blend", SCRIPT_DIRECTORY
-            )
+            with ZipFile(destination, "r") as zip_object:
+                zip_object.extract("bmw27/bmw27_cpu.blend", path=SCRIPT_DIRECTORY)
         if destination.exists():
             return
     except Exception as ex:

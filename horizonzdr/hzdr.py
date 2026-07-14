@@ -31,7 +31,7 @@ from harness_utils.steam import (
 STEAM_GAME_ID = 2561580
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-PROCESS_NAME = "HorizonZeroDawnRemastered"
+PROCESS_NAME = "HorizonZeroDawnRemastered.exe"
 VIDEO_PATH = (
     Path(get_steamapps_common_path())
     / "Horizon Zero Dawn Remastered"

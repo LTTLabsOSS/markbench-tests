@@ -48,8 +48,8 @@ def get_ocr_url(
     return f"http://{host}:{ocr_port}/process"
 
 
-def _query_ocr_service(word: str, vulkan: bool = False) -> Any:
-    image_bytes = capture_screenshot_jpg_bytes(vulkan)
+def _query_ocr_service(word: str, vulkan: bool = False, crop: str | None = None) -> Any:
+    image_bytes = capture_screenshot_jpg_bytes(vulkan, crop)
     if image_bytes is None:
         return None
 
@@ -102,17 +102,18 @@ def _query_ocr_service(word: str, vulkan: bool = False) -> Any:
         return None
 
 
-def find_word(
+def find_word(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     word: str,
     vulkan: bool = False,
     interval: float = 0,
     timeout: int = 0,
     msg: str | None = None,
+    crop: str | None = None,
 ):
     logging.debug("Searching OCR word=%r timeout=%s", word, timeout)
     start_time = monotonic()
     while True:
-        result = _query_ocr_service(word, vulkan)
+        result = _query_ocr_service(word, vulkan, crop)
         elapsed_time = monotonic() - start_time
         if result is not None:
             logging.debug(

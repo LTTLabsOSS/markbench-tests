@@ -12,8 +12,8 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.input import user
-from harness_utils.misc import press_n_times, remove_files
+from harness_utils.input import press_n_times, user
+from harness_utils.misc import remove_files
 from harness_utils.ocr_service import find_word
 from harness_utils.output import (
     format_resolution,
@@ -27,7 +27,7 @@ from harness_utils.steam import exec_steam_game, get_build_id
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-PROCESS_NAME = "F1_24"
+PROCESS_NAME = "F1_24.exe"
 STEAM_GAME_ID = 2488620
 VIDEO_PATH = game_install_path(STEAM_GAME_ID) / "videos"
 

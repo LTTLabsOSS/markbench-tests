@@ -5,21 +5,8 @@ import logging
 import os
 import re
 import time
-from pathlib import Path
-from zipfile import ZipFile
 
-import requests
 import vgamepad as vg
-
-from harness_utils.input import user
-
-user.FAILSAFE = False
-
-
-def _pyautogui():
-    import pyautogui as gui
-
-    return gui
 
 
 class LTTGamePad360(vg.VX360Gamepad):
@@ -159,28 +146,6 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
             time.sleep(pause)
 
 
-def clickme(x: int, y: int):
-    """Pyautogui's click function sucks, this should do the trick"""
-    gui = _pyautogui()
-    gui.moveTo(x, y)
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-
-
-def int_time() -> int:
-    """Returns the current time in seconds since epoch as an integer"""
-    return int(time.time())
-
-
-def press_n_times(key: str, n: int, pause: float = 0.5):
-    """A helper function press the same button multiple times"""
-    for _ in range(n):
-        user.press(key)
-        time.sleep(pause)
-
-
 def remove_files(paths: list[str]) -> None:
     """Removes files specified by provided list of file paths.
     Does nothing for a path that does not exist.
@@ -191,27 +156,6 @@ def remove_files(paths: list[str]) -> None:
             logging.info("Removed file: %s", path)
         except FileNotFoundError:
             logging.info("File already removed: %s", path)
-
-
-def download_file(download_url: str, destination: Path) -> None:
-    """Downloads file from given url to destination"""
-    response = requests.get(download_url, allow_redirects=True, timeout=120)
-    with open(destination, "wb") as f:
-        f.write(response.content)
-
-
-def extract_archive(zip_file: Path, destination_dir: Path) -> None:
-    """Extract all contents of an archive"""
-    with ZipFile(zip_file, "r") as zip_object:
-        zip_object.extractall(path=destination_dir)
-
-
-def extract_file_from_archive(
-    zip_file: Path, member_path: str, destination_dir: Path
-) -> None:
-    """Extract a single file member from an archive"""
-    with ZipFile(zip_file, "r") as zip_object:
-        zip_object.extract(member_path, path=destination_dir)
 
 
 def find_eg_game_version(gamefoldername: str) -> str | None:

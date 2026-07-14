@@ -13,8 +13,8 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 # pylint: disable=wrong-import-position
 from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
-from harness_utils.misc import int_time, press_n_times
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -158,7 +158,7 @@ def run_benchmark():
     """runs the benchmark"""
     delete_videos()
     start_game()
-    setup_start_time = int_time()
+    setup_start_time = int(time.time())
     am = ArtifactManager(LOG_DIRECTORY)
     time.sleep(15)
 
@@ -201,7 +201,7 @@ def run_benchmark():
 
     user.press("space")
 
-    setup_end_time = int_time()
+    setup_end_time = int(time.time())
     elapsed_setup_time = setup_end_time - setup_start_time
     logging.info("Setup took %d seconds", elapsed_setup_time)
 
@@ -209,7 +209,7 @@ def run_benchmark():
         logging.info("did not find benchmark")
         sys.exit(1)
 
-    test_start_time = int_time()
+    test_start_time = int(time.time())
 
     time.sleep(100)
 
@@ -217,7 +217,7 @@ def run_benchmark():
         logging.error("did not find results screen")
         sys.exit(1)
 
-    test_end_time = int_time() - 2
+    test_end_time = int(time.time()) - 2
 
     elapsed_test_time = test_end_time - test_start_time
     logging.info("Benchmark took %d seconds", elapsed_test_time)

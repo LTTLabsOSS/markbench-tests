@@ -13,8 +13,8 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
-from harness_utils.misc import press_n_times
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -25,7 +25,7 @@ from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_run_command, get_build_id
 
 STEAM_GAME_ID = 1174180
-PROCESS_NAME = "RDR2"
+PROCESS_NAME = "RDR2.exe"
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 CONFIG_FULL_PATH = Path(

@@ -13,8 +13,9 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
-from harness_utils.misc import press_n_times, remove_files
+from harness_utils.misc import remove_files
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -31,7 +32,7 @@ from harness_utils.steam import (
 STEAM_GAME_ID = 1649240
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-PROCESS_NAME = "Returnal"
+PROCESS_NAME = "Returnal-Win64-Shipping.exe"
 LOCAL_USER_SETTINGS = (
     Path(os.getenv("LOCALAPPDATA"))
     / "Returnal"

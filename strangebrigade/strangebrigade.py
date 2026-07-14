@@ -4,7 +4,6 @@ import logging
 import os
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 import pyautogui as gui
@@ -15,13 +14,9 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import (
-    KerasService,
-    ScreenShotDivideMethod,
-    ScreenShotQuadrant,
-    ScreenSplitConfig,
-)
-from harness_utils.misc import press_n_times, remove_files
+from harness_utils.input import press_n_times
+from harness_utils.ocr_service import find_word
+from harness_utils.misc import remove_files
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
@@ -47,11 +42,6 @@ CONFIG_FULL_PATH = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
 EXE_PATH = Path(get_app_install_location(STEAM_GAME_ID)) / "bin"
 VIDEO_PATH = Path(get_app_install_location(STEAM_GAME_ID)) / "FMV"
 
-top_right_quad = ScreenSplitConfig(
-    divide_method=ScreenShotDivideMethod.QUADRANT,  # Choose appropriate split method
-    quadrant=ScreenShotQuadrant.TOP_RIGHT,  # Choose the correct quadrant
-)
-
 user.FAILSAFE = False
 
 intro_videos = [VIDEO_PATH / "rebellion.webm"]
@@ -67,7 +57,7 @@ def run_benchmark():
     time.sleep(30)
     am = ArtifactManager(LOG_DIRECTORY)
 
-    result = kerasService.wait_for_word_vulkan("options", timeout=30)
+    result = find_word("options", timeout=30, vulkan=True)
     if not result:
         logging.info("Did not find the options menu. Did the game launch?")
         sys.exit(1)
@@ -77,14 +67,14 @@ def run_benchmark():
     time.sleep(0.2)
     user.press("enter")
 
-    result = kerasService.wait_for_word_vulkan("display", timeout=10)
+    result = find_word("display", timeout=10, vulkan=True)
     if not result:
         logging.info("Did not find the display menu. Did keras navigate correctly?")
         sys.exit(1)
 
     gui.press("pgdn")
 
-    result = kerasService.wait_for_word_vulkan("customise", timeout=10)
+    result = find_word("customise", timeout=10, vulkan=True)
     if not result:
         logging.info(
             "Did not find the customize graphics detail option. Did navigate correctly?"
@@ -103,10 +93,8 @@ def run_benchmark():
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
-
-    result = kerasService.wait_for_word_vulkan(
-        "strange", interval=0.5, timeout=100, split_config=top_right_quad
-    )
+    time.sleep(1)
+    result = find_word("strange", timeout=100, vulkan=True )
     if not result:
         logging.info("Could not find FPS. Unable to mark start time!")
         sys.exit(1)
@@ -115,7 +103,7 @@ def run_benchmark():
 
     time.sleep(55)  # Wait time for battle benchmark
 
-    result = kerasService.wait_for_word_vulkan("confirm", interval=0.2, timeout=250)
+    result = find_word("confirm", interval=0.2, timeout=250, vulkan=True)
     if not result:
         logging.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?"
@@ -148,16 +136,6 @@ def run_benchmark():
 
 
 setup_logging(LOG_DIRECTORY)
-
-parser = ArgumentParser()
-parser.add_argument(
-    "--kerasHost", dest="keras_host", help="Host for Keras OCR service", required=True
-)
-parser.add_argument(
-    "--kerasPort", dest="keras_port", help="Port for Keras OCR service", required=True
-)
-args = parser.parse_args()
-kerasService = KerasService(args.keras_host, args.keras_port)
 
 try:
     start_time, endtime = run_benchmark()

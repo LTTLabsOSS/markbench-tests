@@ -4,7 +4,6 @@ import logging
 import os
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 import pyautogui as gui
@@ -21,13 +20,8 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.keras_service import (
-    KerasService,
-    ScreenShotDivideMethod,
-    ScreenShotQuadrant,
-    ScreenSplitConfig,
-)
 from harness_utils.input import mouse_scroll_n_times
+from harness_utils.ocr_service import find_word
 from harness_utils.output import (
     seconds_to_milliseconds,
     setup_logging,
@@ -40,10 +34,6 @@ SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "cities2.exe"
 STEAM_GAME_ID = 949230
-top_left_keras = ScreenSplitConfig(
-    divide_method=ScreenShotDivideMethod.QUADRANT, quadrant=ScreenShotQuadrant.TOP_LEFT
-)
-
 launcher_files = ["bootstrapper-v2.exe", "launcher.exe", "notlauncher-options.json"]
 save_files = ["Benchmark.cok", "Benchmark.cok.cid"]
 config_files = ["UserState.coc"]
@@ -67,7 +57,7 @@ def console_command(command):
     user.press("enter")
 
 
-def run_benchmark(keras_service):
+def run_benchmark():
     """Starts the benchmark"""
     copy_launcherfiles(launcher_files)
     copy_launcherpath()
@@ -80,7 +70,7 @@ def run_benchmark(keras_service):
     setup_start_time = int(time.time())
     time.sleep(14)
 
-    result = keras_service.wait_for_word("paradox", interval=0.5, timeout=100)
+    result = find_word("paradox", interval=0.5, timeout=100)
     if not result:
         logging.info("Could not find the Paradox logo. Did the game launch?")
         sys.exit(1)
@@ -89,12 +79,12 @@ def run_benchmark(keras_service):
     user.press("esc")
     time.sleep(15)
 
-    result = keras_service.wait_for_word("new", interval=0.5, timeout=100)
+    result = find_word("new", interval=0.5, timeout=100)
     if not result:
         logging.info("Did not find the main menu. Did the game crash?")
         sys.exit(1)
 
-    result = keras_service.wait_for_word("load", timeout=10, interval=1)
+    result = find_word("load", timeout=10, interval=1)
     if not result:
         logging.info("Did not find the load game option. Did the save game copy?")
         sys.exit(1)
@@ -105,9 +95,7 @@ def run_benchmark(keras_service):
     gui.click()
     time.sleep(0.2)
 
-    result = keras_service.wait_for_word(
-        "benchmark", timeout=10, interval=1, split_config=top_left_keras
-    )
+    result = find_word("benchmark", timeout=10, interval=1, crop="top_left")
     if not result:
         logging.info(
             "Did not find the save game original date. Did the keras click correctly?"
@@ -122,7 +110,7 @@ def run_benchmark(keras_service):
     user.press("enter")
     time.sleep(10)
 
-    result = keras_service.wait_for_word("grand", interval=0.5, timeout=100)
+    result = find_word("grand", interval=0.5, timeout=100)
     if not result:
         logging.info(
             "Could not find the paused notification. Unable to mark start time!"
@@ -156,7 +144,7 @@ def run_benchmark(keras_service):
     user.press("esc")
     time.sleep(0.2)
 
-    result = keras_service.wait_for_word("options", timeout=10, interval=1)
+    result = find_word("options", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the options menu. Did the game open the quick dialog menu properly?"
@@ -173,7 +161,7 @@ def run_benchmark(keras_service):
         "general.png", ArtifactType.CONFIG_IMAGE, "general settings menu"
     )
 
-    result = keras_service.wait_for_word("graphics", timeout=10, interval=1)
+    result = find_word("graphics", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the graphics menu. Did the game navigate to the general settings correctly?"
@@ -192,7 +180,7 @@ def run_benchmark(keras_service):
         "first picture of graphics settings menu",
     )
 
-    result = keras_service.wait_for_word("window", timeout=10, interval=1)
+    result = find_word("window", timeout=10, interval=1)
     if not result:
         logging.info(
             "Did not find the keyword 'window' in graphics menu. Did the game navigate to the graphics menu correctly?"
@@ -204,7 +192,7 @@ def run_benchmark(keras_service):
 
     mouse_scroll_n_times(8, -800, 0.2)
 
-    if keras_service.wait_for_word(word="water", timeout=30, interval=1) is None:
+    if find_word(word="water", timeout=30, interval=1) is None:
         logging.info(
             "Did not find the keyword 'water' in menu. Did the game scroll correctly?"
         )
@@ -218,7 +206,7 @@ def run_benchmark(keras_service):
     mouse_scroll_n_times(8, -400, 0.2)
 
     # verify that we scrolled through the menu correctly
-    if keras_service.wait_for_word(word="texture", timeout=30, interval=1) is None:
+    if find_word(word="texture", timeout=30, interval=1) is None:
         logging.info(
             "Did not find the keyword 'texture' in menu. Did the game scroll correctly?"
         )
@@ -239,23 +227,7 @@ def run_benchmark(keras_service):
 
 def main():
     """main entry point to the script"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--kerasHost",
-        dest="keras_host",
-        help="Host for Keras OCR service",
-        required=True,
-    )
-    parser.add_argument(
-        "--kerasPort",
-        dest="keras_port",
-        help="Port for Keras OCR service",
-        required=True,
-    )
-    args = parser.parse_args()
-    keras_service = KerasService(args.keras_host, args.keras_port)
-
-    test_start_time, test_end_time = run_benchmark(keras_service)
+    test_start_time, test_end_time = run_benchmark()
     resolution = read_current_resolution()
     report = {
         "resolution": f"{resolution}",
