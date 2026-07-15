@@ -16,7 +16,7 @@ from procyon_ai_img_gen_utils import (
     is_process_running,
 )
 
-PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
@@ -25,7 +25,7 @@ from harness_utils.output import (
     setup_logging,
     write_report_json,
 )
-from harness_utils.procyoncmd import (
+from non_games.procyon.procyoncmd import (
     get_cuda_devices,
     get_openvino_devices,
     get_openvino_gpu,

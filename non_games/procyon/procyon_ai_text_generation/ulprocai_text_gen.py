@@ -16,7 +16,7 @@ from ulprocai_text_gen_utils import (
     regex_find_score_in_xml,
 )
 
-PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
