@@ -20,12 +20,10 @@ from harness_utils.input import (
     user,
 )
 from harness_utils.ocr_service import find_word
-from harness_utils.output import (
-    format_resolution,
-    seconds_to_milliseconds,
-    setup_logging,
-    write_report_json,
-)
+from harness_utils.resolution_formatting import format_resolution
+from harness_utils.time_conversion import seconds_to_milliseconds
+from harness_utils.output_logging import setup_logging
+from harness_utils.report_writing import write_report_json
 from harness_utils.paths import user_saved_games
 from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process

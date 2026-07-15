@@ -11,7 +11,7 @@ from subprocess import Popen
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.output import setup_logging
+from harness_utils.output_logging import setup_logging
 
 avail_presets = ["low", "medium", "high", "extreme", "4k_optimized", "8k_optimized"]
 

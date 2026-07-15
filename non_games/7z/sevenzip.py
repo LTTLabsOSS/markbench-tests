@@ -15,7 +15,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from sevenzip_utils import copy_from_network_drive
 
-from harness_utils.output import setup_logging
+from harness_utils.output_logging import setup_logging
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"

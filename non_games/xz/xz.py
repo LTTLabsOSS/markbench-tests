@@ -18,7 +18,7 @@ from xz_utils import (
     xz_executable_exists,
 )
 
-from harness_utils.output import setup_logging
+from harness_utils.output_logging import setup_logging
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"

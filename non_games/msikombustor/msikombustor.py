@@ -14,7 +14,9 @@ from msi_kombustor_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.output import format_resolution, setup_logging, write_report_json
+from harness_utils.resolution_formatting import format_resolution
+from harness_utils.output_logging import setup_logging
+from harness_utils.report_writing import write_report_json
 
 INSTALL_DIR = r"C:\Program Files\Geeks3D\MSI Kombustor 4 x64"
 EXECUTABLE = "MSI-Kombustor-x64.exe"

@@ -24,11 +24,9 @@ from pugetbench_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.output import (
-    seconds_to_milliseconds,
-    setup_logging,
-    write_report_json,
-)
+from harness_utils.time_conversion import seconds_to_milliseconds
+from harness_utils.output_logging import setup_logging
+from harness_utils.report_writing import write_report_json
 from harness_utils.process import terminate_process
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
