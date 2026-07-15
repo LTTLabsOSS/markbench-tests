@@ -62,11 +62,12 @@ Once you've successfully installed Python and Poetry, it's time to kick off our 
 
 Let's take a look at the folder structure
 
-- msikombustor (dir)
-  - run (dir)
-  - manifest.yaml
-  - msikombustor.py
-  - README.md
+- non_games (dir)
+  - msikombustor (dir)
+    - run (dir)
+    - manifest.yaml
+    - msikombustor.py
+    - README.md
 
 When we mention "test harness," we are specifically referring to the entire directory and its contents. Within this directory, we anticipate, at the very least, the presence of an executable file that follows the guideline of returning either 1 or 0 to signify the completion status. Additionally, the manifest.yaml serves as metadata that allows MarkBench to identify it; however, for now, we can disregard it.
 
@@ -74,7 +75,7 @@ The run directory, on the other hand, is the designated location for all outputs
 
 1. First [install MSI Kombustor](https://geeks3d.com/furmark/kombustor/) using the default install location and options.
 
-2. Second open a Powershell terminal and navigate to the root of the msikombustor directory.
+2. Second open a Powershell terminal and navigate to the non_games/msikombustor directory.
 
 <img src="images/run_your_first_test_image1.png" alt="Logo" width="500" height="180" />
 
@@ -83,7 +84,7 @@ The run directory, on the other hand, is the designated location for all outputs
 python .\msikombustor.py --test vkfurrytorus --resolution "1080,1920" -b true
 ```
 
-Executing this command initiates MSI Kombustor in benchmark mode, specifically launching the (VK) FurMark-Donut test at a resolution of 1920 x 1080. After the benchmark run concludes, you'll find the log and any captured assets stored within the **msikombustor/run** directory.
+Executing this command initiates MSI Kombustor in benchmark mode, specifically launching the (VK) FurMark-Donut test at a resolution of 1920 x 1080. After the benchmark run concludes, you'll find the log and any captured assets stored within the **non_games/msikombustor/run** directory.
 
 It's important to note that the arguments required for each harness may vary. To ensure smooth test execution, consult the README of each harness, which provides detailed instructions on any unique requirements for running that specific test.
 
