@@ -2,7 +2,8 @@ friendly_name = "Procyon AI Image Generation"
 py_script = "ulprocai_img_gen.py"
 executable = "ProcyonCmd.exe"
 presentmon_enabled = false
-non_game = true
+category = "non_game"
+ocr = false
 
 [[args]]
 name = "engine"

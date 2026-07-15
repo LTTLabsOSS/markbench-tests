@@ -1,7 +1,8 @@
 friendly_name = "Unigine Superposition"
 py_script = "superposition.py"
 executable = "superposition.exe"
-non_game = true
+category = "non_game"
+ocr = false
 presentmon_enabled = true
 presentmon_ignore_exit = true
 

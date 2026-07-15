@@ -2,7 +2,8 @@ friendly_name = "7-Zip"
 py_script = "sevenzip.py"
 executable = "7za.exe"
 presentmon_enabled = false
-non_game = true
+category = "non_game"
+ocr = false
 
 [[args]]
 name = "architecture"

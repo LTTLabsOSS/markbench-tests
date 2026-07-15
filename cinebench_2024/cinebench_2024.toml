@@ -2,7 +2,8 @@ friendly_name = "Cinebench 2024"
 py_script = "cinebench_2024.py"
 executable = "Cinebench.exe"
 presentmon_enabled = false
-non_game = true
+category = "non_game"
+ocr = false
 
 [[args]]
 name = "test"

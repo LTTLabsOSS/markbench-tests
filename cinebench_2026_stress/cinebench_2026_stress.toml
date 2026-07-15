@@ -4,6 +4,7 @@ executable = "Cinebench.exe"
 presentmon_enabled = false
 presentmon_ignore_exit = true
 category = "stress"
+ocr = false
 
 [[args]]
 name = "test"

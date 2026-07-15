@@ -2,7 +2,8 @@ friendly_name = "Blender Render"
 py_script = "blender_render.py"
 executable = "blender.exe"
 presentmon_enabled = false
-non_game = true
+category = "non_game"
+ocr = false
 
 [[args]]
 name = "device"

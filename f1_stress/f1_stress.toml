@@ -5,6 +5,7 @@ presentmon_enabled = true
 presentmon_ignore_exit = true
 ocr_enabled = true
 category = "stress"
+ocr = true
 
 [[args]]
 name = "hardware_settings"

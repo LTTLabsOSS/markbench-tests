@@ -3,3 +3,5 @@ py_script = "rocket_league.py"
 executable = "RocketLeague.exe"
 presentmon_enabled = true
 presentmon_ignore_exit = true
+category = "game"
+ocr = true

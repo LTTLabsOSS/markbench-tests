@@ -40,6 +40,8 @@ mingw64/
 # python
 __pycache__/
 
+.pi-subagents/
+
 ffmpeg-8.0.1-full_build/
 *.log
 *.txt

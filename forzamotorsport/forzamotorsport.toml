@@ -3,3 +3,5 @@ py_script = "forzams.py"
 executable = "forza_steamworks_release_final.exe"
 presentmon_enabled = true
 presentmon_ignore_exit = true
+category = "game"
+ocr = true

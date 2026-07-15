@@ -3,3 +3,5 @@ py_script = "strangebrigade.py"
 executable = "StrangeBrigade.exe"
 presentmon_enabled = true
 presentmon_ignore_exit = true
+category = "game"
+ocr = true

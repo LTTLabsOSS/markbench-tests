@@ -2,7 +2,8 @@ friendly_name = "PugetBench"
 py_script = "pugetbench.py"
 executable = "PugetBench for Creators.exe"
 presentmon_enabled = false
-non_game = true
+category = "non_game"
+ocr = false
 
 [[args]]
 name = "app_version"

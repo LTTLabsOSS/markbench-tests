@@ -2,7 +2,8 @@ friendly_name = "Procyon AI Text Generation"
 py_script = "ulprocai_text_gen.py"
 executable = "ProcyonCmd.exe"
 presentmon_enabled = false
-non_game = true
+category = "non_game"
+ocr = false
 
 [[args]]
 name = "engine"

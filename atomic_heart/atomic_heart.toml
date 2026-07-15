@@ -3,3 +3,5 @@ py_script = "atomic_heart.py"
 executable = "AtomicHeart-Win64-Shipping.exe"
 presentmon_enabled = true
 presentmon_ignore_exit = true
+category = "game"
+ocr = true

@@ -4,7 +4,6 @@ executable = "python"
 presentmon_enabled = false
 ocr = false
 save_run = false
-non_game = true
 category = "utility"
 
 [[args]]

@@ -3,3 +3,5 @@ py_script = "returnal.py"
 executable = "Returnal-Win64-Shipping.exe"
 presentmon_enabled = true
 presentmon_ignore_exit = true
+category = "game"
+ocr = true

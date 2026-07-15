@@ -3,6 +3,8 @@ py_script = "twwh3.py"
 executable = "warhammer3.exe"
 presentmon_enabled = true
 presentmon_ignore_exit = true
+category = "game"
+ocr = true
 
 [[args]]
 name = "benchmark"

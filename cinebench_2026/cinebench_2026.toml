@@ -3,7 +3,8 @@ py_script = "cinebench_2026.py"
 executable = "Cinebench.exe"
 presentmon_enabled = false
 presentmon_ignore_exit = true
-non_game = true
+category = "non_game"
+ocr = false
 
 [[args]]
 name = "test"

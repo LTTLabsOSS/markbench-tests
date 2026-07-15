@@ -3,6 +3,8 @@ py_script = "aotse.py"
 executable = "StardockLauncher.exe"
 presentmon_enabled = true
 presentmon_ignore_exit = true
+category = "game"
+ocr = true
 
 [[args]]
 name = "benchmark"

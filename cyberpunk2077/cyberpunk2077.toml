@@ -3,3 +3,5 @@ py_script = "cyberpunk2077.py"
 executable = "Cyberpunk2077.exe"
 presentmon_enabled = true
 presentmon_ignore_exit = true
+category = "game"
+ocr = true

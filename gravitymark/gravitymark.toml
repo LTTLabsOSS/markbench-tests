@@ -2,7 +2,8 @@ friendly_name = "GravityMark"
 py_script = "gravitymark.py"
 executable = "GravityMark.exe"
 presentmon_enabled = false
-non_game = true
+category = "non_game"
+ocr = false
 
 [[args]]
 name = "api"

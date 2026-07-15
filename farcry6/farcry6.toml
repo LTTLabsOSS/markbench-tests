@@ -3,3 +3,5 @@ py_script = "farcry6.py"
 executable = "FarCry6.exe"
 presentmon_enabled = true
 presentmon_ignore_exit = true
+category = "game"
+ocr = true

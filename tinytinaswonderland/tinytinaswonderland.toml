@@ -3,3 +3,5 @@ py_script = "tinytinaswonderland.py"
 executable = "Wonderlands.exe"
 presentmon_enabled = true
 presentmon_ignore_exit = true
+category = "game"
+ocr = true

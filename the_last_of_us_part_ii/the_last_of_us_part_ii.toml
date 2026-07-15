@@ -3,3 +3,5 @@ py_script = "tlou2.py"
 executable = "tlou-ii.exe"
 presentmon_enabled = true
 presentmon_ignore_exit = true
+category = "game"
+ocr = true

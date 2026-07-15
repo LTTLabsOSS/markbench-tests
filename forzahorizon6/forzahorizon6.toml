@@ -3,3 +3,5 @@ py_script = "forzahorizon6.py"
 executable = "forzahorizon6.exe"
 presentmon_enabled = true
 presentmon_ignore_exit = true
+category = "game"
+ocr = true

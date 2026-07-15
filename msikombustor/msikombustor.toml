@@ -3,7 +3,8 @@ py_script = "msikombustor.py"
 executable = "MSI-Kombustor-x64.exe"
 presentmon_enabled = true
 presentmon_ignore_exit = true
-non_game = true
+category = "non_game"
+ocr = false
 
 [[args]]
 name = "test"
