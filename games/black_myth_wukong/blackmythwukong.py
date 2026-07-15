@@ -13,7 +13,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import mangohud_log_toggle, user
-from harness_utils.misc import LTTGamePad360
+from harness_utils.controllers import LTTGamePad360
 from harness_utils.ocr_service import find_word
 from harness_utils.output import (
     format_resolution,

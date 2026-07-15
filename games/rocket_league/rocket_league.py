@@ -19,7 +19,8 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.ocr_service import find_word
-from harness_utils.misc import LTTGamePadDS4, find_eg_game_version
+from harness_utils.controllers import LTTGamePadDS4
+from harness_utils.epic_games import find_eg_game_version
 from harness_utils.output import (
     format_resolution,
     seconds_to_milliseconds,
