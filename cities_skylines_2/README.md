@@ -5,12 +5,12 @@ This benchmark uses a 100,000 population save at a busy intersection to see how 
 
 - Python 3.10+
 - Cities Skylines 2 installed
-- Keras OCR service
+- OCR service
 
 ## Options
 
-- `kerasHost`: string representing the IP address of the Keras service. e.x. `0.0.0.0` 
-- `kerasPort`: string representing the port of the Keras service. e.x. `8080`
+- `ocrHost`: string representing the IP address of the OCR service. e.x. `0.0.0.0`
+- `ocrPort`: string representing the port of the OCR service. e.x. `8080`
 
 ## Output
 

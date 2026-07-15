@@ -1,6 +1,5 @@
 """UL Procyon Computer Vision test script"""
 
-# pylint: disable=no-name-in-module
 import logging
 import subprocess
 import sys

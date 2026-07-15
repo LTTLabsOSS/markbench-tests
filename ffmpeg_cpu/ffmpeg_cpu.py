@@ -57,7 +57,7 @@ OUTPUT_VIDEO = SCRIPT_DIRECTORY / "output.mp4"
 
 
 
-def main():  # pylint: disable=too-many-locals too-many-branches
+def main():
     """entrypoint"""
     am = ArtifactManager(LOG_DIRECTORY)
     ffmpeg_root = SCRIPT_DIRECTORY / TEST_OPTIONS[args.architecture]

@@ -3,7 +3,7 @@
 This benchmark uses vanilla Stellaris (No DLC) and the popular [console command](https://stellaris.paradoxwikis.com/Console_commands): one_year. We created a save game:
 
 - 30 advanced start AI empires
-- Max saturation of hyperlanes
+- Max saturation of hyper lanes
 - Maximum galaxy size
 
 We used the fast_forward command to get to year 2400.
@@ -12,12 +12,12 @@ We used the fast_forward command to get to year 2400.
 
 - Python 3.10+
 - Stellaris installed
-- Keras OCR service
+- OCR service
 
 ## Options
 
-- `kerasHost`: string representing the IP address of the Keras service. e.x. `0.0.0.0` 
-- `kerasPort`: string representing the port of the Keras service. e.x. `8080`
+- `ocrHost`: string representing the IP address of the OCR service. e.x. `0.0.0.0`
+- `ocrPort`: string representing the port of the OCR service. e.x. `8080`
 
 ## Output
 

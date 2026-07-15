@@ -13,7 +13,6 @@ from zipfile import ZipFile
 
 import requests
 
-# pylint: disable=no-name-in-module
 from win32api import HIWORD, LOWORD, GetFileVersionInfo
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)

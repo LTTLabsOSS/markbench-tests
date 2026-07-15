@@ -46,7 +46,7 @@ def start_game():
     game_path = get_app_install_location(STEAM_GAME_ID)
     process_path = Path(game_path) / LAUNCHER_NAME
     logging.info("Starting game: %s", process_path)
-    process = subprocess.Popen([process_path], cwd=game_path)  # pylint: disable=R1732
+    process = subprocess.Popen([process_path], cwd=game_path)
     return process
 
 

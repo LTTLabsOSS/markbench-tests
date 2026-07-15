@@ -1,4 +1,3 @@
-# pylint: disable=missing-module-docstring
 import getpass
 import logging
 import re
@@ -11,7 +10,6 @@ import pydirectinput as user
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-# pylint: disable=wrong-import-position
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word

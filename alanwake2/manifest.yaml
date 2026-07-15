@@ -1,9 +1,0 @@
-friendly_name: "Alan Wake 2"
-executable: "alanwake2.py"
-process_name: "AlanWake2.exe"
-output_dir: "run"
-options:
-  - name: kerasHost
-    type: input
-  - name: kerasPort
-    type: input

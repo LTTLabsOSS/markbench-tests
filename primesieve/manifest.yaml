@@ -1,5 +1,0 @@
-friendly_name: "Primesieve"
-executable: "primesieve.py"
-process_name: "primesieve.exe"
-disable_presentmon: true
-output_dir: "run"

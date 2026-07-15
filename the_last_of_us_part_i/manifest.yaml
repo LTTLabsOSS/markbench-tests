@@ -1,9 +1,0 @@
-friendly_name: "The Last of Us Part I"
-executable: "the_last_of_us_part_i.py"
-process_name: "tlou-i.exe"
-output_dir: "run"
-options:
-  - name: kerasHost
-    type: input
-  - name: kerasPort
-    type: input

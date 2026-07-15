@@ -102,7 +102,6 @@ def start_game():
     if windows:
         windows[0].minimize()
 
-    # pylint: disable=no-member
     os.startfile(r"C:\ffxiv-dawntrail-bench_v11\ffxiv-dawntrail-bench_v11\ffxiv-dawntrail-bench.exe")
 
 
@@ -219,7 +218,7 @@ try:
     terminate_process(DX_PROCESS_NAME)
     terminate_process("Notepad.exe")
 
-except Exception as e:  # pylint: disable=broad-except
+except Exception as e:
     logging.info("Something went wrong running the benchmark!")
     logging.exception(e)
     terminate_process(PROCESS_NAME)

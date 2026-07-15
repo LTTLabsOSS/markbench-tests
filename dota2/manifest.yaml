@@ -1,9 +1,0 @@
-friendly_name: "DOTA 2"
-executable: "dota2.py"
-process_name: "dota2.exe"
-output_dir: "run"
-options:
-  - name: kerasHost
-    type: input
-  - name: kerasPort
-    type: input

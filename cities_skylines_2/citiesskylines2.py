@@ -98,7 +98,7 @@ def run_benchmark():
     result = find_word("benchmark", timeout=10, interval=1, crop="top_left")
     if not result:
         logging.info(
-            "Did not find the save game original date. Did the keras click correctly?"
+            "Did not find the save game original date. Did the OCR click correctly?"
         )
         sys.exit(1)
 

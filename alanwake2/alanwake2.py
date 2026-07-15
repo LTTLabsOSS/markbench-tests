@@ -11,7 +11,6 @@ from alanwake2_utils import CONFIG_PATH, copy_save, find_epic_executable, get_re
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
-# pylint: disable=wrong-import-position
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import press_n_times

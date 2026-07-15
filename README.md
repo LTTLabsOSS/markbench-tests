@@ -17,7 +17,7 @@ The versions of tests that are available here are taken from snapshots of our pr
   - [JSON Report](#json-report)
 - [Creating a test harness](#creating-a-test-harness)
 - [Tools in the toolbox](#tools-in-the-toolbox)
-  - [Keras OCR](#keras-ocr)
+  - [OCR Service](#ocr-service)
   - [Keyboard and Mouse Input](#keyboard-and-mouse-input)
 - [License](#license)
 
@@ -90,7 +90,7 @@ It's important to note that the arguments required for each harness may vary. To
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## A test and its harness
-MarkBench has the capability to accommodate any test that can be carried out on a Windows system and concludes with a success code of 0 or a failure code of 1. For MarkBench to recognize a test harness as automatable, it must include a manifest.yaml file containing essential metadata about the harness.
+MarkBench has the capability to accommodate any test that can be carried out on a Windows system and concludes with a success code of 0 or a failure code of 1. For MarkBench to recognize a test harness as automatic, it must include a manifest.yaml file containing essential metadata about the harness.
 
 The test harness is responsible for:
 1. Setup
@@ -193,15 +193,11 @@ Harness entry points and any supporting files should live in a named directory i
 
 ## Tools in the toolbox
 
-### Keras OCR
+### OCR Service
 
-We employ a deployment of [Keras OCR](https://github.com/faustomorales/keras-ocr) integrated into an HTTP API to assist in navigating game menus. This service accepts an image and a designated target word, and in return, it provides the coordinates of the word's location within the image. If the word cannot be located, it returns a "false" response.
+Game harnesses use an OCR service's `/process` HTTP API to navigate menus. A harness posts a screenshot in the `file` field and a target word in the `word` field. The service returns match data, including coordinates when the target is found; a missing match is treated as no result.
 
-For detailed instructions on setting up this Keras Service locally, please refer to our [Keras Service repository linked here](https://github.com/LTTLabsOSS/keras-ocr-service).
-
-> Please note that although a CUDA-capable GPU is not mandatory, it's worth mentioning that certain games may not function correctly due to slower response times when this hardware is absent.
-
-If Keras is taking images on the wrong monitor, the primary display can be modified by changing `monitor_1 = sct.monitors[2]  # Identify the display to capture` in `keras_service.py`
+The client in `harness_utils/ocr_service.py` resolves the service endpoint and handles OCR requests.
 
 ### Keyboard and Mouse Input
 

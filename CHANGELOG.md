@@ -5,26 +5,30 @@ All notable changes to this project will be documented in this file.
 Changes are grouped by the date they are merged to the main branch of the repository and are ordered from newest to oldest. Dates use the ISO 8601 extended calendar date format, i.e. YYYY-MM-DD.
 
 ## 2025-05-13
+
 - Add Evolve Benchmark test harness
+
 ## 2025-07-15
+
 - Updated 7-Zip to 25.00
 - Updated Y-Cruncher to v0.8.6.9545
 - Updated Godot compile to 4.4.1-stable
 
 ## 2025-04-02
-- Fixed Keras not finding the FPS in Shadow of the Tomb Raider
-- Added a screenshot function for Vulkan games for Keras-OCR via DXcam
-- Added Keras functionality to Red Dead Redemption 2
+
+- Fixed the OCR service not finding the FPS in Shadow of the Tomb Raider
+- Added a screenshot function for Vulkan games for the OCR service via DXcam
+- Added OCR functionality to Red Dead Redemption 2
 - Added Strange Brigade (VK) to the team
 - Updated PugetBench harness to include DaVinci and After Effects
 - Updated PugetBench to more consistently find version numbers and include them in the report.json
 - Updated Rocket League harness to check what camera it is on and keep flipping through till it's on the correct one
 - Updated Procyon AI harnesses to have version numbers in report.json
 - Replaced the hardcoded path for Cyberpunk2077 and instead use the get_app_install_location instead
-- Added DOTA 2 screenshotting for video config
+- Added DOTA 2 screenshots for video config
 - Added beta harness of Marvel Rivals
 - Added game version lookup to Epic Games based games and a function in the misc.py
-- Reintroducing Hitman World of Assassination and Far Cry 6 with updated keras and artifact manager functions
+- Reintroducing Hitman World of Assassination and Far Cry 6 with updated OCR and artifact manager functions
 
 ## 2025-03-17
 
@@ -41,7 +45,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2025-02-14
 
-- Updates to the Cyberpunk 2077 harness for varied setttings and checkpointing.
+- Updates to the Cyberpunk 2077 harness for varied settings and checkpoints.
 
 ## 2025-01-14
 
@@ -52,7 +56,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2024-12-13
 
-- Update to Rocket League harness for artifact management and new menu navigation. Fixed navigation for scaling issues. Now requires vgamepad.
+- Update to Rocket League harness for artifact management and new menu navigation. Fixed navigation for scaling issues. Now requires Vgamepad.
 - Updated a couple of readmes to indicate requirement for Vgamepad.
 
 ## 2024-12-04
@@ -113,7 +117,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2024-09-23
 
-- Add screen splitting to Keras Service.
+- Add screen splitting to the OCR service.
 
 ## 2024-9-20
 
@@ -123,7 +127,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 ## 2024-09-13
 
 - Update godot compile harness with some path fixes.
-- Add back Shadow of The Tomb Raider harness that uses Keras.
+- Add back Shadow of The Tomb Raider harness that uses the OCR service.
 
 ## 2024-09-06
 
@@ -171,7 +175,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2024-02-20
 
-- Fix type error in DOTA2 `read_config` utility function
+- Fix type error in DOTA 2 `read_config` utility function
 
 ## 2024-02-16
 
@@ -253,7 +257,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 ## 2023-10-19
 
 - Add Rocket League test harness.
-- Add Dota 2 test harness.
+- Add DOTA 2 test harness.
 
 ## 2023-10-18
 
