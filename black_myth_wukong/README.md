@@ -9,7 +9,7 @@ This script navigates the menus of the Black Myth Wukong Benchmark tool and runs
 - OCR service
 - Vgamepad
 
-### Linux vgamepad setup
+### Linux Vgamepad setup
 
 Linux vgamepad support is experimental and uses `/dev/uinput`. The harness must run without `sudo`; provision `/dev/uinput` access during machine setup, not at benchmark runtime.
 

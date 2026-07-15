@@ -90,7 +90,7 @@ It's important to note that the arguments required for each harness may vary. To
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## A test and its harness
-MarkBench has the capability to accommodate any test that can be carried out on a Windows system and concludes with a success code of 0 or a failure code of 1. For MarkBench to recognize a test harness as automatable, it must include a manifest.yaml file containing essential metadata about the harness.
+MarkBench has the capability to accommodate any test that can be carried out on a Windows system and concludes with a success code of 0 or a failure code of 1. For MarkBench to recognize a test harness as automatic, it must include a manifest.yaml file containing essential metadata about the harness.
 
 The test harness is responsible for:
 1. Setup

@@ -3,7 +3,7 @@
 This benchmark uses vanilla Stellaris (No DLC) and the popular [console command](https://stellaris.paradoxwikis.com/Console_commands): one_year. We created a save game:
 
 - 30 advanced start AI empires
-- Max saturation of hyperlanes
+- Max saturation of hyper lanes
 - Maximum galaxy size
 
 We used the fast_forward command to get to year 2400.

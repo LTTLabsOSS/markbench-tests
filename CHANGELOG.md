@@ -25,7 +25,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 - Updated Rocket League harness to check what camera it is on and keep flipping through till it's on the correct one
 - Updated Procyon AI harnesses to have version numbers in report.json
 - Replaced the hardcoded path for Cyberpunk2077 and instead use the get_app_install_location instead
-- Added DOTA 2 screenshotting for video config
+- Added DOTA 2 screenshots for video config
 - Added beta harness of Marvel Rivals
 - Added game version lookup to Epic Games based games and a function in the misc.py
 - Reintroducing Hitman World of Assassination and Far Cry 6 with updated OCR and artifact manager functions
@@ -45,7 +45,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2025-02-14
 
-- Updates to the Cyberpunk 2077 harness for varied settings and checkpointing.
+- Updates to the Cyberpunk 2077 harness for varied settings and checkpoints.
 
 ## 2025-01-14
 
@@ -56,7 +56,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2024-12-13
 
-- Update to Rocket League harness for artifact management and new menu navigation. Fixed navigation for scaling issues. Now requires vgamepad.
+- Update to Rocket League harness for artifact management and new menu navigation. Fixed navigation for scaling issues. Now requires Vgamepad.
 - Updated a couple of readmes to indicate requirement for Vgamepad.
 
 ## 2024-12-04
