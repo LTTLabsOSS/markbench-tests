@@ -1,6 +1,5 @@
 """Far Cry 6 test script"""
 
-# pylint: disable = C0116, W0621
 import logging
 import os
 import subprocess

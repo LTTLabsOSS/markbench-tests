@@ -11,7 +11,6 @@ import vgamepad as vg
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-# pylint: disable=wrong-import-position
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import mangohud_log_toggle, user
 from harness_utils.misc import LTTGamePad360

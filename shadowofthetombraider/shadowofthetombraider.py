@@ -11,7 +11,6 @@ from shadow_of_the_tomb_raider_utils import get_latest_file_report, get_resoluti
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-# pylint: disable=wrong-import-position
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import user
 from harness_utils.ocr_service import find_word

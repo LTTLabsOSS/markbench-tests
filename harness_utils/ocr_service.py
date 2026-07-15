@@ -102,7 +102,7 @@ def _query_ocr_service(word: str, vulkan: bool = False, crop: str | None = None)
         return None
 
 
-def find_word(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+def find_word(
     word: str,
     vulkan: bool = False,
     interval: float = 0,

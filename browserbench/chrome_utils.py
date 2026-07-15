@@ -29,7 +29,7 @@ def get_chrome_path_from_registry() -> str:
 def launch_chrome(chrome_path: str, url: str):
     """Launches Google Chrome in maximized window with minimal extras on a new profile"""
     profile_dir = tempfile.mkdtemp()
-    proc = subprocess.Popen(  # pylint: disable=consider-using-with
+    proc = subprocess.Popen(
         [
             chrome_path,
             "--remote-debugging-port=9222",
