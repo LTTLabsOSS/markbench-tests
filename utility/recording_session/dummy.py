@@ -6,7 +6,7 @@ import sys
 import time
 from pathlib import Path
 
-PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.output import (

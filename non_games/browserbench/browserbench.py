@@ -16,7 +16,7 @@ from chrome_utils import (
     wait_for_ready,
 )
 
-PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
@@ -133,7 +133,10 @@ def wait_for_score(client: CDPClient, score_expr: str) -> float:
         res = client.call("Runtime.evaluate", {"expression": score_expr})
         val = res["result"]["result"].get("value")
         if val is not None:
-            return float(val)
+            try:
+                return float(val)
+            except (TypeError, ValueError):
+                logging.warning("Invalid benchmark score: %r", val)
         time.sleep(3)
     raise TimeoutError("Benchmark did not finish in time")
 
@@ -150,6 +153,8 @@ def main():
     )
     args = parser.parse_args()
     bench = BENCHMARKS[args.benchmark]
+
+    chrome_proc = None
 
     try:
         logging.info("Detecting Chrome path...")
@@ -229,18 +234,30 @@ def main():
         time.sleep(15)
 
         # Terminate Chrome
-        chrome_proc.terminate()
-        try:
-            chrome_proc.wait(timeout=15)
-        except subprocess.TimeoutExpired:
-            chrome_proc.kill()
+        if chrome_proc is not None:
+            chrome_proc.terminate()
+            try:
+                chrome_proc.wait(timeout=15)
+            except subprocess.TimeoutExpired:
+                chrome_proc.kill()
+                chrome_proc.wait()
 
-    except Exception as e:
+    except (
+        OSError,
+        RuntimeError,
+        TimeoutError,
+        ValueError,
+        KeyError,
+        TypeError,
+        subprocess.SubprocessError,
+    ) as e:
         logging.error("Error during benchmark!")
         logging.exception(e)
-        if "chrome_proc" in locals():
-            chrome_proc.kill()
         sys.exit(1)
+    finally:
+        if chrome_proc is not None and chrome_proc.poll() is None:
+            chrome_proc.kill()
+            chrome_proc.wait()
 
 
 if __name__ == "__main__":
