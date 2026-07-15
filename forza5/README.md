@@ -6,7 +6,7 @@ This script runs RTSS with the provided profile config and navigates through in-
 
 - Python 3.10+
 - Forza Horizon 5 installed via Steam
-- Keras OCR service
+- OCR service
 - RTSS installed - https://rivatuner.net/
 
 ## Output

@@ -69,7 +69,7 @@ def run_benchmark():
 
     result = find_word("display", timeout=10, vulkan=True)
     if not result:
-        logging.info("Did not find the display menu. Did keras navigate correctly?")
+        logging.info("Did not find the display menu. Did OCR navigate correctly?")
         sys.exit(1)
 
     gui.press("pgdn")

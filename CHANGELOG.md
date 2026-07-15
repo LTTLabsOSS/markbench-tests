@@ -16,9 +16,9 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2025-04-02
 
-- Fixed Keras not finding the FPS in Shadow of the Tomb Raider
-- Added a screenshot function for Vulkan games for Keras-OCR via DXcam
-- Added Keras functionality to Red Dead Redemption 2
+- Fixed the OCR service not finding the FPS in Shadow of the Tomb Raider
+- Added a screenshot function for Vulkan games for the OCR service via DXcam
+- Added OCR functionality to Red Dead Redemption 2
 - Added Strange Brigade (VK) to the team
 - Updated PugetBench harness to include DaVinci and After Effects
 - Updated PugetBench to more consistently find version numbers and include them in the report.json
@@ -28,7 +28,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 - Added DOTA 2 screenshotting for video config
 - Added beta harness of Marvel Rivals
 - Added game version lookup to Epic Games based games and a function in the misc.py
-- Reintroducing Hitman World of Assassination and Far Cry 6 with updated keras and artifact manager functions
+- Reintroducing Hitman World of Assassination and Far Cry 6 with updated OCR and artifact manager functions
 
 ## 2025-03-17
 
@@ -117,7 +117,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2024-09-23
 
-- Add screen splitting to Keras Service.
+- Add screen splitting to the OCR service.
 
 ## 2024-9-20
 
@@ -127,7 +127,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 ## 2024-09-13
 
 - Update godot compile harness with some path fixes.
-- Add back Shadow of The Tomb Raider harness that uses Keras.
+- Add back Shadow of The Tomb Raider harness that uses the OCR service.
 
 ## 2024-09-06
 

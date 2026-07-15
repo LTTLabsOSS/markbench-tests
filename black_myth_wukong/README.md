@@ -6,7 +6,7 @@ This script navigates the menus of the Black Myth Wukong Benchmark tool and runs
 
 - Python 3.10+
 - Black Myth Wukong Benchmark Tool installed
-- Keras OCR service
+- OCR service
 - Vgamepad
 
 ### Linux vgamepad setup
@@ -31,8 +31,8 @@ This only covers the virtual gamepad dependency path. Proton, Steam, and the gam
 
 ## Options
 
-- `kerasHost`: string representing the IP address of the Keras service. e.x. `0.0.0.0`
-- `kerasPort`: string representing the port of the Keras service. e.x. `8080`
+- `ocrHost`: string representing the IP address of the OCR service. e.x. `0.0.0.0`
+- `ocrPort`: string representing the port of the OCR service. e.x. `8080`
 
 ## Output
 

@@ -1,9 +1,0 @@
-friendly_name: "Red Dead Redemption 2"
-executable: "reddeadredemption2.py"
-process_name: "RDR2.exe"
-output_dir: "run"
-options:
-  - name: kerasHost
-    type: input
-  - name: kerasPort
-    type: input

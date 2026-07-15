@@ -36,8 +36,8 @@ def get_ocr_url(
             "OCR config file not found. Using defaults unless CLI overrides exist."
         )
         parser = ArgumentParser(add_help=False)
-        parser.add_argument("--ocrHost", "--kerasHost", dest="ocr_host")
-        parser.add_argument("--ocrPort", "--kerasPort", dest="ocr_port")
+        parser.add_argument("--ocrHost", dest="ocr_host")
+        parser.add_argument("--ocrPort", dest="ocr_port")
         args, _ = parser.parse_known_args()
         host = str(args.ocr_host or host)
         ocr_port = str(args.ocr_port or ocr_port)

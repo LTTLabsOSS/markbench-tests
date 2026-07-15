@@ -1,9 +1,0 @@
-friendly_name: "Assassin's Creed Shadows"
-executable: "acshadows.py"
-process_name: "ACShadows.exe"
-output_dir: "run"
-options:
-  - name: kerasHost
-    type: input
-  - name: kerasPort
-    type: input

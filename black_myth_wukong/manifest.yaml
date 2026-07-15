@@ -1,9 +1,0 @@
-friendly_name: "Black Myth Wukong"
-executable: "blackmythwukong.py"
-process_name: "b1-Win64-Shipping.exe"
-output_dir: "run"
-options:
-  - name: kerasHost
-    type: input
-  - name: kerasPort
-    type: input

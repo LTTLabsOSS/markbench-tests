@@ -12,12 +12,12 @@ There are a few things that must be done for this harness to run properly, they 
 
 - Python 3.10+
 - Connection to L:/ drive
-- Keras OCR service
+- OCR service
 
 ## Options
 
-- `kerasHost`: string representing the IP address of the Keras service. e.x. `0.0.0.0` 
-- `kerasPort`: string representing the port of the Keras service. e.x. `8080`
+- `ocrHost`: string representing the IP address of the OCR service. e.x. `0.0.0.0`
+- `ocrPort`: string representing the port of the OCR service. e.x. `8080`
 
 ## Output
 

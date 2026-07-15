@@ -1,9 +1,0 @@
-friendly_name: "Forza Horizon 5"
-executable: "forza5.py"
-process_name: "forzahorizon5.exe"
-output_dir: "run"
-options:
-  - name: kerasHost
-    type: input
-  - name: kerasPort
-    type: input

@@ -72,71 +72,24 @@ Given the configuration and artifacts captured in the above code snippets, the r
   description: a picture taken with my function
 ```
 
-## Keras Service
+## OCR Service
 
-`keras_service.py`
+`ocr_service.py`
 
-Contains class for instancing connection to a Keras Service and provides access to its web API.
+Resolves the OCR `/process` endpoint and searches screenshots for a target word.
 
-### Usage:
-
-Import KerasService
+### Usage
 
 ```python
-from harness_utils.keras_service import KerasService
+from harness_utils.ocr_service import find_word, get_ocr_url
+
+url = get_ocr_url()
+result = find_word("options", timeout=30, interval=1)
 ```
 
-Instantiate a Keras
+`get_ocr_url()` defaults to `http://127.0.0.1:8000/process`. OCR settings from `../../configs/config.toml` relative to this directory take precedence when that file exists; otherwise, `--ocrHost` and `--ocrPort` can override the defaults. The `ip_addr` and `port` arguments provide explicit overrides.
 
-```python
-# usually your host and port will come from the script arguments
-keras_service = KerasService(args.keras_host, args.keras_port)
-```
-
-You can look a word on the screen for a number of attempts, or wait for a word to appear on the screen for an amount of time.
-
-```python
-# this will send a screenshot every 1 second to keras and look for the word "options" in it
-# this function call will block until the word has been found returning True, or None once 30 seconds has passed
-result = keras_service.wait_for_word("options", timeout=30, interval=1)
-
-# this will send a screenshot to keras every 1 second ato keras and look for the word "continue" in it
-# this function call will block until it has tried 20 times
-result = keras_service.wait_for_word("continue", timeout=20, interval=1)
-```
-
-You can optionally check only half the screen, or 1/4 of the screen. This shrinks the amount of screenshot that Keras has to search for a word which means a faster result time.
-
-First import ScreenSplitConfig, ScreenShotDivideMethod, and ScreenShotQuadrant
-
-```python
-from harness_utils.keras_service import KerasService, ScreenSplitConfig, ScreenShotDivideMethod, ScreenShotQuadrant
-```
-
-Then create your ScreenSplitConfig object and pass it to the wait_for_word function.
-
-```python
-# this config will split the screen horizontally and look in the top of the screen
-ss_config = ScreenSplitConfig(
-  divide_method=ScreenShotDivideMethod.HORIZONTAL
-  quadrant=ScreenShotQuadrant.TOP
-)
-
-# this one will split the screen vertically and look in the right of the screen
-ss_config = ScreenSplitConfig(
-  divide_method=ScreenShotDivideMethod.VERTICAL
-  quadrant=ScreenShotQuadrant.RIGHT
-)
-
-# ans this will split the screen into 4 and look in the bottom left of the screen
-ss_config = ScreenSplitConfig(
-  divide_method=ScreenShotDivideMethod.QUADRANT
-  quadrant=ScreenShotQuadrant.BOTTOM_LEFT
-)
-
-# pass the config to the function call
-result = keras_service.wait_for_word("options", timeout=30, interval=1, split_config=ss_config)
-```
+`find_word()` captures a screenshot, posts it with the target word, and retries until it receives a result or the timeout expires. It returns the parsed response data when found, or `None` when no match is found or the request fails. Set `vulkan=True` for Vulkan capture or pass `crop` to limit the captured region.
 
 ## Output
 

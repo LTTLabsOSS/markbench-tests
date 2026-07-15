@@ -102,7 +102,7 @@ def navigate_settings() -> None:
     result = find_word("volume", interval=3, timeout=20)
     if not result:
         logging.info(
-            "Did not see the volume options. Did keras navigate to the settings menu correctly?"
+            "Did not see the volume options. Did OCR navigate to the settings menu correctly?"
         )
         sys.exit(1)
     # entered settings

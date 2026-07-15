@@ -6,12 +6,12 @@ Navigates menus to the in-game benchmark then runs it.
 
 - Python 3.10+
 - Horizon Zero Dawn Remastered installed
-- Keras OCR service
+- OCR service
 
 ## Options
 
-- `kerasHost`: string representing the IP address of the Keras service. e.x. `0.0.0.0` 
-- `kerasPort`: string representing the port of the Keras service. e.x. `8080`
+- `ocrHost`: string representing the IP address of the OCR service. e.x. `0.0.0.0`
+- `ocrPort`: string representing the port of the OCR service. e.x. `8080`
 
 ## Output
 
