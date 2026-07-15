@@ -165,7 +165,7 @@ def run_benchmark():
     test_start_time = int(time.time()) - 5
     logging.info("Benchmark started. Waiting for completion...")
 
-    time.sleep(180)
+    time.sleep(240)
 
     if not find_word("total", timeout=300, interval=0.5):
         logging.info("Did not see results screen. Marking as DNF.")

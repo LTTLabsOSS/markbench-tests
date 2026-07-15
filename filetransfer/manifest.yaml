@@ -1,0 +1,9 @@
+friendly_name: "File Transfer Test"
+executable: "filetransfer.py"
+process_name: "python.exe"
+output_dir: "run"
+options:
+  - name: kerasHost
+    type: input
+  - name: kerasPort
+    type: input

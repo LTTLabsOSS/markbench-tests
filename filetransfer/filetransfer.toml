@@ -1,0 +1,11 @@
+friendly_name = "File Transfer Test"
+py_script = "filetransfer.py"
+executable = "python.exe"
+presentmon_enabled = false
+non_game = true
+
+[[args]]
+name = "driveletter"
+type = "select"
+tooltip = "Select source drive Letter"
+values = ["A:", "B:", "D:", "E:", "F:","G:", "H:", "I:", "J:", "K:", "M:", "N:", "O:", "P:", "Q:", "R:", "S:", "T:", "U:", "V:", "W:", "X:", "Y:", "Z:"]
