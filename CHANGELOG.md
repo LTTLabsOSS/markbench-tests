@@ -175,7 +175,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2024-02-20
 
-- Fix type error in DOTA2 `read_config` utility function
+- Fix type error in DOTA 2 `read_config` utility function
 
 ## 2024-02-16
 
@@ -257,7 +257,7 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 ## 2023-10-19
 
 - Add Rocket League test harness.
-- Add Dota 2 test harness.
+- Add DOTA 2 test harness.
 
 ## 2023-10-18
 
