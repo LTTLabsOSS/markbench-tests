@@ -1,235 +1,27 @@
-"""Provides ArtifactManager class for capturing artifacts from test runs."""
-
-import logging
-import os
-from dataclasses import dataclass
-from enum import Enum, unique
 from pathlib import Path
 from shutil import copy, rmtree
 
-import yaml
-
-from harness_utils.platform import is_linux, is_windows
-from harness_utils.screenshot import (
-    capture_screenshot_file,
-    capture_screenshot_png_bytes,
-    take_mss_file,
-)
-
-logger = logging.getLogger(__name__)
+from harness_utils.screenshot import capture_screenshot_png_bytes
 
 
-def copy_artifact(
-    source: str | os.PathLike, artifact_directory: str | os.PathLike
-) -> Path:
-    """Copy a file into the artifact directory while preserving its basename."""
-    source_path = Path(source)
-    destination = Path(artifact_directory)
-    destination.mkdir(parents=True, exist_ok=True)
-    output_path = destination / source_path.name
-    try:
-        copy(source_path, output_path)
-    except OSError:
-        logger.exception("Failed to copy artifact %s to %s", source_path, output_path)
-        raise
-    return output_path
-
-
-def reset_artifacts(artifact_directory: str | os.PathLike) -> Path:
+def reset_artifacts(directory: str | Path) -> None:
     """Replace the artifact directory with an empty directory."""
-    directory = Path(artifact_directory)
+    directory = Path(directory)
     if directory.exists():
-        try:
-            rmtree(directory)
-        except OSError:
-            logger.exception("Failed to reset artifact directory: %s", directory)
-            raise
+        rmtree(directory)
+    directory.mkdir(parents=True)
+
+
+def copy_artifact(source: str | Path, directory: str | Path) -> None:
+    """Copy a file into the artifact directory, preserving its basename."""
+    directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
-    return directory
+    copy(source, directory)
 
 
-def capture_and_save_screenshot(
-    output_path: str | os.PathLike, vulkan: bool = False
-) -> None:
-    """Capture a PNG screenshot and save it to the requested artifact path."""
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+def capture_and_save_screenshot(path: str | Path, vulkan: bool = False) -> None:
+    """Capture a PNG screenshot and write it to path."""
     image_bytes = capture_screenshot_png_bytes(vulkan=vulkan)
     if image_bytes is None:
         raise RuntimeError("Failed to capture screenshot")
-    path.write_bytes(image_bytes.getbuffer())
-
-
-@unique
-class ArtifactType(Enum):
-    """
-    Describes different types of artifacts to be saved from test runs.
-    """
-
-    CONFIG_IMAGE = "config_image"
-    """
-    Meant to describe images displaying an applications settings.
-    For games this might be a screenshot of the in-game settings menu.
-    """
-
-    RESULTS_IMAGE = "results_image"
-    """
-    Meant to describe images displaying results of a benchmark.
-    For games with built in benchmarks, this might be a screenshot of an in-game benchmark results screen.
-    """
-
-    CONFIG_TEXT = "config_text"
-    """
-    Meant to describe text-based files which contain application settings.
-    For games this might be a .ini or .cfg file containing graphics settings.
-    """
-
-    RESULTS_TEXT = "results_text"
-    """
-    Meant to describe text-based files which contain results of a benchmark.
-    For games with built in benchmarks, this might be a .txt or .xml file containing results from an in-game benchmark.
-    """
-
-
-_IMAGE_ARTIFACT_TYPES = (ArtifactType.CONFIG_IMAGE, ArtifactType.RESULTS_IMAGE)
-
-
-@dataclass
-class Artifact:
-    """
-    Describes an artifact captured by the ArtifactManager.
-    """
-
-    filename: str
-    type: ArtifactType
-    description: str
-
-    def as_dict(self) -> dict:
-        """
-        Returns the Artifact object as a dictionary. Converts its type to a string value.
-        """
-        d = self.__dict__.copy()
-        d["type"] = d["type"].value
-        return d
-
-
-class ArtifactManager:
-    """
-    Used to manage artifacts captured during a test run, either by coping files or taking screenshots.
-    The manager maintains a list of artifacts it has captured and can produce a manifest file listing them.
-    """
-
-    def __init__(self, output_path: str | os.PathLike) -> None:
-        self.output_path = Path(output_path)
-        self.artifacts: list[Artifact] = []
-
-        self.output_path.mkdir(parents=True, exist_ok=True)
-
-    def copy_file(
-        self, src: str | os.PathLike, artifact_type: ArtifactType, description=""
-    ):
-        """
-        Copies a file from `src` to the manager's `output_path` and adds a new Artifact to the manager's artifacts list.
-
-        The newly created artifact's `type` and `description` fields are set to the given
-        `artifact_type` and `description` arguments respectively while the artifact's `filename`
-        is set to the basename of `src`.
-
-        Raises a `ValueError` if `src` points to a directory instead of a file.
-        """
-        src_path = Path(src)
-        if src_path.is_dir():
-            raise ValueError("src should point to a file, not a directory")
-        filename = src_path.name
-        try:
-            if Path(src).resolve() != Path(self.output_path).resolve() / filename:
-                logger.info("Copying %s to %s", src, self.output_path / filename)
-                copy(src, self.output_path / filename)
-            else:
-                logger.info(
-                    "Skipping copy of %s to %s as it already exists",
-                    src,
-                    self.output_path / filename,
-                )
-            artifact = Artifact(filename, artifact_type, description)
-            self.artifacts.append(artifact)
-        except OSError as e:
-            raise e
-
-    def take_screenshot(
-        self,
-        filename: str,
-        artifact_type: ArtifactType,
-        description="",
-    ):
-        """
-        Takes a screenshot and saves it to the manager's `output_path` with the given `filename`
-        and adds a new Artifact to the manager's artifact list.
-
-        The newly created artifact's `filename`, `type` and `description` fields are set to the
-        given `filename`, `artifact_type` and `description` arguments respectively.
-
-        Raises a `ValueError` if `artifact_type` is not one of the `ArtifactType` values which represents an image.
-        """
-        if artifact_type not in _IMAGE_ARTIFACT_TYPES:
-            raise ValueError(
-                "artifact_type should be a type that represents an image artifact"
-            )
-
-        logger.info(
-            "Attempting artifact screenshot filename=%s type=%s description=%s",
-            filename,
-            artifact_type.value,
-            description,
-        )
-        if is_linux():
-            capture_screenshot_file(self.output_path / filename)
-        else:
-            take_mss_file(self.output_path / filename)
-        artifact = Artifact(filename, artifact_type, description)
-        self.artifacts.append(artifact)
-        logger.info("Captured artifact screenshot filename=%s", filename)
-
-    def take_screenshot_vulkan(
-        self,
-        filename: str,
-        artifact_type: ArtifactType,
-        description="",
-    ):
-        """
-        Takes a Vulkan screenshot and saves it to the manager's `output_path` with the given `filename`.
-        Adds a new Artifact to the manager's artifact list.
-
-        Raises a `ValueError` if `artifact_type` is not one of the `_IMAGE_ARTIFACT_TYPES` values which represent an image.
-        """
-        if artifact_type not in _IMAGE_ARTIFACT_TYPES:
-            raise ValueError(
-                "artifact_type should be a type that represents an image artifact"
-            )
-
-        output_filepath = self.output_path / filename
-        logger.info(
-            "Attempting Vulkan artifact screenshot filename=%s type=%s description=%s",
-            filename,
-            artifact_type.value,
-            description,
-        )
-
-        if is_windows():
-            image_bytes = capture_screenshot_png_bytes(vulkan=True)
-            if image_bytes is None:
-                raise RuntimeError("Failed to capture screenshot.")
-            Path(output_filepath).write_bytes(image_bytes.getbuffer())
-        else:
-            capture_screenshot_file(output_filepath)
-        artifact = Artifact(filename, artifact_type, description)
-        self.artifacts.append(artifact)
-        logger.info("Captured Vulkan artifact screenshot filename=%s", filename)
-
-    def create_manifest(self):
-        """
-        Creates a file `artifacts.yaml` which lists the artifacts in the manager's `artifacts` list.
-        The file is created at the location specified by the manager's `output_path`.
-        """
-        with open(self.output_path / "artifacts.yaml", encoding="utf-8", mode="w") as f:
-            yaml.safe_dump([a.as_dict() for a in self.artifacts], f, sort_keys=False)
+    Path(path).write_bytes(image_bytes.getbuffer())
