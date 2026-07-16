@@ -18,15 +18,15 @@ from stellaris_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import reset_artifacts, save_screenshot
+from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import get_app_install_location
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "stellaris.exe"
 STEAM_GAME_ID = 281990
 
@@ -53,7 +53,7 @@ def run_benchmark():
     start_game()
     setup_start_time = int(time.time())
     time.sleep(5)
-    am = ArtifactManager(LOG_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
 
     patchnotes = find_word("close", interval=0.5, timeout=100)
     if patchnotes:
@@ -84,7 +84,7 @@ def run_benchmark():
     time.sleep(0.2)
     gui.mouseUp()
     time.sleep(0.5)
-    am.take_screenshot("settings.png", ArtifactType.CONFIG_IMAGE, "settings")
+    save_screenshot(ARTIFACTS_DIRECTORY / "settings.png")
 
     time.sleep(0.2)
     user.press("esc")
@@ -164,7 +164,7 @@ def run_benchmark():
     score = find_score_in_log()
     logging.info("The one year passed in %s seconds", score)
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
+
 
     return test_start_time, test_end_time, score
 

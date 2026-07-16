@@ -12,8 +12,9 @@ from hzdr_utils import get_resolution, process_registry_file
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.ocr_service import find_word
+from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.paths import harness_directories
 from harness_utils.files import remove_files
 from harness_utils.report import format_resolution, seconds_to_milliseconds
 from harness_utils.output_logging import setup_logging
@@ -25,8 +26,7 @@ from harness_utils.steam import (
 )
 
 STEAM_GAME_ID = 2561580
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "HorizonZeroDawnRemastered.exe"
 VIDEO_PATH = (
     get_steamapps_common_path() / "Horizon Zero Dawn Remastered" / "Movies" / "Mono"
@@ -55,7 +55,7 @@ def run_benchmark() -> tuple[float]:
     logging.info("Starting game")
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int(time.time())
-    am = ArtifactManager(LOG_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
 
     time.sleep(10)
     # skip intro
@@ -127,9 +127,7 @@ def run_benchmark() -> tuple[float]:
         user.press("up")
         user.press("up")
         user.press("up")
-    am.take_screenshot(
-        "display1.png", ArtifactType.CONFIG_IMAGE, "1st picture of display settings"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "display1.png")
 
     user.press("up")
     time.sleep(0.5)
@@ -137,9 +135,7 @@ def run_benchmark() -> tuple[float]:
     if find_word(word="upscale", timeout=30, interval=1) is None:
         logging.info("Did not find the upscale settings. Did the menu not scroll?")
         sys.exit(1)
-    am.take_screenshot(
-        "display2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of display settings"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "display2.png")
 
     # Navigate to graphics menu
     user.press("e")
@@ -148,9 +144,7 @@ def run_benchmark() -> tuple[float]:
     if find_word(word="preset", timeout=30, interval=1) is None:
         logging.info("Did not find the graphics settings menu. Did the menu get stuck?")
         sys.exit(1)
-    am.take_screenshot(
-        "graphics1.png", ArtifactType.CONFIG_IMAGE, "1st picture of graphics settings"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
 
     user.press("up")
     time.sleep(0.5)
@@ -158,9 +152,7 @@ def run_benchmark() -> tuple[float]:
     if find_word(word="sharpness", timeout=30, interval=1) is None:
         logging.info("Did not find the sharpness settings. Did the menu not scroll?")
         sys.exit(1)
-    am.take_screenshot(
-        "graphics2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of graphics settings"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
 
     # Launch the benchmark
     user.press("tab")
@@ -194,17 +186,15 @@ def run_benchmark() -> tuple[float]:
     test_end_time = round(int(time.time()))
     # Give results screen time to fill out, then save screenshot and config file
     time.sleep(2)
-    am.take_screenshot(
-        "results.png", ArtifactType.RESULTS_IMAGE, "screenshot of benchmark result"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     process_registry_file(hive, SUBKEY, str(INPUT_FILE), str(CONFIG_FILE))
-    am.copy_file(CONFIG_FILE, ArtifactType.CONFIG_TEXT, "config file")
+    copy_artifact(CONFIG_FILE, ARTIFACTS_DIRECTORY)
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %s seconds", elapsed_test_time)
 
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
+
     time.sleep(15)
     return test_start_time, test_end_time
 

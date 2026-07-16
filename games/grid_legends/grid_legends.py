@@ -12,15 +12,15 @@ import pydirectinput as user
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "gridlegends.exe"
 STEAM_GAME_ID = 1307710
 
@@ -60,7 +60,7 @@ def run_benchmark():
     """Run Grid Legends benchmark"""
     setup_start_time = int(time.time())
     start_game()
-    am = ArtifactManager(LOG_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
 
     time.sleep(20)  # wait for game to load to the start screen
 
@@ -91,9 +91,7 @@ def run_benchmark():
     if find_word(word="basic", timeout=30, interval=0.1) is None:
         logging.error("Didn't basic video options. Did the menu navigate correctly?")
         sys.exit(1)
-    am.take_screenshot(
-        "basic.png", ArtifactType.CONFIG_IMAGE, "picture of basic settings"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "basic.png")
 
     user.press("f3")
     time.sleep(0.2)
@@ -103,11 +101,7 @@ def run_benchmark():
             "Didn't reach advanced video options. Did the menu navigate correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "advanced_1.png",
-        ArtifactType.CONFIG_IMAGE,
-        "first picture of advanced settings",
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "advanced_1.png")
 
     user.press("up")
     time.sleep(0.2)
@@ -117,11 +111,7 @@ def run_benchmark():
             "Didn't reach bottom of advanced video settings. Did the menu navigate correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "advanced_2.png",
-        ArtifactType.CONFIG_IMAGE,
-        "second picture of advanced settings",
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "advanced_2.png")
 
     user.press("down")
     time.sleep(0.2)
@@ -148,12 +138,12 @@ def run_benchmark():
     test_end_time = int(time.time()) - 2
     time.sleep(2)
 
-    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
-    am.copy_file(Path(CONFIG_FULL_PATH), ArtifactType.CONFIG_TEXT, "game config")
+    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    copy_artifact(Path(CONFIG_FULL_PATH), ARTIFACTS_DIRECTORY)
 
     logging.info("Run completed. Closing game.")
     time.sleep(2)
-    am.create_manifest()
+
 
     return test_start_time, test_end_time
 

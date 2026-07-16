@@ -14,7 +14,8 @@ from marvelrivals_utils import find_latest_benchmarkcsv, read_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.input import mouse_scroll_n_times
 from harness_utils.report import (
@@ -26,8 +27,7 @@ from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import get_app_install_location, get_build_id
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 STEAM_GAME_ID = 2767030
 PROCESS_NAME = "Marvel-Win64-Shipping.exe"
 LAUNCHER_NAME = "MarvelRivals_Launcher.exe"
@@ -38,7 +38,7 @@ CFG = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
 
 user.FAILSAFE = False
 
-am = ArtifactManager(LOG_DIRECTORY)
+reset_artifacts(ARTIFACTS_DIRECTORY)
 
 
 def start_game():
@@ -117,9 +117,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    am.take_screenshot(
-        "video1.png", ArtifactType.CONFIG_IMAGE, "1st picture of video settings"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "video1.png")
     time.sleep(1)
     mouse_scroll_n_times(1, -1200, 0.2)
     time.sleep(0.5)
@@ -129,9 +127,7 @@ def run_benchmark():
         logging.info("Did not find the post-processing option. Did it scroll down far enough?")
         sys.exit(1)
 
-    am.take_screenshot(
-        "video2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of video settings"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
     time.sleep(1)
     mouse_scroll_n_times(1, -1200, 0.2)
     time.sleep(0.5)
@@ -198,19 +194,15 @@ def run_benchmark():
         sys.exit(1)
     test_end_time = int(time.time())
 
-    am.copy_file(Path(CFG), ArtifactType.CONFIG_TEXT, "Marvel Rivals Video Config")
-    am.copy_file(
-        Path(find_latest_benchmarkcsv()),
-        ArtifactType.RESULTS_TEXT,
-        "Marvel Rivals Benchmark CSV",
-    )
+    copy_artifact(Path(CFG), ARTIFACTS_DIRECTORY)
+    copy_artifact(Path(find_latest_benchmarkcsv()), ARTIFACTS_DIRECTORY)
     logging.info("Run completed. Closing game.")
     time.sleep(2)
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
+
     time.sleep(10)
 
     return test_start_time, test_end_time

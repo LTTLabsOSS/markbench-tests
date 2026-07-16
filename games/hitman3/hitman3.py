@@ -18,7 +18,8 @@ from hitman3_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
@@ -28,9 +29,7 @@ STEAM_GAME_ID = 1659040
 STEAM_PATH = Path(os.environ["ProgramFiles(x86)"]) / "steam"
 STEAM_EXECUTABLE = "steam.exe"
 PROCESS_NAMES = ["HITMAN3.exe", "Launcher.exe"]
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 INPUT_FILE = SCRIPT_DIRECTORY / "graphics.reg"
 CONFIG_FILE = SCRIPT_DIRECTORY / "graphics_config.txt"
 hive = winreg.HKEY_CURRENT_USER
@@ -57,9 +56,9 @@ def benchmark_check():
 def run_benchmark():
     """Run the benchmark flow, capture artifacts, and return timing data."""
     setup_start_time = int(time.time())
-    am = ArtifactManager(LOG_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
     process_registry_file(hive, SUBKEY, str(INPUT_FILE), str(CONFIG_FILE))
-    am.copy_file(CONFIG_FILE, ArtifactType.CONFIG_TEXT, "config file")
+    copy_artifact(CONFIG_FILE, ARTIFACTS_DIRECTORY)
     selected_benchmark_name, benchmark_time = benchmark_check()
     exec_steam_run_command(STEAM_GAME_ID)
 
@@ -74,14 +73,10 @@ def run_benchmark():
     gui.mouseUp()
     time.sleep(2)
 
-    am.take_screenshot(
-        "Options1.png", ArtifactType.CONFIG_IMAGE, "1st picture of options"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "Options1.png")
     time.sleep(1)
     gui.scroll(-1000)
-    am.take_screenshot(
-        "Options2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of options"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "Options2.png")
     time.sleep(2)
 
     location = gui.locateOnScreen(
@@ -120,7 +115,7 @@ def run_benchmark():
     benchmark_end_time = int(time.time()) - 1
     elapsed_test_time = round(benchmark_end_time - benchmark_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
-    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     time.sleep(1)
 
     for process in psutil.process_iter():
@@ -130,7 +125,7 @@ def run_benchmark():
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass  # Ignore processes that no longer exist or cannot be accessed
 
-    am.create_manifest()
+
     return benchmark_start_time, benchmark_end_time, selected_benchmark_name
 
 

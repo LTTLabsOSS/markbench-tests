@@ -13,7 +13,8 @@ import pydirectinput as user
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.input import mouse_scroll_n_times
 from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
@@ -21,8 +22,7 @@ from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import get_app_install_location, get_build_id
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "Pharaoh.exe"
 STEAM_GAME_ID = 1937780
 APPDATA = os.getenv("APPDATA")
@@ -78,7 +78,7 @@ def run_benchmark():
     cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
     start_game()
     setup_start_time = int(time.time())
-    am = ArtifactManager(LOG_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
     time.sleep(5)
 
     result = find_word("warning", timeout=50, interval=5)
@@ -104,9 +104,7 @@ def run_benchmark():
         logging.info("Did not find the main menu. Did OCR click correctly?")
         sys.exit(1)
 
-    am.take_screenshot(
-        "main.png", ArtifactType.CONFIG_IMAGE, "screenshot of main settings menu"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "main.png")
     time.sleep(0.5)
 
     result = find_word("advanced", timeout=10, interval=1)
@@ -128,11 +126,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    am.take_screenshot(
-        "advanced_1.png",
-        ArtifactType.CONFIG_IMAGE,
-        "first screenshot of advanced settings menu",
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "advanced_1.png")
     time.sleep(0.5)
 
     result = find_word("water", timeout=10, interval=1)
@@ -151,11 +145,7 @@ def run_benchmark():
             "Did not find the keyword 'heat' in the menu. Did OCR scroll down the advanced menu far enough?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "advanced_2.png",
-        ArtifactType.CONFIG_IMAGE,
-        "second screenshot of advanced settings menu",
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "advanced_2.png")
     time.sleep(0.5)
 
     # Scroll to the bottom of the advanced menu
@@ -165,11 +155,7 @@ def run_benchmark():
             "Did not find the keyword 'bodies' in the menu. Did OCR scroll down the advanced menu far enough?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "advanced_3.png",
-        ArtifactType.CONFIG_IMAGE,
-        "third screenshot of advanced settings menu",
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "advanced_3.png")
     time.sleep(0.5)
 
     result = find_word("bench", timeout=10, interval=1)
@@ -207,9 +193,9 @@ def run_benchmark():
     # Wait 5 seconds for benchmark info
     test_end_time = int(time.time()) - 1
     time.sleep(5)
-    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     time.sleep(0.5)
-    am.copy_file(Path(cfg), ArtifactType.CONFIG_TEXT, "preferences.script.txt")
+    copy_artifact(Path(cfg), ARTIFACTS_DIRECTORY)
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
@@ -217,7 +203,7 @@ def run_benchmark():
 
     # Exit
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
+
 
     return test_start_time, test_end_time
 
