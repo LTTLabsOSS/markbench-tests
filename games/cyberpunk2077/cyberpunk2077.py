@@ -13,9 +13,8 @@ from cyberpunk_utils import copy_no_intro_mod, read_current_resolution
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import mangohud_log_toggle, press_n_times, user
 from harness_utils.ocr_service import find_word
-from harness_utils.time_conversion import seconds_to_milliseconds
+from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
-from harness_utils.report_writing import write_report_json
 from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id

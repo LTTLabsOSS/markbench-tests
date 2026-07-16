@@ -21,7 +21,7 @@ from ffmpeg_cpu_utils import (
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.output_logging import setup_logging
-from harness_utils.report_writing import write_report_json
+from harness_utils.report import write_report_json
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"

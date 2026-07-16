@@ -13,9 +13,8 @@ from ul3dmark_utils import get_score
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.time_conversion import seconds_to_milliseconds
+from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
-from harness_utils.report_writing import write_report_json
 from harness_utils.process import is_process_running
 
 #####

@@ -17,7 +17,7 @@ from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
 from harness_utils.epic_games import find_eg_game_version
 from harness_utils.output_logging import setup_logging
-from harness_utils.report_writing import write_report_json
+from harness_utils.report import write_report_json
 from harness_utils.process import terminate_process
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
