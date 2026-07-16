@@ -6,7 +6,7 @@ import sys
 import time
 from pathlib import Path
 
-import pydirectinput as user  # type: ignore[import-not-found]
+import pydirectinput as user
 from the_last_of_us_part_i_utils import copy_autosave, get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
@@ -205,7 +205,7 @@ def navigate_main_menu() -> None:
 def run_benchmark():
     """Starts the benchmark"""
     exec_steam_run_command(STEAM_GAME_ID)
-    setup_start_time = round(time.time())
+    setup_start_time = int(time.time())
     reset_artifacts(ARTIFACTS_DIRECTORY)
     time.sleep(30)
 
@@ -228,14 +228,14 @@ def run_benchmark():
     time.sleep(0.5)
     user.press("space")
 
-    elapsed_setup_time = round(round(time.time()) - setup_start_time, 2)
+    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
     result = find_word("tommy", interval=0.2, timeout=250)
     if not result:
         logging.info("Did not see Tommy's first subtitle. Did the game load?")
         sys.exit(1)
-    test_start_time = round(time.time())
+    test_start_time = int(time.time())
     logging.info("Saw Tommy's first line. Benchmark has started.")
 
     # wait for black screen
@@ -250,7 +250,7 @@ def run_benchmark():
     # Wait for black screen
     time.sleep(24)
 
-    test_end_time = round(time.time())
+    test_end_time = int(time.time())
 
     time.sleep(2)
     elapsed_test_time = round(test_end_time - test_start_time, 2)
@@ -279,13 +279,8 @@ try:
         / "screeninfo.cfg"
     )
     height, width = get_resolution(str(config_path))
-    try:
-        resolution = format_resolution(int(width), int(height))
-    except (TypeError, ValueError):
-        logging.exception("Invalid resolution: %sx%s", width, height)
-        raise
     report = {
-        "resolution": resolution,
+        "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
     }

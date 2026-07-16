@@ -43,11 +43,7 @@ def reset_savedata():
 
     # Delete the local savedata folder if it exists
     if local_savegame_path.exists() and local_savegame_path.is_dir():
-        try:
-            shutil.rmtree(local_savegame_path)
-        except OSError:
-            logging.exception("Failed to delete savedata folder: %s", local_savegame_path)
-            raise
+        shutil.rmtree(local_savegame_path)
         logging.info("Deleted local savedata folder: %s", local_savegame_path)
 
     # Copy the savedata folder from the network drive
@@ -75,11 +71,7 @@ def delete_autosave():
         local_savegame_path / "SAVEFILE0A"
     )  # check for autosaved file, delete if exists
     if savefile_path.exists() and savefile_path.is_dir():
-        try:
-            shutil.rmtree(savefile_path)
-        except OSError:
-            logging.exception("Failed to delete autosave folder: %s", savefile_path)
-            raise
+        shutil.rmtree(savefile_path)
         logging.info("Deleted folder: %s", savefile_path)
 
 
@@ -92,22 +84,19 @@ def get_current_resolution():
     key_path = r"Software\Naughty Dog\The Last of Us Part II\Graphics"
     fullscreen_width = read_registry_value(key_path, "FullscreenWidth")
     fullscreen_height = read_registry_value(key_path, "FullscreenHeight")
-    if fullscreen_width is None or fullscreen_height is None:
-        raise RuntimeError("Could not read the current resolution")
+
     return (fullscreen_width, fullscreen_height)
 
 
-def read_registry_value(key_path: str, value_name: str) -> int | None:
+def read_registry_value(key_path, value_name):
     """
     Reads value from registry
         A helper function for get_current_resolution
     """
     try:
-        with winreg.OpenKey(  # type: ignore[attr-defined]
-            winreg.HKEY_CURRENT_USER, key_path  # type: ignore[attr-defined]
-        ) as key:
-            value, _ = winreg.QueryValueEx(key, value_name)  # type: ignore[attr-defined]
-            return int(value)
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path) as key:
+            value, _ = winreg.QueryValueEx(key, value_name)
+            return value
     except FileNotFoundError:
         logging.error("Registry key not found: %s", value_name)
         return None
@@ -119,7 +108,7 @@ def read_registry_value(key_path: str, value_name: str) -> int | None:
 def run_benchmark() -> tuple:
     """Starts Game, Sets Settings, and Runs Benchmark"""
     exec_steam_run_command(STEAM_GAME_ID)
-    setup_start_time = round(time.time())
+    setup_start_time = int(time.time())
     reset_artifacts(ARTIFACTS_DIRECTORY)
 
     if find_word("sony", timeout=60, interval=0.2) is None:
@@ -179,7 +168,7 @@ def run_benchmark() -> tuple:
 
     user.press("space")
 
-    setup_end_time = test_start_time = test_end_time = round(time.time())
+    setup_end_time = test_start_time = test_end_time = int(time.time())
 
     elapsed_setup_time = setup_end_time - setup_start_time
     logging.info("Setup took %f seconds", elapsed_setup_time)
@@ -187,7 +176,7 @@ def run_benchmark() -> tuple:
     # time of benchmark usually is 4:23 = 263 seconds
 
     if find_word("man", timeout=100, interval=0.2) is not None:
-        test_start_time = round(time.time()) - 14
+        test_start_time = int(time.time()) - 14
         time.sleep(240)
 
     else:
@@ -196,11 +185,11 @@ def run_benchmark() -> tuple:
 
     if find_word("rush", timeout=100, interval=0.2) is not None:
         time.sleep(3)
-        test_end_time = round(time.time())
+        test_end_time = int(time.time())
 
     else:
         logging.error("couldn't find 'rush', marks end of benchmark")
-        test_end_time = round(time.time())
+        test_end_time = int(time.time())
 
     elapsed_test_time = test_end_time - test_start_time
     logging.info("Test took %f seconds", elapsed_test_time)

@@ -231,12 +231,5 @@ class ArtifactManager:
         Creates a file `artifacts.yaml` which lists the artifacts in the manager's `artifacts` list.
         The file is created at the location specified by the manager's `output_path`.
         """
-        manifest_path = self.output_path / "artifacts.yaml"
-        try:
-            with open(manifest_path, encoding="utf-8", mode="w") as f:
-                yaml.safe_dump(
-                    [a.as_dict() for a in self.artifacts], f, sort_keys=False
-                )
-        except OSError:
-            logger.exception("Failed to write artifact manifest: %s", manifest_path)
-            raise
+        with open(self.output_path / "artifacts.yaml", encoding="utf-8", mode="w") as f:
+            yaml.safe_dump([a.as_dict() for a in self.artifacts], f, sort_keys=False)

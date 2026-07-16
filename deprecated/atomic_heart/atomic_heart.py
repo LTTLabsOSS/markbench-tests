@@ -12,10 +12,11 @@ from atomic_heart_utils import read_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
+from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
-from harness_utils.files import remove_files
+from harness_utils.file_cleanup import remove_files
 from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
@@ -25,8 +26,8 @@ from harness_utils.steam import (
     get_build_id,
 )
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
+
 APPDATA = os.getenv("LOCALAPPDATA")
 CONFIG_LOCATION = f"{APPDATA}\\AtomicHeart\\Saved\\Config\\WindowsNoEditor"
 CONFIG_FILENAME = "GameUserSettings.ini"
@@ -48,7 +49,7 @@ intro_videos = [
 user.FAILSAFE = False
 
 
-def navigate_game_menus(am: ArtifactManager):
+def navigate_game_menus():
     """Navigate in game menus and take screenshots where appropriate"""
     result = find_word("vsync", timeout=25)
     if not result:
@@ -56,9 +57,7 @@ def navigate_game_menus(am: ArtifactManager):
             "Did not see display menu. Did we navigate to the options correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "display.png", ArtifactType.CONFIG_IMAGE, "screenshot of the display settings"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
 
     user.press("e")
     time.sleep(0.5)
@@ -68,9 +67,7 @@ def navigate_game_menus(am: ArtifactManager):
             "Did not see the top of quality menu. Did we navigate to the quality menu correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "quality_1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of quality menu"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "quality_1.png")
 
     user.press("w")
     time.sleep(0.5)
@@ -80,9 +77,7 @@ def navigate_game_menus(am: ArtifactManager):
             "Did not see the bottom of quality menu. Did we scroll the quality menu correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "quality_2.png", ArtifactType.CONFIG_IMAGE, "second screenshot of quality menu"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "quality_2.png")
     user.press("esc")
     time.sleep(0.5)
 
@@ -91,7 +86,7 @@ def run_benchmark():
     """Starts the benchmark"""
     remove_files([str(path) for path in intro_videos])
     exec_steam_run_command(STEAM_GAME_ID)
-    am = ArtifactManager(LOG_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
     setup_start_time = int(time.time())
 
     time.sleep(10)
@@ -110,7 +105,7 @@ def run_benchmark():
         press_n_times("s", 3, 0.5)
         user.press("f")
         time.sleep(0.5)
-        navigate_game_menus(am)
+        navigate_game_menus()
 
         # Launch benchmark
         user.press("s")
@@ -126,7 +121,7 @@ def run_benchmark():
         time.sleep(0.5)
         user.press("f")
         time.sleep(0.5)
-        navigate_game_menus(am)
+        navigate_game_menus()
 
         # Launch benchmark
         user.press("s")
@@ -181,14 +176,13 @@ def run_benchmark():
         sys.exit(1)
 
     logging.info("Wicked found. Ending Benchmark.")
-    am.copy_file(CONFIG_FULL_PATH, ArtifactType.CONFIG_TEXT, "GameUserSettings.ini")
+    copy_artifact(CONFIG_FULL_PATH, ARTIFACTS_DIRECTORY)
 
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Exit
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
 
     return test_start_time, test_end_time
 

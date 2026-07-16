@@ -15,7 +15,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.ocr_service import find_word
 from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
 from harness_utils.paths import harness_directories
-from harness_utils.files import remove_files
+from harness_utils.file_cleanup import remove_files
 from harness_utils.report import format_resolution, seconds_to_milliseconds
 from harness_utils.output_logging import setup_logging
 from harness_utils.report_writing import write_report_json

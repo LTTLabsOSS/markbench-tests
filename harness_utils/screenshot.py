@@ -7,7 +7,7 @@ import tempfile
 from pathlib import Path
 
 import cv2
-import mss  # type: ignore[import-not-found]
+import mss
 import numpy as np
 
 from harness_utils.platform import is_linux, is_windows
@@ -58,7 +58,7 @@ def _decode_image_bytes(image_bytes: bytes) -> np.ndarray:
 
 def _capture_dxcam_array() -> np.ndarray | None:
     logger.debug("Windows screenshot with dxcam")
-    import dxcam  # type: ignore[import-not-found]
+    import dxcam
 
     camera = dxcam.create(output_idx=0, output_color="BGR")
     screenshot = camera.grab()
@@ -131,7 +131,7 @@ def capture_screenshot_jpg_bytes(
 
     screenshot = _crop_screenshot(screenshot, crop)
     _, encoded_image = cv2.imencode(".jpg", screenshot)
-    return io.BytesIO(encoded_image.tobytes())
+    return io.BytesIO(encoded_image)
 
 
 def capture_screenshot_png_bytes(vulkan: bool = False):
@@ -144,20 +144,4 @@ def capture_screenshot_png_bytes(vulkan: bool = False):
         return None
 
     _, encoded_image = cv2.imencode(".png", screenshot)
-    return io.BytesIO(encoded_image.tobytes())
-
-
-def capture_screenshot_png(output_path: Path, vulkan: bool = False) -> None:
-    """Capture a screenshot and save it as a PNG file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    if is_linux():
-        image_bytes = _run_spectacle_png_bytes()
-    else:
-        screenshot = capture_screenshot_array(vulkan)
-        if screenshot is None:
-            raise RuntimeError("Failed to capture screenshot")
-        encoded, image = cv2.imencode(".png", screenshot)
-        if not encoded:
-            raise RuntimeError("Failed to encode screenshot as PNG")
-        image_bytes = image.tobytes()
-    output_path.write_bytes(image_bytes)
+    return io.BytesIO(encoded_image)

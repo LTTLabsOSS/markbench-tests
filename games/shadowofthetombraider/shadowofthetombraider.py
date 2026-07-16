@@ -37,7 +37,7 @@ def start_game():
 
 def run_benchmark():
     """Start game via Steam and enter fullscreen mode"""
-    setup_start_time = round(time.time())
+    setup_start_time = int(time.time())
     start_game()
     time.sleep(10)
 
@@ -94,18 +94,18 @@ def run_benchmark():
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics.png")
 
     user.press("r")
-    elapsed_setup_time = round(round(time.time()) - setup_start_time, 2)
+    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
     if find_word(word="fps", timeout=60, interval=0.5) is None:
         logging.info("Did not find the FPS counter. Did the benchmark crash?")
         sys.exit(1)
-    test_start_time = round(time.time())
+    test_start_time = int(time.time())
 
     # Wait for benchmark to complete
     time.sleep(180)
 
-    test_end_time = round(time.time())
+    test_end_time = int(time.time())
 
     result = find_word(word="tomb", timeout=10, interval=0.1)
     if result is None:
@@ -113,7 +113,7 @@ def run_benchmark():
             "Unable to find the loading screen. Using default end time value."
         )
     else:
-        test_end_time = round(time.time())
+        test_end_time = int(time.time())
 
     if find_word(word="results", timeout=60, interval=1) is None:
         logging.error("Results screen after running benchmark not found, exiting.")
@@ -133,10 +133,7 @@ def run_benchmark():
     )
     game_log = game_document_dir.joinpath("Shadow of the Tomb Raider.log")
     copy_artifact(Path(game_log), ARTIFACTS_DIRECTORY)
-    benchmark_report = get_latest_file_report(game_document_dir)
-    if benchmark_report is None:
-        raise FileNotFoundError("Benchmark report was not created")
-    copy_artifact(benchmark_report, ARTIFACTS_DIRECTORY)
+    copy_artifact(get_latest_file_report(game_document_dir), ARTIFACTS_DIRECTORY)
 
     terminate_process(PROCESS_NAME)
     height, width = get_resolution()
