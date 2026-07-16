@@ -16,11 +16,12 @@ from ycruncher_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.artifacts import reset_artifacts
 from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
 from harness_utils.report import write_report_json
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 EXECUTABLE_PATH = SCRIPT_DIRECTORY / YCRUNCHER_FOLDER_NAME / "y-cruncher.exe"
 
 
@@ -39,6 +40,7 @@ def match_tune(subject: str):
 def main():
     """Test script entrypoint"""
     setup_logging(LOG_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
 
     if not ycruncher_folder_exists():
         logging.info("Downloading ycruncher")
@@ -47,7 +49,7 @@ def main():
     # omit the first arg which is the script name
     logging.info(sys.argv[1:])
 
-    arg_string = ["skip-warnings", "bench", "1b", "-o", LOG_DIRECTORY]
+    arg_string = ["skip-warnings", "bench", "1b", "-o", ARTIFACTS_DIRECTORY]
 
     logging.info(arg_string)
     scores = []
@@ -63,7 +65,7 @@ def main():
                 sys.exit(exit_code)
 
         latest_file = max(
-            LOG_DIRECTORY.glob("*.txt"), key=lambda item: item.stat().st_ctime
+            ARTIFACTS_DIRECTORY.glob("*.txt"), key=lambda item: item.stat().st_ctime
         )
         logging.info(latest_file)
 

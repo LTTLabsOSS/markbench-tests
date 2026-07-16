@@ -19,12 +19,12 @@ from ffmpeg_cpu_utils import (
     vmaf_supported
 )
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import reset_artifacts
+from harness_utils.paths import harness_directories
 from harness_utils.output_logging import setup_logging
 from harness_utils.report import write_report_json
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 setup_logging(LOG_DIRECTORY)
 TEST_OPTIONS = {
     "x86_64": "ffmpeg-8.0.1-full_build",
@@ -60,7 +60,7 @@ OUTPUT_VIDEO = SCRIPT_DIRECTORY / "output.mp4"
 
 def main():
     """entrypoint"""
-    am = ArtifactManager(LOG_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
     ffmpeg_root = SCRIPT_DIRECTORY / TEST_OPTIONS[args.architecture]
     ffmpeg_exe_path = ffmpeg_root / "bin" / "ffmpeg.exe"
 
@@ -92,7 +92,7 @@ def main():
 
         logging.info("Executing command: %s", command)
 
-        encoding_log_path = LOG_DIRECTORY / "encoding.log"
+        encoding_log_path = ARTIFACTS_DIRECTORY / "encoding.log"
         with open(encoding_log_path, "w", encoding="utf-8") as encoding_log:
             logging.info("Encoding...")
             subprocess.run(command, stderr=encoding_log, check=True)
@@ -145,7 +145,7 @@ def main():
             ]
             logging.info("VMAF args: %s", argument_list)
 
-            vmaf_log_path = LOG_DIRECTORY / "vmaf.log"
+            vmaf_log_path = ARTIFACTS_DIRECTORY / "vmaf.log"
             with open(vmaf_log_path, "w+", encoding="utf-8") as vmaf_log:
                 logging.info("Calculating VMAF...")
                 subprocess.run(
@@ -163,15 +163,9 @@ def main():
             vmaf_duration = end_vmaf_time - start_vmaf_time
             logging.info("VMAF score: %s", vmaf_score)
 
-            am.copy_file(str(vmaf_log_path), ArtifactType.RESULTS_TEXT, "vmaf log file")
         else:
             logging.info("VMAF not supported in this FFMPEG build")
         end_time = current_time_ms()
-        am.copy_file(
-            str(encoding_log_path), ArtifactType.RESULTS_TEXT, "encoding log file"
-        )
-
-        am.create_manifest()
 
         report = {
             "test": "FFMPEG CPU Encoding",

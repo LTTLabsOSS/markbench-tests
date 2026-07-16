@@ -11,16 +11,15 @@ from pathlib import Path
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.paths import network_drive_path
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.paths import harness_directories, network_drive_path
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
 from harness_utils.input import user
 from harness_utils.ocr_service import find_word
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "ffxiv-dawntrail-bench.exe"
 DX_PROCESS_NAME = "ffxiv_dx11.exe"
 ROOT_DIR = "C:/"
@@ -115,12 +114,12 @@ def navigate_settings() -> None:
     user.press("tab")
     time.sleep(0.5)
 
-    am.take_screenshot("graphics.png", ArtifactType.CONFIG_IMAGE, "graphics settings menu")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics.png")
 
     for _ in range(4):
         user.press("right")
 
-    am.take_screenshot("display.png", ArtifactType.CONFIG_IMAGE, "display settings menu")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
 
     for _ in range(3):
         user.press("right")
@@ -168,7 +167,7 @@ def run_benchmark():
         sys.exit(1)
 
     time.sleep(5)
-    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "results of benchmark")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
 
     test_end_time = int(time.time()) - 2
     elapsed_test_time = round(test_end_time - test_start_time, 2)
@@ -179,13 +178,13 @@ def run_benchmark():
     user.click(result['x'], result['y'])
     logging.info("Saving results txt...")
     time.sleep(1)
-    am.copy_file(get_results_txt(),ArtifactType.RESULTS_TEXT, "Results txt file" )
+    copy_artifact(get_results_txt(), ARTIFACTS_DIRECTORY)
     return test_start_time, test_end_time
 
 
 # ====================== Main Execution ======================
 setup_logging(LOG_DIRECTORY)
-am = ArtifactManager(LOG_DIRECTORY)
+reset_artifacts(ARTIFACTS_DIRECTORY)
 
 try:
     pathf = Path("C:/ffxiv-dawntrail-bench_v11")
@@ -209,7 +208,6 @@ try:
         "end_time": seconds_to_milliseconds(end_time),
     }
 
-    am.create_manifest()
     write_report_json(LOG_DIRECTORY, "report.json", report)
     terminate_process(PROCESS_NAME)
     terminate_process(DX_PROCESS_NAME)

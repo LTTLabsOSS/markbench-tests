@@ -9,7 +9,6 @@ from pathlib import Path
 from subprocess import PIPE, STDOUT, Popen, TimeoutExpired
 
 from pugetbench_utils import (
-    find_pugetbench_csv,
     find_score_in_log,
     get_aftereffects_version,
     get_davinci_version,
@@ -23,17 +22,17 @@ from pugetbench_utils import (
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import reset_artifacts
+from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 timestamp = time.strftime(
     "%Y-%m-%d_%H-%M-%S", time.localtime()
 )  # e.g., 20260304_153245
-LOG_FILE_PATH = LOG_DIRECTORY / f"pugetbench_{timestamp}.csv"
+LOG_FILE_PATH = ARTIFACTS_DIRECTORY / f"pugetbench_{timestamp}.csv"
 setup_logging(LOG_DIRECTORY)
 
 EXECUTABLE_NAME = "PugetBench for Creators.exe"
@@ -252,7 +251,7 @@ def main():
     if args.benchmark_version is None or args.benchmark_version == "":
         args.benchmark_version = get_latest_benchmark_by_version(args.app)
 
-    am = ArtifactManager(LOG_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
     try:
         start_time, end_time, score = execute_benchmark(
             args.app, trimmed_version, args.benchmark_version
@@ -269,11 +268,6 @@ def main():
             "unit": "Score",
             "score": score,
         }
-
-        csv_path = find_pugetbench_csv(LOG_DIRECTORY)
-        if csv_path is not None:
-            am.copy_file(csv_path, ArtifactType.RESULTS_TEXT)
-            am.create_manifest()
 
         write_report_json(LOG_DIRECTORY, "report.json", report)
 

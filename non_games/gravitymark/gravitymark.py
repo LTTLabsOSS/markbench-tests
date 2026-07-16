@@ -16,7 +16,9 @@ from gravitymark_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.artifacts import reset_artifacts
 from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
 from harness_utils.report import write_report_json
 
 GRAVITYMARK_PATH = Path("C:/", "Program Files", "GravityMark", "bin")
@@ -25,14 +27,14 @@ GRAVITYMARK_EXE = GRAVITYMARK_PATH / "GravityMark.exe"
 args = get_args()
 API = f"-{args.api}"
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 setup_logging(LOG_DIRECTORY)
+reset_artifacts(ARTIFACTS_DIRECTORY)
 
 GRAVITYMARK_LOG_PATH = Path(
     "C:/Users", getpass.getuser(), ".GravityMark", "GravityMark.log"
 )
-IMAGE_PATH = LOG_DIRECTORY / "result.png"
+IMAGE_PATH = ARTIFACTS_DIRECTORY / "results.png"
 command = create_gravitymark_command(GRAVITYMARK_EXE, API, IMAGE_PATH)
 
 try:

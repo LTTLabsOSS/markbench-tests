@@ -13,16 +13,17 @@ import psutil
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.artifacts import reset_artifacts
+from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import is_process_running
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 EVOLVE_DIR = Path(r"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Evolve")
 EXECUTABLE = "evolve.exe"
 EXECUTABLE_PATH = EVOLVE_DIR / EXECUTABLE
-RESULTS_FILE = LOG_DIRECTORY / "evolve-results.csv"
+RESULTS_FILE = ARTIFACTS_DIRECTORY / "evolve-results.csv"
 
 
 TRACE_MODES = ["inline", "pipeline", "work-graph"]
@@ -73,6 +74,7 @@ def launch_evolve(resolution, renderer, trace_mode, preset):
 def main():
     """a doc string"""
     setup_logging(LOG_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
     parser = ArgumentParser()
 
     parser.add_argument(

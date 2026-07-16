@@ -11,7 +11,9 @@ from subprocess import Popen
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.artifacts import reset_artifacts
 from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
 
 avail_presets = ["low", "medium", "high", "extreme", "4k_optimized", "8k_optimized"]
 
@@ -35,15 +37,15 @@ args = parser.parse_args()
 if args.preset not in avail_presets:
     raise ValueError(f"Error, unknown preset: {args.preset}")
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 setup_logging(LOG_DIRECTORY)
+reset_artifacts(ARTIFACTS_DIRECTORY)
 
 cmd = f"{INSTALL_DIR}\\{EXECUTABLE}"
 argstr = (
     f"-fullscreen 1 -mode default -api {args.api} -quality {args.preset} -iterations 1"
 )
-argstr += f" -log_txt {LOG_DIRECTORY}\\log.txt"
+argstr += f" -log_txt {ARTIFACTS_DIRECTORY}\\log.txt"
 
 logging.info(cmd)
 logging.info(argstr)
@@ -58,7 +60,7 @@ if EXIT_CODE > 0:
 
 SCORE = ""
 pattern = re.compile(r"Score: (\d+)")
-LOG_PATH = LOG_DIRECTORY / "log.txt"
+LOG_PATH = ARTIFACTS_DIRECTORY / "log.txt"
 with open(LOG_PATH, encoding="utf-8") as log:
     lines = log.readlines()
     for line in lines:
