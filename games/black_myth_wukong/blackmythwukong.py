@@ -11,21 +11,18 @@ import vgamepad as vg
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.files import copy_to_directory, reset_directory
-from harness_utils.screenshot import capture_screenshot_png
+from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
 from harness_utils.input import mangohud_log_toggle, user
 from harness_utils.controllers import LTTGamePad360
 from harness_utils.ocr_service import find_word
 from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
-from harness_utils.paths import game_install_path
+from harness_utils.paths import game_install_path, harness_directories
 from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-ARTIFACTS_DIRECTORY = LOG_DIRECTORY / "artifacts"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "b1-Win64-Shipping.exe"
 STEAM_GAME_ID = 3132990
 CONFIG_LOCATION = (
@@ -64,7 +61,7 @@ def run_benchmark():
     start_game()
     gamepad = LTTGamePad360()
     setup_start_time = int(time.time())
-    reset_directory(ARTIFACTS_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
     time.sleep(20)
 
     if find_word(word="black", timeout=30, interval=1) is None:
@@ -102,7 +99,7 @@ def run_benchmark():
             "Did not find the display settings menu. Did the game navigate the settings correctly?"
         )
         sys.exit(1)
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "display.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
 
     gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN, n=2, pause=0.5)
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
@@ -139,7 +136,7 @@ def run_benchmark():
             "Did not find the top of the graphics menu. Did the game navigate the settings menu correctly?"
         )
         sys.exit(1)
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "graphics_1.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
 
     gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP, n=9, pause=0.5)
 
@@ -148,7 +145,7 @@ def run_benchmark():
             "Did not find the bottom of the graphics menu. Did the game scroll down the graphics settings menu correctly?"
         )
         sys.exit(1)
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "graphics_2.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
 
     gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B, n=2, pause=0.5)
     time.sleep(2)
@@ -190,8 +187,8 @@ def run_benchmark():
     time.sleep(5)
     if is_linux():
         mangohud_log_toggle()
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "results.png")
-    copy_to_directory(CONFIG_LOCATION / CONFIG_FILENAME, ARTIFACTS_DIRECTORY)
+    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    copy_artifact(CONFIG_LOCATION / CONFIG_FILENAME, ARTIFACTS_DIRECTORY)
     time.sleep(0.5)
 
     # End the run

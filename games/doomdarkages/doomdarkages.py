@@ -12,8 +12,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from doomdarkages_utils import copy_launcher_config
 
-from harness_utils.files import copy_to_directory, reset_directory
-from harness_utils.screenshot import capture_screenshot_png
+from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
 from harness_utils.input import (
     mangohud_log_toggle,
     mouse_scroll_n_times,
@@ -27,14 +26,12 @@ from harness_utils.report import (
     write_report_json,
 )
 from harness_utils.output_logging import setup_logging
-from harness_utils.paths import user_saved_games
+from harness_utils.paths import harness_directories, user_saved_games
 from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-ARTIFACTS_DIRECTORY = LOG_DIRECTORY / "artifacts"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "DOOMTheDarkAges.exe"
 STEAM_GAME_ID = 3017860
 BENCHMARK_RESULTS_PATH = (
@@ -69,7 +66,7 @@ def find_latest_result_file(base_path):
 def run_benchmark():
     """Runs the actual benchmark."""
     start_game()
-    reset_directory(ARTIFACTS_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
 
     setup_start_time = int(time.time())
     time.sleep(25)
@@ -115,7 +112,7 @@ def run_benchmark():
         logging.info("Didn't find the video settings. Did it navigate correctly?")
         sys.exit(1)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video1.png", vulkan=True)
+    save_screenshot(ARTIFACTS_DIRECTORY / "video1.png", vulkan=True)
     mouse_scroll_n_times(7, -120, 0.5)
     time.sleep(1)
 
@@ -126,7 +123,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video2.png", vulkan=True)
+    save_screenshot(ARTIFACTS_DIRECTORY / "video2.png", vulkan=True)
     mouse_scroll_n_times(6, -120, 0.5)
     time.sleep(1)
 
@@ -135,7 +132,7 @@ def run_benchmark():
         logging.info("Didn't find the advanced heading. Did it navigate correctly?")
         sys.exit(1)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video3.png", vulkan=True)
+    save_screenshot(ARTIFACTS_DIRECTORY / "video3.png", vulkan=True)
     mouse_scroll_n_times(5, -120, 0.5)
     time.sleep(1)
 
@@ -146,7 +143,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video4.png", vulkan=True)
+    save_screenshot(ARTIFACTS_DIRECTORY / "video4.png", vulkan=True)
     mouse_scroll_n_times(5, -120, 0.5)
     time.sleep(0.5)
 
@@ -155,7 +152,7 @@ def run_benchmark():
         logging.info("Didn't find the brightness setting. Did it navigate correctly?")
         sys.exit(1)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video5.png", vulkan=True)
+    save_screenshot(ARTIFACTS_DIRECTORY / "video5.png", vulkan=True)
     user.press("escape")
     time.sleep(0.5)
 
@@ -228,8 +225,8 @@ def run_benchmark():
 
     logging.info("Results screen was found! Finishing benchmark.")
     results_file = find_latest_result_file(BENCHMARK_RESULTS_PATH)
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "results.png", vulkan=True)
-    copy_to_directory(results_file, ARTIFACTS_DIRECTORY)
+    save_screenshot(ARTIFACTS_DIRECTORY / "results.png", vulkan=True)
+    copy_artifact(results_file, ARTIFACTS_DIRECTORY)
 
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)

@@ -11,9 +11,9 @@ from f1_24_utils import get_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.screenshot import capture_screenshot_png
 from harness_utils.input import press_n_times, user
-from harness_utils.files import copy_to_directory, remove_files, reset_directory
+from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.files import remove_files
 from harness_utils.ocr_service import find_word
 from harness_utils.report import (
     format_resolution,
@@ -21,13 +21,11 @@ from harness_utils.report import (
     write_report_json,
 )
 from harness_utils.output_logging import setup_logging
-from harness_utils.paths import game_install_path, user_documents
+from harness_utils.paths import game_install_path, harness_directories, user_documents
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-ARTIFACTS_DIRECTORY = LOG_DIRECTORY / "artifacts"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "F1_24.exe"
 STEAM_GAME_ID = 2488620
 VIDEO_PATH = game_install_path(STEAM_GAME_ID) / "videos"
@@ -124,7 +122,7 @@ def run_benchmark():
     """Runs the actual benchmark."""
     remove_files([str(path) for path in intro_videos])
     exec_steam_game(STEAM_GAME_ID)
-    reset_directory(ARTIFACTS_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
 
     setup_start_time = int(time.time())
     time.sleep(20)
@@ -160,7 +158,7 @@ def run_benchmark():
         sys.exit(1)
     press_n_times("down", 18, 0.2)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
     user.press("esc")
     time.sleep(0.2)
 
@@ -172,7 +170,7 @@ def run_benchmark():
         sys.exit(1)
 
     # Navigate through graphics settings and take screenshots of all settings contained within
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "graphics_1.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
     press_n_times("down", 29, 0.2)
 
     result = find_word("chromatic", interval=1, timeout=60)
@@ -182,7 +180,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "graphics_2.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
     press_n_times("up", 28, 0.2)
     user.press("enter")
     time.sleep(0.2)
@@ -192,7 +190,7 @@ def run_benchmark():
         logging.info("Didn't find weather!")
         sys.exit(1)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "benchmark.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "benchmark.png")
 
     press_n_times("down", 6, 0.2)
     user.press("enter")
@@ -231,9 +229,9 @@ def run_benchmark():
         sys.exit(1)
     logging.info("Results screen was found! Finishing benchmark.")
     results_file = find_latest_result_file(BENCHMARK_RESULTS_PATH)
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "results.png")
-    copy_to_directory(CONFIG, ARTIFACTS_DIRECTORY)
-    copy_to_directory(results_file, ARTIFACTS_DIRECTORY)
+    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    copy_artifact(CONFIG, ARTIFACTS_DIRECTORY)
+    copy_artifact(results_file, ARTIFACTS_DIRECTORY)
 
     if test_end_time is None:
         logging.info(

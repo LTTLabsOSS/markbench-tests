@@ -10,21 +10,18 @@ from forzahorizon6_utils import read_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.files import reset_directory
-from harness_utils.screenshot import capture_screenshot_png
+from harness_utils.artifacts import reset_artifacts, save_screenshot
 from harness_utils.input import mangohud_log_toggle, press_n_times, user
 from harness_utils.ocr_service import find_word
 from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
-from harness_utils.paths import local_appdata
+from harness_utils.paths import harness_directories, local_appdata
 from harness_utils.platform import is_linux, is_windows
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game
 
 STEAM_GAME_ID = 2483190
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-ARTIFACTS_DIRECTORY = LOG_DIRECTORY / "artifacts"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "ForzaHorizon6.exe"
 RTSS_PROCESS_NAME = "RTSS.exe"
 
@@ -108,11 +105,11 @@ def run_benchmark():
     press_n_times("down", 6, 1)
     time.sleep(1)
     user.press("enter")
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "Video_pt.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt.png")
     time.sleep(1)
 
     press_n_times("down", 21, 1)
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "Video_pt2.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt2.png")
     user.press("escape")
     time.sleep(1)
 
@@ -126,9 +123,9 @@ def run_benchmark():
     time.sleep(1)
     user.press("enter")
     time.sleep(1)
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "graphics_pt.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt.png")
     press_n_times("down", 18, 1)
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "graphics_pt2.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt2.png")
     time.sleep(1)
     user.press("down")
     time.sleep(1)
@@ -181,7 +178,7 @@ def run_benchmark():
 
 
 setup_logging(LOG_DIRECTORY)
-reset_directory(ARTIFACTS_DIRECTORY)
+reset_artifacts(ARTIFACTS_DIRECTORY)
 
 try:
     start_time, end_time = run_benchmark()

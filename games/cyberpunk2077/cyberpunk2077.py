@@ -10,8 +10,8 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from cyberpunk_utils import copy_no_intro_mod, read_current_resolution
 
-from harness_utils.files import reset_directory
-from harness_utils.screenshot import capture_screenshot_png
+from harness_utils.artifacts import reset_artifacts, save_screenshot
+from harness_utils.paths import harness_directories
 from harness_utils.input import mangohud_log_toggle, press_n_times, user
 from harness_utils.ocr_service import find_word
 from harness_utils.report import seconds_to_milliseconds, write_report_json
@@ -21,9 +21,7 @@ from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
 STEAM_GAME_ID = 1091500
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-ARTIFACTS_DIRECTORY = LOG_DIRECTORY / "artifacts"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "Cyberpunk2077.exe"
 
 user.FAILSAFE = False
@@ -60,12 +58,12 @@ def check_for_rt():
     result = find_word("reflections", interval=1, timeout=2)
     if result:
         press_n_times("down", 3, 0.2)
-        capture_screenshot_png(ARTIFACTS_DIRECTORY / "graphics_rt.png")
+        save_screenshot(ARTIFACTS_DIRECTORY / "graphics_rt.png")
     if not result:
         result = find_word("path", interval=1, timeout=2)
         if result:
             user.press("down")
-            capture_screenshot_png(ARTIFACTS_DIRECTORY / "graphics_pt.png")
+            save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt.png")
 
 
 def check_anisotropy(max_attempts=10):
@@ -113,7 +111,7 @@ def navigate_settings() -> None:
         )
         sys.exit(1)
     # now on graphics tab
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "graphics_1.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
 
     user.press("down")
     time.sleep(0.5)
@@ -148,7 +146,7 @@ def navigate_settings() -> None:
 
     check_anisotropy()
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "graphics_2.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
 
     for _ in range(11):
         user.press("down")
@@ -160,7 +158,7 @@ def navigate_settings() -> None:
             "Did not see ambient occlusion options. Did the game navigate to the graphics menu correctly?"
         )
         sys.exit(1)
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "graphics_3.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_3.png")
 
     for _ in range(3):
         user.press("down")
@@ -172,7 +170,7 @@ def navigate_settings() -> None:
             "Did not see LOD options. Did the game navigate to the graphics menu correctly?"
         )
         sys.exit(1)
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "graphics_4.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_4.png")
 
     user.press("3")
     time.sleep(0.5)
@@ -184,7 +182,7 @@ def navigate_settings() -> None:
         )
         sys.exit(1)
     # now on video tab
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
 
     user.press("b")
     time.sleep(1)
@@ -230,7 +228,7 @@ def run_benchmark():
         logging.info("Did not see results screen. Mark as DNF.")
         sys.exit(1)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "results.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
 
     test_end_time = int(time.time()) - 2
     time.sleep(2)
@@ -245,7 +243,7 @@ def run_benchmark():
 
 setup_logging(LOG_DIRECTORY)
 
-reset_directory(ARTIFACTS_DIRECTORY)
+reset_artifacts(ARTIFACTS_DIRECTORY)
 
 try:
     start_time, end_time = run_benchmark()

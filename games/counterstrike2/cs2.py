@@ -12,11 +12,8 @@ from cs2_utils import get_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.files import (  # type: ignore[import-not-found]
-    copy_to_directory,
-    reset_directory,
-)
-from harness_utils.screenshot import capture_screenshot_png
+from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.report import (
     format_resolution,
@@ -32,9 +29,7 @@ from harness_utils.steam import (
     get_steam_folder_path,
 )
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-ARTIFACTS_DIRECTORY = LOG_DIRECTORY / "artifacts"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "cs2.exe"
 STEAM_GAME_ID = 730
 
@@ -134,7 +129,7 @@ def navigate_settings():
 
     wait_for_word(word="brightness", why="find the video settings")
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
 
     result = wait_for_word(
         word="advanced", timeout=10, interval=1, why="find the advanced video menu"
@@ -146,7 +141,7 @@ def navigate_settings():
     gui.mouseUp()
     time.sleep(0.2)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "advanced_video_1.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "advanced_video_1.png")
 
     result = wait_for_word(
         word="boost",
@@ -162,7 +157,7 @@ def navigate_settings():
 
     wait_for_word(word="particle", why="verify we scrolled correctly")
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "advanced_video_2.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "advanced_video_2.png")
 
 
 def execute_benchmark():
@@ -212,7 +207,7 @@ def run_benchmark():
     """Run cs2 benchmark"""
     setup_start_time = round(time.time())
     start_game()
-    reset_directory(ARTIFACTS_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
     time.sleep(20)  # wait for game to load into main menu
 
     wait_for_word(
@@ -261,15 +256,14 @@ def run_benchmark():
     # allow time for result screen to populate
     time.sleep(13)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "results.png")
-    copy_to_directory(CFG, ARTIFACTS_DIRECTORY)
+    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    copy_artifact(CFG, ARTIFACTS_DIRECTORY)
     logging.info("Run completed. Closing game.")
     time.sleep(2)
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     terminate_process(PROCESS_NAME)
-
 
     return test_start_time, test_end_time
 

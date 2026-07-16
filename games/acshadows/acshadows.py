@@ -10,8 +10,8 @@ import pydirectinput as user  # type: ignore[import-not-found]
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.files import reset_directory  # type: ignore[import-not-found]
-from harness_utils.screenshot import capture_screenshot_png
+from harness_utils.artifacts import reset_artifacts, save_screenshot
+from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
 from harness_utils.report import (
@@ -25,9 +25,7 @@ from harness_utils.steam import exec_steam_game, get_build_id
 
 USERNAME = getpass.getuser()
 STEAM_GAME_ID = 3159330
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-ARTIFACTS_DIRECTORY = LOG_DIRECTORY / "artifacts"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "ACShadows.exe"
 
 CONFIG_LOCATION = f"C:\\Users\\{USERNAME}\\Documents\\Assassin's Creed Shadows"
@@ -118,33 +116,33 @@ def navi_settings():
 
     time.sleep(1)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "display1.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "display1.png")
 
     press_n_times("down", 13, 0.3)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "display2.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "display2.png")
 
     press_n_times("down", 4, 0.3)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "display3.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "display3.png")
 
     user.press("c")
 
     time.sleep(1)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "scalability1.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "scalability1.png")
 
     press_n_times("down", 10, 0.3)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "scalability2.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "scalability2.png")
 
     press_n_times("down", 6, 0.3)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "scalability3.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "scalability3.png")
 
     press_n_times("down", 5, 0.3)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "scalability4.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "scalability4.png")
 
     user.press("esc")
 
@@ -154,7 +152,7 @@ def run_benchmark():
     delete_videos()
     start_game()
     setup_start_time = round(time.time())
-    reset_directory(ARTIFACTS_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
     time.sleep(15)
 
     if find_word(word="hardware", timeout=30, interval=1) is None:
@@ -217,7 +215,7 @@ def run_benchmark():
     elapsed_test_time = test_end_time - test_start_time
     logging.info("Benchmark took %d seconds", elapsed_test_time)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "results.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
 
     user.press("x")
 
@@ -230,8 +228,6 @@ def run_benchmark():
     time.sleep(5)
 
     terminate_process(PROCESS_NAME)
-
-
 
     return test_start_time, test_end_time
 
