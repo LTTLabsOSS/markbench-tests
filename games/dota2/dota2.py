@@ -17,7 +17,8 @@ from dota2_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.files import reset_directory
+from harness_utils.screenshot import capture_screenshot_png
 from harness_utils.ocr_service import find_word
 from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
@@ -26,13 +27,14 @@ from harness_utils.steam import exec_steam_game
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+ARTIFACTS_DIRECTORY = LOG_DIRECTORY / "artifacts"
 PROCESS_NAME = "dota2.exe"
 STEAM_GAME_ID = 570
 
 
 setup_logging(LOG_DIRECTORY)
 
-am = ArtifactManager(LOG_DIRECTORY)
+reset_directory(ARTIFACTS_DIRECTORY)
 
 user.FAILSAFE = False
 
@@ -118,9 +120,7 @@ def screenshot_settings():
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
-    am.take_screenshot(
-        "video1.png", ArtifactType.CONFIG_IMAGE, "picture of video settings"
-    )
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video1.png")
 
     user.press("down")
 
@@ -128,9 +128,7 @@ def screenshot_settings():
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
-    am.take_screenshot(
-        "video2.png", ArtifactType.CONFIG_IMAGE, "picture of video settings"
-    )
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video2.png")
 
     user.press("down")
 
@@ -138,9 +136,7 @@ def screenshot_settings():
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
-    am.take_screenshot(
-        "video3.png", ArtifactType.CONFIG_IMAGE, "picture of video settings"
-    )
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video3.png")
 
 
 def load_the_benchmark():
@@ -221,7 +217,7 @@ def run_benchmark():
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
+
     return test_start_time, test_end_time
 
 
