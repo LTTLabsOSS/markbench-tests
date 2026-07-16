@@ -1,0 +1,18 @@
+friendly_name = "FFMPEG CPU VMAF"
+py_script = "ffmpeg_cpu.py"
+executable = "ffmpeg.exe"
+presentmon_enabled = false
+category = "non_game"
+ocr = false
+
+[[args]]
+name = "architecture"
+type = "select"
+tooltip = "Select architecture to run"
+values = ["x86_64", "arm64"]
+
+[[args]]
+name = "encoder"
+type = "select"
+tooltip = "Select encoder to use"
+values = ["h264", "av1", "h265"]

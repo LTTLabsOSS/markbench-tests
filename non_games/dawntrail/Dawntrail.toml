@@ -1,0 +1,6 @@
+friendly_name = "FFXIV Dawntrail"
+py_script = "Dawntrail.py"
+executable = "ffxiv_dx11.exe"
+presentmon_enabled = false
+category = "non_game"
+ocr = true

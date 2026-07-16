@@ -1,0 +1,170 @@
+"""Shadow of the Tomb Raider test script"""
+
+import logging
+import os
+import sys
+import time
+from pathlib import Path
+
+from shadow_of_the_tomb_raider_utils import get_latest_file_report, get_resolution
+
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
+
+from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.input import user
+from harness_utils.ocr_service import find_word
+from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.output_logging import setup_logging
+from harness_utils.process import terminate_process
+from harness_utils.steam import exec_steam_game, get_build_id
+
+STEAM_GAME_ID = 750920
+PROCESS_NAME = "SOTTR.exe"
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+
+user.FAILSAFE = False
+
+
+def start_game():
+    """Launch the game with console enabled and FPS unlocked"""
+    return exec_steam_game(STEAM_GAME_ID, game_params=["-nolauncher"])
+
+
+def run_benchmark(am):
+    """Start game via Steam and enter fullscreen mode"""
+    setup_start_time = int(time.time())
+    start_game()
+    time.sleep(10)
+
+    # Check for if no display adapter warning is up
+    if find_word(word="adapter", timeout=30, interval=1):
+        user.press("enter")
+
+    # Check for if notification for services unavailable is up
+    if find_word(word="unavailable", timeout=30, interval=1):
+        user.press("enter")
+
+    if find_word(word="options", timeout=30, interval=1) is None:
+        logging.info("Did not find the options menu. Did the game launch correctly?")
+        sys.exit(1)
+
+    logging.info("found options")
+
+    user.press("up")
+    time.sleep(0.5)
+    user.press("up")
+    time.sleep(0.5)
+    user.press("up")
+    time.sleep(0.5)
+    user.press("enter")
+    time.sleep(1)
+
+    if find_word(word="graphics", timeout=30, interval=1) is None:
+        logging.info("Did not find the graphics menu. Did the menu get stuck?")
+        sys.exit(1)
+
+    logging.info("found graphics")
+    # wait for menu to fully move
+    time.sleep(1)
+    user.press("down")
+    time.sleep(0.5)
+    user.press("down")
+    time.sleep(0.5)
+    user.press("down")
+    time.sleep(0.5)
+    user.press("enter")
+    time.sleep(4)
+
+    if find_word(word="benchmark", timeout=30, interval=1) is None:
+        logging.info(
+            "Did not find the benchmark option on the screen. Did the menu get stuck?"
+        )
+        sys.exit(1)
+
+    am.take_screenshot(
+        "display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings"
+    )
+
+    user.press("up")
+    time.sleep(0.5)
+    user.press("right")
+    am.take_screenshot(
+        "graphics.png", ArtifactType.CONFIG_IMAGE, "picture of graphics settings"
+    )
+
+    user.press("r")
+    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
+    logging.info("Setup took %f seconds", elapsed_setup_time)
+
+    if find_word(word="fps", timeout=60, interval=0.5) is None:
+        logging.info("Did not find the FPS counter. Did the benchmark crash?")
+        sys.exit(1)
+    test_start_time = int(time.time())
+
+    # Wait for benchmark to complete
+    time.sleep(180)
+
+    test_end_time = int(time.time())
+
+    result = find_word(word="tomb", timeout=10, interval=0.1)
+    if result is None:
+        logging.error(
+            "Unable to find the loading screen. Using default end time value."
+        )
+    else:
+        test_end_time = int(time.time())
+
+    if find_word(word="results", timeout=60, interval=1) is None:
+        logging.error("Results screen after running benchmark not found, exiting.")
+        sys.exit(1)
+
+    logging.info("Run completed. Closing game.")
+
+    time.sleep(2)
+
+    elapsed_test_time = round((test_end_time - test_start_time), 2)
+    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+
+    username = os.getlogin()
+    game_document_dir = Path(
+        f"C:\\Users\\{username}\\Documents\\Shadow of the Tomb Raider"
+    )
+    game_log = game_document_dir.joinpath("Shadow of the Tomb Raider.log")
+    am.copy_file(Path(game_log), ArtifactType.RESULTS_TEXT, "game log")
+    am.copy_file(
+        get_latest_file_report(game_document_dir),
+        ArtifactType.RESULTS_TEXT,
+        "benchmark result",
+    )
+
+    terminate_process(PROCESS_NAME)
+    height, width = get_resolution()
+    report = {
+        "resolution": format_resolution(width, height),
+        "start_time": seconds_to_milliseconds(test_start_time),
+        "end_time": seconds_to_milliseconds(test_end_time),
+        "version": get_build_id(STEAM_GAME_ID),
+    }
+
+    am.create_manifest()
+    write_report_json(LOG_DIRECTORY, "report.json", report)
+
+
+def main():
+    """entry point"""
+    setup_logging(LOG_DIRECTORY)
+    am = ArtifactManager(LOG_DIRECTORY)
+    run_benchmark(am)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as ex:
+        logging.error("Something went wrong running the benchmark!")
+        logging.exception(ex)
+        terminate_process(PROCESS_NAME)
+        sys.exit(1)

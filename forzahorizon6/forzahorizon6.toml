@@ -1,5 +1,0 @@
-friendly_name = "Forza Horizon 6"
-py_script = "forzahorizon6.py"
-executable = "forzahorizon6.exe"
-presentmon_enabled = true
-presentmon_ignore_exit = true

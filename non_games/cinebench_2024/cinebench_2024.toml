@@ -1,0 +1,12 @@
+friendly_name = "Cinebench 2024"
+py_script = "cinebench_2024.py"
+executable = "Cinebench.exe"
+presentmon_enabled = false
+category = "non_game"
+ocr = false
+
+[[args]]
+name = "test"
+type = "select"
+tooltip = "Select which Cinebench test to run"
+values = ["cpu-single-core", "cpu-multi-core", "cpu-both", "gpu", "all"]

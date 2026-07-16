@@ -1,0 +1,7 @@
+friendly_name = "Alan Wake 2"
+py_script = "alanwake2.py"
+executable = "AlanWake2.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true
+category = "game"
+ocr = true

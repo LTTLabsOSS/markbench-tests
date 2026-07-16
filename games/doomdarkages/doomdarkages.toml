@@ -1,0 +1,7 @@
+friendly_name = "Doom: The Dark Ages"
+py_script = "doomdarkages.py"
+executable = "DOOMTheDarkAges.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true
+category = "game"
+ocr = true

@@ -1,5 +1,0 @@
-friendly_name = "Total War: Pharaoh"
-py_script = "twp.py"
-executable = "Pharaoh.exe"
-presentmon_enabled = true
-presentmon_ignore_exit = true

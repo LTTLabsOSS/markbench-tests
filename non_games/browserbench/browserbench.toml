@@ -1,0 +1,20 @@
+friendly_name = "BrowserBench"
+py_script = "browserbench.py"
+executable = "chrome.exe"
+presentmon_enabled = false
+category = "non_game"
+ocr = false
+
+[[args]]
+name = "benchmark"
+type = "select"
+values = [
+  "jetstream2",
+  "speedometer",
+  "motionmark",
+  "kraken",
+  "webxprt4",
+  "webxprt5",
+]
+default = "speedometer"
+tooltip = "Select which browser benchmark to run"

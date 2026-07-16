@@ -1,0 +1,7 @@
+friendly_name = "Counter-Strike 2"
+py_script = "cs2.py"
+executable = "cs2.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true
+category = "game"
+ocr = true

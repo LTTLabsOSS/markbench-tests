@@ -1,0 +1,12 @@
+friendly_name = "7-Zip"
+py_script = "sevenzip.py"
+executable = "7za.exe"
+presentmon_enabled = false
+category = "non_game"
+ocr = false
+
+[[args]]
+name = "architecture"
+type = "select"
+tooltip = "Select which architecture test to run"
+values = ["x86_64", "arm_64"]

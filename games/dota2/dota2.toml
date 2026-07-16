@@ -1,0 +1,7 @@
+friendly_name = "DOTA 2"
+py_script = "dota2.py"
+executable = "dota2.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true
+category = "game"
+ocr = true

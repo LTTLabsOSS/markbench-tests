@@ -1,0 +1,6 @@
+friendly_name = "XZ Compression"
+py_script = "xz.py"
+executable = "xz.exe"
+presentmon_enabled = false
+category = "non_game"
+ocr = false

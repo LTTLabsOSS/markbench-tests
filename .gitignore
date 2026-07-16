@@ -7,7 +7,7 @@
 *.vsix
 
 # Harness output
-run/
+**/run/
 benchmark-launcher-cli-3.1.0-windows.zip
 flac-1.4.3-win/
 flac-1.4.3-win.zip
@@ -27,7 +27,7 @@ tq_dlss_explained_1080*
 xz_5.6.2_x86*
 *.y4m
 *.exe
-!/cities_skylines_2/launcher/*.exe
+!/games/cities_skylines_2/launcher/*.exe
 *.mp4
 godot-4.2.1-stable/
 godot-4.2.1-stable.zip
@@ -39,8 +39,14 @@ mingw64/
 
 # python
 __pycache__/
+.venv/
+.ruff_cache/
+
+.pi-subagents/
 
 ffmpeg-8.0.1-full_build/
 *.log
 *.txt
+!/games/stellaris/settings/pdx_settings.txt
+!/games/stellaris/settings/settings.txt
 uv.lock

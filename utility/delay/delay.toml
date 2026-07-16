@@ -1,0 +1,12 @@
+friendly_name = "Delay"
+py_script = "delay.py"
+executable = "python"
+presentmon_enabled = false
+ocr = false
+save_run = false
+category = "utility"
+
+[[args]]
+name = "seconds"
+type = "input"
+default = "300"
