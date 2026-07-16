@@ -15,7 +15,11 @@ from harness_utils.artifacts import capture_and_save_screenshot, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times, user
 from harness_utils.ocr_service import find_word
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import (
@@ -196,7 +200,6 @@ def run_benchmark() -> tuple:
 
     terminate_process(PROCESS_NAME)
 
-
     return test_start_time, test_end_time
 
 
@@ -249,7 +252,9 @@ def navigate_settings() -> None:
         logging.error("Couldn't find dirt")
         sys.exit(1)
 
-    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")  # is at the bottom of the menu
+    capture_and_save_screenshot(
+        ARTIFACTS_DIRECTORY / "graphics3.png"
+    )  # is at the bottom of the menu
 
     press_n_times("up", 13)
 

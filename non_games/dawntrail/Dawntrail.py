@@ -12,7 +12,11 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.paths import harness_directories, network_drive_path
-from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
+from harness_utils.artifacts import (
+    capture_and_save_screenshot,
+    copy_artifact,
+    reset_artifacts,
+)
 from harness_utils.input import user
 from harness_utils.ocr_service import find_word
 from harness_utils.report import seconds_to_milliseconds, write_report_json
@@ -31,12 +35,11 @@ def delete_all_txt():
         file.unlink(missing_ok=True)
     print("All .txt files deleted.")
 
+
 def copy_from_network_drive() -> Path:
     """Copies ZIP from network drive and extracts it."""
     src_path = (
-        network_drive_path()
-        / "03_ProcessingFiles"
-        / "ffxiv-dawntrail-bench_v11.zip"
+        network_drive_path() / "03_ProcessingFiles" / "ffxiv-dawntrail-bench_v11.zip"
     )
     zip_path = Path("C:/ffxiv-dawntrail-bench_v11.zip")
     extract_to = Path("C:/ffxiv-dawntrail-bench_v11")
@@ -50,21 +53,23 @@ def copy_from_network_drive() -> Path:
         zf.extractall(extract_to)
     logging.info("Extraction complete!")
     if zip_path.is_file():
-        zip_path.unlink()# Deletes the file
+        zip_path.unlink()  # Deletes the file
         print(f"Deleted zip file: {zip_path.name}")
     else:
         print("Zip file not found")
     return extract_to
 
+
 def get_results_txt():
     directory = Path("C:/ffxiv-dawntrail-bench_v11/ffxiv-dawntrail-bench_v11/")
-    latest_txt = max(directory.glob("*.txt"),
-    key=lambda f: f.stat().st_mtime,
-    default=None)
+    latest_txt = max(
+        directory.glob("*.txt"), key=lambda f: f.stat().st_mtime, default=None
+    )
     if not latest_txt:
         logging.info("No .txt result file found")
         return None
     return Path(directory) / latest_txt
+
 
 def read_output_stats(path):
     if not FileExistsError(path):
@@ -86,8 +91,9 @@ def read_output_stats(path):
         "score": score,
         "resolution": resolution,
         "total_loading_time": total_loading_time,
-        "file_path": str(latest_txt)
+        "file_path": str(latest_txt),
     }
+
 
 def start_game():
     """Launch the benchmark executable."""
@@ -98,7 +104,9 @@ def start_game():
     if windows:
         windows[0].minimize()
 
-    os.startfile(r"C:\ffxiv-dawntrail-bench_v11\ffxiv-dawntrail-bench_v11\ffxiv-dawntrail-bench.exe")
+    os.startfile(
+        r"C:\ffxiv-dawntrail-bench_v11\ffxiv-dawntrail-bench_v11\ffxiv-dawntrail-bench.exe"
+    )
 
 
 def navigate_to_settings():
@@ -134,7 +142,7 @@ def run_benchmark():
     delete_all_txt()
     terminate_process(PROCESS_NAME)
     terminate_process(DX_PROCESS_NAME)
-    #"""Run the full benchmark sequence."""
+    # """Run the full benchmark sequence."""
     setup_start_time = int(time.time())
     start_game()
     time.sleep(5)
@@ -175,7 +183,7 @@ def run_benchmark():
 
     time.sleep(3)
     result = find_word("save", timeout=30)
-    user.click(result['x'], result['y'])
+    user.click(result["x"], result["y"])
     logging.info("Saving results txt...")
     time.sleep(1)
     copy_artifact(get_results_txt(), ARTIFACTS_DIRECTORY)
@@ -195,9 +203,9 @@ try:
         copy_from_network_drive()
     start_time, end_time = run_benchmark()
     logging.info(read_output_stats(get_results_txt()))
-    resolutionf = read_output_stats(get_results_txt())['resolution']
-    scoref = read_output_stats(get_results_txt())['score']
-    load_time = read_output_stats(get_results_txt())['total_loading_time']
+    resolutionf = read_output_stats(get_results_txt())["resolution"]
+    scoref = read_output_stats(get_results_txt())["score"]
+    load_time = read_output_stats(get_results_txt())["total_loading_time"]
 
     report = {
         "score": str(load_time),
