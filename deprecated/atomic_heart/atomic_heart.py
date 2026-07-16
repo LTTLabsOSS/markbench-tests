@@ -34,7 +34,7 @@ CONFIG_FULL_PATH = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
 PROCESS_NAME = "AtomicHeart"
 STEAM_GAME_ID = 668580
 VIDEO_PATH = (
-    Path(get_app_install_location(STEAM_GAME_ID)) / "AtomicHeart" / "Content" / "Movies"
+    get_app_install_location(STEAM_GAME_ID) / "AtomicHeart" / "Content" / "Movies"
 )
 
 intro_videos = [

@@ -35,8 +35,8 @@ LOCALAPPDATA = os.getenv("LOCALAPPDATA")
 CONFIG_LOCATION = f"{LOCALAPPDATA}\\Strange Brigade"
 CONFIG_FILENAME = "GraphicsOptions.ini"
 CONFIG_FULL_PATH = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
-EXE_PATH = Path(get_app_install_location(STEAM_GAME_ID)) / "bin"
-VIDEO_PATH = Path(get_app_install_location(STEAM_GAME_ID)) / "FMV"
+EXE_PATH = get_app_install_location(STEAM_GAME_ID) / "bin"
+VIDEO_PATH = get_app_install_location(STEAM_GAME_ID) / "FMV"
 
 user.FAILSAFE = False
 

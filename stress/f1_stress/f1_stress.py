@@ -107,7 +107,7 @@ def prepare_hardware_settings(hardware_settings_file: Path) -> Path:
 
 def prepare_benchmark_file() -> Path:
     """Copy the hardcoded benchmark XML to F1's benchmark folder."""
-    destination_directory = Path(get_app_install_location(STEAM_GAME_ID)) / "benchmark"
+    destination_directory = get_app_install_location(STEAM_GAME_ID) / "benchmark"
     destination_file = destination_directory / BENCHMARK_FILENAME
     destination_directory.mkdir(parents=True, exist_ok=True)
     logging.info("Copying benchmark XML: %s -> %s", BENCHMARK_FILE, destination_file)

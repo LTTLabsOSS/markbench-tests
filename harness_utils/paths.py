@@ -65,7 +65,7 @@ def network_drive_path() -> Path:
 
 def game_install_path(app_id: int) -> Path:
     """Return a Steam game install path."""
-    path = Path(get_app_install_location(app_id))
+    path = get_app_install_location(app_id)
     if not path.exists():
         raise RuntimeError(f"Missing path: {path}")
     return path

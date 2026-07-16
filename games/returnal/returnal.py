@@ -40,7 +40,7 @@ LOCAL_USER_SETTINGS = (
     / "GameUserSettings.ini"
 )
 VIDEO_PATH = (
-    Path(get_steamapps_common_path()) / "Returnal" / "Returnal" / "Content" / "Movies"
+    get_steamapps_common_path() / "Returnal" / "Returnal" / "Content" / "Movies"
 )
 
 user.FAILSAFE = False

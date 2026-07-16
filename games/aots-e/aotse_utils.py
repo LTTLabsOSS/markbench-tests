@@ -28,7 +28,7 @@ USERNAME = getpass.getuser()
 CONFIG_PATH = Path(
     f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Ashes of the Singularity - Escalation"
 )
-EXE_PATH = Path(get_app_install_location(STEAM_GAME_ID))
+EXE_PATH = get_app_install_location(STEAM_GAME_ID)
 BENCHMARK_CONFIG = {
     "GPU_Benchmark": {
         "hardware": "GPU",
