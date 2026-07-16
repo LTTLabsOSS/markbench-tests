@@ -5,7 +5,7 @@ import sys
 import time
 from pathlib import Path
 
-import pydirectinput as user  # type: ignore[import-not-found]
+import pydirectinput as user
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -34,25 +34,22 @@ CONFIG_FILENAME = "ACShadows.ini"
 user.FAILSAFE = False
 
 
-def read_current_resolution() -> tuple[int, int]:
+def read_current_resolution():
     """Reads resolutions settings from local game file"""
     height_pattern = re.compile(r"FullscreenWidth=(\d+)")
     width_pattern = re.compile(r"FullscreenHeight=(\d+)")
     cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
     height_value = 0
     width_value = 0
-    try:
-        with open(cfg, encoding="utf-8") as file:
-            for line in file:
-                height_match = height_pattern.search(line)
-                width_match = width_pattern.search(line)
-                if height_match is not None:
-                    height_value = int(height_match.group(1))
-                if width_match is not None:
-                    width_value = int(width_match.group(1))
-    except OSError:
-        logging.exception("Failed to read resolution from %s", cfg)
-        raise
+    with open(cfg, encoding="utf-8") as file:
+        lines = file.readlines()
+        for line in lines:
+            height_match = height_pattern.search(line)
+            width_match = width_pattern.search(line)
+            if height_match is not None:
+                height_value = height_match.group(1)
+            if width_match is not None:
+                width_value = width_match.group(1)
     return (height_value, width_value)
 
 
@@ -151,7 +148,7 @@ def run_benchmark():
     """runs the benchmark"""
     delete_videos()
     start_game()
-    setup_start_time = round(time.time())
+    setup_start_time = int(time.time())
     reset_artifacts(ARTIFACTS_DIRECTORY)
     time.sleep(15)
 
@@ -194,7 +191,7 @@ def run_benchmark():
 
     user.press("space")
 
-    setup_end_time = round(time.time())
+    setup_end_time = int(time.time())
     elapsed_setup_time = setup_end_time - setup_start_time
     logging.info("Setup took %d seconds", elapsed_setup_time)
 
@@ -202,7 +199,7 @@ def run_benchmark():
         logging.info("did not find benchmark")
         sys.exit(1)
 
-    test_start_time = round(time.time())
+    test_start_time = int(time.time())
 
     time.sleep(100)
 
@@ -210,7 +207,7 @@ def run_benchmark():
         logging.error("did not find results screen")
         sys.exit(1)
 
-    test_end_time = round(time.time()) - 2
+    test_end_time = int(time.time()) - 2
 
     elapsed_test_time = test_end_time - test_start_time
     logging.info("Benchmark took %d seconds", elapsed_test_time)
