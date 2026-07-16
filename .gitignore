@@ -39,6 +39,8 @@ mingw64/
 
 # python
 __pycache__/
+.venv/
+.ruff_cache/
 
 .pi-subagents/
 
