@@ -19,15 +19,16 @@ from chrome_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import capture_and_save_screenshot, reset_artifacts
+from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 
 INTERNAL_TIMEOUT = 900  # 15 minutes
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
+
 setup_logging(LOG_DIRECTORY)
-am = ArtifactManager(LOG_DIRECTORY)
+reset_artifacts(ARTIFACTS_DIRECTORY)
 
 BENCHMARKS = {
     "jetstream2": {
@@ -221,12 +222,8 @@ def main():
         }
 
         write_report_json(LOG_DIRECTORY, "report.json", report)
-        am.take_screenshot(
-            "results.png",
-            ArtifactType.RESULTS_IMAGE,
-            "Screenshot of the benchmark result",
-        )
-        am.create_manifest()
+        capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+        
 
         time.sleep(15)
 

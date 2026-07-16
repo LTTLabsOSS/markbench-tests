@@ -15,11 +15,12 @@ from blender_render_utils import (
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
+from harness_utils.artifacts import reset_artifacts
+from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 
 
 VALID_DEVICES = ["CPU", "CUDA", "OPTIX", "HIP", "ONEAPI", "METAL"]
@@ -42,6 +43,7 @@ def main():
     if args.device not in VALID_DEVICES:
         raise Exception(f"invalid device selection: {args.device}")
 
+    reset_artifacts(ARTIFACTS_DIRECTORY)
     logging.info("The selected scene is %s", args.benchmark)
     benchmark = BENCHMARK_CONFIG[args.benchmark]
     download_scene(benchmark)
@@ -50,7 +52,7 @@ def main():
     logging.info("Starting benchmark!")
     start_time = time.time()
     score = run_blender_render(
-        executable_path, LOG_DIRECTORY, args.device.upper(), benchmark
+        executable_path, ARTIFACTS_DIRECTORY, args.device.upper(), benchmark
     )
     end_time = time.time()
     logging.info(

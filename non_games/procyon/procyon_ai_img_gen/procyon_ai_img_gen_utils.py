@@ -10,7 +10,7 @@ import psutil
 import win32api
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+ARTIFACTS_DIRECTORY = SCRIPT_DIRECTORY / "run" / "artifacts"
 
 
 def is_process_running(process_name):
@@ -24,7 +24,7 @@ def is_process_running(process_name):
 def find_score_in_xml():
     """Reads score from local game log"""
     score_pattern = re.compile(r"<AIImageGenerationOverallScore>(\d+)")
-    cfg = f"{LOG_DIRECTORY}\\result.xml"
+    cfg = ARTIFACTS_DIRECTORY / "result.xml"
     score_value = 0
     with open(cfg, encoding="utf-8") as file:
         lines = file.readlines()

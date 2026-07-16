@@ -19,7 +19,8 @@ from procyon_ai_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import reset_artifacts
+from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 from non_games.procyon.procyoncmd import (
@@ -32,8 +33,8 @@ from non_games.procyon.procyoncmd import (
 #####
 # Globals
 #####
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
+
 DIR_PROCYON = Path(get_install_path())
 EXECUTABLE = "ProcyonCmd.exe"
 ABS_EXECUTABLE_PATH = DIR_PROCYON / EXECUTABLE
@@ -125,7 +126,7 @@ BENCHMARK_CONFIG = {
 
 
 RESULTS_FILENAME = "result.xml"
-RESULTS_XML_PATH = LOG_DIRECTORY / RESULTS_FILENAME
+RESULTS_XML_PATH = ARTIFACTS_DIRECTORY / RESULTS_FILENAME
 
 
 def get_arguments():
@@ -185,6 +186,7 @@ def run_benchmark(process_name, command_to_run):
 
 try:
     setup_logging(LOG_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
     logging.info("Detected Windows ML Devices: %s", str(WINML_DEVICES))
     logging.info("Detected OpenVino Devices: %s", str(OPENVINO_DEVICES))
     logging.info("Detected CUDA Devices: %s", (CUDA_DEVICES))
@@ -208,9 +210,6 @@ try:
         logging.error("Could not find overall score!")
         sys.exit(1)
 
-    am = ArtifactManager(LOG_DIRECTORY)
-    am.copy_file(RESULTS_XML_PATH, ArtifactType.RESULTS_TEXT, "results xml file")
-    am.create_manifest()
     end_time = time.time()
     elapsed_test_time = round(end_time - start_time, 2)
     logging.info("Benchmark took %.2f seconds", elapsed_test_time)
