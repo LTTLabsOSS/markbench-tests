@@ -17,7 +17,7 @@ from dota2_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import capture_and_save_screenshot, reset_artifacts
+from harness_utils.artifacts import capture_and_save_screenshot
 from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
@@ -32,7 +32,6 @@ STEAM_GAME_ID = 570
 
 setup_logging(LOG_DIRECTORY)
 
-reset_artifacts(ARTIFACTS_DIRECTORY)
 
 user.FAILSAFE = False
 

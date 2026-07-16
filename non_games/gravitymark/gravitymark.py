@@ -16,7 +16,6 @@ from gravitymark_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import reset_artifacts
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
 from harness_utils.report import write_report_json
@@ -29,7 +28,7 @@ API = f"-{args.api}"
 
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 setup_logging(LOG_DIRECTORY)
-reset_artifacts(ARTIFACTS_DIRECTORY)
+ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
 GRAVITYMARK_LOG_PATH = Path(
     "C:/Users", getpass.getuser(), ".GravityMark", "GravityMark.log"

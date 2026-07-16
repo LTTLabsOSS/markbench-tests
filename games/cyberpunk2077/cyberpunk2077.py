@@ -10,7 +10,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from cyberpunk_utils import copy_no_intro_mod, read_current_resolution
 
-from harness_utils.artifacts import capture_and_save_screenshot, reset_artifacts
+from harness_utils.artifacts import capture_and_save_screenshot
 from harness_utils.paths import harness_directories
 from harness_utils.input import mangohud_log_toggle, press_n_times, user
 from harness_utils.ocr_service import find_word
@@ -243,7 +243,6 @@ def run_benchmark():
 
 setup_logging(LOG_DIRECTORY)
 
-reset_artifacts(ARTIFACTS_DIRECTORY)
 
 try:
     start_time, end_time = run_benchmark()

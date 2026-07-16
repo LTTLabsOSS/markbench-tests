@@ -19,7 +19,6 @@ from ffmpeg_cpu_utils import (
     vmaf_supported,
 )
 
-from harness_utils.artifacts import reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.output_logging import setup_logging
 from harness_utils.report import write_report_json
@@ -55,7 +54,7 @@ OUTPUT_VIDEO = SCRIPT_DIRECTORY / "output.mp4"
 
 def main():
     """entrypoint"""
-    reset_artifacts(ARTIFACTS_DIRECTORY)
+    ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
     ffmpeg_root = SCRIPT_DIRECTORY / TEST_OPTIONS[args.architecture]
     ffmpeg_exe_path = ffmpeg_root / "bin" / "ffmpeg.exe"
 

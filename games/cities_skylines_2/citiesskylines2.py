@@ -19,7 +19,7 @@ from citiesskylines2_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact
 from harness_utils.paths import harness_directories
 from harness_utils.input import mouse_scroll_n_times
 from harness_utils.ocr_service import find_word
@@ -61,7 +61,6 @@ def run_benchmark():
     copy_benchmarksave(save_files)
     copy_continuegame(config_files)
 
-    reset_artifacts(ARTIFACTS_DIRECTORY)
 
     start_game()
     setup_start_time = int(time.time())

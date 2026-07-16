@@ -13,7 +13,6 @@ from ul3dmark_utils import get_score
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
@@ -107,7 +106,7 @@ def run_benchmark(process_name, command_to_run):
 def main():
     """Run the selected 3DMark benchmark."""
     setup_logging(LOG_DIRECTORY)
-    reset_artifacts(ARTIFACTS_DIRECTORY)
+    ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.benchmark]["config"]
     cmd = create_3dmark_command(option)

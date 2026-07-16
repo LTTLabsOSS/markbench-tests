@@ -11,7 +11,7 @@ from pathlib import Path
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import capture_and_save_screenshot, reset_artifacts
+from harness_utils.artifacts import capture_and_save_screenshot
 from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times, user
 from harness_utils.ocr_service import find_word
@@ -113,7 +113,6 @@ def run_benchmark() -> tuple:
     """Starts Game, Sets Settings, and Runs Benchmark"""
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int(time.time())
-    reset_artifacts(ARTIFACTS_DIRECTORY)
 
     if find_word("sony", timeout=60, interval=0.2) is None:
         logging.error("Couldn't find 'sony'")

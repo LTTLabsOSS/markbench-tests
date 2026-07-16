@@ -15,7 +15,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
-from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact
 from harness_utils.paths import harness_directories
 from harness_utils.file_cleanup import remove_files
 from harness_utils.report import (
@@ -55,7 +55,6 @@ def run_benchmark():
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int(time.time())
     time.sleep(30)
-    reset_artifacts(ARTIFACTS_DIRECTORY)
 
     result = find_word("options", timeout=30, vulkan=True)
     if not result:

@@ -14,7 +14,7 @@ from farcry6_utils import get_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact
 from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.input import mouse_scroll_n_times, press_n_times
@@ -45,7 +45,6 @@ def skip_logo_screens() -> None:
 
 
 def run_benchmark():
-    reset_artifacts(ARTIFACTS_DIRECTORY)
     start_game()
     setup_start_time = int(time.time())
     time.sleep(25)

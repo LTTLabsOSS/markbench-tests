@@ -12,7 +12,7 @@ from forzams_utils import get_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact
 from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
@@ -52,7 +52,6 @@ def run_benchmark() -> tuple[int, int]:
     logging.info("Starting game")
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int(time.time())
-    reset_artifacts(ARTIFACTS_DIRECTORY)
 
     time.sleep(50)
 

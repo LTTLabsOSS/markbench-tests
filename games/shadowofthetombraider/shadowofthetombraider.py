@@ -14,7 +14,6 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.artifacts import (
     capture_and_save_screenshot,
     copy_artifact,
-    reset_artifacts,
 )
 from harness_utils.paths import harness_directories
 from harness_utils.input import user
@@ -154,7 +153,6 @@ def run_benchmark():
 def main():
     """entry point"""
     setup_logging(LOG_DIRECTORY)
-    reset_artifacts(ARTIFACTS_DIRECTORY)
     run_benchmark()
 
 

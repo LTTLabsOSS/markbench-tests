@@ -13,7 +13,7 @@ import pydirectinput as user
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact
 from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.input import mouse_scroll_n_times
@@ -78,7 +78,6 @@ def run_benchmark():
     cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
     start_game()
     setup_start_time = int(time.time())
-    reset_artifacts(ARTIFACTS_DIRECTORY)
     time.sleep(5)
 
     result = find_word("warning", timeout=50, interval=5)

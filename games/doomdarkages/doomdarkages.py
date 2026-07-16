@@ -12,7 +12,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from doomdarkages_utils import copy_launcher_config
 
-from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact
 from harness_utils.input import (
     mangohud_log_toggle,
     mouse_scroll_n_times,
@@ -66,7 +66,6 @@ def find_latest_result_file(base_path):
 def run_benchmark():
     """Runs the actual benchmark."""
     start_game()
-    reset_artifacts(ARTIFACTS_DIRECTORY)
 
     setup_start_time = int(time.time())
     time.sleep(25)

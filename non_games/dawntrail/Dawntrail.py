@@ -15,7 +15,6 @@ from harness_utils.paths import harness_directories, network_drive_path
 from harness_utils.artifacts import (
     capture_and_save_screenshot,
     copy_artifact,
-    reset_artifacts,
 )
 from harness_utils.input import user
 from harness_utils.ocr_service import find_word
@@ -192,7 +191,6 @@ def run_benchmark():
 
 # ====================== Main Execution ======================
 setup_logging(LOG_DIRECTORY)
-reset_artifacts(ARTIFACTS_DIRECTORY)
 
 try:
     pathf = Path("C:/ffxiv-dawntrail-bench_v11")

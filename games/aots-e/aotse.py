@@ -18,7 +18,7 @@ from aotse_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import copy_artifact, reset_artifacts
+from harness_utils.artifacts import copy_artifact
 from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.report import (
@@ -108,7 +108,6 @@ def run_benchmark():
 setup_logging(LOG_DIRECTORY)
 
 args = get_args()
-reset_artifacts(ARTIFACTS_DIRECTORY)
 
 try:
     logging.info("Starting benchmark!")

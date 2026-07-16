@@ -7,17 +7,17 @@ multiple test harnesses.
 
 Supplemental artifacts belong in each harness's `run/artifacts/` directory.
 
+MarkBench clears each harness's `run/` directory before every run, so every run starts empty. Harnesses must not perform their own cleanup.
+
 ```python
 from harness_utils.artifacts import (
     capture_and_save_screenshot,
     copy_artifact,
-    reset_artifacts,
 )
 from harness_utils.paths import harness_directories
 
 SCRIPT_DIRECTORY, RUN_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 
-reset_artifacts(ARTIFACTS_DIRECTORY)
 copy_artifact("path/to/results.txt", ARTIFACTS_DIRECTORY)
 capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
 ```
