@@ -19,7 +19,8 @@ from citiesskylines2_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.files import copy_to_directory, reset_directory
+from harness_utils.screenshot import capture_screenshot_png
 from harness_utils.input import mouse_scroll_n_times
 from harness_utils.ocr_service import find_word
 from harness_utils.report import seconds_to_milliseconds, write_report_json
@@ -29,6 +30,7 @@ from harness_utils.steam import exec_steam_game, get_build_id
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+ARTIFACTS_DIRECTORY = LOG_DIRECTORY / "artifacts"
 PROCESS_NAME = "cities2.exe"
 STEAM_GAME_ID = 949230
 launcher_files = ["bootstrapper-v2.exe", "launcher.exe", "notlauncher-options.json"]
@@ -61,7 +63,7 @@ def run_benchmark():
     copy_benchmarksave(save_files)
     copy_continuegame(config_files)
 
-    am = ArtifactManager(LOG_DIRECTORY)
+    reset_directory(ARTIFACTS_DIRECTORY)
 
     start_game()
     setup_start_time = int(time.time())
@@ -154,9 +156,7 @@ def run_benchmark():
     gui.click()
     time.sleep(0.2)
 
-    am.take_screenshot(
-        "general.png", ArtifactType.CONFIG_IMAGE, "general settings menu"
-    )
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "general.png")
 
     result = find_word("graphics", timeout=10, interval=1)
     if not result:
@@ -171,11 +171,7 @@ def run_benchmark():
     gui.click()
     time.sleep(0.2)
 
-    am.take_screenshot(
-        "graphics_1.png",
-        ArtifactType.CONFIG_IMAGE,
-        "first picture of graphics settings menu",
-    )
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "graphics_1.png")
 
     result = find_word("window", timeout=10, interval=1)
     if not result:
@@ -194,11 +190,7 @@ def run_benchmark():
             "Did not find the keyword 'water' in menu. Did the game scroll correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "graphics_2.png",
-        ArtifactType.CONFIG_IMAGE,
-        "second picture of graphics settings menu",
-    )
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "graphics_2.png")
 
     mouse_scroll_n_times(8, -400, 0.2)
 
@@ -208,16 +200,12 @@ def run_benchmark():
             "Did not find the keyword 'texture' in menu. Did the game scroll correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "graphics_3.png",
-        ArtifactType.CONFIG_IMAGE,
-        "third picture of graphics settings menu",
-    )
-    am.copy_file(CONFIG_FULL_PATH, ArtifactType.CONFIG_TEXT, "config file")
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "graphics_3.png")
+    copy_to_directory(CONFIG_FULL_PATH, ARTIFACTS_DIRECTORY)
 
     # Exit
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
+
 
     return test_start_time, test_end_time
 

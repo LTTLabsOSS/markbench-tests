@@ -29,7 +29,8 @@ def apply_runtime_dpi_awareness():
     Fixes click/UI scaling issues without touching registry.
     """
     dpi_awareness_context_per_monitor_aware_v2 = -4
-    ctypes.windll.user32.SetProcessDpiAwarenessContext(
+    windll = getattr(ctypes, "windll")
+    windll.user32.SetProcessDpiAwarenessContext(
         dpi_awareness_context_per_monitor_aware_v2
     )
     logging.info("Applied runtime DPI awareness to current process")
@@ -72,7 +73,7 @@ def read_config() -> list[str] | None:
     return None
 
 
-def get_resolution():
+def get_resolution() -> tuple[int, int]:
     """Get current resolution from settings file"""
     height_pattern = re.compile(r"\"setting.defaultresheight\"		\"(\d+)\"")
     width_pattern = re.compile(r"\"setting.defaultres\"		\"(\d+)\"")
@@ -84,13 +85,17 @@ def get_resolution():
         logging.error("Could not find the video config file.")
         return (height, width)
 
-    for line in lines:
-        height_match = height_pattern.search(line)
-        width_match = width_pattern.search(line)
-        if height_match is not None:
-            height = height_match.group(1)
-        if width_match is not None:
-            width = width_match.group(1)
-        if height != 0 and width != 0:
-            return (height, width)
+    try:
+        for line in lines:
+            height_match = height_pattern.search(line)
+            width_match = width_pattern.search(line)
+            if height_match is not None:
+                height = int(height_match.group(1))
+            if width_match is not None:
+                width = int(width_match.group(1))
+            if height != 0 and width != 0:
+                return (height, width)
+    except ValueError:
+        logging.exception("Invalid resolution in video config")
+        raise
     return (height, width)

@@ -5,14 +5,18 @@ import sys
 import time
 from pathlib import Path
 
-import pyautogui as gui
-import pydirectinput as user
+import pyautogui as gui  # type: ignore[import-not-found]
+import pydirectinput as user  # type: ignore[import-not-found]
 from cs2_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.files import (  # type: ignore[import-not-found]
+    copy_to_directory,
+    reset_directory,
+)
+from harness_utils.screenshot import capture_screenshot_png
 from harness_utils.ocr_service import find_word
 from harness_utils.report import (
     format_resolution,
@@ -30,6 +34,7 @@ from harness_utils.steam import (
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+ARTIFACTS_DIRECTORY = LOG_DIRECTORY / "artifacts"
 PROCESS_NAME = "cs2.exe"
 STEAM_GAME_ID = 730
 
@@ -114,7 +119,7 @@ def identify_settings():
     time.sleep(0.2)
 
 
-def navigate_settings(am):
+def navigate_settings():
     """Navigates the settings menu and takes screenshots for traceability"""
 
     result = wait_for_word(
@@ -129,9 +134,7 @@ def navigate_settings(am):
 
     wait_for_word(word="brightness", why="find the video settings")
 
-    am.take_screenshot(
-        "video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings"
-    )
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video.png")
 
     result = wait_for_word(
         word="advanced", timeout=10, interval=1, why="find the advanced video menu"
@@ -143,11 +146,7 @@ def navigate_settings(am):
     gui.mouseUp()
     time.sleep(0.2)
 
-    am.take_screenshot(
-        "advanced_video_1.png",
-        ArtifactType.CONFIG_IMAGE,
-        "first picture of advanced video settings",
-    )
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "advanced_video_1.png")
 
     result = wait_for_word(
         word="boost",
@@ -163,11 +162,7 @@ def navigate_settings(am):
 
     wait_for_word(word="particle", why="verify we scrolled correctly")
 
-    am.take_screenshot(
-        "advanced_video_2.png",
-        ArtifactType.CONFIG_IMAGE,
-        "second picture of advanced video settings",
-    )
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "advanced_video_2.png")
 
 
 def execute_benchmark():
@@ -215,9 +210,9 @@ def execute_benchmark():
 
 def run_benchmark():
     """Run cs2 benchmark"""
-    setup_start_time = int(time.time())
+    setup_start_time = round(time.time())
     start_game()
-    am = ArtifactManager(LOG_DIRECTORY)
+    reset_directory(ARTIFACTS_DIRECTORY)
     time.sleep(20)  # wait for game to load into main menu
 
     wait_for_word(
@@ -227,54 +222,54 @@ def run_benchmark():
 
     identify_settings()
 
-    navigate_settings(am)
+    navigate_settings()
 
     execute_benchmark()
 
     time.sleep(3)
     wait_for_word(word="benchmark", why="verify that the benchmark has started")
 
-    setup_end_time = int(time.time())
+    setup_end_time = round(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logging.info("Harness setup took %f seconds", elapsed_setup_time)
     time.sleep(1)
 
     # Default fallback start time
-    test_start_time = int(time.time())
+    test_start_time = round(time.time())
 
     result = find_word(word="roll", timeout=30, interval=0.1)
     if result is None:
         logging.error("Didn't see 'lets roll'. Did the map load?")
     else:
-        test_start_time = int(time.time())
+        test_start_time = round(time.time())
         logging.info("Saw 'lets roll'! Marking the time.")
 
     time.sleep(112)  # sleep duration during gameplay
 
     # Default fallback end time
-    test_end_time = int(time.time())
+    test_end_time = round(time.time())
 
     wait_for_word(
         word="console",
         why="verify the console has opened to show the results",
     )
 
-    test_end_time = int(time.time())
+    test_end_time = round(time.time())
     user.press("`")
     logging.info("The console opened. Marking end time.")
 
     # allow time for result screen to populate
     time.sleep(13)
 
-    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
-    am.copy_file(CFG, ArtifactType.CONFIG_TEXT, "cs2 video config")
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "results.png")
+    copy_to_directory(CFG, ARTIFACTS_DIRECTORY)
     logging.info("Run completed. Closing game.")
     time.sleep(2)
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
+
 
     return test_start_time, test_end_time
 

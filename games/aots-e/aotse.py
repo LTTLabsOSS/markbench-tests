@@ -18,7 +18,7 @@ from aotse_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.files import copy_to_directory, reset_directory
 from harness_utils.ocr_service import find_word
 from harness_utils.report import (
     format_resolution,
@@ -39,6 +39,7 @@ CONFIG_FILENAME = "settings.ini"
 STEAM_GAME_ID = 507490
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+ARTIFACTS_DIRECTORY = LOG_DIRECTORY / "artifacts"
 EXECUTABLE = "StardockLauncher.exe"
 CONFIG_DIR = SCRIPT_DIRECTORY / "config"
 BENCHMARK_CONFIG = {
@@ -108,7 +109,7 @@ def run_benchmark():
 setup_logging(LOG_DIRECTORY)
 
 args = get_args()
-am = ArtifactManager(LOG_DIRECTORY)
+reset_directory(ARTIFACTS_DIRECTORY)
 
 try:
     logging.info("Starting benchmark!")
@@ -122,14 +123,14 @@ try:
         sys.exit(1)
     logging.info("Score was %s", score)
 
-    am.copy_file(CFG, ArtifactType.CONFIG_TEXT, "Settings file")
+    copy_to_directory(CFG, ARTIFACTS_DIRECTORY)
     result_file = sorted(
         CONFIG_PATH.glob(RESULT),
         key=lambda path: path.stat().st_mtime,
         reverse=True,
     )
     output_file = result_file[0]
-    am.copy_file(output_file, ArtifactType.RESULTS_TEXT, "Results file")
+    copy_to_directory(output_file, ARTIFACTS_DIRECTORY)
     hardware = BENCHMARK_CONFIG[args.benchmark]["hardware"]
     width, height = read_current_resolution()
     report = {
@@ -142,7 +143,7 @@ try:
         "version": get_build_id(STEAM_GAME_ID),
     }
 
-    am.create_manifest()
+
     write_report_json(LOG_DIRECTORY, "report.json", report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
