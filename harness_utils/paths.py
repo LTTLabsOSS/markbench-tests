@@ -15,11 +15,7 @@ def _proton_user_dir(app_id: int | None) -> Path:
     """Return the Proton Windows user directory for a Steam app."""
     if app_id is None:
         raise RuntimeError("Linux Proton path lookup requires app_id")
-
-    path = get_proton_prefix(app_id) / "drive_c" / "users" / PROTON_USERNAME
-    if not path.exists():
-        raise RuntimeError(f"Missing path: {path}")
-    return path
+    return get_proton_prefix(app_id) / "drive_c" / "users" / PROTON_USERNAME
 
 
 def local_appdata(app_id: int | None = None) -> Path:

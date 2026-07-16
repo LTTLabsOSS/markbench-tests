@@ -206,7 +206,7 @@ def get_app_install_location(app_id: int) -> str:
 
 
 def get_proton_prefix(app_id: int) -> Path:
-    """Returns the Proton prefix path for a Steam app."""
+    """Return the Proton prefix path for a Steam app."""
     logger.debug("Resolving Proton prefix app_id=%s", app_id)
     if not is_linux():
         raise RuntimeError("Proton prefix lookup requires Linux")
