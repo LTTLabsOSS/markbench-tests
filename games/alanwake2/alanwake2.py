@@ -12,7 +12,7 @@ from alanwake2_utils import CONFIG_PATH, copy_save, find_epic_executable, get_re
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
@@ -98,7 +98,7 @@ def run_benchmark():
             "Did not see quality preset. Did it navigate to graphics correctly?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
     time.sleep(0.2)
     press_n_times("down", 19, 0.2)
     if find_word(word="terrain", timeout=60, interval=0.5) is None:
@@ -106,14 +106,14 @@ def run_benchmark():
             "Did not see Terrain Quality. Did it navigate to graphics correctly?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
     press_n_times("down", 10, 0.2)
     if find_word(word="transparency", timeout=60, interval=0.5) is None:
         logging.error(
             "Did not see Transparency. Did it navigate to graphics correctly?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")
     time.sleep(0.2)
     user.press("esc")
     time.sleep(0.2)

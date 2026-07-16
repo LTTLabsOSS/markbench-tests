@@ -11,7 +11,7 @@ from pathlib import Path
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times, user
 from harness_utils.ocr_service import find_word
@@ -234,7 +234,7 @@ def navigate_settings() -> None:
         logging.error("Couldn't find resolution")
         sys.exit(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "display1.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display1.png")
 
     user.press("up")
 
@@ -242,7 +242,7 @@ def navigate_settings() -> None:
         logging.error("Couldn't find brightness")
         sys.exit(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "display2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display2.png")
 
     user.press("q")  # swaps to graphics settings
 
@@ -252,7 +252,7 @@ def navigate_settings() -> None:
         logging.error("Couldn't find preset")
         sys.exit(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
 
     user.press("up")
 
@@ -260,7 +260,7 @@ def navigate_settings() -> None:
         logging.error("Couldn't find dirt")
         sys.exit(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")  # is at the bottom of the menu
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")  # is at the bottom of the menu
 
     press_n_times("up", 13)
 
@@ -268,7 +268,7 @@ def navigate_settings() -> None:
         logging.error("Couldn't find scattering")
         sys.exit(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
 
     press_n_times("escape", 2)
 

@@ -12,7 +12,7 @@ from cs2_utils import get_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.report import (
@@ -129,7 +129,7 @@ def navigate_settings():
 
     wait_for_word(word="brightness", why="find the video settings")
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
 
     result = wait_for_word(
         word="advanced", timeout=10, interval=1, why="find the advanced video menu"
@@ -141,7 +141,7 @@ def navigate_settings():
     gui.mouseUp()
     time.sleep(0.2)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "advanced_video_1.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_video_1.png")
 
     result = wait_for_word(
         word="boost",
@@ -157,7 +157,7 @@ def navigate_settings():
 
     wait_for_word(word="particle", why="verify we scrolled correctly")
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "advanced_video_2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_video_2.png")
 
 
 def execute_benchmark():
@@ -256,7 +256,7 @@ def run_benchmark():
     # allow time for result screen to populate
     time.sleep(13)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     copy_artifact(CFG, ARTIFACTS_DIRECTORY)
     logging.info("Run completed. Closing game.")
     time.sleep(2)

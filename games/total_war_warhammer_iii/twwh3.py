@@ -14,7 +14,7 @@ from twwh3_utils import read_current_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.report import (
@@ -93,7 +93,7 @@ def run_benchmark():
     gui.mouseUp()
     time.sleep(2)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "main.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "main.png")
 
     result = find_word("ad", timeout=10, interval=1)
     if not result:
@@ -107,7 +107,7 @@ def run_benchmark():
     gui.mouseUp()
     time.sleep(0.5)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "advanced.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced.png")
 
     result = find_word("bench", timeout=10, interval=1)
     if not result:
@@ -158,7 +158,7 @@ def run_benchmark():
     # Wait 5 seconds for benchmark info
     time.sleep(5)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     copy_artifact(Path(CONFIG_FULL_PATH), ARTIFACTS_DIRECTORY)
 
     # End the run

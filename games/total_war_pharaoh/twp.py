@@ -13,7 +13,7 @@ import pydirectinput as user
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.input import mouse_scroll_n_times
@@ -104,7 +104,7 @@ def run_benchmark():
         logging.info("Did not find the main menu. Did OCR click correctly?")
         sys.exit(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "main.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "main.png")
     time.sleep(0.5)
 
     result = find_word("advanced", timeout=10, interval=1)
@@ -126,7 +126,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "advanced_1.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_1.png")
     time.sleep(0.5)
 
     result = find_word("water", timeout=10, interval=1)
@@ -145,7 +145,7 @@ def run_benchmark():
             "Did not find the keyword 'heat' in the menu. Did OCR scroll down the advanced menu far enough?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "advanced_2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_2.png")
     time.sleep(0.5)
 
     # Scroll to the bottom of the advanced menu
@@ -155,7 +155,7 @@ def run_benchmark():
             "Did not find the keyword 'bodies' in the menu. Did OCR scroll down the advanced menu far enough?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "advanced_3.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_3.png")
     time.sleep(0.5)
 
     result = find_word("bench", timeout=10, interval=1)
@@ -193,7 +193,7 @@ def run_benchmark():
     # Wait 5 seconds for benchmark info
     test_end_time = int(time.time()) - 1
     time.sleep(5)
-    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     time.sleep(0.5)
     copy_artifact(Path(cfg), ARTIFACTS_DIRECTORY)
 

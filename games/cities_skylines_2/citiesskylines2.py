@@ -19,7 +19,7 @@ from citiesskylines2_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.input import mouse_scroll_n_times
 from harness_utils.ocr_service import find_word
@@ -154,7 +154,7 @@ def run_benchmark():
     gui.click()
     time.sleep(0.2)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "general.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "general.png")
 
     result = find_word("graphics", timeout=10, interval=1)
     if not result:
@@ -169,7 +169,7 @@ def run_benchmark():
     gui.click()
     time.sleep(0.2)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
 
     result = find_word("window", timeout=10, interval=1)
     if not result:
@@ -188,7 +188,7 @@ def run_benchmark():
             "Did not find the keyword 'water' in menu. Did the game scroll correctly?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
 
     mouse_scroll_n_times(8, -400, 0.2)
 
@@ -198,7 +198,7 @@ def run_benchmark():
             "Did not find the keyword 'texture' in menu. Did the game scroll correctly?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_3.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_3.png")
     copy_artifact(CONFIG_FULL_PATH, ARTIFACTS_DIRECTORY)
 
     # Exit

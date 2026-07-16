@@ -11,7 +11,7 @@ from shadow_of_the_tomb_raider_utils import get_latest_file_report, get_resoluti
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.input import user
 from harness_utils.ocr_service import find_word
@@ -86,12 +86,12 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
 
     user.press("up")
     time.sleep(0.5)
     user.press("right")
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics.png")
 
     user.press("r")
     elapsed_setup_time = round(round(time.time()) - setup_start_time, 2)
@@ -125,7 +125,7 @@ def run_benchmark():
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
-    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
 
     username = os.getlogin()
     game_document_dir = Path(

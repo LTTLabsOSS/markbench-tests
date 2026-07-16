@@ -17,7 +17,7 @@ from rocket_league_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.controllers import LTTGamePadDS4
@@ -219,7 +219,7 @@ def run_benchmark():
         sys.exit(1)
 
     logging.info("Seen the video settings, capturing the data.")
-    save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
 
     copy_artifact(CONFIG_PATH, ARTIFACTS_DIRECTORY)
 

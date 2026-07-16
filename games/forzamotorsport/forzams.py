@@ -12,7 +12,7 @@ from forzams_utils import get_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
@@ -83,14 +83,14 @@ def run_benchmark() -> tuple[int, int]:
         logging.info("Did not find the display settings menu. Did the menu get stuck?")
         sys.exit(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
     user.press("]")
     time.sleep(0.5)
 
     if find_word(word="filtering", timeout=30, interval=1) is None:
         logging.info("Did not find the graphics settings menu. Did the menu get stuck?")
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
 
     press_n_times("down", 15, 0.5)
 
@@ -99,7 +99,7 @@ def run_benchmark() -> tuple[int, int]:
             "Did not find the particle effect settings. Did the menu get stuck?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
 
     press_n_times("down", 3, 0.5)
     user.press("up")
@@ -110,7 +110,7 @@ def run_benchmark() -> tuple[int, int]:
     if find_word(word="flare", timeout=30, interval=1) is None:
         logging.info("Did not find the lens flare settings. Did the menu get stuck?")
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")
 
     # Navigate to graphics menu
     user.press("[")
@@ -126,7 +126,7 @@ def run_benchmark() -> tuple[int, int]:
     if find_word(word="results", timeout=60, interval=0.5) is None:
         logging.info("Did not find the results screen. Did the game load?")
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
 
     test_start_time = int(time.time())
 

@@ -12,7 +12,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.input import press_n_times, user
-from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
 from harness_utils.files import remove_files
 from harness_utils.ocr_service import find_word
 from harness_utils.report import (
@@ -158,7 +158,7 @@ def run_benchmark():
         sys.exit(1)
     press_n_times("down", 18, 0.2)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
     user.press("esc")
     time.sleep(0.2)
 
@@ -170,7 +170,7 @@ def run_benchmark():
         sys.exit(1)
 
     # Navigate through graphics settings and take screenshots of all settings contained within
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
     press_n_times("down", 29, 0.2)
 
     result = find_word("chromatic", interval=1, timeout=60)
@@ -180,7 +180,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
     press_n_times("up", 28, 0.2)
     user.press("enter")
     time.sleep(0.2)
@@ -190,7 +190,7 @@ def run_benchmark():
         logging.info("Didn't find weather!")
         sys.exit(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "benchmark.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "benchmark.png")
 
     press_n_times("down", 6, 0.2)
     user.press("enter")
@@ -229,7 +229,7 @@ def run_benchmark():
         sys.exit(1)
     logging.info("Results screen was found! Finishing benchmark.")
     results_file = find_latest_result_file(BENCHMARK_RESULTS_PATH)
-    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     copy_artifact(CONFIG, ARTIFACTS_DIRECTORY)
     copy_artifact(results_file, ARTIFACTS_DIRECTORY)
 

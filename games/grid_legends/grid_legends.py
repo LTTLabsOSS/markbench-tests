@@ -12,7 +12,7 @@ import pydirectinput as user
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
@@ -91,7 +91,7 @@ def run_benchmark():
     if find_word(word="basic", timeout=30, interval=0.1) is None:
         logging.error("Didn't basic video options. Did the menu navigate correctly?")
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "basic.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "basic.png")
 
     user.press("f3")
     time.sleep(0.2)
@@ -101,7 +101,7 @@ def run_benchmark():
             "Didn't reach advanced video options. Did the menu navigate correctly?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "advanced_1.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_1.png")
 
     user.press("up")
     time.sleep(0.2)
@@ -111,7 +111,7 @@ def run_benchmark():
             "Didn't reach bottom of advanced video settings. Did the menu navigate correctly?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "advanced_2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_2.png")
 
     user.press("down")
     time.sleep(0.2)
@@ -138,7 +138,7 @@ def run_benchmark():
     test_end_time = int(time.time()) - 2
     time.sleep(2)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     copy_artifact(Path(CONFIG_FULL_PATH), ARTIFACTS_DIRECTORY)
 
     logging.info("Run completed. Closing game.")

@@ -13,7 +13,7 @@ from forza5_utils import read_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
@@ -76,12 +76,12 @@ def run_benchmark():
     gui.mouseDown()
     time.sleep(0.2)
     gui.mouseUp()
-    save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt.png")
     time.sleep(0.2)
     press_n_times("down", 19, 0.1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt2.png")
     press_n_times("down", 5, 0.1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt3.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt3.png")
     time.sleep(0.2)
     user.press("escape")
     time.sleep(1)
@@ -98,10 +98,10 @@ def run_benchmark():
     time.sleep(0.2)
     gui.mouseUp()
     time.sleep(0.2)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt.png")
     time.sleep(0.2)
     press_n_times("down", 16, 0.1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt2.png")
     time.sleep(0.1)
     user.press("down")
     time.sleep(1)

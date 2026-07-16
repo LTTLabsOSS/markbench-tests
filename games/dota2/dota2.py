@@ -17,7 +17,7 @@ from dota2_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
@@ -118,7 +118,7 @@ def screenshot_settings():
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "video1.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video1.png")
 
     user.press("down")
 
@@ -126,7 +126,7 @@ def screenshot_settings():
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
 
     user.press("down")
 
@@ -134,7 +134,7 @@ def screenshot_settings():
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "video3.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video3.png")
 
 
 def load_the_benchmark():

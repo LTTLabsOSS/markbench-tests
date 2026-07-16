@@ -15,7 +15,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
-from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.files import remove_files
 from harness_utils.report import (
@@ -81,7 +81,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "display.png", vulkan=True)
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png", vulkan=True)
 
     time.sleep(0.5)
     user.press("escape")
@@ -113,7 +113,7 @@ def run_benchmark():
     # Wait 5 seconds for benchmark info
     time.sleep(5)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "results.png", vulkan=True)
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png", vulkan=True)
     copy_artifact(Path(CONFIG_FULL_PATH), ARTIFACTS_DIRECTORY)
 
     # End the run

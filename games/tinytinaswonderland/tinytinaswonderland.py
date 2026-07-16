@@ -15,7 +15,7 @@ from tinytinaswonderland_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.report import format_resolution, seconds_to_milliseconds
@@ -63,19 +63,19 @@ def run_benchmark():
     if visuals is None:
         raise ValueError("on the wrong menu!")
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
 
     user.press("altleft")
     time.sleep(0.5)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
     time.sleep(1)
 
     for _ in range(18):
         user.press("down")
         time.sleep(0.5)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_3.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_3.png")
 
     user.press("altleft")
     time.sleep(0.5)
