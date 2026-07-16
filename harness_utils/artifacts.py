@@ -5,7 +5,7 @@ import os
 from dataclasses import dataclass
 from enum import Enum, unique
 from pathlib import Path
-from shutil import copy
+from shutil import copy, rmtree
 
 import yaml
 
@@ -17,6 +17,45 @@ from harness_utils.screenshot import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def copy_artifact(
+    source: str | os.PathLike, artifact_directory: str | os.PathLike
+) -> Path:
+    """Copy a file into the artifact directory while preserving its basename."""
+    source_path = Path(source)
+    destination = Path(artifact_directory)
+    destination.mkdir(parents=True, exist_ok=True)
+    output_path = destination / source_path.name
+    try:
+        copy(source_path, output_path)
+    except OSError:
+        logger.exception("Failed to copy artifact %s to %s", source_path, output_path)
+        raise
+    return output_path
+
+
+def reset_artifacts(artifact_directory: str | os.PathLike) -> Path:
+    """Replace the artifact directory with an empty directory."""
+    directory = Path(artifact_directory)
+    if directory.exists():
+        try:
+            rmtree(directory)
+        except OSError:
+            logger.exception("Failed to reset artifact directory: %s", directory)
+            raise
+    directory.mkdir(parents=True, exist_ok=True)
+    return directory
+
+
+def save_screenshot(output_path: str | os.PathLike, vulkan: bool = False) -> None:
+    """Capture a PNG screenshot and save it to the requested artifact path."""
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    image_bytes = capture_screenshot_png_bytes(vulkan=vulkan)
+    if image_bytes is None:
+        raise RuntimeError("Failed to capture screenshot")
+    path.write_bytes(image_bytes.getbuffer())
 
 
 @unique
@@ -190,5 +229,12 @@ class ArtifactManager:
         Creates a file `artifacts.yaml` which lists the artifacts in the manager's `artifacts` list.
         The file is created at the location specified by the manager's `output_path`.
         """
-        with open(self.output_path / "artifacts.yaml", encoding="utf-8", mode="w") as f:
-            yaml.safe_dump([a.as_dict() for a in self.artifacts], f, sort_keys=False)
+        manifest_path = self.output_path / "artifacts.yaml"
+        try:
+            with open(manifest_path, encoding="utf-8", mode="w") as f:
+                yaml.safe_dump(
+                    [a.as_dict() for a in self.artifacts], f, sort_keys=False
+                )
+        except OSError:
+            logger.exception("Failed to write artifact manifest: %s", manifest_path)
+            raise
