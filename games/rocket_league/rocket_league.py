@@ -17,7 +17,8 @@ from rocket_league_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.controllers import LTTGamePadDS4
 from harness_utils.epic_games import find_eg_game_version
@@ -25,8 +26,7 @@ from harness_utils.report import format_resolution, seconds_to_milliseconds, wri
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 USERNAME = getpass.getuser()
 CONFIG_PATH = Path(
     f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Rocket League\\TAGame\\Config\\TASystemSettings.ini"
@@ -35,7 +35,7 @@ PROCESS_NAME = "rocketleague.exe"
 EXECUTABLE_PATH = find_epic_executable()
 GAME_ID = "9773aa1aa54f4f7b80e44bef04986cea%3A530145df28a24424923f5828cc9031a1%3ASugar?action=launch&silent=true"
 GAMEFOLDERNAME = "rocketleague"
-am = ArtifactManager(LOG_DIRECTORY)
+reset_artifacts(ARTIFACTS_DIRECTORY)
 gamepad = LTTGamePadDS4()
 
 setup_logging(LOG_DIRECTORY)
@@ -219,16 +219,14 @@ def run_benchmark():
         sys.exit(1)
 
     logging.info("Seen the video settings, capturing the data.")
-    am.take_screenshot(
-        "video.png", ArtifactType.CONFIG_IMAGE, "Screenshot of the display settings"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
 
-    am.copy_file(CONFIG_PATH, ArtifactType.CONFIG_TEXT, "TASystemSettings.ini")
+    copy_artifact(CONFIG_PATH, ARTIFACTS_DIRECTORY)
 
     logging.info("Run completed. Closing game.")
     time.sleep(2)
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
+
     return test_start_time, test_end_time
 
 

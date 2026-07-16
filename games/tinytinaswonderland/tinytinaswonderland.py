@@ -15,15 +15,15 @@ from tinytinaswonderland_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.report import format_resolution, seconds_to_milliseconds
 from harness_utils.report_writing import write_report_json
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 STEAM_GAME_ID = 1286680
 EXECUTABLE = "Wonderlands.exe"
 
@@ -63,31 +63,19 @@ def run_benchmark():
     if visuals is None:
         raise ValueError("on the wrong menu!")
 
-    am.take_screenshot(
-        "graphics_1.png",
-        ArtifactType.CONFIG_IMAGE,
-        "first screenshot of graphics settings",
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
 
     user.press("altleft")
     time.sleep(0.5)
 
-    am.take_screenshot(
-        "graphics_2.png",
-        ArtifactType.CONFIG_IMAGE,
-        "second screenshot of graphics settings",
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
     time.sleep(1)
 
     for _ in range(18):
         user.press("down")
         time.sleep(0.5)
 
-    am.take_screenshot(
-        "graphics_3.png",
-        ArtifactType.CONFIG_IMAGE,
-        "third screenshot of graphics settings",
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_3.png")
 
     user.press("altleft")
     time.sleep(0.5)
@@ -125,7 +113,7 @@ def run_benchmark():
 
 
 try:
-    am = ArtifactManager(LOG_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
     start_time, end_time = run_benchmark()
     height, width = read_resolution()
     report = {
@@ -140,14 +128,14 @@ try:
         my_documents_path,
         r"My Games\Tiny Tina's Wonderlands\Saved\Config\WindowsNoEditor\GameUserSettings.ini",
     )
-    am.copy_file(settings_path, ArtifactType.CONFIG_TEXT, "settings file")
+    copy_artifact(settings_path, ARTIFACTS_DIRECTORY)
     saved_results_dir = Path(
         my_documents_path, r"My Games\Tiny Tina's Wonderlands\Saved\BenchmarkData"
     )
     benchmark_results = find_latest_result_file(str(saved_results_dir))
-    am.copy_file(benchmark_results, ArtifactType.RESULTS_TEXT, "results file")
+    copy_artifact(benchmark_results, ARTIFACTS_DIRECTORY)
 
-    am.create_manifest()
+
     write_report_json(LOG_DIRECTORY, "report.json", report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")

@@ -14,7 +14,8 @@ from twwh3_utils import read_current_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.report import (
     format_resolution,
@@ -25,8 +26,7 @@ from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import get_app_install_location, get_build_id
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "Warhammer3.exe"
 STEAM_GAME_ID = 1142710
 
@@ -71,7 +71,7 @@ def run_benchmark():
     start_game()
     setup_start_time = int(time.time())
     time.sleep(5)
-    am = ArtifactManager(LOG_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
 
     result = find_word("warning", timeout=50, interval=5)
     if not result:
@@ -93,9 +93,7 @@ def run_benchmark():
     gui.mouseUp()
     time.sleep(2)
 
-    am.take_screenshot(
-        "main.png", ArtifactType.CONFIG_IMAGE, "picture of basic settings"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "main.png")
 
     result = find_word("ad", timeout=10, interval=1)
     if not result:
@@ -109,9 +107,7 @@ def run_benchmark():
     gui.mouseUp()
     time.sleep(0.5)
 
-    am.take_screenshot(
-        "advanced.png", ArtifactType.CONFIG_IMAGE, "picture of advanced settings"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "advanced.png")
 
     result = find_word("bench", timeout=10, interval=1)
     if not result:
@@ -162,10 +158,8 @@ def run_benchmark():
     # Wait 5 seconds for benchmark info
     time.sleep(5)
 
-    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
-    am.copy_file(
-        Path(CONFIG_FULL_PATH), ArtifactType.CONFIG_TEXT, "preferences.script.txt"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    copy_artifact(Path(CONFIG_FULL_PATH), ARTIFACTS_DIRECTORY)
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
@@ -173,7 +167,7 @@ def run_benchmark():
 
     # Exit
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
+
 
     return test_start_time, test_end_time
 

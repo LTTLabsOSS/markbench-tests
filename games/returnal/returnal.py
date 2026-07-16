@@ -12,9 +12,10 @@ from returnal_utils import get_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
+from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.paths import harness_directories
 from harness_utils.files import remove_files
 from harness_utils.report import format_resolution, seconds_to_milliseconds
 from harness_utils.output_logging import setup_logging
@@ -27,8 +28,7 @@ from harness_utils.steam import (
 )
 
 STEAM_GAME_ID = 1649240
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "Returnal-Win64-Shipping.exe"
 LOCAL_USER_SETTINGS = (
     Path(os.getenv("LOCALAPPDATA"))
@@ -99,7 +99,7 @@ def run_benchmark() -> tuple[float]:
     logging.info("Starting game")
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int(time.time())
-    am = ArtifactManager(LOG_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
 
     time.sleep(10)
 
@@ -129,9 +129,7 @@ def run_benchmark() -> tuple[float]:
     if find_word(word="aspect", timeout=30, interval=1) is None:
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
-    am.take_screenshot(
-        "video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
 
     # Navigate to graphics menu
     user.press("e")
@@ -140,11 +138,7 @@ def run_benchmark() -> tuple[float]:
     if find_word(word="vsync", timeout=30, interval=1) is None:
         logging.info("Did not find the graphics settings menu. Did the menu get stuck?")
         sys.exit(1)
-    am.take_screenshot(
-        "graphics_1.png",
-        ArtifactType.CONFIG_IMAGE,
-        "first picture of graphics settings",
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
 
     # We check for a keyword that indicates DLSS is active because this changes how we navigate the menu
     if find_word(word="sharpness", timeout=10, interval=1) is None:
@@ -161,11 +155,7 @@ def run_benchmark() -> tuple[float]:
             "Did not find the keyword 'volumetric'. Did the the menu scroll correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "graphics_2.png",
-        ArtifactType.CONFIG_IMAGE,
-        "second picture of graphics settings",
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
 
     # Scroll down graphics menu
     press_n_times("down", 15, 0.2)
@@ -175,11 +165,7 @@ def run_benchmark() -> tuple[float]:
             "Did not find the keyword 'hdr'. Did the the menu scroll correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "graphics_3.png",
-        ArtifactType.CONFIG_IMAGE,
-        "third picture of graphics settings",
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_3.png")
 
     # Launch the benchmark
     user.keyDown("tab")
@@ -216,16 +202,14 @@ def run_benchmark() -> tuple[float]:
 
     # Give results screen time to fill out, then save screenshot and config file
     time.sleep(2)
-    am.take_screenshot(
-        "results.png", ArtifactType.RESULTS_IMAGE, "screenshot of benchmark result"
-    )
-    am.copy_file(LOCAL_USER_SETTINGS, ArtifactType.CONFIG_TEXT, "config file")
+    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    copy_artifact(LOCAL_USER_SETTINGS, ARTIFACTS_DIRECTORY)
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %s seconds", elapsed_test_time)
 
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
+
 
     return test_start_time, test_end_time
 

@@ -6,16 +6,21 @@ import sys
 import time
 from pathlib import Path
 
-import pydirectinput as user
+import pydirectinput as user  # type: ignore[import-not-found]
 from the_last_of_us_part_i_utils import copy_autosave, get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import reset_artifacts, save_screenshot
+from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import (
@@ -24,14 +29,13 @@ from harness_utils.steam import (
 )
 
 STEAM_GAME_ID = 1888930
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "tlou-i.exe"
 
 user.FAILSAFE = False
 
 
-def take_screenshots(am: ArtifactManager) -> None:
+def take_screenshots() -> None:
     """Take screenshots of the benchmark settings"""
 
     logging.info("Taking screenshots of benchmark settings")
@@ -58,27 +62,21 @@ def take_screenshots(am: ArtifactManager) -> None:
     if not result:
         logging.info("Did not see aspect ratio setting. Did something mess up?")
         sys.exit(1)
-    am.take_screenshot(
-        "video1.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings1"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "video1.png")
     press_n_times("s", 14, 0.2)
 
     result = find_word("safezone", interval=1, timeout=5)
     if not result:
         logging.info("Did not see safezone scale setting. Did something mess up?")
         sys.exit(1)
-    am.take_screenshot(
-        "video2.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings2"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
     press_n_times("s", 7, 0.2)
 
     result = find_word("gore", interval=1, timeout=5)
     if not result:
         logging.info("Did not see gore setting. Did something mess up?")
         sys.exit(1)
-    am.take_screenshot(
-        "video3.png", ArtifactType.CONFIG_IMAGE, "screenshot of video settings3"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "video3.png")
 
     # navigating to the graphics menu
     user.press("backspace")
@@ -96,9 +94,7 @@ def take_screenshots(am: ArtifactManager) -> None:
     if not result:
         logging.info("Did not see graphics preset setting. Did something mess up?")
         sys.exit(1)
-    am.take_screenshot(
-        "graphics1.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings1"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
     press_n_times("s", 10, 0.2)
 
     result = find_word("sampling", interval=1, timeout=5)
@@ -107,9 +103,7 @@ def take_screenshots(am: ArtifactManager) -> None:
             "Did not see texture sampling quality setting. Did something mess up?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "graphics2.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings2"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
     press_n_times("s", 7, 0.2)
 
     result = find_word("point", interval=1, timeout=5)
@@ -118,9 +112,7 @@ def take_screenshots(am: ArtifactManager) -> None:
             "Did not see point lights shadow resolution setting. Did something mess up?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "graphics3.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings3"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")
     press_n_times("s", 8, 0.2)
 
     result = find_word("tracing", interval=1, timeout=5)
@@ -129,9 +121,7 @@ def take_screenshots(am: ArtifactManager) -> None:
             "Did not see screen space cone tracing setting. Did something mess up?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "graphics4.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings4"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics4.png")
     press_n_times("s", 7, 0.2)
 
     result = find_word("scattering", interval=1, timeout=5)
@@ -140,18 +130,14 @@ def take_screenshots(am: ArtifactManager) -> None:
             "Did not see screen space sub-surface scattering setting. Did something mess up?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "graphics5.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings5"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics5.png")
     press_n_times("s", 6, 0.2)
 
     result = find_word("bloom", interval=1, timeout=5)
     if not result:
         logging.info("Did not see bloom resolution setting. Did something mess up?")
         sys.exit(1)
-    am.take_screenshot(
-        "graphics6.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings6"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics6.png")
     press_n_times("s", 6, 0.2)
 
     result = find_word("ambient", interval=1, timeout=5)
@@ -160,9 +146,7 @@ def take_screenshots(am: ArtifactManager) -> None:
             "Did not see ambient character density setting. Did something mess up?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "graphics7.png", ArtifactType.CONFIG_IMAGE, "screenshot of graphics settings7"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics7.png")
     time.sleep(0.5)
 
     # navigating back to main menu
@@ -176,7 +160,7 @@ def take_screenshots(am: ArtifactManager) -> None:
         sys.exit(1)
 
 
-def navigate_main_menu(am: ArtifactManager) -> None:
+def navigate_main_menu() -> None:
     """Input to navigate main menu"""
     logging.info("Navigating main menu")
 
@@ -184,7 +168,7 @@ def navigate_main_menu(am: ArtifactManager) -> None:
     time.sleep(5)
     user.press("space")
     time.sleep(0.5)
-    take_screenshots(am)
+    take_screenshots()
 
     # Copy the autosave here
     copy_autosave()
@@ -221,8 +205,8 @@ def navigate_main_menu(am: ArtifactManager) -> None:
 def run_benchmark():
     """Starts the benchmark"""
     exec_steam_run_command(STEAM_GAME_ID)
-    setup_start_time = int(time.time())
-    am = ArtifactManager(LOG_DIRECTORY)
+    setup_start_time = round(time.time())
+    reset_artifacts(ARTIFACTS_DIRECTORY)
     time.sleep(30)
 
     result = find_word("press", interval=5, timeout=120)
@@ -232,7 +216,7 @@ def run_benchmark():
 
     # copy_autosave()
 
-    navigate_main_menu(am)
+    navigate_main_menu()
 
     # press load save
     result = find_word("yes", timeout=10, interval=1)
@@ -244,14 +228,14 @@ def run_benchmark():
     time.sleep(0.5)
     user.press("space")
 
-    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
+    elapsed_setup_time = round(round(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
     result = find_word("tommy", interval=0.2, timeout=250)
     if not result:
         logging.info("Did not see Tommy's first subtitle. Did the game load?")
         sys.exit(1)
-    test_start_time = int(time.time())
+    test_start_time = round(time.time())
     logging.info("Saw Tommy's first line. Benchmark has started.")
 
     # wait for black screen
@@ -266,7 +250,7 @@ def run_benchmark():
     # Wait for black screen
     time.sleep(24)
 
-    test_end_time = int(time.time())
+    test_end_time = round(time.time())
 
     time.sleep(2)
     elapsed_test_time = round(test_end_time - test_start_time, 2)
@@ -274,8 +258,6 @@ def run_benchmark():
     time.sleep(3)
 
     terminate_process(PROCESS_NAME)
-
-    am.create_manifest()
 
     logging.info("Sleeping to let steam cloud catch up as to avoid overriding.")
     time.sleep(10)
@@ -297,8 +279,13 @@ try:
         / "screeninfo.cfg"
     )
     height, width = get_resolution(str(config_path))
+    try:
+        resolution = format_resolution(int(width), int(height))
+    except (TypeError, ValueError):
+        logging.exception("Invalid resolution: %sx%s", width, height)
+        raise
     report = {
-        "resolution": format_resolution(width, height),
+        "resolution": resolution,
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
     }

@@ -11,19 +11,22 @@ from shadow_of_the_tomb_raider_utils import get_latest_file_report, get_resoluti
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.paths import harness_directories
 from harness_utils.input import user
 from harness_utils.ocr_service import find_word
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
 STEAM_GAME_ID = 750920
 PROCESS_NAME = "SOTTR.exe"
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 user.FAILSAFE = False
 
 
@@ -32,9 +35,9 @@ def start_game():
     return exec_steam_game(STEAM_GAME_ID, game_params=["-nolauncher"])
 
 
-def run_benchmark(am):
+def run_benchmark():
     """Start game via Steam and enter fullscreen mode"""
-    setup_start_time = int(time.time())
+    setup_start_time = round(time.time())
     start_game()
     time.sleep(10)
 
@@ -83,30 +86,26 @@ def run_benchmark(am):
         )
         sys.exit(1)
 
-    am.take_screenshot(
-        "display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
 
     user.press("up")
     time.sleep(0.5)
     user.press("right")
-    am.take_screenshot(
-        "graphics.png", ArtifactType.CONFIG_IMAGE, "picture of graphics settings"
-    )
+    save_screenshot(ARTIFACTS_DIRECTORY / "graphics.png")
 
     user.press("r")
-    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
+    elapsed_setup_time = round(round(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
 
     if find_word(word="fps", timeout=60, interval=0.5) is None:
         logging.info("Did not find the FPS counter. Did the benchmark crash?")
         sys.exit(1)
-    test_start_time = int(time.time())
+    test_start_time = round(time.time())
 
     # Wait for benchmark to complete
     time.sleep(180)
 
-    test_end_time = int(time.time())
+    test_end_time = round(time.time())
 
     result = find_word(word="tomb", timeout=10, interval=0.1)
     if result is None:
@@ -114,7 +113,7 @@ def run_benchmark(am):
             "Unable to find the loading screen. Using default end time value."
         )
     else:
-        test_end_time = int(time.time())
+        test_end_time = round(time.time())
 
     if find_word(word="results", timeout=60, interval=1) is None:
         logging.error("Results screen after running benchmark not found, exiting.")
@@ -126,19 +125,18 @@ def run_benchmark(am):
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
-    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
 
     username = os.getlogin()
     game_document_dir = Path(
         f"C:\\Users\\{username}\\Documents\\Shadow of the Tomb Raider"
     )
     game_log = game_document_dir.joinpath("Shadow of the Tomb Raider.log")
-    am.copy_file(Path(game_log), ArtifactType.RESULTS_TEXT, "game log")
-    am.copy_file(
-        get_latest_file_report(game_document_dir),
-        ArtifactType.RESULTS_TEXT,
-        "benchmark result",
-    )
+    copy_artifact(Path(game_log), ARTIFACTS_DIRECTORY)
+    benchmark_report = get_latest_file_report(game_document_dir)
+    if benchmark_report is None:
+        raise FileNotFoundError("Benchmark report was not created")
+    copy_artifact(benchmark_report, ARTIFACTS_DIRECTORY)
 
     terminate_process(PROCESS_NAME)
     height, width = get_resolution()
@@ -149,15 +147,14 @@ def run_benchmark(am):
         "version": get_build_id(STEAM_GAME_ID),
     }
 
-    am.create_manifest()
     write_report_json(LOG_DIRECTORY, "report.json", report)
 
 
 def main():
     """entry point"""
     setup_logging(LOG_DIRECTORY)
-    am = ArtifactManager(LOG_DIRECTORY)
-    run_benchmark(am)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
+    run_benchmark()
 
 
 if __name__ == "__main__":
