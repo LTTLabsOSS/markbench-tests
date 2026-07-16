@@ -17,7 +17,11 @@ from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
 from harness_utils.file_cleanup import remove_files
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import (
@@ -90,7 +94,7 @@ def run_benchmark():
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logging.info("Setup took %f seconds", elapsed_setup_time)
     time.sleep(1)
-    result = find_word("strange", timeout=100, vulkan=True )
+    result = find_word("strange", timeout=100, vulkan=True)
     if not result:
         logging.info("Could not find FPS. Unable to mark start time!")
         sys.exit(1)
@@ -112,10 +116,10 @@ def run_benchmark():
     time.sleep(5)
 
     am.take_screenshot_vulkan(
-        "result.png", ArtifactType.RESULTS_IMAGE, "benchmark results"
+        "results.png", ArtifactType.RESULTS_IMAGE, "benchmark results"
     )
     am.copy_file(
-        Path(CONFIG_FULL_PATH), ArtifactType.RESULTS_TEXT, "preferences.script.txt"
+        Path(CONFIG_FULL_PATH), ArtifactType.CONFIG_TEXT, "preferences.script.txt"
     )
 
     # End the run

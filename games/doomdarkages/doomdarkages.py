@@ -20,7 +20,11 @@ from harness_utils.input import (
     user,
 )
 from harness_utils.ocr_service import find_word
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import user_saved_games
 from harness_utils.platform import is_linux
@@ -233,7 +237,7 @@ def run_benchmark():
     logging.info("Results screen was found! Finishing benchmark.")
     results_file = find_latest_result_file(BENCHMARK_RESULTS_PATH)
     am.take_screenshot_vulkan(
-        "result.png", ArtifactType.RESULTS_IMAGE, "screenshot of results"
+        "results.png", ArtifactType.RESULTS_IMAGE, "screenshot of results"
     )
     am.copy_file(
         results_file, ArtifactType.RESULTS_TEXT, "benchmark results/settings xml file"

@@ -217,7 +217,7 @@ def run_benchmark() -> tuple[float]:
     # Give results screen time to fill out, then save screenshot and config file
     time.sleep(2)
     am.take_screenshot(
-        "result.png", ArtifactType.RESULTS_IMAGE, "screenshot of benchmark result"
+        "results.png", ArtifactType.RESULTS_IMAGE, "screenshot of benchmark result"
     )
     am.copy_file(LOCAL_USER_SETTINGS, ArtifactType.CONFIG_TEXT, "config file")
 

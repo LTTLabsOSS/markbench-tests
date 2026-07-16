@@ -15,7 +15,11 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_run_command, get_build_id
@@ -82,7 +86,7 @@ def run_benchmark():
         )
         sys.exit(1)
     am.take_screenshot_vulkan(
-        "Graphics1.png", ArtifactType.RESULTS_IMAGE, "1st Graphics Screenshot"
+        "Graphics1.png", ArtifactType.CONFIG_IMAGE, "1st Graphics Screenshot"
     )
 
     result = find_word("nvidia", vulkan=True, timeout=5)
@@ -97,7 +101,7 @@ def run_benchmark():
             )
             sys.exit(1)
         am.take_screenshot_vulkan(
-            "Graphics2.png", ArtifactType.RESULTS_IMAGE, "2nd Graphics Screenshot"
+            "Graphics2.png", ArtifactType.CONFIG_IMAGE, "2nd Graphics Screenshot"
         )
         press_n_times("down", 14, 0.2)
 
@@ -108,7 +112,7 @@ def run_benchmark():
             )
             sys.exit(1)
         am.take_screenshot_vulkan(
-            "Graphics3.png", ArtifactType.RESULTS_IMAGE, "3rd Graphics Screenshot"
+            "Graphics3.png", ArtifactType.CONFIG_IMAGE, "3rd Graphics Screenshot"
         )
         press_n_times("down", 15, 0.2)
 
@@ -119,7 +123,7 @@ def run_benchmark():
             )
             sys.exit(1)
         am.take_screenshot_vulkan(
-            "Graphics4.png", ArtifactType.RESULTS_IMAGE, "4th Graphics Screenshot"
+            "Graphics4.png", ArtifactType.CONFIG_IMAGE, "4th Graphics Screenshot"
         )
 
     else:
@@ -131,7 +135,7 @@ def run_benchmark():
             logging.info("Did not find the MSAA settings. Did OCR navigate correctly?")
             sys.exit(1)
         am.take_screenshot_vulkan(
-            "Graphics2.png", ArtifactType.RESULTS_IMAGE, "2nd Graphics Screenshot"
+            "Graphics2.png", ArtifactType.CONFIG_IMAGE, "2nd Graphics Screenshot"
         )
         press_n_times("down", 14, 0.2)
 
@@ -142,7 +146,7 @@ def run_benchmark():
             )
             sys.exit(1)
         am.take_screenshot_vulkan(
-            "Graphics3.png", ArtifactType.RESULTS_IMAGE, "3rd Graphics Screenshot"
+            "Graphics3.png", ArtifactType.CONFIG_IMAGE, "3rd Graphics Screenshot"
         )
         press_n_times("down", 12, 0.2)
 
@@ -153,7 +157,7 @@ def run_benchmark():
             )
             sys.exit(1)
         am.take_screenshot_vulkan(
-            "Graphics4.png", ArtifactType.RESULTS_IMAGE, "4th Graphics Screenshot"
+            "Graphics4.png", ArtifactType.CONFIG_IMAGE, "4th Graphics Screenshot"
         )
 
     # Run benchmark by holding X for 2 seconds
@@ -189,11 +193,11 @@ def run_benchmark():
         sys.exit(1)
     test_end_time = int(time.time())
     am.take_screenshot_vulkan(
-        "Results.png", ArtifactType.RESULTS_IMAGE, "Results Screenshot"
+        "results.png", ArtifactType.RESULTS_IMAGE, "Results Screenshot"
     )
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
-    am.copy_file(Path(CONFIG_FULL_PATH), ArtifactType.RESULTS_TEXT, "system.xml")
+    am.copy_file(Path(CONFIG_FULL_PATH), ArtifactType.CONFIG_TEXT, "system.xml")
 
     # Exit
     terminate_process(PROCESS_NAME)

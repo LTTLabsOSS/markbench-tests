@@ -30,10 +30,7 @@ SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "HorizonZeroDawnRemastered.exe"
 VIDEO_PATH = (
-    get_steamapps_common_path()
-    / "Horizon Zero Dawn Remastered"
-    / "Movies"
-    / "Mono"
+    get_steamapps_common_path() / "Horizon Zero Dawn Remastered" / "Movies" / "Mono"
 )
 INPUT_FILE = SCRIPT_DIRECTORY / "graphics.reg"
 CONFIG_FILE = SCRIPT_DIRECTORY / "graphics_config.txt"
@@ -199,7 +196,7 @@ def run_benchmark() -> tuple[float]:
     # Give results screen time to fill out, then save screenshot and config file
     time.sleep(2)
     am.take_screenshot(
-        "result.png", ArtifactType.RESULTS_IMAGE, "screenshot of benchmark result"
+        "results.png", ArtifactType.RESULTS_IMAGE, "screenshot of benchmark result"
     )
     process_registry_file(hive, SUBKEY, str(INPUT_FILE), str(CONFIG_FILE))
     am.copy_file(CONFIG_FILE, ArtifactType.CONFIG_TEXT, "config file")

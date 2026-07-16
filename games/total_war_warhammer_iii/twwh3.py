@@ -16,7 +16,11 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.ocr_service import find_word
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import get_app_install_location, get_build_id
@@ -158,9 +162,9 @@ def run_benchmark():
     # Wait 5 seconds for benchmark info
     time.sleep(5)
 
-    am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
     am.copy_file(
-        Path(CONFIG_FULL_PATH), ArtifactType.RESULTS_TEXT, "preferences.script.txt"
+        Path(CONFIG_FULL_PATH), ArtifactType.CONFIG_TEXT, "preferences.script.txt"
     )
 
     # End the run
