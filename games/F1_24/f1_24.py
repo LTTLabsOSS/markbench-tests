@@ -12,7 +12,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.input import press_n_times, user
-from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact
 from harness_utils.file_cleanup import remove_files
 from harness_utils.ocr_service import find_word
 from harness_utils.report import (
@@ -122,7 +122,6 @@ def run_benchmark():
     """Runs the actual benchmark."""
     remove_files([str(path) for path in intro_videos])
     exec_steam_game(STEAM_GAME_ID)
-    reset_artifacts(ARTIFACTS_DIRECTORY)
 
     setup_start_time = int(time.time())
     time.sleep(20)

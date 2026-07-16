@@ -13,7 +13,7 @@ from forza5_utils import read_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import capture_and_save_screenshot, reset_artifacts
+from harness_utils.artifacts import capture_and_save_screenshot
 from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
@@ -148,7 +148,6 @@ def run_benchmark():
 
 setup_logging(LOG_DIRECTORY)
 
-reset_artifacts(ARTIFACTS_DIRECTORY)
 
 try:
     start_time, end_time = run_benchmark()

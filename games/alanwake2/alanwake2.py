@@ -12,7 +12,7 @@ from alanwake2_utils import CONFIG_PATH, copy_save, find_epic_executable, get_re
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact
 from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
@@ -162,7 +162,6 @@ def run_benchmark():
 
 try:
     setup_logging(LOG_DIRECTORY)
-    reset_artifacts(ARTIFACTS_DIRECTORY)
     start_time, end_time = run_benchmark()
     height, width = get_resolution()
     report = {

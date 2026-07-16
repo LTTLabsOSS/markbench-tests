@@ -16,7 +16,6 @@ from ycruncher_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import reset_artifacts
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
 from harness_utils.report import write_report_json
@@ -40,7 +39,7 @@ def match_tune(subject: str):
 def main():
     """Test script entrypoint"""
     setup_logging(LOG_DIRECTORY)
-    reset_artifacts(ARTIFACTS_DIRECTORY)
+    ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
     if not ycruncher_folder_exists():
         logging.info("Downloading ycruncher")

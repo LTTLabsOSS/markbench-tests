@@ -15,7 +15,6 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.artifacts import (
     capture_and_save_screenshot,
     copy_artifact,
-    reset_artifacts,
 )
 from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
@@ -211,7 +210,6 @@ def run_benchmark():
     """Run cs2 benchmark"""
     setup_start_time = int(time.time())
     start_game()
-    reset_artifacts(ARTIFACTS_DIRECTORY)
     time.sleep(20)  # wait for game to load into main menu
 
     wait_for_word(

@@ -11,7 +11,7 @@ import vgamepad as vg
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact
 from harness_utils.input import mangohud_log_toggle, user
 from harness_utils.controllers import LTTGamePad360
 from harness_utils.ocr_service import find_word
@@ -61,7 +61,6 @@ def run_benchmark():
     start_game()
     gamepad = LTTGamePad360()
     setup_start_time = int(time.time())
-    reset_artifacts(ARTIFACTS_DIRECTORY)
     time.sleep(20)
 
     if find_word(word="black", timeout=30, interval=1) is None:

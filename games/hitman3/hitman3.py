@@ -18,7 +18,7 @@ from hitman3_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact
 from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.report import seconds_to_milliseconds, write_report_json
@@ -56,7 +56,6 @@ def benchmark_check():
 def run_benchmark():
     """Run the benchmark flow, capture artifacts, and return timing data."""
     setup_start_time = int(time.time())
-    reset_artifacts(ARTIFACTS_DIRECTORY)
     process_registry_file(hive, SUBKEY, str(INPUT_FILE), str(CONFIG_FILE))
     copy_artifact(CONFIG_FILE, ARTIFACTS_DIRECTORY)
     selected_benchmark_name, benchmark_time = benchmark_check()

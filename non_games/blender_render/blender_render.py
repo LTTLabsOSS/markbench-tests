@@ -15,7 +15,6 @@ from blender_render_utils import (
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
-from harness_utils.artifacts import reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
@@ -43,7 +42,7 @@ def main():
     if args.device not in VALID_DEVICES:
         raise Exception(f"invalid device selection: {args.device}")
 
-    reset_artifacts(ARTIFACTS_DIRECTORY)
+    ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
     logging.info("The selected scene is %s", args.benchmark)
     benchmark = BENCHMARK_CONFIG[args.benchmark]
     download_scene(benchmark)

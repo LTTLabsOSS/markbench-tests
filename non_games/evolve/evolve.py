@@ -13,7 +13,6 @@ import psutil
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
@@ -74,7 +73,7 @@ def launch_evolve(resolution, renderer, trace_mode, preset):
 def main():
     """a doc string"""
     setup_logging(LOG_DIRECTORY)
-    reset_artifacts(ARTIFACTS_DIRECTORY)
+    ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
     parser = ArgumentParser()
 
     parser.add_argument(

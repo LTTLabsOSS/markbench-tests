@@ -17,7 +17,7 @@ from rocket_league_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact
 from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.controllers import LTTGamePadDS4
@@ -35,7 +35,6 @@ PROCESS_NAME = "rocketleague.exe"
 EXECUTABLE_PATH = find_epic_executable()
 GAME_ID = "9773aa1aa54f4f7b80e44bef04986cea%3A530145df28a24424923f5828cc9031a1%3ASugar?action=launch&silent=true"
 GAMEFOLDERNAME = "rocketleague"
-reset_artifacts(ARTIFACTS_DIRECTORY)
 gamepad = LTTGamePadDS4()
 
 setup_logging(LOG_DIRECTORY)
