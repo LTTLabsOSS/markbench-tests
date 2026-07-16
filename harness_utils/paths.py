@@ -11,6 +11,15 @@ LINUX_NETWORK_DRIVE_ROOT = Path("/mnt/labs.lmg.gg/labs")
 PROTON_USERNAME = "steamuser"
 
 
+def harness_directories(
+    script_file: str | os.PathLike,
+) -> tuple[Path, Path, Path]:
+    """Return the script, run, and artifact directories for a harness."""
+    script_directory = Path(script_file).resolve().parent
+    log_directory = script_directory / "run"
+    return script_directory, log_directory, log_directory / "artifacts"
+
+
 def _proton_user_dir(app_id: int | None) -> Path:
     """Return the Proton Windows user directory for a Steam app."""
     if app_id is None:
