@@ -15,7 +15,11 @@ from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import press_n_times, user
 from harness_utils.file_cleanup import remove_files
 from harness_utils.ocr_service import find_word
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import game_install_path, user_documents
 from harness_utils.process import terminate_process
@@ -239,7 +243,7 @@ def run_benchmark():
     logging.info("Results screen was found! Finishing benchmark.")
     results_file = find_latest_result_file(BENCHMARK_RESULTS_PATH)
     am.take_screenshot(
-        "result.png", ArtifactType.RESULTS_IMAGE, "screenshot of results"
+        "results.png", ArtifactType.RESULTS_IMAGE, "screenshot of results"
     )
     am.copy_file(CONFIG, ArtifactType.CONFIG_TEXT, "config file")
     am.copy_file(results_file, ArtifactType.RESULTS_TEXT, "benchmark results xml file")

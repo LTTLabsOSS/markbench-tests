@@ -14,7 +14,11 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.ocr_service import find_word
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import (
@@ -262,7 +266,7 @@ def run_benchmark():
     # allow time for result screen to populate
     time.sleep(13)
 
-    am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
     am.copy_file(CFG, ArtifactType.CONFIG_TEXT, "cs2 video config")
     logging.info("Run completed. Closing game.")
     time.sleep(2)

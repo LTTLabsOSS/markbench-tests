@@ -13,7 +13,11 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
@@ -216,9 +220,7 @@ def run_benchmark():
     elapsed_test_time = test_end_time - test_start_time
     logging.info("Benchmark took %d seconds", elapsed_test_time)
 
-    am.take_screenshot(
-        "benchmark_results.png", ArtifactType.RESULTS_IMAGE, "benchmark results"
-    )
+    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
 
     user.press("x")
 

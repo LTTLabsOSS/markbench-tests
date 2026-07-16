@@ -222,8 +222,8 @@ def main():
 
         write_report_json(LOG_DIRECTORY, "report.json", report)
         am.take_screenshot(
-            "result.png",
-            ArtifactType.CONFIG_IMAGE,
+            "results.png",
+            ArtifactType.RESULTS_IMAGE,
             "Screenshot of the benchmark result",
         )
         am.create_manifest()

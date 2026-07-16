@@ -135,7 +135,7 @@ def run_benchmark() -> tuple[int, int]:
         logging.info("Did not find the results screen. Did the game load?")
         sys.exit(1)
     am.take_screenshot(
-        "results.png", ArtifactType.CONFIG_IMAGE, "picture of results screen"
+        "results.png", ArtifactType.RESULTS_IMAGE, "picture of results screen"
     )
 
     test_start_time = int(time.time())

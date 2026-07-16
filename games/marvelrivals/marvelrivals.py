@@ -17,7 +17,11 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.ocr_service import find_word
 from harness_utils.input import mouse_scroll_n_times
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import get_app_install_location, get_build_id
@@ -197,7 +201,7 @@ def run_benchmark():
     am.copy_file(Path(CFG), ArtifactType.CONFIG_TEXT, "Marvel Rivals Video Config")
     am.copy_file(
         Path(find_latest_benchmarkcsv()),
-        ArtifactType.CONFIG_TEXT,
+        ArtifactType.RESULTS_TEXT,
         "Marvel Rivals Benchmark CSV",
     )
     logging.info("Run completed. Closing game.")

@@ -20,7 +20,11 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.ocr_service import find_word
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
 from harness_utils.steam import exec_steam_game, get_build_id
 
@@ -133,7 +137,7 @@ try:
         reverse=True,
     )
     output_file = result_file[0]
-    am.copy_file(output_file, ArtifactType.CONFIG_TEXT, "Results file")
+    am.copy_file(output_file, ArtifactType.RESULTS_TEXT, "Results file")
     hardware = BENCHMARK_CONFIG[args.benchmark]["hardware"]
     width, height = read_current_resolution()
     report = {
