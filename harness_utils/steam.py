@@ -32,16 +32,6 @@ def _get_vdf_value(data: dict, key: str):
     return None
 
 
-def _steamid64_to_account_id(steamid64: str) -> int:
-    try:
-        account_id = int(steamid64) - STEAMID64_ACCOUNT_ID_OFFSET
-    except ValueError as err:
-        raise RuntimeError(f"Invalid SteamID64: {steamid64}") from err
-    if account_id < 0:
-        raise RuntimeError(f"Invalid SteamID64: {steamid64}")
-    return account_id
-
-
 def get_steam_folder_path() -> str:
     """Gets the path to the Steam installation directory."""
     logger.debug("Resolving Steam folder path")
@@ -102,7 +92,12 @@ def _get_active_steam_account_id_from_login_users() -> int:
 
     for steamid64, user in users.items():
         if isinstance(user, dict) and _get_vdf_value(user, "MostRecent") == "1":
-            account_id = _steamid64_to_account_id(steamid64)
+            try:
+                account_id = int(steamid64) - STEAMID64_ACCOUNT_ID_OFFSET
+            except ValueError as err:
+                raise RuntimeError(f"Invalid SteamID64: {steamid64}") from err
+            if account_id < 0:
+                raise RuntimeError(f"Invalid SteamID64: {steamid64}")
             logger.debug(
                 "Resolved Steam active account ID=%s steamid64=%s",
                 account_id,
@@ -146,25 +141,6 @@ def get_app_manifest_path(app_id: int) -> Path:
             manifest_path,
         )
         return manifest_path
-
-    if is_windows():
-        logger.warning(
-            "Steam app manifest not found, using registry fallback app_id=%s path=%s",
-            app_id,
-            manifest_path,
-        )
-        install_location = _get_app_install_location_from_registry(app_id)
-        manifest_path = (Path(install_location) / ".." / ".." / manifest_name).resolve()
-        logger.debug(
-            "Checking Steam app manifest registry fallback path=%s", manifest_path
-        )
-        if manifest_path.exists():
-            logger.debug(
-                "Resolved Steam app manifest path app_id=%s path=%s",
-                app_id,
-                manifest_path,
-            )
-            return manifest_path
 
     raise RuntimeError(f"Steam app manifest not found for app_id={app_id}")
 
