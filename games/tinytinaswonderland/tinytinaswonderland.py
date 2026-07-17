@@ -18,8 +18,11 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact
 from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
-from harness_utils.report import format_resolution, seconds_to_milliseconds
-from harness_utils.report_writing import write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
