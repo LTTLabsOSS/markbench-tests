@@ -16,9 +16,12 @@ from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
 from harness_utils.file_cleanup import remove_files
-from harness_utils.report import format_resolution, seconds_to_milliseconds
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
-from harness_utils.report_writing import write_report_json
 from harness_utils.process import terminate_process
 from harness_utils.steam import (
     exec_steam_run_command,
