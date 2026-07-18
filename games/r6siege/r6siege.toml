@@ -1,0 +1,7 @@
+friendly_name = "Rainbow Six Siege"
+py_script = "r6siege.py"
+executable = "RainbowSix.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true
+category = "game"
+ocr = true
