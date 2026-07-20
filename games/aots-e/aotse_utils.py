@@ -8,7 +8,6 @@ import re
 import shutil
 import sys
 import time
-from argparse import ArgumentParser
 from pathlib import Path
 
 import psutil
