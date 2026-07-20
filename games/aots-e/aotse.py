@@ -4,12 +4,12 @@ import getpass
 import logging
 import sys
 import time
+from argparse import ArgumentParser
 from pathlib import Path
 
 from aotse_utils import (
     delete_old_scores,
     find_score_in_log,
-    get_args,
     read_current_resolution,
     replace_exe,
     restore_exe,
@@ -103,7 +103,15 @@ def run_benchmark():
 
 setup_logging(LOG_DIRECTORY)
 
-args = get_args()
+parser = ArgumentParser()
+parser.add_argument(
+        "--benchmark",
+        dest="benchmark",
+        help="Benchmark test type",
+        required=True,
+        choices=BENCHMARK_CONFIG.keys(),
+    )
+args, unknown = parser.parse_known_args()
 am = ArtifactManager(LOG_DIRECTORY)
 
 try:

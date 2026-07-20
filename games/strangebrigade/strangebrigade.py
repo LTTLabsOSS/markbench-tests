@@ -141,7 +141,7 @@ parser.add_argument(
     help="Render Engine",
     required=True,
 )
-args = parser.parse_args()
+args, unknown = parser.parse_known_args()
 
 try:
     start_time, endtime = run_benchmark(args.render_engine)

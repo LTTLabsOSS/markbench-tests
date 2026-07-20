@@ -185,7 +185,7 @@ parser.add_argument(
     metavar="benchmark",
     required=True,
 )
-args = parser.parse_args()
+args, unknown = parser.parse_known_args()
 
 try:
     start_time, endtime = run_benchmark()

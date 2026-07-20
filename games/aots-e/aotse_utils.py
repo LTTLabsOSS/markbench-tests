@@ -45,19 +45,6 @@ BENCHMARK_CONFIG = {
 }
 
 
-def get_args() -> any:
-    """Returns command line arg values"""
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--benchmark",
-        dest="benchmark",
-        help="Benchmark test type",
-        required=True,
-        choices=BENCHMARK_CONFIG.keys(),
-    )
-    return parser.parse_args()
-
-
 def read_current_resolution():
     """Get resolution from local game file"""
     resolution_pattern = re.compile(r"Resolution=(\d+),(\d+)")
