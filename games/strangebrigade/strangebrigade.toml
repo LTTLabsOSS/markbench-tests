@@ -5,3 +5,9 @@ presentmon_enabled = true
 presentmon_ignore_exit = true
 category = "game"
 ocr = true
+
+[[args]]
+name = "render_engine"
+type = "select"
+tooltip = "Select render engine type"
+values = ["vulkan", "dx12"]

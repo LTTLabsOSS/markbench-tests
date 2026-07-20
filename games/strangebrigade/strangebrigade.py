@@ -5,6 +5,7 @@ import os
 import sys
 import time
 from pathlib import Path
+from argparse import ArgumentParser
 
 import pyautogui as gui
 import pydirectinput as user
@@ -43,11 +44,11 @@ user.FAILSAFE = False
 intro_videos = [VIDEO_PATH / "rebellion.webm"]
 
 
-def run_benchmark():
+def run_benchmark(render_engine):
     """Starts the benchmark"""
     logging.info(intro_videos)
     remove_files([str(path) for path in intro_videos])
-    replace_exe()
+    replace_exe(render_engine)
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int(time.time())
     time.sleep(30)
@@ -126,15 +127,24 @@ def run_benchmark():
     terminate_process(PROCESS_NAME)
     am.create_manifest()
     time.sleep(5)
-    restore_exe()
 
     return test_start_time, test_end_time
 
 
 setup_logging(LOG_DIRECTORY)
 
+parser = ArgumentParser()
+parser.add_argument(
+    "-s",
+    "--render_engine",
+    choices=["vulkan","dx12"],
+    help="Render Engine",
+    required=True,
+)
+args, unknown = parser.parse_known_args()
+
 try:
-    start_time, endtime = run_benchmark()
+    start_time, endtime = run_benchmark(args.render_engine)
     height, width = read_current_resolution()
     report = {
         "resolution": format_resolution(width, height),
@@ -149,3 +159,5 @@ except Exception as e:
     logging.exception(e)
     terminate_process(PROCESS_NAME)
     sys.exit(1)
+finally:
+    restore_exe()
