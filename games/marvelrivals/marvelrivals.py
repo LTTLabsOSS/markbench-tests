@@ -117,16 +117,28 @@ def run_benchmark():
         "video1.png", ArtifactType.CONFIG_IMAGE, "1st picture of video settings"
     )
     time.sleep(1)
-    mouse_scroll_n_times(10, -800, 0.2)
+    mouse_scroll_n_times(1, -1200, 0.2)
     time.sleep(0.5)
 
-    result = find_word("foliage", timeout=30, interval=1)
+    result = find_word("processing", timeout=30, interval=1)
     if not result:
-        logging.info("Did not find the foliage option. Did it scroll down far enough?")
+        logging.info("Did not find the post-processing option. Did it scroll down far enough?")
         sys.exit(1)
 
     am.take_screenshot(
         "video2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of video settings"
+    )
+    time.sleep(1)
+    mouse_scroll_n_times(1, -1200, 0.2)
+    time.sleep(0.5)
+
+    result = find_word("times", timeout=30, interval=1)
+    if not result:
+        logging.info("Did not find the max visible players option. Did it scroll down far enough?")
+        sys.exit(1)
+
+    am.take_screenshot(
+        "video3.png", ArtifactType.CONFIG_IMAGE, "3rd picture of video settings"
     )
     time.sleep(1)
 
