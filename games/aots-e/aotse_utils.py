@@ -29,21 +29,6 @@ CONFIG_PATH = Path(
     f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Ashes of the Singularity - Escalation"
 )
 EXE_PATH = get_app_install_location(STEAM_GAME_ID)
-BENCHMARK_CONFIG = {
-    "GPU_Benchmark": {
-        "hardware": "GPU",
-        "config": "benchfinal",
-        "score_name": "Avg Framerate:",
-        "test_name": "Ashes of the Singularity: Escalation GPU Benchmark",
-    },
-    "CPU_Benchmark": {
-        "hardware": "CPU",
-        "config": "CPUbench",
-        "score_name": r"CPU frame rate \(estimated if not GPU bound\):",
-        "test_name": "Ashes of the Singularity: Escalation CPU Benchmark",
-    },
-}
-
 
 def read_current_resolution():
     """Get resolution from local game file"""
