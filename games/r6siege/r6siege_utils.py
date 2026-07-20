@@ -2,7 +2,6 @@
 import os
 from pathlib import Path
 import configparser
-import winreg
 
 USERPROFILE = os.getenv("USERPROFILE")
 LOCALAPPDATA = os.getenv("LOCALAPPDATA")
@@ -13,8 +12,6 @@ def get_active_ubisoft_user_id():
     Returns the most recently active Ubisoft Connect account ID by
     checking the cache/settings folder inside the launcher installation path.
     """
-
-
     settings_path = os.path.join(LOCALAPPDATA, "Ubisoft Game Launcher", "cache", "settings")
     if not os.path.exists(settings_path):
         return None
