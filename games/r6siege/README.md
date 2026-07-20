@@ -7,7 +7,12 @@ This script navigates through in-game menus to the built in benchmark and runs i
 - Python 3.10+
 - Rainbow Six Siege installed through Steam
 - Completed the tutorial for Rainbow Six Siege
-- Keras OCR service
+- OCR service
+
+## Options
+
+- `ocrHost`: string representing the IP address of the OCR service. e.x. `0.0.0.0`
+- `ocrPort`: string representing the port of the OCR service. e.x. `8080`
 
 ## Output
 
