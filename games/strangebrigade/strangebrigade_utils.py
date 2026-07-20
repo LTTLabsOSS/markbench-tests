@@ -1,4 +1,4 @@
-"""Utility functions for Total War: Warhammer III test script"""
+"""Utility functions for Strange Brigade test script"""
 
 import logging
 import os
@@ -41,34 +41,42 @@ def read_current_resolution():
     return (height_value, width_value)
 
 
-def replace_exe():
+def replace_exe(render_engine):
     """Replaces the Strange Brigade launcher exe with the Vulkan exe for immediate launching"""
     check_backup = Path(f"{EXE_PATH}\\StrangeBrigade_launcher.exe")
     launcher_exe = Path(f"{EXE_PATH}\\StrangeBrigade.exe")
-    vulkan_exe = Path(f"{EXE_PATH}\\StrangeBrigade_Vulkan.exe")
-    if not os.path.exists(check_backup):
+    engine = render_engine.lower()
+
+    if engine == "vulkan":
+        engine_exe = Path(f"{EXE_PATH}\\StrangeBrigade_Vulkan.exe")
+    elif engine == "dx12":
+        engine_exe = Path(f"{EXE_PATH}\\StrangeBrigade_DX12.exe")
+    # Back up the original launcher once.
+    if not check_backup.exists():
         os.rename(launcher_exe, check_backup)
-        shutil.copy(vulkan_exe, launcher_exe)
-        logging.info("Replacing launcher file in %s", EXE_PATH)
-    elif os.path.exists(check_backup):
-        if not os.path.exists(launcher_exe):
-            shutil.copy(vulkan_exe, launcher_exe)
-            logging.info("Replacing launcher file in %s", EXE_PATH)
-        else:
-            logging.info("Launcher already replaced with Vulkan exe.")
+        logging.info("Backed up original launcher.")
+
+    # Always make sure the launcher points at the requested engine.
+    if launcher_exe.exists():
+        os.remove(launcher_exe)
+
+    shutil.copy(engine_exe, launcher_exe)
+    logging.info("Launcher replaced with %s", engine_exe.name)
+
+    return True
 
 
 def restore_exe():
     """Restores the launcher exe back to the original exe name to close the loop."""
     check_backup = Path(f"{EXE_PATH}\\StrangeBrigade_launcher.exe")
     launcher_exe = Path(f"{EXE_PATH}\\StrangeBrigade.exe")
-    if not os.path.exists(check_backup):
-        logging.info("Launcher already restored or file does not exist.")
-    elif os.path.exists(check_backup):
-        if not os.path.exists(launcher_exe):
-            os.rename(check_backup, launcher_exe)
-            logging.info("Restoring launcher file in %s", EXE_PATH)
-        else:
-            os.remove(launcher_exe)
-            os.rename(check_backup, launcher_exe)
-            logging.info("Restoring launcher file in %s", EXE_PATH)
+    if not check_backup.exists():
+        logging.info("No launcher backup found.")
+        return
+
+    if launcher_exe.exists():
+        os.remove(launcher_exe)
+
+    shutil.copy(check_backup, launcher_exe)
+
+    logging.info("Original launcher restored.")

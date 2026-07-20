@@ -11,6 +11,7 @@ This script navigates through in-game menus to the built in benchmark and runs i
 
 ## Options
 
+- `render_engine`: Allows you to choose which render engine you want to test the game with, e.x. `Vulkan`
 - `ocrHost`: string representing the IP address of the OCR service. e.x. `0.0.0.0`
 - `ocrPort`: string representing the port of the OCR service. e.x. `8080`
 
