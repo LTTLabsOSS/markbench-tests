@@ -57,7 +57,7 @@ def get_arguments():
     parser = ArgumentParser()
     parser.add_argument(
         "--drive_letter",
-        default="C",  # <- default drive letter
+        default=None,
         help="Drive letter to test (e.g. D). Defaults to C if not specified.",
     )
     parser.add_argument(
@@ -72,7 +72,10 @@ def get_arguments():
 
 def normalize_drive_letter(drive_letter: str) -> str:
     """Strips the drive letter to pass it to the harness"""
-    drive_letter = drive_letter.strip().upper()
+    if not drive_letter or str(drive_letter).lower() == "none":
+        drive_letter = "C"
+    
+    drive_letter = str(drive_letter).strip().upper()
 
     if len(drive_letter) == 1:
         drive_letter += ":"
@@ -117,7 +120,7 @@ def run_benchmark(process_name, command_to_run, start_time):
 
 
 try:
-    setup_logging()
+    setup_logging(LOG_DIR)
     args = get_arguments()
     letter = normalize_drive_letter(args.drive_letter)
     option = BENCHMARK_CONFIG[args.test]["config"]
