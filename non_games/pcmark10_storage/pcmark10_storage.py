@@ -158,9 +158,9 @@ try:
     letter = normalize_drive_letter(args.drive_letter)
     option = BENCHMARK_CONFIG[args.test]["config"]
     cmd = create_pcmark10_command(letter,option)
+    cleanup_pcmark()
     logging.info("Starting benchmark!")
     logging.info(cmd)
-    cleanup_pcmark()
     time.sleep(7)
     start_time = time.time()
     pr = run_benchmark(BENCHMARK_CONFIG[args.test]["process_name"], cmd, start_time)
