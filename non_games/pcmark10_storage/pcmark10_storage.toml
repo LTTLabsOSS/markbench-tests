@@ -1,0 +1,17 @@
+friendly_name = "PCMark 10 Storage"
+py_script = "pcmark10_storage.py"
+executable = "PCMark10Cmd.exe"
+presentmon_enabled = false
+category = "non_game"
+ocr = false
+
+[[args]]
+name = "drive_letter"
+type = "input"
+tooltip = "The drive letter without colon that you wish to test (Default is C)"
+
+[[args]]
+name = "test"
+type = "select"
+tooltip = "Full requires 200GB free space, Quick requires 25GB"
+values = ["full","quick"]
