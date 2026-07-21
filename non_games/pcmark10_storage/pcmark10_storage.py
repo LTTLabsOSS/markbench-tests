@@ -70,6 +70,39 @@ def get_arguments():
     argies = parser.parse_args()
     return argies
 
+def cleanup_pcmark():
+    logging.info("Cleaning up lingering PCMark processes...")
+
+    found = False
+
+    for proc in psutil.process_iter(["pid", "name"]):
+        if proc.info["name"] in (
+            "PCMark10Cmd.exe",
+            "PCMark10.exe",
+            "PCMark10-Storage.exe",
+            "SystemInfo.exe",
+        ):
+            found = True
+            logging.info(
+                "Killing %s (PID %d)",
+                proc.info["name"],
+                proc.info["pid"],
+            )
+
+            try:
+                proc.kill()
+                proc.wait(timeout=10)
+                logging.info("Successfully terminated %s", proc.info["name"])
+            except Exception as e:
+                logging.warning(
+                    "Failed to terminate %s: %s",
+                    proc.info["name"],
+                    e,
+                )
+
+    if not found:
+        logging.info("No lingering PCMark processes found.")
+
 def normalize_drive_letter(drive_letter: str) -> str:
     """Strips the drive letter to pass it to the harness"""
     if not drive_letter or str(drive_letter).lower() == "none":
@@ -115,7 +148,7 @@ def run_benchmark(process_name, command_to_run, start_time):
                 process.nice(psutil.HIGH_PRIORITY_CLASS)
                 break
             time.sleep(0.2)
-        _, _ = proc.communicate()  # blocks until 3dmark exits
+        _, _ = proc.communicate()  # blocks until pcmark exits
         return proc
 
 
@@ -127,6 +160,8 @@ try:
     cmd = create_pcmark10_command(letter,option)
     logging.info("Starting benchmark!")
     logging.info(cmd)
+    cleanup_pcmark()
+    time.sleep(7)
     start_time = time.time()
     pr = run_benchmark(BENCHMARK_CONFIG[args.test]["process_name"], cmd, start_time)
 
@@ -176,4 +211,5 @@ try:
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
+    cleanup_pcmark()
     sys.exit(1)
