@@ -15,15 +15,13 @@ from utils import (
     regex_find_score_in_xml,
 )
 
-PARENT_DIR = str(Path(sys.path[0], ".."))
-sys.path.append(PARENT_DIR)
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.output import (
-    DEFAULT_DATE_FORMAT,
-    DEFAULT_LOGGING_FORMAT,
+from harness_utils.output_logging import setup_logging
+from harness_utils.report import (
     seconds_to_milliseconds,
-    setup_log_directory,
     write_report_json,
 )
 
@@ -53,22 +51,6 @@ BENCHMARK_CONFIG = {
 
 RESULTS_FILENAME = "result.xml"
 RESULTS_XML_PATH = LOG_DIR / RESULTS_FILENAME
-
-
-def setup_logging():
-    """setup logging"""
-    setup_log_directory(str(LOG_DIR))
-    logging.basicConfig(
-        filename=LOG_DIR / "harness.log",
-        format=DEFAULT_LOGGING_FORMAT,
-        datefmt=DEFAULT_DATE_FORMAT,
-        level=logging.DEBUG,
-    )
-    console = logging.StreamHandler()
-    formatter = logging.Formatter(DEFAULT_LOGGING_FORMAT)
-    console.setFormatter(formatter)
-    logging.getLogger("").addHandler(console)
-
 
 def get_arguments():
     """get arguments"""
