@@ -112,25 +112,25 @@ def run_benchmark():
     am.take_screenshot_vulkan(
         "video1.png", ArtifactType.CONFIG_IMAGE, "1st screenshot of video settings menu"
     )
-    mouse_scroll_n_times(7, -120, 0.5)
+    mouse_scroll_n_times(5, -120, 0.5)
     time.sleep(1)
 
-    result = find_word("nvidia", vulkan=True, interval=3, timeout=15)
+    result = find_word("fsr", vulkan=True, interval=3, timeout=15)
     if not result:
         logging.info(
-            "Didn't find the NVIDIA Reflex setting. Did it navigate correctly?"
+            "Didn't find the FSR setting. Did it navigate correctly?"
         )
         sys.exit(1)
 
     am.take_screenshot_vulkan(
         "video2.png", ArtifactType.CONFIG_IMAGE, "2nd screenshot of video settings menu"
     )
-    mouse_scroll_n_times(6, -120, 0.5)
+    mouse_scroll_n_times(5, -120, 0.5)
     time.sleep(1)
 
-    result = find_word("advanced", vulkan=True, interval=3, timeout=15)
+    result = find_word("tracing", vulkan=True, interval=3, timeout=15)
     if not result:
-        logging.info("Didn't find the advanced heading. Did it navigate correctly?")
+        logging.info("Didn't find the path tracing heading. Did it navigate correctly?")
         sys.exit(1)
 
     am.take_screenshot_vulkan(
@@ -139,10 +139,10 @@ def run_benchmark():
     mouse_scroll_n_times(5, -120, 0.5)
     time.sleep(1)
 
-    result = find_word("shading", vulkan=True, interval=3, timeout=15)
+    result = find_word("decal", vulkan=True, interval=3, timeout=15)
     if not result:
         logging.info(
-            "Didn't find the shading quality setting. Did it navigate correctly?"
+            "Didn't find the decal quality setting. Did it navigate correctly?"
         )
         sys.exit(1)
 
