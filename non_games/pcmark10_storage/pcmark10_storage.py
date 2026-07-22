@@ -124,7 +124,10 @@ def create_pcmark10_command(drive_letter, test_option):
             str(ABS_EXECUTABLE_PATH),
             f"--drive={drive_letter}",
             f"--definition={test_option}",
-            f"--export={RESULTS_XML_PATH}"
+            f"--export={RESULTS_XML_PATH}",
+            "--clean-temporary-files",
+            "--systeminfomonitor=off",
+            "--systeminfo=off"
     ]
     return command
 
