@@ -13,7 +13,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import press_n_times, user
-from harness_utils.file_cleanup import remove_files
+from harness_utils.files import remove_files
 from harness_utils.ocr_service import find_word
 from harness_utils.report import (
     format_resolution,
