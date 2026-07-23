@@ -14,7 +14,7 @@ from marvelrivals_utils import find_latest_benchmarkcsv, read_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.input import mouse_scroll_n_times
@@ -117,7 +117,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "video1.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video1.png")
     time.sleep(1)
     mouse_scroll_n_times(1, -1200, 0.2)
     time.sleep(0.5)
@@ -127,7 +127,7 @@ def run_benchmark():
         logging.info("Did not find the post-processing option. Did it scroll down far enough?")
         sys.exit(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
     time.sleep(1)
     mouse_scroll_n_times(1, -1200, 0.2)
     time.sleep(0.5)

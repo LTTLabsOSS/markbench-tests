@@ -10,7 +10,7 @@ import pydirectinput as user  # type: ignore[import-not-found]
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
@@ -116,33 +116,33 @@ def navi_settings():
 
     time.sleep(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "display1.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display1.png")
 
     press_n_times("down", 13, 0.3)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "display2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display2.png")
 
     press_n_times("down", 4, 0.3)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "display3.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display3.png")
 
     user.press("c")
 
     time.sleep(1)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "scalability1.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability1.png")
 
     press_n_times("down", 10, 0.3)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "scalability2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability2.png")
 
     press_n_times("down", 6, 0.3)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "scalability3.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability3.png")
 
     press_n_times("down", 5, 0.3)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "scalability4.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability4.png")
 
     user.press("esc")
 
@@ -215,7 +215,7 @@ def run_benchmark():
     elapsed_test_time = test_end_time - test_start_time
     logging.info("Benchmark took %d seconds", elapsed_test_time)
 
-    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
 
     user.press("x")
 

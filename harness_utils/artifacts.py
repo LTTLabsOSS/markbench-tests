@@ -48,7 +48,9 @@ def reset_artifacts(artifact_directory: str | os.PathLike) -> Path:
     return directory
 
 
-def save_screenshot(output_path: str | os.PathLike, vulkan: bool = False) -> None:
+def capture_and_save_screenshot(
+    output_path: str | os.PathLike, vulkan: bool = False
+) -> None:
     """Capture a PNG screenshot and save it to the requested artifact path."""
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)

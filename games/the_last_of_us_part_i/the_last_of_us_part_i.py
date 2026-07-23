@@ -12,7 +12,7 @@ from the_last_of_us_part_i_utils import copy_autosave, get_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
@@ -62,21 +62,21 @@ def take_screenshots() -> None:
     if not result:
         logging.info("Did not see aspect ratio setting. Did something mess up?")
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "video1.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video1.png")
     press_n_times("s", 14, 0.2)
 
     result = find_word("safezone", interval=1, timeout=5)
     if not result:
         logging.info("Did not see safezone scale setting. Did something mess up?")
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
     press_n_times("s", 7, 0.2)
 
     result = find_word("gore", interval=1, timeout=5)
     if not result:
         logging.info("Did not see gore setting. Did something mess up?")
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "video3.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video3.png")
 
     # navigating to the graphics menu
     user.press("backspace")
@@ -94,7 +94,7 @@ def take_screenshots() -> None:
     if not result:
         logging.info("Did not see graphics preset setting. Did something mess up?")
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
     press_n_times("s", 10, 0.2)
 
     result = find_word("sampling", interval=1, timeout=5)
@@ -103,7 +103,7 @@ def take_screenshots() -> None:
             "Did not see texture sampling quality setting. Did something mess up?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
     press_n_times("s", 7, 0.2)
 
     result = find_word("point", interval=1, timeout=5)
@@ -112,7 +112,7 @@ def take_screenshots() -> None:
             "Did not see point lights shadow resolution setting. Did something mess up?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")
     press_n_times("s", 8, 0.2)
 
     result = find_word("tracing", interval=1, timeout=5)
@@ -121,7 +121,7 @@ def take_screenshots() -> None:
             "Did not see screen space cone tracing setting. Did something mess up?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics4.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics4.png")
     press_n_times("s", 7, 0.2)
 
     result = find_word("scattering", interval=1, timeout=5)
@@ -130,14 +130,14 @@ def take_screenshots() -> None:
             "Did not see screen space sub-surface scattering setting. Did something mess up?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics5.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics5.png")
     press_n_times("s", 6, 0.2)
 
     result = find_word("bloom", interval=1, timeout=5)
     if not result:
         logging.info("Did not see bloom resolution setting. Did something mess up?")
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics6.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics6.png")
     press_n_times("s", 6, 0.2)
 
     result = find_word("ambient", interval=1, timeout=5)
@@ -146,7 +146,7 @@ def take_screenshots() -> None:
             "Did not see ambient character density setting. Did something mess up?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics7.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics7.png")
     time.sleep(0.5)
 
     # navigating back to main menu

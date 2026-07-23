@@ -10,7 +10,7 @@ from forzahorizon6_utils import read_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, reset_artifacts
 from harness_utils.input import mangohud_log_toggle, press_n_times, user
 from harness_utils.ocr_service import find_word
 from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
@@ -105,11 +105,11 @@ def run_benchmark():
     press_n_times("down", 6, 1)
     time.sleep(1)
     user.press("enter")
-    save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt.png")
     time.sleep(1)
 
     press_n_times("down", 21, 1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt2.png")
     user.press("escape")
     time.sleep(1)
 
@@ -123,9 +123,9 @@ def run_benchmark():
     time.sleep(1)
     user.press("enter")
     time.sleep(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt.png")
     press_n_times("down", 18, 1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt2.png")
     time.sleep(1)
     user.press("down")
     time.sleep(1)

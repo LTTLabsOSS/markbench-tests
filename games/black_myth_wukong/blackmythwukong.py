@@ -11,7 +11,7 @@ import vgamepad as vg
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
 from harness_utils.input import mangohud_log_toggle, user
 from harness_utils.controllers import LTTGamePad360
 from harness_utils.ocr_service import find_word
@@ -99,7 +99,7 @@ def run_benchmark():
             "Did not find the display settings menu. Did the game navigate the settings correctly?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
 
     gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN, n=2, pause=0.5)
     gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
@@ -136,7 +136,7 @@ def run_benchmark():
             "Did not find the top of the graphics menu. Did the game navigate the settings menu correctly?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
 
     gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP, n=9, pause=0.5)
 
@@ -145,7 +145,7 @@ def run_benchmark():
             "Did not find the bottom of the graphics menu. Did the game scroll down the graphics settings menu correctly?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
 
     gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B, n=2, pause=0.5)
     time.sleep(2)
@@ -187,7 +187,7 @@ def run_benchmark():
     time.sleep(5)
     if is_linux():
         mangohud_log_toggle()
-    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     copy_artifact(CONFIG_LOCATION / CONFIG_FILENAME, ARTIFACTS_DIRECTORY)
     time.sleep(0.5)
 

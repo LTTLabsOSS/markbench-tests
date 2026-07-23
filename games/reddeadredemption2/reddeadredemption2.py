@@ -12,7 +12,7 @@ from red_dead_redemption_2_utils import get_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, reset_artifacts
 from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
@@ -85,7 +85,7 @@ def run_benchmark():
             "Did not find the resolution setting. Did the game navigate correctly?"
         )
         sys.exit(1)
-    save_screenshot(ARTIFACTS_DIRECTORY / "Graphics1.png", vulkan=True)
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Graphics1.png", vulkan=True)
 
     result = find_word("nvidia", vulkan=True, timeout=5)
     if result:
@@ -98,7 +98,7 @@ def run_benchmark():
                 "Did not find the FSR mode description. Did it navigate correctly?"
             )
             sys.exit(1)
-        save_screenshot(ARTIFACTS_DIRECTORY / "Graphics2.png", vulkan=True)
+        capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Graphics2.png", vulkan=True)
         press_n_times("down", 14, 0.2)
 
         result = find_word("long", vulkan=True, timeout=5)
@@ -107,7 +107,7 @@ def run_benchmark():
                 "Did not find the Long Shadows settings. Did it navigate correctly?"
             )
             sys.exit(1)
-        save_screenshot(ARTIFACTS_DIRECTORY / "Graphics3.png", vulkan=True)
+        capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Graphics3.png", vulkan=True)
         press_n_times("down", 15, 0.2)
 
         result = find_word("tessellation", vulkan=True, timeout=5)
@@ -116,7 +116,7 @@ def run_benchmark():
                 "Did not find the Tree Tessellation settings. Did OCR navigate correctly?"
             )
             sys.exit(1)
-        save_screenshot(ARTIFACTS_DIRECTORY / "Graphics4.png", vulkan=True)
+        capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Graphics4.png", vulkan=True)
 
     else:
         logging.info("NVIDIA card not detected on screen, navigating accordingly.")
@@ -126,7 +126,7 @@ def run_benchmark():
         if not result:
             logging.info("Did not find the MSAA settings. Did OCR navigate correctly?")
             sys.exit(1)
-        save_screenshot(ARTIFACTS_DIRECTORY / "Graphics2.png", vulkan=True)
+        capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Graphics2.png", vulkan=True)
         press_n_times("down", 14, 0.2)
 
         result = find_word("reflection", vulkan=True, timeout=5)
@@ -135,7 +135,7 @@ def run_benchmark():
                 "Did not find the Water Reflection Quality settings. Did OCR navigate correctly?"
             )
             sys.exit(1)
-        save_screenshot(ARTIFACTS_DIRECTORY / "Graphics3.png", vulkan=True)
+        capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Graphics3.png", vulkan=True)
         press_n_times("down", 12, 0.2)
 
         result = find_word("tessellation", vulkan=True, timeout=5)
@@ -144,7 +144,7 @@ def run_benchmark():
                 "Did not find the Tree Tessellation settings. Did OCR navigate correctly?"
             )
             sys.exit(1)
-        save_screenshot(ARTIFACTS_DIRECTORY / "Graphics4.png", vulkan=True)
+        capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Graphics4.png", vulkan=True)
 
     # Run benchmark by holding X for 2 seconds
     result = find_word("benchmark", vulkan=True, timeout=5)
@@ -178,7 +178,7 @@ def run_benchmark():
         logging.info("Did not find the end results screen. Did the benchmark crash?")
         sys.exit(1)
     test_end_time = int(time.time())
-    save_screenshot(ARTIFACTS_DIRECTORY / "results.png", vulkan=True)
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png", vulkan=True)
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
     copy_artifact(Path(CONFIG_FULL_PATH), ARTIFACTS_DIRECTORY)
