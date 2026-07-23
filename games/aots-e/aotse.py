@@ -107,8 +107,15 @@ def run_benchmark():
 
 setup_logging(LOG_DIRECTORY)
 
-args = get_args()
-
+parser = ArgumentParser()
+parser.add_argument(
+        "--benchmark",
+        dest="benchmark",
+        help="Benchmark test type",
+        required=True,
+        choices=BENCHMARK_CONFIG.keys(),
+    )
+args, unknown = parser.parse_known_args()
 try:
     logging.info("Starting benchmark!")
     RESULT = "Output_*_*_*_*.txt"
