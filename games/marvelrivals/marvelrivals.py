@@ -136,13 +136,7 @@ def run_benchmark():
         logging.info("Did not find the max visible players option. Did it scroll down far enough?")
         sys.exit(1)
 
-<<<<<<< HEAD
-    am.take_screenshot(
-        "video3.png", ArtifactType.CONFIG_IMAGE, "3rd picture of video settings"
-    )
-=======
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
->>>>>>> 567dd2de8183f22dd2cedf110efd0915ba31e41f
     time.sleep(1)
 
     # navigate to the player profile
