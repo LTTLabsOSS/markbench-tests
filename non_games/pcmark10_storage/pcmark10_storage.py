@@ -3,8 +3,10 @@ import logging
 import subprocess
 import sys
 import time
+import shutil
 from argparse import ArgumentParser
 from pathlib import Path
+import threading
 
 import psutil
 from utils import (
@@ -33,6 +35,7 @@ LOG_DIR = SCRIPT_DIR / "run"
 DIR_PCMARK10 = Path(get_install_path())
 EXECUTABLE = "PCMark10Cmd.exe"
 ABS_EXECUTABLE_PATH = DIR_PCMARK10 / EXECUTABLE
+TMP_DIR = Path(r"C:\ProgramData\UL\PCMark 10\tmp")
 CONFIG_DIR = SCRIPT_DIR / "config"
 BENCHMARK_CONFIG = {
     "full": {
@@ -81,6 +84,8 @@ def cleanup_pcmark():
             "PCMark10.exe",
             "PCMark10-Storage.exe",
             "SystemInfo.exe",
+            "FMSISvc.exe",
+            "FMSIScan.exe"
         ):
             found = True
             logging.info(
@@ -102,6 +107,28 @@ def cleanup_pcmark():
 
     if not found:
         logging.info("No lingering PCMark processes found.")
+
+def log_pcmark_output(proc):
+    for line in proc.stdout:
+        logging.info("PCMark: %s", line.strip())
+
+def cleanup_tmp():
+    if not TMP_DIR.exists():
+        return
+
+    logging.info("Cleaning PCMark temporary directory...")
+
+    for item in TMP_DIR.iterdir():
+        try:
+            if item.is_file():
+                logging.info("Deleting %s", item)
+                item.unlink()
+            elif item.is_dir():
+                logging.info("Deleting directory %s", item)
+                shutil.rmtree(item)
+
+        except Exception as e:
+            logging.warning("Failed to delete %s: %s", item, e)
 
 def normalize_drive_letter(drive_letter: str) -> str:
     """Strips the drive letter to pass it to the harness"""
@@ -139,8 +166,16 @@ def run_benchmark(process_name, command_to_run, start_time):
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         universal_newlines=True,
+        bufsize=1
     ) as proc:
-        logging.info("PCMark 10 Storage benchmark has started.")
+        logging.info("Starting PCMark 10 Storage benchmark.")
+        output_thread = threading.Thread(
+            target=log_pcmark_output,
+            args=(proc,),
+            daemon=True,
+        )
+        output_thread.start()
+        logging.info("Waiting for PCMark 10 Storage test to initialize.")
         while True:
             now = time.time()
             elapsed = now - start_time
@@ -149,9 +184,11 @@ def run_benchmark(process_name, command_to_run, start_time):
             process = is_process_running(process_name)
             if process is not None:
                 process.nice(psutil.HIGH_PRIORITY_CLASS)
+                logging.info("PCMark 10 Storage benchmark has initialized.")
                 break
             time.sleep(0.2)
-        _, _ = proc.communicate()  # blocks until pcmark exits
+
+        proc.wait()
         return proc
 
 
@@ -215,4 +252,5 @@ except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)
     cleanup_pcmark()
+    cleanup_tmp()
     sys.exit(1)
