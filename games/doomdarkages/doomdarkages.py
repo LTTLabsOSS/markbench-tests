@@ -123,7 +123,7 @@ def run_benchmark():
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png", vulkan=True)
-    mouse_scroll_n_times(6, -120, 0.5)
+    mouse_scroll_n_times(5, -120, 0.5)
     time.sleep(1)
 
     result = find_word("tracing", vulkan=True, interval=3, timeout=15)
