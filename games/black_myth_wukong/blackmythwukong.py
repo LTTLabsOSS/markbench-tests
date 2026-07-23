@@ -70,7 +70,7 @@ def run_benchmark():
     if is_linux():
         mangohud_log_toggle()
     else:
-        gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+        gamepad.press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
 
     benchmark_result = find_word(word="benchmark", timeout=30, interval=1)
     if benchmark_result is None:
@@ -79,9 +79,9 @@ def run_benchmark():
     if is_linux():
         user.move_mouse(benchmark_result["x"], benchmark_result["y"])
     time.sleep(1)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
     time.sleep(0.5)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(0.5)
 
     if find_word(word="loop", timeout=30, interval=1) is None:
@@ -90,7 +90,7 @@ def run_benchmark():
         )
         sys.exit(1)
     gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN, n=3, pause=0.5)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(0.5)
 
     if find_word(word="calibration", timeout=30, interval=1) is None:
@@ -101,7 +101,7 @@ def run_benchmark():
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
 
     gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN, n=2, pause=0.5)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(0.5)
 
     # We do a little toggling here in order to get the settings to update correctly, because wukong has no true full screen option
@@ -110,24 +110,24 @@ def run_benchmark():
             "Did not find the keyword 'windowed'. Did the game select the display mode setting correctly?"
         )
         sys.exit(1)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
     time.sleep(0.5)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(0.5)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_LEFT)
+    gamepad.press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_LEFT)
     time.sleep(0.5)
     gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A, n=3, pause=0.5)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_LEFT)
+    gamepad.press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_LEFT)
     time.sleep(0.5)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(0.5)
 
     # navigate to graphics menu
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
+    gamepad.press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
     time.sleep(0.5)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    gamepad.press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
     time.sleep(0.5)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(0.5)
 
     if find_word(word="super", timeout=30, interval=1) is None:
@@ -154,7 +154,7 @@ def run_benchmark():
             "Did not find the option to start the benchmark. Did the game exit the settings menu correctly?"
         )
         sys.exit(1)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(2)
 
     if find_word(word="confirm", timeout=30, interval=1) is None:
@@ -162,7 +162,7 @@ def run_benchmark():
             "Did not find the confirmation to start the benchmark. Did the game select the start benchmark option correctly?"
         )
         sys.exit(1)
-    gamepad.single_press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    gamepad.press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     time.sleep(0.5)
 
     # log set up time

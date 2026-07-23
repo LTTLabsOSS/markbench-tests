@@ -50,20 +50,20 @@ def run_benchmark(am):
         sys.exit(1)
 
     #Navigating to the options
-    GAMEPAD.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_OPTIONS)
+    GAMEPAD.press(button=vg.DS4_BUTTONS.DS4_BUTTON_OPTIONS)
 
     if find_word(word="options", interval=0.5, timeout=100) is None:
         logging.info("Could not find the options menu. Was something else on the screen?")
         sys.exit(1)
 
-    GAMEPAD.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
+    GAMEPAD.press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
 
     #Navigating to the display settings and screenshotting
     if find_word(word="general", interval=0.5, timeout=100) is None:
         logging.info("Could not find the general options. Did it navigate to the settings correctly?")
         sys.exit(1)
 
-    GAMEPAD.button_press_n_times(button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT, n=3, pause=0.3)
+    GAMEPAD.press_n_times(button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT, n=3, pause=0.3)
 
     if find_word(word="monitor", interval=0.5, timeout=100) is None:
         logging.info("Could not find the monitor. Did it navigate to the display settings correctly?")
@@ -77,7 +77,7 @@ def run_benchmark(am):
     time.sleep(1)
 
     #Navigating to the graphics settings and screenshotting
-    GAMEPAD.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT)
+    GAMEPAD.press(button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT)
 
     if find_word(word="filtering", interval=0.5, timeout=100) is None:
         logging.info("Could not find the texture filtering setting. Did it navigate to the graphics settings correctly?")
@@ -108,7 +108,7 @@ def run_benchmark(am):
     time.sleep(1)
 
     #Starting the benchmark
-    GAMEPAD.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_THUMB_RIGHT)
+    GAMEPAD.press(button=vg.DS4_BUTTONS.DS4_BUTTON_THUMB_RIGHT)
 
     elapsed_setup_time = int(time.time() - setup_start_time)
     logging.info("Setup took %f seconds", elapsed_setup_time)

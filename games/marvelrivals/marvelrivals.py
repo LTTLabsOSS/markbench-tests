@@ -39,7 +39,6 @@ CFG = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
 user.FAILSAFE = False
 
 
-
 def start_game():
     """Starts the game process"""
     game_path = get_app_install_location(STEAM_GAME_ID)
@@ -123,7 +122,9 @@ def run_benchmark():
 
     result = find_word("processing", timeout=30, interval=1)
     if not result:
-        logging.info("Did not find the post-processing option. Did it scroll down far enough?")
+        logging.info(
+            "Did not find the post-processing option. Did it scroll down far enough?"
+        )
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
@@ -133,10 +134,12 @@ def run_benchmark():
 
     result = find_word("times", timeout=30, interval=1)
     if not result:
-        logging.info("Did not find the max visible players option. Did it scroll down far enough?")
+        logging.info(
+            "Did not find the max visible players option. Did it scroll down far enough?"
+        )
         sys.exit(1)
 
-    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video3.png")
     time.sleep(1)
 
     # navigate to the player profile
