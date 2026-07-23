@@ -12,7 +12,8 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from doomdarkages_utils import copy_launcher_config
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.files import copy_to_directory, reset_directory
+from harness_utils.screenshot import capture_screenshot_png
 from harness_utils.input import (
     mangohud_log_toggle,
     mouse_scroll_n_times,
@@ -33,6 +34,7 @@ from harness_utils.steam import exec_steam_game, get_build_id
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+ARTIFACTS_DIRECTORY = LOG_DIRECTORY / "artifacts"
 PROCESS_NAME = "DOOMTheDarkAges.exe"
 STEAM_GAME_ID = 3017860
 BENCHMARK_RESULTS_PATH = (
@@ -67,7 +69,7 @@ def find_latest_result_file(base_path):
 def run_benchmark():
     """Runs the actual benchmark."""
     start_game()
-    am = ArtifactManager(LOG_DIRECTORY)
+    reset_directory(ARTIFACTS_DIRECTORY)
 
     setup_start_time = int(time.time())
     time.sleep(25)
@@ -113,10 +115,8 @@ def run_benchmark():
         logging.info("Didn't find the video settings. Did it navigate correctly?")
         sys.exit(1)
 
-    am.take_screenshot_vulkan(
-        "video1.png", ArtifactType.CONFIG_IMAGE, "1st screenshot of video settings menu"
-    )
-    mouse_scroll_n_times(5, -120, 0.5)
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video1.png", vulkan=True)
+    mouse_scroll_n_times(7, -120, 0.5)
     time.sleep(1)
 
     result = find_word("fsr", vulkan=True, interval=3, timeout=15)
@@ -126,10 +126,15 @@ def run_benchmark():
         )
         sys.exit(1)
 
+<<<<<<< HEAD
     am.take_screenshot_vulkan(
         "video2.png", ArtifactType.CONFIG_IMAGE, "2nd screenshot of video settings menu"
     )
     mouse_scroll_n_times(5, -120, 0.5)
+=======
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video2.png", vulkan=True)
+    mouse_scroll_n_times(6, -120, 0.5)
+>>>>>>> 2f4b1da (Move more game artifacts)
     time.sleep(1)
 
     result = find_word("tracing", vulkan=True, interval=3, timeout=15)
@@ -137,9 +142,7 @@ def run_benchmark():
         logging.info("Didn't find the path tracing heading. Did it navigate correctly?")
         sys.exit(1)
 
-    am.take_screenshot_vulkan(
-        "video3.png", ArtifactType.CONFIG_IMAGE, "3rd screenshot of video settings menu"
-    )
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video3.png", vulkan=True)
     mouse_scroll_n_times(5, -120, 0.5)
     time.sleep(1)
 
@@ -150,9 +153,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    am.take_screenshot_vulkan(
-        "video4.png", ArtifactType.CONFIG_IMAGE, "4th screenshot of video settings menu"
-    )
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video4.png", vulkan=True)
     mouse_scroll_n_times(5, -120, 0.5)
     time.sleep(0.5)
 
@@ -161,9 +162,7 @@ def run_benchmark():
         logging.info("Didn't find the brightness setting. Did it navigate correctly?")
         sys.exit(1)
 
-    am.take_screenshot_vulkan(
-        "video5.png", ArtifactType.CONFIG_IMAGE, "5th screenshot of video settings menu"
-    )
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video5.png", vulkan=True)
     user.press("escape")
     time.sleep(0.5)
 
@@ -236,12 +235,8 @@ def run_benchmark():
 
     logging.info("Results screen was found! Finishing benchmark.")
     results_file = find_latest_result_file(BENCHMARK_RESULTS_PATH)
-    am.take_screenshot_vulkan(
-        "results.png", ArtifactType.RESULTS_IMAGE, "screenshot of results"
-    )
-    am.copy_file(
-        results_file, ArtifactType.RESULTS_TEXT, "benchmark results/settings xml file"
-    )
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "results.png", vulkan=True)
+    copy_to_directory(results_file, ARTIFACTS_DIRECTORY)
 
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
@@ -250,7 +245,7 @@ def run_benchmark():
         mangohud_log_toggle()
 
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
+
 
     return test_start_time, test_end_time
 

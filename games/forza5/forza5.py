@@ -13,7 +13,8 @@ from forza5_utils import read_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.files import reset_directory
+from harness_utils.screenshot import capture_screenshot_png
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
 from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
@@ -25,6 +26,7 @@ from harness_utils.steam import exec_steam_run_command
 STEAM_GAME_ID = 1551360
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+ARTIFACTS_DIRECTORY = LOG_DIRECTORY / "artifacts"
 APPDATALOCAL = os.getenv("LOCALAPPDATA")
 CONFIG_LOCATION = (
     f"{APPDATALOCAL}\\ForzaHorizon5\\User_SteamLocalStorageDirectory"
@@ -76,12 +78,12 @@ def run_benchmark():
     gui.mouseDown()
     time.sleep(0.2)
     gui.mouseUp()
-    am.take_screenshot("Video_pt.png", ArtifactType.CONFIG_IMAGE, "Video menu")
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "Video_pt.png")
     time.sleep(0.2)
     press_n_times("down", 19, 0.1)
-    am.take_screenshot("Video_pt2.png", ArtifactType.CONFIG_IMAGE, "Video menu2")
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "Video_pt2.png")
     press_n_times("down", 5, 0.1)
-    am.take_screenshot("Video_pt3.png", ArtifactType.CONFIG_IMAGE, "Video menu3")
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "Video_pt3.png")
     time.sleep(0.2)
     user.press("escape")
     time.sleep(1)
@@ -98,10 +100,10 @@ def run_benchmark():
     time.sleep(0.2)
     gui.mouseUp()
     time.sleep(0.2)
-    am.take_screenshot("graphics_pt.png", ArtifactType.CONFIG_IMAGE, "graphics menu")
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "graphics_pt.png")
     time.sleep(0.2)
     press_n_times("down", 16, 0.1)
-    am.take_screenshot("graphics_pt2.png", ArtifactType.CONFIG_IMAGE, "graphics menu2")
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "graphics_pt2.png")
     time.sleep(0.1)
     user.press("down")
     time.sleep(1)
@@ -148,7 +150,7 @@ def run_benchmark():
 
 setup_logging(LOG_DIRECTORY)
 
-am = ArtifactManager(LOG_DIRECTORY)
+reset_directory(ARTIFACTS_DIRECTORY)
 
 try:
     start_time, end_time = run_benchmark()
@@ -158,7 +160,7 @@ try:
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
     }
-    am.create_manifest()
+
     write_report_json(LOG_DIRECTORY, "report.json", report)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
