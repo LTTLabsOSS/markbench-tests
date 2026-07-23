@@ -5,12 +5,13 @@ import sys
 import time
 from pathlib import Path
 
-import pydirectinput as user
+import pydirectinput as user  # type: ignore[import-not-found]
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.files import reset_directory  # type: ignore[import-not-found]
+from harness_utils.screenshot import capture_screenshot_png
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
 from harness_utils.report import (
@@ -26,6 +27,7 @@ USERNAME = getpass.getuser()
 STEAM_GAME_ID = 3159330
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+ARTIFACTS_DIRECTORY = LOG_DIRECTORY / "artifacts"
 PROCESS_NAME = "ACShadows.exe"
 
 CONFIG_LOCATION = f"C:\\Users\\{USERNAME}\\Documents\\Assassin's Creed Shadows"
@@ -34,22 +36,25 @@ CONFIG_FILENAME = "ACShadows.ini"
 user.FAILSAFE = False
 
 
-def read_current_resolution():
+def read_current_resolution() -> tuple[int, int]:
     """Reads resolutions settings from local game file"""
     height_pattern = re.compile(r"FullscreenWidth=(\d+)")
     width_pattern = re.compile(r"FullscreenHeight=(\d+)")
     cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
     height_value = 0
     width_value = 0
-    with open(cfg, encoding="utf-8") as file:
-        lines = file.readlines()
-        for line in lines:
-            height_match = height_pattern.search(line)
-            width_match = width_pattern.search(line)
-            if height_match is not None:
-                height_value = height_match.group(1)
-            if width_match is not None:
-                width_value = width_match.group(1)
+    try:
+        with open(cfg, encoding="utf-8") as file:
+            for line in file:
+                height_match = height_pattern.search(line)
+                width_match = width_pattern.search(line)
+                if height_match is not None:
+                    height_value = int(height_match.group(1))
+                if width_match is not None:
+                    width_value = int(width_match.group(1))
+    except OSError:
+        logging.exception("Failed to read resolution from %s", cfg)
+        raise
     return (height_value, width_value)
 
 
@@ -89,7 +94,7 @@ def move_benchmark_file():
     )
 
     for src_path in src_dir.iterdir():
-        dest_path = LOG_DIRECTORY / src_path.name
+        dest_path = ARTIFACTS_DIRECTORY / src_path.name
 
         if src_path.is_file():
             try:
@@ -107,47 +112,39 @@ def start_game():
     logging.info("Launching Game from Steam")
 
 
-def navi_settings(am):
+def navi_settings():
     """navigates and takes pictures of settings"""
     user.press("space")
 
     time.sleep(1)
 
-    am.take_screenshot("display1.png", ArtifactType.CONFIG_IMAGE, "display settings 1")
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "display1.png")
 
     press_n_times("down", 13, 0.3)
 
-    am.take_screenshot("display2.png", ArtifactType.CONFIG_IMAGE, "display settings 2")
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "display2.png")
 
     press_n_times("down", 4, 0.3)
 
-    am.take_screenshot("display3.png", ArtifactType.CONFIG_IMAGE, "display settings 3")
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "display3.png")
 
     user.press("c")
 
     time.sleep(1)
 
-    am.take_screenshot(
-        "scalability1.png", ArtifactType.CONFIG_IMAGE, "scalability settings 1"
-    )
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "scalability1.png")
 
     press_n_times("down", 10, 0.3)
 
-    am.take_screenshot(
-        "scalability2.png", ArtifactType.CONFIG_IMAGE, "scalability settings 2"
-    )
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "scalability2.png")
 
     press_n_times("down", 6, 0.3)
 
-    am.take_screenshot(
-        "scalability3.png", ArtifactType.CONFIG_IMAGE, "scalability settings 3"
-    )
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "scalability3.png")
 
     press_n_times("down", 5, 0.3)
 
-    am.take_screenshot(
-        "scalability4.png", ArtifactType.CONFIG_IMAGE, "scalability settings 4"
-    )
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "scalability4.png")
 
     user.press("esc")
 
@@ -156,8 +153,8 @@ def run_benchmark():
     """runs the benchmark"""
     delete_videos()
     start_game()
-    setup_start_time = int(time.time())
-    am = ArtifactManager(LOG_DIRECTORY)
+    setup_start_time = round(time.time())
+    reset_directory(ARTIFACTS_DIRECTORY)
     time.sleep(15)
 
     if find_word(word="hardware", timeout=30, interval=1) is None:
@@ -187,7 +184,7 @@ def run_benchmark():
         logging.error("couldn't find 'benchmark' on screen before settings")
         sys.exit(1)
 
-    navi_settings(am)
+    navi_settings()
 
     if find_word("benchmark", timeout=30, interval=1) is None:
         logging.error("couldn't find 'benchmark' on screen after settings")
@@ -199,7 +196,7 @@ def run_benchmark():
 
     user.press("space")
 
-    setup_end_time = int(time.time())
+    setup_end_time = round(time.time())
     elapsed_setup_time = setup_end_time - setup_start_time
     logging.info("Setup took %d seconds", elapsed_setup_time)
 
@@ -207,7 +204,7 @@ def run_benchmark():
         logging.info("did not find benchmark")
         sys.exit(1)
 
-    test_start_time = int(time.time())
+    test_start_time = round(time.time())
 
     time.sleep(100)
 
@@ -215,12 +212,12 @@ def run_benchmark():
         logging.error("did not find results screen")
         sys.exit(1)
 
-    test_end_time = int(time.time()) - 2
+    test_end_time = round(time.time()) - 2
 
     elapsed_test_time = test_end_time - test_start_time
     logging.info("Benchmark took %d seconds", elapsed_test_time)
 
-    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    capture_screenshot_png(ARTIFACTS_DIRECTORY / "results.png")
 
     user.press("x")
 
@@ -234,7 +231,7 @@ def run_benchmark():
 
     terminate_process(PROCESS_NAME)
 
-    am.create_manifest()
+
 
     return test_start_time, test_end_time
 
