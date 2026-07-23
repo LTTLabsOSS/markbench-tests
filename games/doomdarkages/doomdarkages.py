@@ -122,13 +122,8 @@ def run_benchmark():
         )
         sys.exit(1)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 567dd2de8183f22dd2cedf110efd0915ba31e41f
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png", vulkan=True)
     mouse_scroll_n_times(6, -120, 0.5)
->>>>>>> 2f4b1da (Move more game artifacts)
     time.sleep(1)
 
     result = find_word("tracing", vulkan=True, interval=3, timeout=15)
