@@ -14,17 +14,15 @@ from farcry6_utils import get_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.files import copy_to_directory, reset_directory
-from harness_utils.screenshot import capture_screenshot_png
+from harness_utils.artifacts import copy_artifact, reset_artifacts, save_screenshot
+from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.input import mouse_scroll_n_times, press_n_times
 from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-ARTIFACTS_DIRECTORY = LOG_DIRECTORY / "artifacts"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "FarCry6.exe"
 GAME_ID = 5266
 username = os.getlogin()
@@ -47,7 +45,7 @@ def skip_logo_screens() -> None:
 
 
 def run_benchmark():
-    reset_directory(ARTIFACTS_DIRECTORY)
+    reset_artifacts(ARTIFACTS_DIRECTORY)
     start_game()
     setup_start_time = int(time.time())
     time.sleep(25)
@@ -107,7 +105,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
 
     time.sleep(2)
 
@@ -120,7 +118,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "quality1.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "quality1.png")
 
     time.sleep(2)
 
@@ -133,7 +131,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "quality2.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "quality2.png")
 
     time.sleep(2)
 
@@ -146,7 +144,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "advanced.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "advanced.png")
 
     # starting the benchmark
     time.sleep(2)
@@ -174,12 +172,12 @@ def run_benchmark():
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logging.info("Benchmark took %f seconds", elapsed_test_time)
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "results.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     time.sleep(1)
 
     # Exit
     terminate_process(PROCESS_NAME)
-    copy_to_directory(XML_FILE, ARTIFACTS_DIRECTORY)
+    copy_artifact(XML_FILE, ARTIFACTS_DIRECTORY)
 
 
     return test_start_time, test_end_time

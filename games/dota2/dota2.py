@@ -17,24 +17,22 @@ from dota2_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.files import reset_directory
-from harness_utils.screenshot import capture_screenshot_png
+from harness_utils.artifacts import reset_artifacts, save_screenshot
+from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-ARTIFACTS_DIRECTORY = LOG_DIRECTORY / "artifacts"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "dota2.exe"
 STEAM_GAME_ID = 570
 
 
 setup_logging(LOG_DIRECTORY)
 
-reset_directory(ARTIFACTS_DIRECTORY)
+reset_artifacts(ARTIFACTS_DIRECTORY)
 
 user.FAILSAFE = False
 
@@ -120,7 +118,7 @@ def screenshot_settings():
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video1.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "video1.png")
 
     user.press("down")
 
@@ -128,7 +126,7 @@ def screenshot_settings():
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video2.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
 
     user.press("down")
 
@@ -136,7 +134,7 @@ def screenshot_settings():
         logging.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
-    capture_screenshot_png(ARTIFACTS_DIRECTORY / "video3.png")
+    save_screenshot(ARTIFACTS_DIRECTORY / "video3.png")
 
 
 def load_the_benchmark():
