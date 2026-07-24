@@ -22,6 +22,8 @@ from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "b1-Win64-Shipping.exe"
 STEAM_GAME_ID = 3132990
@@ -53,7 +55,7 @@ def read_current_resolution():
 def start_game():
     """Starts the game process"""
     exec_steam_game(STEAM_GAME_ID)
-    logging.info("Launching Game from Steam")
+    logger.info("Launching Game from Steam")
 
 
 def run_benchmark():
@@ -64,7 +66,7 @@ def run_benchmark():
     time.sleep(20)
 
     if find_word(word="black", timeout=30, interval=1) is None:
-        logging.info("Did not find the welcome screen. Did the game launch correctly?")
+        logger.info("Did not find the welcome screen. Did the game launch correctly?")
         sys.exit(1)
     time.sleep(5)
     if is_linux():
@@ -74,7 +76,7 @@ def run_benchmark():
 
     benchmark_result = find_word(word="benchmark", timeout=30, interval=1)
     if benchmark_result is None:
-        logging.info("did not find main menu")
+        logger.info("did not find main menu")
         sys.exit(1)
     if is_linux():
         user.move_mouse(benchmark_result["x"], benchmark_result["y"])
@@ -85,7 +87,7 @@ def run_benchmark():
     time.sleep(0.5)
 
     if find_word(word="loop", timeout=30, interval=1) is None:
-        logging.info(
+        logger.info(
             "Did not find the benchmark settings menu. Did the game navigate to the settings correctly?"
         )
         sys.exit(1)
@@ -94,7 +96,7 @@ def run_benchmark():
     time.sleep(0.5)
 
     if find_word(word="calibration", timeout=30, interval=1) is None:
-        logging.info(
+        logger.info(
             "Did not find the display settings menu. Did the game navigate the settings correctly?"
         )
         sys.exit(1)
@@ -106,7 +108,7 @@ def run_benchmark():
 
     # We do a little toggling here in order to get the settings to update correctly, because wukong has no true full screen option
     if find_word(word="windowed", timeout=30, interval=1) is None:
-        logging.info(
+        logger.info(
             "Did not find the keyword 'windowed'. Did the game select the display mode setting correctly?"
         )
         sys.exit(1)
@@ -131,7 +133,7 @@ def run_benchmark():
     time.sleep(0.5)
 
     if find_word(word="super", timeout=30, interval=1) is None:
-        logging.info(
+        logger.info(
             "Did not find the top of the graphics menu. Did the game navigate the settings menu correctly?"
         )
         sys.exit(1)
@@ -140,7 +142,7 @@ def run_benchmark():
     gamepad.press_n_times(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP, n=9, pause=0.5)
 
     if find_word(word="reflection", timeout=30, interval=1) is None:
-        logging.info(
+        logger.info(
             "Did not find the bottom of the graphics menu. Did the game scroll down the graphics settings menu correctly?"
         )
         sys.exit(1)
@@ -150,7 +152,7 @@ def run_benchmark():
     time.sleep(2)
 
     if find_word(word="benchmark", timeout=30, interval=1) is None:
-        logging.info(
+        logger.info(
             "Did not find the option to start the benchmark. Did the game exit the settings menu correctly?"
         )
         sys.exit(1)
@@ -158,7 +160,7 @@ def run_benchmark():
     time.sleep(2)
 
     if find_word(word="confirm", timeout=30, interval=1) is None:
-        logging.info(
+        logger.info(
             "Did not find the confirmation to start the benchmark. Did the game select the start benchmark option correctly?"
         )
         sys.exit(1)
@@ -167,11 +169,11 @@ def run_benchmark():
 
     # log set up time
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
+    logger.info("Setup took %f seconds", elapsed_setup_time)
 
     result = find_word("current", interval=1, timeout=100)
     if not result:
-        logging.info("Could not find current. Unable to mark start time!")
+        logger.info("Could not find current. Unable to mark start time!")
         sys.exit(1)
 
     test_start_time = int(time.time()) - 2
@@ -179,7 +181,7 @@ def run_benchmark():
     time.sleep(142)
 
     if find_word(word="result", timeout=30, interval=1) is None:
-        logging.info("Did not find result screen. Did the benchmark run?")
+        logger.info("Did not find result screen. Did the benchmark run?")
         sys.exit(1)
 
     test_end_time = int(time.time()) - 1
@@ -192,7 +194,7 @@ def run_benchmark():
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Exit
     terminate_process(PROCESS_NAME)
@@ -221,7 +223,7 @@ if __name__ == "__main__":
         setup_logging(LOG_DIRECTORY)
         main()
     except Exception as ex:
-        logging.error("Something went wrong running the benchmark!")
-        logging.exception(ex)
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception(ex)
         terminate_process(PROCESS_NAME)
         sys.exit(1)

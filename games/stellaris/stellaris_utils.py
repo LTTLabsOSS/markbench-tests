@@ -8,6 +8,8 @@ import shutil
 import sys
 from pathlib import Path
 
+logger = logging.getLogger(__name__)
+
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
@@ -72,7 +74,7 @@ def copy_benchmarkfiles() -> None:
             src_path = SCRIPT_DIRECTORY / "settings" / file
             CONFIG_LOCATION.mkdir(parents=True, exist_ok=True)
             dest_path = CONFIG_LOCATION / file
-            logging.info("copying: %s -> %s", src_path, dest_path)
+            logger.info("copying: %s -> %s", src_path, dest_path)
             shutil.copy(src_path, dest_path)
         except OSError as ex:
             raise Exception("could not copy benchmark config files", cause=ex) from ex
@@ -82,7 +84,7 @@ def copy_save_from_network_drive(file_name, destination):
     """copy save file from network drive"""
     network_dir = Path("\\\\labs.lmg.gg\\labs\\03_ProcessingFiles\\Stellaris")
     source_path = network_dir.joinpath(file_name)
-    logging.info("Copying %s from %s", file_name, source_path)
+    logger.info("Copying %s from %s", file_name, source_path)
     shutil.copyfile(source_path, destination)
 
 
@@ -96,11 +98,11 @@ def delete_existing_saves():
                 file_path = BENCHMARK_LOCATION.joinpath(file)
                 if file_path.exists():
                     os.remove(file_path)
-            logging.info(
+            logger.info(
                 "Removing any additional save files from %s", BENCHMARK_LOCATION
             )
         except OSError as ex:
-            logging.error("Error occurred while deleting files: %s", ex)
+            logger.error("Error occurred while deleting files: %s", ex)
 
 
 def copy_benchmarksave() -> None:
@@ -111,8 +113,8 @@ def copy_benchmarksave() -> None:
         copy_save_from_network_drive(benchmark_save, copy_destination)
         config_dest = BENCHMARK_LOCATION / benchmark_save
         delete_existing_saves()
-        logging.info("Copying: %s -> %s", copy_destination, config_dest)
+        logger.info("Copying: %s -> %s", copy_destination, config_dest)
         shutil.copy(copy_destination, config_dest)
     except OSError as err:
-        logging.error("Could not copy benchmark save game.")
+        logger.error("Could not copy benchmark save game.")
         raise err

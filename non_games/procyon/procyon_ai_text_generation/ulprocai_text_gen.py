@@ -23,6 +23,8 @@ from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 
+logger = logging.getLogger(__name__)
+
 #####
 # Globals
 #####
@@ -138,7 +140,7 @@ def run_benchmark(process_name, command_to_run):
         stderr=subprocess.STDOUT,
         universal_newlines=True,
     ) as proc:
-        logging.info("Procyon AI Text Generation benchmark has started.")
+        logger.info("Procyon AI Text Generation benchmark has started.")
         while True:
             now = time.time()
             elapsed = now - start_time
@@ -159,13 +161,13 @@ try:
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.engine]["config"]
     cmd = create_procyon_command(option)
-    logging.info("Starting benchmark!")
-    logging.info(cmd)
+    logger.info("Starting benchmark!")
+    logger.info(cmd)
     start_time = time.time()
     pr = run_benchmark(BENCHMARK_CONFIG[args.engine]["process_name"], cmd)
 
     if pr.returncode > 0:
-        logging.error("Procyon exited with return code %d", pr.returncode)
+        logger.error("Procyon exited with return code %d", pr.returncode)
         sys.exit(pr.returncode)
 
     end_time = time.time()
@@ -179,7 +181,7 @@ try:
         score = regex_find_score_in_xml(results_regex)
 
         if score is None:
-            logging.error("Could not find overall score!")
+            logger.error("Could not find overall score!")
             sys.exit(1)
 
         report = {
@@ -191,14 +193,14 @@ try:
             "end_time": seconds_to_milliseconds(end_time),
         }
 
-        logging.info("Benchmark took %.2f seconds", elapsed_test_time)
-        logging.info("Score was %s", score)
+        logger.info("Benchmark took %.2f seconds", elapsed_test_time)
+        logger.info("Score was %s", score)
 
         write_report_json(LOG_DIRECTORY, "report.json", report)
     else:
         session_report = []
 
-        logging.info("Benchmark took %.2f seconds", elapsed_test_time)
+        logger.info("Benchmark took %.2f seconds", elapsed_test_time)
 
         for test_type in BENCHMARK_CONFIG.items():
             if (
@@ -213,10 +215,10 @@ try:
                 results_regex = test_type[1]["result_regex"]
                 score = regex_find_score_in_xml(results_regex)
 
-                logging.info("%s score was %s", test_type[0], score)
+                logger.info("%s score was %s", test_type[0], score)
 
                 if score is None:
-                    logging.error("Could not find overall score!")
+                    logger.error("Could not find overall score!")
                     sys.exit(1)
 
                 report = {
@@ -236,6 +238,6 @@ try:
         write_report_json(LOG_DIRECTORY, "report.json", session_report)
 
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     sys.exit(1)

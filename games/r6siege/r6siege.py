@@ -28,6 +28,8 @@ from harness_utils.report import (
 from harness_utils.steam import exec_steam_game, get_build_id
 from harness_utils.controllers import LTTGamePadDS4
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "rainbowsix.exe"
 STEAM_GAME_ID = 359550
@@ -54,14 +56,14 @@ def run_benchmark():
 
     # Checking for the main menu
     if find_word(word="shop", interval=1, timeout=60) is None:
-        logging.info("Did not find the main menu. Did the game load?")
+        logger.info("Did not find the main menu. Did the game load?")
         sys.exit(1)
 
     # Navigating to the options
     GAMEPAD.press(button=vg.DS4_BUTTONS.DS4_BUTTON_OPTIONS)
 
     if find_word(word="options", interval=0.5, timeout=100) is None:
-        logging.info(
+        logger.info(
             "Could not find the options menu. Was something else on the screen?"
         )
         sys.exit(1)
@@ -70,7 +72,7 @@ def run_benchmark():
 
     # Navigating to the display settings and screenshotting
     if find_word(word="general", interval=0.5, timeout=100) is None:
-        logging.info(
+        logger.info(
             "Could not find the general options. Did it navigate to the settings correctly?"
         )
         sys.exit(1)
@@ -80,7 +82,7 @@ def run_benchmark():
     )
 
     if find_word(word="monitor", interval=0.5, timeout=100) is None:
-        logging.info(
+        logger.info(
             "Could not find the monitor. Did it navigate to the display settings correctly?"
         )
         sys.exit(1)
@@ -98,7 +100,7 @@ def run_benchmark():
     GAMEPAD.press(button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT)
 
     if find_word(word="filtering", interval=0.5, timeout=100) is None:
-        logging.info(
+        logger.info(
             "Could not find the texture filtering setting. Did it navigate to the graphics settings correctly?"
         )
         sys.exit(1)
@@ -112,7 +114,7 @@ def run_benchmark():
     )
 
     if find_word(word="fps", interval=0.5, timeout=100) is None:
-        logging.info(
+        logger.info(
             "Could not find the TAA sharpness setting. Did it navigate the graphics settings correctly?"
         )
         sys.exit(1)
@@ -126,7 +128,7 @@ def run_benchmark():
     )
 
     if find_word(word="sharpness", interval=0.5, timeout=100) is None:
-        logging.info(
+        logger.info(
             "Could not find the TAA sharpness setting. Did it navigate the graphics settings correctly?"
         )
         sys.exit(1)
@@ -139,17 +141,17 @@ def run_benchmark():
     GAMEPAD.press(button=vg.DS4_BUTTONS.DS4_BUTTON_THUMB_RIGHT)
 
     elapsed_setup_time = int(time.time() - setup_start_time)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
+    logger.info("Setup took %f seconds", elapsed_setup_time)
 
     if find_word(word="skip", interval=0.5, timeout=100) is None:
-        logging.info("Could not find the skip dialog. Unable to mark start time!")
+        logger.info("Could not find the skip dialog. Unable to mark start time!")
         sys.exit(1)
 
     test_start_time = int(time.time())
     time.sleep(76)
 
     if find_word(word="results", interval=0.2, timeout=250) is None:
-        logging.info(
+        logger.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?"
         )
         sys.exit(1)
@@ -164,19 +166,19 @@ def run_benchmark():
 
     # End the run
     elapsed_test_time = int(test_end_time - test_start_time)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Exit
     config_path = get_r6s_config_path()
     if config_path is None:
-        logging.warning("GameSettings.ini was not found")
+        logger.warning("GameSettings.ini was not found")
         sys.exit(1)
     copy_artifact(config_path, ARTIFACTS_DIRECTORY)
     terminate_process(PROCESS_NAME)
 
     resolution = read_current_resolution()
     if resolution is None:
-        logging.warning("Current resolution was not found in GameSettings.ini")
+        logger.warning("Current resolution was not found in GameSettings.ini")
         sys.exit(1)
     width, height = resolution
     report = {
@@ -186,7 +188,7 @@ def run_benchmark():
         "version": get_build_id(STEAM_GAME_ID),
     }
 
-    logging.info("Waiting for Siege X to fully exit now.")
+    logger.info("Waiting for Siege X to fully exit now.")
     time.sleep(30)  # sleeping to let the game processes finish closing
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
@@ -203,7 +205,7 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as ex:
-        logging.error("Something went wrong running the benchmark!")
-        logging.exception(ex)
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception(ex)
         terminate_process(PROCESS_NAME)
         sys.exit(1)

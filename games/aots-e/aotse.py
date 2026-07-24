@@ -29,6 +29,8 @@ from harness_utils.report import (
 from harness_utils.output_logging import setup_logging
 from harness_utils.steam import exec_steam_game, get_build_id
 
+logger = logging.getLogger(__name__)
+
 #####
 ### Globals
 #####
@@ -75,30 +77,30 @@ def run_benchmark():
 
     result = find_word("preparing", interval=1, timeout=60)
     if not result:
-        logging.info("Did not see the benchmark starting.")
+        logger.info("Did not see the benchmark starting.")
         sys.exit(1)
 
     # Start the benchmark!
     setup_end_time = time.time()
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
-    logging.info("Harness setup took %f seconds", elapsed_setup_time)
+    logger.info("Harness setup took %f seconds", elapsed_setup_time)
 
     time.sleep(15)
 
     result = find_word("59", timeout=60, interval=0.2)
     if not result:
-        logging.info("Benchmark didn't start.")
+        logger.info("Benchmark didn't start.")
         sys.exit(1)
 
     test_start_time = time.time()
 
-    logging.info("Benchmark started. Waiting for benchmark to complete.")
+    logger.info("Benchmark started. Waiting for benchmark to complete.")
     time.sleep(180)
 
     test_end_time = time.time()
     time.sleep(2)
     elapsed_test_time = round((test_end_time - test_start_time), 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
     time.sleep(3)
     restore_exe()
 
@@ -117,16 +119,16 @@ parser.add_argument(
     )
 args, unknown = parser.parse_known_args()
 try:
-    logging.info("Starting benchmark!")
+    logger.info("Starting benchmark!")
     RESULT = "Output_*_*_*_*.txt"
     delete_old_scores(RESULT)
     start_time, end_time = run_benchmark()
     score = find_score_in_log(BENCHMARK_CONFIG[args.benchmark]["score_name"], RESULT)
 
     if score is None:
-        logging.error("Could not find average FPS output!")
+        logger.error("Could not find average FPS output!")
         sys.exit(1)
-    logging.info("Score was %s", score)
+    logger.info("Score was %s", score)
 
     copy_artifact(CFG, ARTIFACTS_DIRECTORY)
     result_file = sorted(
@@ -152,6 +154,6 @@ try:
     create_artifacts_manifest(ARTIFACTS_DIRECTORY)
     write_report_json(LOG_DIRECTORY, "report.json", report)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     sys.exit(1)

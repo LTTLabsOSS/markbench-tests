@@ -25,6 +25,8 @@ from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "dota2.exe"
 STEAM_GAME_ID = 570
@@ -84,7 +86,7 @@ def screenshot_settings():
             )
             click_multiple = 2
         case _:
-            logging.error(
+            logger.error(
                 "Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?",
                 screen_height,
                 screen_width,
@@ -101,7 +103,7 @@ def screenshot_settings():
 
     result = find_word(word="video", timeout=10, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the video menu button. Did OCR enter settings correctly?"
         )
         sys.exit(1)
@@ -114,7 +116,7 @@ def screenshot_settings():
     gui.mouseUp()
     time.sleep(0.2)
     if find_word(word="resolution", timeout=30, interval=1) is None:
-        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        logger.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video1.png")
@@ -122,7 +124,7 @@ def screenshot_settings():
     user.press("down")
 
     if find_word(word="api", timeout=30, interval=1) is None:
-        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        logger.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
@@ -130,7 +132,7 @@ def screenshot_settings():
     user.press("down")
 
     if find_word(word="direct", timeout=30, interval=1) is None:
-        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        logger.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video3.png")
@@ -139,7 +141,7 @@ def screenshot_settings():
 def load_the_benchmark():
     """Loads the replay and runs the benchmark"""
     user.press("escape")
-    logging.info("Starting benchmark")
+    logger.info("Starting benchmark")
     user.press("\\")
     time.sleep(0.5)
     console_command("sv_cheats true")
@@ -147,7 +149,7 @@ def load_the_benchmark():
     console_command("exec_async benchmark_load")
     time.sleep(5)
     if find_word(word="directed", timeout=30, interval=1) is None:
-        logging.info("Did not find the directed camera. Did the replay load?")
+        logger.info("Did not find the directed camera. Did the replay load?")
         sys.exit(1)
     console_command("sv_cheats true")
     time.sleep(1)
@@ -164,7 +166,7 @@ def run_benchmark():
 
     # waiting about a minute for the main menu to appear
     if find_word(word="heroes", timeout=80, interval=1) is None:
-        logging.error("Game didn't start in time. Check settings and try again.")
+        logger.error("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
     time.sleep(15)  # wait for main menu
@@ -175,7 +177,7 @@ def run_benchmark():
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
-    logging.info("Harness setup took %f seconds", elapsed_setup_time)
+    logger.info("Harness setup took %f seconds", elapsed_setup_time)
     time.sleep(23)
 
     # Default fallback start time
@@ -183,10 +185,10 @@ def run_benchmark():
 
     result = find_word(word="2560", timeout=30, interval=0.1)
     if result is None:
-        logging.error("Unable to find Leshrac's HP. Using default start time value.")
+        logger.error("Unable to find Leshrac's HP. Using default start time value.")
     else:
         test_start_time = int(time.time())
-        logging.info("Found Leshrac's HP! Marking the start time accordingly.")
+        logger.info("Found Leshrac's HP! Marking the start time accordingly.")
 
     time.sleep(73)  # sleep duration during gameplay
 
@@ -195,24 +197,24 @@ def run_benchmark():
 
     result = find_word(word="1195", timeout=30, interval=0.1)
     if result is None:
-        logging.error(
+        logger.error(
             "Unable to find gold count of 1195. Using default end time value."
         )
     else:
         test_end_time = int(time.time())
-        logging.info("Found the gold. Marking end time.")
+        logger.info("Found the gold. Marking end time.")
 
     time.sleep(2)
 
     if find_word(word="heroes", timeout=25, interval=1) is None:
-        logging.error("Main menu after running benchmark not found, exiting")
+        logger.error("Main menu after running benchmark not found, exiting")
         sys.exit(1)
 
     time.sleep(4)
-    logging.info("Run completed. Closing game.")
+    logger.info("Run completed. Closing game.")
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
     terminate_process(PROCESS_NAME)
 
     return test_start_time, test_end_time
@@ -230,7 +232,7 @@ try:
     write_report_json(LOG_DIRECTORY, "report.json", report)
     create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     terminate_process(PROCESS_NAME)
     sys.exit(1)

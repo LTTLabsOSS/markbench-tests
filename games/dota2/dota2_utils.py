@@ -15,6 +15,8 @@ from harness_utils.steam import (
     get_steam_folder_path,
 )
 
+logger = logging.getLogger(__name__)
+
 STEAM_GAME_ID = 570
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 STEAM_USER_ID = get_active_steam_account_id()
@@ -36,10 +38,10 @@ def copy_replay_from_network_drive():
     src_path = Path(r"\\labs.lmg.gg\labs\03_ProcessingFiles\Dota2\benchmark.dem")
     dest_path = SCRIPT_DIRECTORY / "benchmark.dem"
     try:
-        logging.info("Copying the replay from the network drive to the harness folder.")
+        logger.info("Copying the replay from the network drive to the harness folder.")
         shutil.copyfile(src_path, dest_path)
     except OSError as err:
-        logging.error("Network copy failed: %s", err)
+        logger.error("Network copy failed: %s", err)
         raise
 
 
@@ -48,10 +50,10 @@ def verify_replay() -> None:
     src_path = SCRIPT_DIRECTORY / "benchmark.dem"
 
     if src_path.exists():
-        logging.info("The replay exists in the harness folder. Copying the files.")
+        logger.info("The replay exists in the harness folder. Copying the files.")
         return
 
-    logging.info("The replay file doesn't exist in the harness folder.")
+    logger.info("The replay file doesn't exist in the harness folder.")
     copy_replay_from_network_drive()
 
 
@@ -65,11 +67,11 @@ def copy_replay() -> None:
 
     # Try copying the benchmark to the correct area.
     try:
-        logging.info("Copying: %s -> %s", src_path, dest_path)
+        logger.info("Copying: %s -> %s", src_path, dest_path)
         shutil.copy(src_path, dest_path)
         return
     except OSError as err:
-        logging.error("Could not copy copy the replay file: %s", err)
+        logger.error("Could not copy copy the replay file: %s", err)
         raise
 
 
@@ -85,10 +87,10 @@ def copy_config() -> None:
             src_path = SCRIPT_DIRECTORY / filename
             dest_path = config_path / filename
 
-            logging.info("Copying: %s -> %s", src_path, dest_path)
+            logger.info("Copying: %s -> %s", src_path, dest_path)
             shutil.copy(src_path, dest_path)
     except OSError as err:
-        logging.error("Could not copy config files: %s", err)
+        logger.error("Could not copy config files: %s", err)
         raise
 
 
@@ -108,7 +110,7 @@ def read_config() -> list[str] | None:
         with open(userdata_path, encoding="utf-8") as f:
             return f.readlines()
     except OSError:
-        logging.error(
+        logger.error(
             "Did not find config file at path %s. Trying path %s",
             userdata_path,
             install_path,
@@ -117,7 +119,7 @@ def read_config() -> list[str] | None:
         with open(install_path, encoding="utf-8") as f:
             return f.readlines()
     except OSError:
-        logging.error("Did not find config file at path %s", install_path)
+        logger.error("Did not find config file at path %s", install_path)
     return None
 
 
@@ -130,7 +132,7 @@ def get_resolution():
     lines = read_config()
 
     if lines is None:
-        logging.error("Could not find the video config file.")
+        logger.error("Could not find the video config file.")
         return (height, width)
 
     for line in lines:

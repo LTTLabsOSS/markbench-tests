@@ -3,12 +3,14 @@
 import logging
 import os
 
+logger = logging.getLogger(__name__)
+
 
 def remove_files(paths: list[str]) -> None:
     """Remove provided file paths, ignoring paths that no longer exist."""
     for path in paths:
         try:
             os.remove(path)
-            logging.debug("Removed file: %s", path)
+            logger.debug("Removed file: %s", path)
         except FileNotFoundError:
-            logging.debug("File already removed: %s", path)
+            logger.debug("File already removed: %s", path)

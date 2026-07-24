@@ -26,6 +26,8 @@ from harness_utils.report import format_resolution, seconds_to_milliseconds, wri
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 USERNAME = getpass.getuser()
 CONFIG_PATH = Path(
@@ -67,7 +69,7 @@ def camera_cycle(max_attempts=10):
         # Short delay before rechecking
         time.sleep(0.5)
 
-    logging.info(
+    logger.info(
         "Max attempts reached for checking the camera. Did the game load the save?"
     )
     sys.exit(1)  # Word was not found
@@ -76,7 +78,7 @@ def camera_cycle(max_attempts=10):
 def start_game():
     """Start the game"""
     cmd_string = get_run_game_id_command(GAME_ID)
-    logging.info("%s %s", EXECUTABLE_PATH, cmd_string)
+    logger.info("%s %s", EXECUTABLE_PATH, cmd_string)
     return Popen([EXECUTABLE_PATH, cmd_string])
 
 
@@ -94,7 +96,7 @@ def run_benchmark():
     time.sleep(2)
     # Looking for press start
     if find_word(word="press", timeout=30, interval=1) is None:
-        logging.error("Game didn't start in time. Check settings and try again.")
+        logger.error("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
     gamepad.press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
@@ -107,7 +109,7 @@ def run_benchmark():
 
     # Navigating main menu by going to the bottom of the menu first:
     if find_word(word="profile", timeout=60, interval=0.5) is None:
-        logging.error("Main menu didn't show up. Check settings and try again.")
+        logger.error("Main menu didn't show up. Check settings and try again.")
         sys.exit(1)
 
     gamepad.dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_WEST)
@@ -126,7 +128,7 @@ def run_benchmark():
 
     # Entering the match history screen and starting the replay:
     if find_word(word="history", timeout=60, interval=0.5) is None:
-        logging.error(
+        logger.error(
             "Didn't navigate to the replays. Check menu options for any anomalies."
         )
         sys.exit(1)
@@ -137,12 +139,12 @@ def run_benchmark():
     time.sleep(1)
 
     if find_word(word="recent", timeout=10, interval=1):
-        logging.info("In Match History menu, navigating to Saved Replays.")
+        logger.info("In Match History menu, navigating to Saved Replays.")
         gamepad.press(button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT)
         time.sleep(1)
 
     if find_word(word="watch", timeout=60, interval=0.5) is None:
-        logging.error(
+        logger.error(
             "Didn't navigate to the saved replays correctly. Check menu options for any anomalies."
         )
         sys.exit(1)
@@ -151,11 +153,11 @@ def run_benchmark():
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
-    logging.info("Harness setup took %f seconds", elapsed_setup_time)
+    logger.info("Harness setup took %f seconds", elapsed_setup_time)
 
     # Beginning the "benchmark":
     if find_word(word="special", timeout=60, interval=0.5) is None:
-        logging.error("Game didn't load map. Check settings and try again.")
+        logger.error("Game didn't load map. Check settings and try again.")
         sys.exit(1)
 
     gamepad.press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
@@ -165,7 +167,7 @@ def run_benchmark():
     camera_cycle()
     time.sleep(0.5)
     gamepad.press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
-    logging.info("Benchmark started. Waiting for completion.")
+    logger.info("Benchmark started. Waiting for completion.")
     time.sleep(4)
     test_start_time = int(time.time())
 
@@ -173,19 +175,19 @@ def run_benchmark():
     time.sleep(359)
 
     if find_word(word="turbopolsa", timeout=10, interval=1) is None:
-        logging.info(
+        logger.info(
             "Couldn't turbopolsa on the field. Did the benchmark play all the way through?"
         )
         sys.exit(1)
     test_end_time = int(time.time())
     time.sleep(2)
     elapsed_test_time = round((test_end_time - test_start_time), 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
 
     gamepad.press(button=vg.DS4_BUTTONS.DS4_BUTTON_OPTIONS)
 
     if find_word(word="paused", timeout=10, interval=1) is None:
-        logging.info("Couldn't find the settings option. Did the pause menu open?")
+        logger.info("Couldn't find the settings option. Did the pause menu open?")
         sys.exit(1)
 
     time.sleep(0.5)
@@ -201,28 +203,28 @@ def run_benchmark():
     time.sleep(0.4)
 
     if find_word(word="audio", timeout=10, interval=1) is None:
-        logging.info("Couldn't find the audio tab. Did the settings menu open?")
+        logger.info("Couldn't find the audio tab. Did the settings menu open?")
         sys.exit(1)
 
     time.sleep(1)
-    logging.info("Navigating to the Video tab.")
+    logger.info("Navigating to the Video tab.")
     gamepad.press_n_times(
         button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT, n=5, pause=0.8
     )
     time.sleep(1)
 
     if find_word(word="window", timeout=10, interval=1) is None:
-        logging.info(
+        logger.info(
             "Couldn't find the window settings header. Did OCR see the right menu?"
         )
         sys.exit(1)
 
-    logging.info("Seen the video settings, capturing the data.")
+    logger.info("Seen the video settings, capturing the data.")
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
 
     copy_artifact(CONFIG_PATH, ARTIFACTS_DIRECTORY)
 
-    logging.info("Run completed. Closing game.")
+    logger.info("Run completed. Closing game.")
     time.sleep(2)
     terminate_process(PROCESS_NAME)
 
@@ -242,7 +244,7 @@ try:
     write_report_json(LOG_DIRECTORY, "report.json", report)
     create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     terminate_process(PROCESS_NAME)
     sys.exit(1)

@@ -14,6 +14,8 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
 
+logger = logging.getLogger(__name__)
+
 avail_presets = ["low", "medium", "high", "extreme", "4k_optimized", "8k_optimized"]
 
 INSTALL_DIR = "C:\\Program Files\\Unigine\\Superposition Benchmark\\bin"
@@ -46,15 +48,15 @@ argstr = (
 )
 argstr += f" -log_txt {ARTIFACTS_DIRECTORY}\\log.txt"
 
-logging.info(cmd)
-logging.info(argstr)
+logger.info(cmd)
+logger.info(argstr)
 argies = argstr.split(" ")
 cmd = cmd.rstrip()
 with Popen([cmd, *argies]) as process:
     EXIT_CODE = process.wait()
 
 if EXIT_CODE > 0:
-    logging.error("Test failed!")
+    logger.error("Test failed!")
     sys.exit(EXIT_CODE)
 
 SCORE = ""

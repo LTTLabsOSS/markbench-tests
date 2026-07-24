@@ -20,6 +20,8 @@ from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
 from harness_utils.report import write_report_json
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 EXECUTABLE_PATH = SCRIPT_DIRECTORY / YCRUNCHER_FOLDER_NAME / "y-cruncher.exe"
 
@@ -42,15 +44,15 @@ def main():
     ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
     if not ycruncher_folder_exists():
-        logging.info("Downloading ycruncher")
+        logger.info("Downloading ycruncher")
         download_ycruncher()
 
     # omit the first arg which is the script name
-    logging.info(sys.argv[1:])
+    logger.info(sys.argv[1:])
 
     arg_string = ["skip-warnings", "bench", "1b", "-o", ARTIFACTS_DIRECTORY]
 
-    logging.info(arg_string)
+    logger.info(arg_string)
     scores = []
     tunings = []
     start_time = current_time_ms()
@@ -60,13 +62,13 @@ def main():
         ) as process:
             exit_code = process.wait()
             if exit_code > 0:
-                logging.error("Test failed!")
+                logger.error("Test failed!")
                 sys.exit(exit_code)
 
         latest_file = max(
             ARTIFACTS_DIRECTORY.glob("*.txt"), key=lambda item: item.stat().st_ctime
         )
-        logging.info(latest_file)
+        logger.info(latest_file)
 
         with latest_file.open(encoding="utf-8") as file:
             for line in file.readlines():

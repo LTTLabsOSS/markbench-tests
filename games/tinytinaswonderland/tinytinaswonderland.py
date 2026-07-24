@@ -26,6 +26,8 @@ from harness_utils.report import (
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 STEAM_GAME_ID = 1286680
 EXECUTABLE = "Wonderlands.exe"
@@ -54,7 +56,7 @@ def run_benchmark():
     if options_present is None:
         raise ValueError("game did not load within time")
 
-    logging.info("Saw the options! we are good to go!")
+    logger.info("Saw the options! we are good to go!")
     user.press("down")
     time.sleep(0.5)
     user.press("down")
@@ -94,7 +96,7 @@ def run_benchmark():
 
     t2 = int(time.time())
     duration = round((t2 - t1), 2)
-    logging.info("Harness setup took %d seconds", duration)
+    logger.info("Harness setup took %d seconds", duration)
 
     result = find_word("fps", interval=0.5, timeout=30)
     if result is None:
@@ -110,7 +112,7 @@ def run_benchmark():
 
     benchmark_end = int(time.time())
     duration = round((benchmark_end - benchmark_start), 2)
-    logging.info("Benchmark took %d seconds", duration)
+    logger.info("Benchmark took %d seconds", duration)
     terminate_process("Wonderlands")
     return benchmark_start, benchmark_end
 
@@ -141,7 +143,7 @@ try:
     create_artifacts_manifest(ARTIFACTS_DIRECTORY)
     write_report_json(LOG_DIRECTORY, "report.json", report)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     terminate_process("Wonderlands")
     sys.exit(1)

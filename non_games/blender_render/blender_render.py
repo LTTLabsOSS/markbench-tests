@@ -19,6 +19,8 @@ from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 
 
@@ -43,18 +45,18 @@ def main():
         raise Exception(f"invalid device selection: {args.device}")
 
     ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
-    logging.info("The selected scene is %s", args.benchmark)
+    logger.info("The selected scene is %s", args.benchmark)
     benchmark = BENCHMARK_CONFIG[args.benchmark]
     download_scene(benchmark)
     executable_path, version = find_blender()
 
-    logging.info("Starting benchmark!")
+    logger.info("Starting benchmark!")
     start_time = time.time()
     score = run_blender_render(
         executable_path, ARTIFACTS_DIRECTORY, args.device.upper(), benchmark
     )
     end_time = time.time()
-    logging.info(
+    logger.info(
         f"Finished rendering {args.benchmark} in %d seconds", (end_time - start_time)
     )
 
@@ -80,6 +82,6 @@ if __name__ == "__main__":
         setup_logging(LOG_DIRECTORY)
         main()
     except Exception as ex:
-        logging.error("something went wrong running the benchmark!")
-        logging.exception(ex)
+        logger.error("something went wrong running the benchmark!")
+        logger.exception(ex)
         sys.exit(1)

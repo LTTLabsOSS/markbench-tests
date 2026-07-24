@@ -25,6 +25,8 @@ from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 from harness_utils.steam import exec_steam_run_command, get_build_id
 
+logger = logging.getLogger(__name__)
+
 STEAM_GAME_ID = 1659040
 STEAM_PATH = Path(os.environ["ProgramFiles(x86)"]) / "steam"
 STEAM_EXECUTABLE = "steam.exe"
@@ -89,13 +91,13 @@ def run_benchmark():
     time.sleep(0.2)
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
+    logger.info("Setup took %f seconds", elapsed_setup_time)
 
     time.sleep(5)
 
     result = find_word("crowd", timeout=20, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the statistics in the corner. Did the benchmark launch?"
         )
         raise RuntimeError("Benchmark failed.")
@@ -108,12 +110,12 @@ def run_benchmark():
 
     result = find_word("overall", timeout=20, interval=1)
     if not result:
-        logging.info("Did not find the overall FPS score. Did the benchmark crash?")
+        logger.info("Did not find the overall FPS score. Did the benchmark crash?")
         raise RuntimeError("Benchmark failed.")
 
     benchmark_end_time = int(time.time()) - 1
     elapsed_test_time = round(benchmark_end_time - benchmark_start_time, 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     time.sleep(1)
 
@@ -147,8 +149,8 @@ try:
     create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     for proc in psutil.process_iter():
         try:
             if proc.name() in PROCESS_NAMES:

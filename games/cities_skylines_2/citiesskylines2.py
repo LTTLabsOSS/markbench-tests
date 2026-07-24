@@ -28,6 +28,8 @@ from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "cities2.exe"
 STEAM_GAME_ID = 949230
@@ -68,7 +70,7 @@ def run_benchmark():
 
     result = find_word("paradox", interval=0.5, timeout=100)
     if not result:
-        logging.info("Could not find the Paradox logo. Did the game launch?")
+        logger.info("Could not find the Paradox logo. Did the game launch?")
         sys.exit(1)
     user.press("esc")
     user.press("esc")
@@ -77,12 +79,12 @@ def run_benchmark():
 
     result = find_word("new", interval=0.5, timeout=100)
     if not result:
-        logging.info("Did not find the main menu. Did the game crash?")
+        logger.info("Did not find the main menu. Did the game crash?")
         sys.exit(1)
 
     result = find_word("load", timeout=10, interval=1)
     if not result:
-        logging.info("Did not find the load game option. Did the save game copy?")
+        logger.info("Did not find the load game option. Did the save game copy?")
         sys.exit(1)
 
     # Navigate to load save menu
@@ -93,7 +95,7 @@ def run_benchmark():
 
     result = find_word("benchmark", timeout=10, interval=1, crop="top_left")
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the save game original date. Did the OCR click correctly?"
         )
         sys.exit(1)
@@ -108,16 +110,16 @@ def run_benchmark():
 
     result = find_word("grand", interval=0.5, timeout=100)
     if not result:
-        logging.info(
+        logger.info(
             "Could not find the paused notification. Unable to mark start time!"
         )
         sys.exit(1)
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
+    logger.info("Setup took %f seconds", elapsed_setup_time)
     gui.moveTo(result["x"], result["y"])
     time.sleep(0.2)
     time.sleep(2)
-    logging.info("Starting benchmark")
+    logger.info("Starting benchmark")
     user.press("3")
     time.sleep(2)
 
@@ -134,7 +136,7 @@ def run_benchmark():
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Open quick menu
     user.press("esc")
@@ -142,7 +144,7 @@ def run_benchmark():
 
     result = find_word("options", timeout=10, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the options menu. Did the game open the quick dialog menu properly?"
         )
         sys.exit(1)
@@ -157,7 +159,7 @@ def run_benchmark():
 
     result = find_word("graphics", timeout=10, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the graphics menu. Did the game navigate to the general settings correctly?"
         )
         sys.exit(1)
@@ -172,7 +174,7 @@ def run_benchmark():
 
     result = find_word("window", timeout=10, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the keyword 'window' in graphics menu. Did the game navigate to the graphics menu correctly?"
         )
         sys.exit(1)
@@ -183,7 +185,7 @@ def run_benchmark():
     mouse_scroll_n_times(8, -800, 0.2)
 
     if find_word(word="water", timeout=30, interval=1) is None:
-        logging.info(
+        logger.info(
             "Did not find the keyword 'water' in menu. Did the game scroll correctly?"
         )
         sys.exit(1)
@@ -193,7 +195,7 @@ def run_benchmark():
 
     # verify that we scrolled through the menu correctly
     if find_word(word="texture", timeout=30, interval=1) is None:
-        logging.info(
+        logger.info(
             "Did not find the keyword 'texture' in menu. Did the game scroll correctly?"
         )
         sys.exit(1)
@@ -227,7 +229,7 @@ if __name__ == "__main__":
         setup_logging(LOG_DIRECTORY)
         main()
     except Exception as ex:
-        logging.error("Something went wrong running the benchmark!")
-        logging.exception(ex)
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception(ex)
         terminate_process(PROCESS_NAME)
         sys.exit(1)

@@ -32,6 +32,8 @@ from harness_utils.steam import (
     get_build_id,
 )
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "StrangeBrigade.exe"
 STEAM_GAME_ID = 312670
@@ -50,7 +52,7 @@ intro_videos = [VIDEO_PATH / "rebellion.webm"]
 
 def run_benchmark(render_engine):
     """Starts the benchmark"""
-    logging.info(intro_videos)
+    logger.info(intro_videos)
     remove_files([str(path) for path in intro_videos])
     replace_exe(render_engine)
     exec_steam_run_command(STEAM_GAME_ID)
@@ -59,7 +61,7 @@ def run_benchmark(render_engine):
 
     result = find_word("options", timeout=30, vulkan=True)
     if not result:
-        logging.info("Did not find the options menu. Did the game launch?")
+        logger.info("Did not find the options menu. Did the game launch?")
         sys.exit(1)
 
     press_n_times("down", 5, 0.2)
@@ -69,14 +71,14 @@ def run_benchmark(render_engine):
 
     result = find_word("display", timeout=10, vulkan=True)
     if not result:
-        logging.info("Did not find the display menu. Did OCR navigate correctly?")
+        logger.info("Did not find the display menu. Did OCR navigate correctly?")
         sys.exit(1)
 
     gui.press("pgdn")
 
     result = find_word("customise", timeout=10, vulkan=True)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the customize graphics detail option. Did navigate correctly?"
         )
         sys.exit(1)
@@ -90,11 +92,11 @@ def run_benchmark(render_engine):
     user.press("enter")
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
+    logger.info("Setup took %f seconds", elapsed_setup_time)
     time.sleep(1)
     result = find_word("strange", timeout=100, vulkan=True)
     if not result:
-        logging.info("Could not find FPS. Unable to mark start time!")
+        logger.info("Could not find FPS. Unable to mark start time!")
         sys.exit(1)
 
     test_start_time = int(time.time())
@@ -103,7 +105,7 @@ def run_benchmark(render_engine):
 
     result = find_word("confirm", interval=0.2, timeout=250, vulkan=True)
     if not result:
-        logging.info(
+        logger.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?"
         )
         sys.exit(1)
@@ -118,7 +120,7 @@ def run_benchmark(render_engine):
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Exit
     terminate_process(PROCESS_NAME)
@@ -153,8 +155,8 @@ try:
     write_report_json(LOG_DIRECTORY, "report.json", report)
     create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     terminate_process(PROCESS_NAME)
     sys.exit(1)
 finally:

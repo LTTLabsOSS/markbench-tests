@@ -22,6 +22,8 @@ from harness_utils.steam import (
     get_build_id,
 )
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 STEAM_GAME_ID = 2488620
@@ -96,7 +98,7 @@ def prepare_hardware_settings(hardware_settings_file: Path) -> Path:
     """Copy selected hardware settings to F1's My Games directory."""
     destination_file = HARDWARE_SETTINGS_DIRECTORY / CONFIG_FILENAME
     HARDWARE_SETTINGS_DIRECTORY.mkdir(parents=True, exist_ok=True)
-    logging.info(
+    logger.info(
         "Copying hardware settings: %s -> %s",
         hardware_settings_file,
         destination_file,
@@ -110,7 +112,7 @@ def prepare_benchmark_file() -> Path:
     destination_directory = get_app_install_location(STEAM_GAME_ID) / "benchmark"
     destination_file = destination_directory / BENCHMARK_FILENAME
     destination_directory.mkdir(parents=True, exist_ok=True)
-    logging.info("Copying benchmark XML: %s -> %s", BENCHMARK_FILE, destination_file)
+    logger.info("Copying benchmark XML: %s -> %s", BENCHMARK_FILE, destination_file)
     shutil.copy(BENCHMARK_FILE, destination_file)
     return destination_file
 
@@ -120,8 +122,8 @@ def run_benchmark(
     benchmark_filename: str,
 ) -> tuple[float, float]:
     """Launch F1 24 benchmark mode and run until duration elapses."""
-    logging.info("Stress duration: %d seconds", duration_seconds)
-    logging.info("Launching F1 24 with benchmark XML: %s", benchmark_filename)
+    logger.info("Stress duration: %d seconds", duration_seconds)
+    logger.info("Launching F1 24 with benchmark XML: %s", benchmark_filename)
 
     exec_steam_game(
         STEAM_GAME_ID,
@@ -132,15 +134,15 @@ def run_benchmark(
 
     result = find_word("fps", interval=0, timeout=90)
     if result is None:
-        logging.error("FPS counter was not found. Could not mark stress start time.")
+        logger.error("FPS counter was not found. Could not mark stress start time.")
         terminate_process(PROCESS_NAME)
         sys.exit(1)
 
-    logging.info("Found FPS counter. Starting stress timer.")
+    logger.info("Found FPS counter. Starting stress timer.")
     start_time = time.time()
     time.sleep(duration_seconds)
 
-    logging.info("Stress duration reached. Terminating F1 24.")
+    logger.info("Stress duration reached. Terminating F1 24.")
     terminate_process(PROCESS_NAME)
     end_time = time.time()
 
@@ -155,14 +157,14 @@ def main():
     )
 
     if not BENCHMARK_FILE.resolve().is_file():
-        logging.error("Benchmark XML not found: %s", BENCHMARK_FILE.resolve())
+        logger.error("Benchmark XML not found: %s", BENCHMARK_FILE.resolve())
         sys.exit(1)
 
     missing_hardware_settings = find_missing_files(
         HARDWARE_SETTINGS_SOURCE_DIRECTORY, hardware_settings_values
     )
     if missing_hardware_settings:
-        logging.error(
+        logger.error(
             "Configured hardware settings XML not found: %s",
             missing_hardware_settings,
         )
@@ -198,7 +200,7 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as ex:
-        logging.error("Something went wrong running the benchmark!")
-        logging.exception(ex)
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception(ex)
         terminate_process(PROCESS_NAME)
         sys.exit(1)

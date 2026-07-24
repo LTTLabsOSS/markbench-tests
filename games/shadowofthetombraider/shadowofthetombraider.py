@@ -28,6 +28,8 @@ from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
+logger = logging.getLogger(__name__)
+
 STEAM_GAME_ID = 750920
 PROCESS_NAME = "SOTTR.exe"
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
@@ -54,10 +56,10 @@ def run_benchmark():
         user.press("enter")
 
     if find_word(word="options", timeout=30, interval=1) is None:
-        logging.info("Did not find the options menu. Did the game launch correctly?")
+        logger.info("Did not find the options menu. Did the game launch correctly?")
         sys.exit(1)
 
-    logging.info("found options")
+    logger.info("found options")
 
     user.press("up")
     time.sleep(0.5)
@@ -69,10 +71,10 @@ def run_benchmark():
     time.sleep(1)
 
     if find_word(word="graphics", timeout=30, interval=1) is None:
-        logging.info("Did not find the graphics menu. Did the menu get stuck?")
+        logger.info("Did not find the graphics menu. Did the menu get stuck?")
         sys.exit(1)
 
-    logging.info("found graphics")
+    logger.info("found graphics")
     # wait for menu to fully move
     time.sleep(1)
     user.press("down")
@@ -85,7 +87,7 @@ def run_benchmark():
     time.sleep(4)
 
     if find_word(word="benchmark", timeout=30, interval=1) is None:
-        logging.info(
+        logger.info(
             "Did not find the benchmark option on the screen. Did the menu get stuck?"
         )
         sys.exit(1)
@@ -99,10 +101,10 @@ def run_benchmark():
 
     user.press("r")
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
+    logger.info("Setup took %f seconds", elapsed_setup_time)
 
     if find_word(word="fps", timeout=60, interval=0.5) is None:
-        logging.info("Did not find the FPS counter. Did the benchmark crash?")
+        logger.info("Did not find the FPS counter. Did the benchmark crash?")
         sys.exit(1)
     test_start_time = int(time.time())
 
@@ -113,22 +115,22 @@ def run_benchmark():
 
     result = find_word(word="tomb", timeout=10, interval=0.1)
     if result is None:
-        logging.error(
+        logger.error(
             "Unable to find the loading screen. Using default end time value."
         )
     else:
         test_end_time = int(time.time())
 
     if find_word(word="results", timeout=60, interval=1) is None:
-        logging.error("Results screen after running benchmark not found, exiting.")
+        logger.error("Results screen after running benchmark not found, exiting.")
         sys.exit(1)
 
-    logging.info("Run completed. Closing game.")
+    logger.info("Run completed. Closing game.")
 
     time.sleep(2)
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
 
     username = os.getlogin()
@@ -162,7 +164,7 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as ex:
-        logging.error("Something went wrong running the benchmark!")
-        logging.exception(ex)
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception(ex)
         terminate_process(PROCESS_NAME)
         sys.exit(1)

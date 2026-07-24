@@ -33,6 +33,8 @@ from harness_utils.steam import (
     get_steam_folder_path,
 )
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "cs2.exe"
 STEAM_GAME_ID = 730
@@ -95,7 +97,7 @@ def identify_settings():
                 confidence=0.6,
             )
         case _:
-            logging.error(
+            logger.error(
                 "Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?",
                 height,
                 width,
@@ -103,7 +105,7 @@ def identify_settings():
             raise RuntimeError
 
     if location is None:
-        logging.error(
+        logger.error(
             "Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?",
             height,
             width,
@@ -166,7 +168,7 @@ def navigate_settings():
 
 def execute_benchmark():
     """Starts the benchmark"""
-    logging.info("Starting benchmark")
+    logger.info("Starting benchmark")
 
     result = wait_for_word(
         word="play", timeout=10, interval=1, why="click the play tab"
@@ -229,7 +231,7 @@ def run_benchmark():
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
-    logging.info("Harness setup took %f seconds", elapsed_setup_time)
+    logger.info("Harness setup took %f seconds", elapsed_setup_time)
     time.sleep(1)
 
     # Default fallback start time
@@ -237,10 +239,10 @@ def run_benchmark():
 
     result = find_word(word="roll", timeout=30, interval=0.1)
     if result is None:
-        logging.error("Didn't see 'lets roll'. Did the map load?")
+        logger.error("Didn't see 'lets roll'. Did the map load?")
     else:
         test_start_time = int(time.time())
-        logging.info("Saw 'lets roll'! Marking the time.")
+        logger.info("Saw 'lets roll'! Marking the time.")
 
     time.sleep(112)  # sleep duration during gameplay
 
@@ -254,18 +256,18 @@ def run_benchmark():
 
     test_end_time = int(time.time())
     user.press("`")
-    logging.info("The console opened. Marking end time.")
+    logger.info("The console opened. Marking end time.")
 
     # allow time for result screen to populate
     time.sleep(13)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     copy_artifact(CFG, ARTIFACTS_DIRECTORY)
-    logging.info("Run completed. Closing game.")
+    logger.info("Run completed. Closing game.")
     time.sleep(2)
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
     terminate_process(PROCESS_NAME)
 
     return test_start_time, test_end_time
@@ -292,8 +294,8 @@ if __name__ == "__main__":
         setup_logging(LOG_DIRECTORY)
         main()
     except Exception as ex:
-        logging.error("something went wrong running the benchmark!")
-        logging.exception(ex)
+        logger.error("something went wrong running the benchmark!")
+        logger.exception(ex)
         sys.exit(1)
     finally:
         terminate_process(PROCESS_NAME)

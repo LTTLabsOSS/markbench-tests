@@ -27,6 +27,8 @@ from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import get_app_install_location, get_build_id
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 STEAM_GAME_ID = 2767030
 PROCESS_NAME = "Marvel-Win64-Shipping.exe"
@@ -43,7 +45,7 @@ def start_game():
     """Starts the game process"""
     game_path = get_app_install_location(STEAM_GAME_ID)
     process_path = Path(game_path) / LAUNCHER_NAME
-    logging.info("Starting game: %s", process_path)
+    logger.info("Starting game: %s", process_path)
     process = subprocess.Popen([process_path], cwd=game_path)
     return process
 
@@ -70,7 +72,7 @@ def run_benchmark():
     # launching into the game menu
     result = find_word("start", timeout=30, interval=1)
     if not result:
-        logging.info("Did not find the title screen. Did the game load?")
+        logger.info("Did not find the title screen. Did the game load?")
         sys.exit(1)
 
     gui.mouseDown()
@@ -87,7 +89,7 @@ def run_benchmark():
     # navigating to the video settings and taking screenshots
     result = find_word("play", timeout=30, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the play menu. Did it click the mouse to start the game?"
         )
         sys.exit(1)
@@ -96,7 +98,7 @@ def run_benchmark():
 
     result = find_word("settings", timeout=30, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the settings menu. Did it open the menu with escape?"
         )
         sys.exit(1)
@@ -110,7 +112,7 @@ def run_benchmark():
 
     result = find_word("brightness", timeout=30, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the brightness option. Did the game load into the display options?"
         )
         sys.exit(1)
@@ -122,7 +124,7 @@ def run_benchmark():
 
     result = find_word("processing", timeout=30, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the post-processing option. Did it scroll down far enough?"
         )
         sys.exit(1)
@@ -134,7 +136,7 @@ def run_benchmark():
 
     result = find_word("times", timeout=30, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the max visible players option. Did it scroll down far enough?"
         )
         sys.exit(1)
@@ -148,7 +150,7 @@ def run_benchmark():
 
     result = find_word("run", timeout=30, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the Performance Test. Did it scroll back up properly?"
         )
         sys.exit(1)
@@ -162,7 +164,7 @@ def run_benchmark():
 
     result = find_word("start", timeout=30, interval=1)
     if not result:
-        logging.info("Did not find the Start Test button. Did OCR click correctly?")
+        logger.info("Did not find the Start Test button. Did OCR click correctly?")
         sys.exit(1)
 
     gui.moveTo(result["x"], result["y"])
@@ -175,13 +177,13 @@ def run_benchmark():
     # marking the end time
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
-    logging.info("Harness setup took %f seconds", elapsed_setup_time)
+    logger.info("Harness setup took %f seconds", elapsed_setup_time)
     time.sleep(2)
 
     # looking for the FPS data graph
     result = find_word("fps", timeout=30, interval=1)
     if not result:
-        logging.info("Did not find the FPS graph. Did the replay start?")
+        logger.info("Did not find the FPS graph. Did the replay start?")
         sys.exit(1)
 
     test_start_time = int(time.time())
@@ -190,17 +192,17 @@ def run_benchmark():
     # checking that first round has finished
     result = find_word("again", timeout=30, interval=1)
     if not result:
-        logging.info("Didn't see the results screen. Did the test crash?")
+        logger.info("Didn't see the results screen. Did the test crash?")
         sys.exit(1)
     test_end_time = int(time.time())
 
     copy_artifact(Path(CFG), ARTIFACTS_DIRECTORY)
     copy_artifact(Path(find_latest_benchmarkcsv()), ARTIFACTS_DIRECTORY)
-    logging.info("Run completed. Closing game.")
+    logger.info("Run completed. Closing game.")
     time.sleep(2)
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
     terminate_process(PROCESS_NAME)
 
     time.sleep(10)
@@ -229,6 +231,6 @@ if __name__ == "__main__":
         setup_logging(LOG_DIRECTORY)
         main()
     except Exception as ex:
-        logging.error("something went wrong running the benchmark!")
-        logging.exception(ex)
+        logger.error("something went wrong running the benchmark!")
+        logger.exception(ex)
         sys.exit(1)

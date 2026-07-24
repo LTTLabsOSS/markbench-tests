@@ -23,6 +23,8 @@ from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "ffxiv-dawntrail-bench.exe"
 DX_PROCESS_NAME = "ffxiv_dx11.exe"
@@ -43,15 +45,15 @@ def copy_from_network_drive() -> Path:
     )
     zip_path = Path("C:/ffxiv-dawntrail-bench_v11.zip")
     extract_to = Path("C:/ffxiv-dawntrail-bench_v11")
-    logging.info("Copying benchmark zip: %s -> %s", src_path, zip_path)
+    logger.info("Copying benchmark zip: %s -> %s", src_path, zip_path)
     # Copy the zip file
     shutil.copyfile(src_path, zip_path)
     # Extract it
-    logging.info("Extracting to: %s", extract_to)
+    logger.info("Extracting to: %s", extract_to)
     extract_to.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(zip_path) as zf:
         zf.extractall(extract_to)
-    logging.info("Extraction complete!")
+    logger.info("Extraction complete!")
     if zip_path.is_file():
         zip_path.unlink()  # Deletes the file
         print(f"Deleted zip file: {zip_path.name}")
@@ -66,14 +68,14 @@ def get_results_txt():
         directory.glob("*.txt"), key=lambda f: f.stat().st_mtime, default=None
     )
     if not latest_txt:
-        logging.info("No .txt result file found")
+        logger.info("No .txt result file found")
         return None
     return Path(directory) / latest_txt
 
 
 def read_output_stats(path):
     if not FileExistsError(path):
-        logging.info("File not found from path")
+        logger.info("File not found from path")
         sys.exit(1)
     latest_txt = path
     print(f"Reading results from: {latest_txt.name}")
@@ -97,7 +99,7 @@ def read_output_stats(path):
 
 def start_game():
     """Launch the benchmark executable."""
-    logging.info("Starting Program...")
+    logger.info("Starting Program...")
 
     # Minimize MarkBench window if present
     windows = gw.getWindowsWithTitle("Markbench")
@@ -151,7 +153,7 @@ def run_benchmark():
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
-    logging.info("Harness setup took %.2f seconds", elapsed_setup_time)
+    logger.info("Harness setup took %.2f seconds", elapsed_setup_time)
 
     # Start benchmark
     user.press("tab")
@@ -166,12 +168,12 @@ def run_benchmark():
     user.click(start_pos[0], start_pos[1])
 
     test_start_time = int(time.time()) - 5
-    logging.info("Benchmark started. Waiting for completion...")
+    logger.info("Benchmark started. Waiting for completion...")
 
     time.sleep(180)
 
     if not find_word("total", timeout=300, interval=0.5):
-        logging.info("Did not see results screen. Marking as DNF.")
+        logger.info("Did not see results screen. Marking as DNF.")
         sys.exit(1)
 
     time.sleep(5)
@@ -179,12 +181,12 @@ def run_benchmark():
 
     test_end_time = int(time.time()) - 2
     elapsed_test_time = round(test_end_time - test_start_time, 2)
-    logging.info("Benchmark took %.2f seconds", elapsed_test_time)
+    logger.info("Benchmark took %.2f seconds", elapsed_test_time)
 
     time.sleep(3)
     result = find_word("save", timeout=30)
     user.click(result["x"], result["y"])
-    logging.info("Saving results txt...")
+    logger.info("Saving results txt...")
     time.sleep(1)
     copy_artifact(get_results_txt(), ARTIFACTS_DIRECTORY)
     return test_start_time, test_end_time
@@ -201,7 +203,7 @@ try:
         print("No file found, copying from L:/ drive...")
         copy_from_network_drive()
     start_time, end_time = run_benchmark()
-    logging.info(read_output_stats(get_results_txt()))
+    logger.info(read_output_stats(get_results_txt()))
     resolutionf = read_output_stats(get_results_txt())["resolution"]
     scoref = read_output_stats(get_results_txt())["score"]
     load_time = read_output_stats(get_results_txt())["total_loading_time"]
@@ -222,8 +224,8 @@ try:
     terminate_process("Notepad.exe")
 
 except Exception as e:
-    logging.info("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.info("Something went wrong running the benchmark!")
+    logger.exception(e)
     terminate_process(PROCESS_NAME)
     terminate_process(DX_PROCESS_NAME)
     sys.exit(1)

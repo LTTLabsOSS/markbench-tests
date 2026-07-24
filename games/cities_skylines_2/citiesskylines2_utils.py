@@ -12,6 +12,8 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.steam import get_app_install_location
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 STEAM_GAME_ID = 949230
@@ -45,10 +47,10 @@ def copy_continuegame(config_files: list[str]) -> None:
             src_path = SCRIPT_DIRECTORY / "config" / file
             CONFIG_LOCATION.mkdir(parents=True, exist_ok=True)
             dest_path = CONFIG_LOCATION / file
-            logging.info("Copying: %s -> %s", file, dest_path)
+            logger.info("Copying: %s -> %s", file, dest_path)
             shutil.copy(src_path, dest_path)
         except OSError as err:
-            logging.error("Could not copy save information files. %s", err)
+            logger.error("Could not copy save information files. %s", err)
             raise err
 
 
@@ -59,10 +61,10 @@ def copy_launcherfiles(launcher_files: list[str]) -> None:
             src_path = SCRIPT_DIRECTORY / "launcher" / file
             INSTALL_LOCATION.mkdir(parents=True, exist_ok=True)
             dest_path = INSTALL_LOCATION / file
-            logging.info("Copying: %s -> %s", file, dest_path)
+            logger.info("Copying: %s -> %s", file, dest_path)
             shutil.copy(src_path, dest_path)
         except OSError as err:
-            logging.error("Could not copy launcher files %s", err)
+            logger.error("Could not copy launcher files %s", err)
             raise err
 
 
@@ -77,21 +79,21 @@ def copy_launcherpath():
             try:
                 file_path = os.path.join(LAUNCHCONFIG_LOCATION, launcherpath)
                 os.remove(file_path)
-                logging.info(
+                logger.info(
                     "Removing old launcher file from %s", LAUNCHCONFIG_LOCATION
                 )
             except OSError as e:
-                logging.error(
+                logger.error(
                     "The following error occurred while trying to remove the launcherpath file: %s.",
                     e,
                 )
-        logging.info("Copying: %s -> %s", launcherpath, dest_path)
+        logger.info("Copying: %s -> %s", launcherpath, dest_path)
         with open(f"{src_path}", "w", encoding="utf-8") as f:
             f.write(f"{INSTALL_LOCATION}")
         shutil.copy(src_path, dest_path)
         # os.chmod(dest_path, stat.S_IREAD)
     except OSError as err:
-        logging.error("Could not copy the launcherpath file. %s", err)
+        logger.error("Could not copy the launcherpath file. %s", err)
         raise err
 
 
@@ -102,8 +104,8 @@ def copy_benchmarksave(save_files: list[str]) -> None:
             src_path = SCRIPT_DIRECTORY / "save" / file
             SAVE_LOCATION.mkdir(parents=True, exist_ok=True)
             dest_path = SAVE_LOCATION / file
-            logging.info("Copying: %s -> %s", file, dest_path)
+            logger.info("Copying: %s -> %s", file, dest_path)
             shutil.copy(src_path, dest_path)
         except OSError as err:
-            logging.error("Could not copy the save game. %s", err)
+            logger.error("Could not copy the save game. %s", err)
             raise err

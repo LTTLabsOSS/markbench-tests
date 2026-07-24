@@ -7,6 +7,8 @@ import shutil
 import winreg
 from pathlib import Path
 
+logger = logging.getLogger(__name__)
+
 USERNAME = getpass.getuser()
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 REPLAY_LOCATION = Path(
@@ -46,10 +48,10 @@ def copy_replay() -> None:
         REPLAY_LOCATION.mkdir(parents=True, exist_ok=True)
 
         dest_path = REPLAY_LOCATION / replay_file
-        logging.info("Copying: %s -> %s", src_path, dest_path)
+        logger.info("Copying: %s -> %s", src_path, dest_path)
         shutil.copy(src_path, dest_path)
     except OSError as err:
-        logging.error("Could not copy replay file")
+        logger.error("Could not copy replay file")
         raise err
 
 

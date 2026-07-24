@@ -20,6 +20,8 @@ from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "gridlegends.exe"
 STEAM_GAME_ID = 1307710
@@ -64,20 +66,20 @@ def run_benchmark():
     time.sleep(20)  # wait for game to load to the start screen
 
     if find_word(word="press", timeout=80, interval=1) is None:
-        logging.error("Game didn't load to start screen. Did the game load?")
+        logger.error("Game didn't load to start screen. Did the game load?")
         sys.exit(1)
     user.click()
-    logging.info("Game started. Entering main menu")
+    logger.info("Game started. Entering main menu")
     time.sleep(4)
     user.press("enter")
     time.sleep(2)
 
     # waiting about a minute for the main menu to appear
     if find_word(word="home", timeout=80, interval=1) is None:
-        logging.error("Game didn't load to main menu. Check settings and try again.")
+        logger.error("Game didn't load to main menu. Check settings and try again.")
         sys.exit(1)
 
-    logging.info("Starting benchmark")
+    logger.info("Starting benchmark")
     user.press("f3")
     time.sleep(0.2)
     user.press("right")
@@ -88,7 +90,7 @@ def run_benchmark():
     time.sleep(0.2)
 
     if find_word(word="basic", timeout=30, interval=0.1) is None:
-        logging.error("Didn't basic video options. Did the menu navigate correctly?")
+        logger.error("Didn't basic video options. Did the menu navigate correctly?")
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "basic.png")
 
@@ -96,7 +98,7 @@ def run_benchmark():
     time.sleep(0.2)
 
     if find_word(word="benchmark", timeout=30, interval=0.1) is None:
-        logging.error(
+        logger.error(
             "Didn't reach advanced video options. Did the menu navigate correctly?"
         )
         sys.exit(1)
@@ -106,7 +108,7 @@ def run_benchmark():
     time.sleep(0.2)
 
     if find_word(word="shading", timeout=30, interval=0.1) is None:
-        logging.error(
+        logger.error(
             "Didn't reach bottom of advanced video settings. Did the menu navigate correctly?"
         )
         sys.exit(1)
@@ -119,17 +121,17 @@ def run_benchmark():
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
-    logging.info("Harness setup took %f seconds", elapsed_setup_time)
+    logger.info("Harness setup took %f seconds", elapsed_setup_time)
 
     if find_word(word="manzi", timeout=120, interval=0.1) is None:
-        logging.error("Didn't see Valentino Manzi. Did the benchmark load?")
+        logger.error("Didn't see Valentino Manzi. Did the benchmark load?")
         sys.exit(1)
     test_start_time = int(time.time())
 
     time.sleep(136)
     # TODO -> Mark benchmark start time using video OCR by looking for a players name
     if find_word(word="results", timeout=30, interval=0.1) is None:
-        logging.error(
+        logger.error(
             "Didn't see results screen for the benchmark. Could not mark start time! Did the benchmark crash?"
         )
         sys.exit(1)
@@ -140,7 +142,7 @@ def run_benchmark():
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     copy_artifact(Path(CONFIG_FULL_PATH), ARTIFACTS_DIRECTORY)
 
-    logging.info("Run completed. Closing game.")
+    logger.info("Run completed. Closing game.")
     time.sleep(2)
 
 
@@ -151,7 +153,7 @@ def main():
     """entry point"""
     start_time, end_time = run_benchmark()
     elapsed_test_time = round((end_time - start_time), 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
     terminate_process(PROCESS_NAME)
     height, width = get_resolution()
     report = {
@@ -170,7 +172,7 @@ if __name__ == "__main__":
         setup_logging(LOG_DIRECTORY)
         main()
     except Exception as ex:
-        logging.error("Something went wrong running the benchmark!")
-        logging.exception(ex)
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception(ex)
         terminate_process(PROCESS_NAME)
         sys.exit(1)

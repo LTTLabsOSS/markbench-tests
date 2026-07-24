@@ -20,6 +20,8 @@ from harness_utils.platform import is_linux, is_windows
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game
 
+logger = logging.getLogger(__name__)
+
 STEAM_GAME_ID = 2483190
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "ForzaHorizon6.exe"
@@ -42,7 +44,7 @@ def get_config_path() -> Path:
 def start_rtss():
     """Sets up the RTSS process"""
     if not is_windows():
-        logging.info("Skipping RTSS setup on Linux.")
+        logger.info("Skipping RTSS setup on Linux.")
         return None
 
     from harness_utils.rtss import copy_rtss_profile, start_rtss_process
@@ -71,10 +73,10 @@ def run_benchmark():
     # Wait for menu to load
     time.sleep(40)
 
-    logging.info("Waiting for start prompt...")
+    logger.info("Waiting for start prompt...")
     result = find_word("start", timeout=30)
     if not result:
-        logging.info("Did not see 'start'. Game didn't start.")
+        logger.info("Did not see 'start'. Game didn't start.")
         sys.exit(1)
 
     user.move_mouse(0, 0)
@@ -83,13 +85,13 @@ def run_benchmark():
     if is_linux():
         mangohud_log_toggle()
 
-    logging.info("At main menu. Pressing x for options.")
+    logger.info("At main menu. Pressing x for options.")
     user.press("x")
 
     # Wait for menu to load
     result = find_word("subtitles", timeout=10)
     if not result:
-        logging.info("Did not see 'subtitles'. Menu did not open?")
+        logger.info("Did not see 'subtitles'. Menu did not open?")
         sys.exit(1)
 
     # Menu defaults to accessibility submenu, so we need to escape first.
@@ -98,10 +100,10 @@ def run_benchmark():
 
     result = find_word("video", timeout=30)
     if not result:
-        logging.info("Did not see 'video'. Game didn't load to the settings menu.")
+        logger.info("Did not see 'video'. Game didn't load to the settings menu.")
         sys.exit(1)
 
-    logging.info("Video found, selecting with keyboard.")
+    logger.info("Video found, selecting with keyboard.")
     press_n_times("down", 6, 1)
     time.sleep(1)
     user.press("enter")
@@ -115,10 +117,10 @@ def run_benchmark():
 
     result = find_word("graphics", timeout=30)
     if not result:
-        logging.info("Game didn't load to the settings menu.")
+        logger.info("Game didn't load to the settings menu.")
         sys.exit(1)
 
-    logging.info("Graphics found, selecting with keyboard.")
+    logger.info("Graphics found, selecting with keyboard.")
     user.press("down")
     time.sleep(1)
     user.press("enter")
@@ -132,29 +134,29 @@ def run_benchmark():
 
     result = find_word("benchmark", timeout=10)
     if not result:
-        logging.info("Didn't find benchmark in settings.")
+        logger.info("Didn't find benchmark in settings.")
         sys.exit(1)
 
-    logging.info("Benchmark found, selecting with keyboard.")
+    logger.info("Benchmark found, selecting with keyboard.")
     user.press("enter")
 
     result = find_word("yes", timeout=10)
     if not result:
-        logging.info("Didn't find confirmation prompt.")
+        logger.info("Didn't find confirmation prompt.")
         sys.exit(1)
 
-    logging.info("Confirmation prompt found, selecting yes with keyboard.")
+    logger.info("Confirmation prompt found, selecting yes with keyboard.")
     user.press("down")
     time.sleep(1)
     user.press("enter")
 
     result = find_word("checkpoint", timeout=60)
     if not result:
-        logging.info("Benchmark didn't start.")
+        logger.info("Benchmark didn't start.")
         sys.exit(1)
 
     elapsed_setup_time = round((int(time.time()) - setup_start_time), 2)
-    logging.info("Harness setup took %.2f seconds", elapsed_setup_time)
+    logger.info("Harness setup took %.2f seconds", elapsed_setup_time)
 
     test_start_time = int(time.time())
 
@@ -162,12 +164,12 @@ def run_benchmark():
 
     result = find_word("results", timeout=30)
     if not result:
-        logging.info("Results screen was not found!")
+        logger.info("Results screen was not found!")
         sys.exit(1)
 
     test_end_time = int(time.time())
     elapsed_test_time = round((test_end_time - test_start_time), 2)
-    logging.info("Benchmark took %.2f seconds", elapsed_test_time)
+    logger.info("Benchmark took %.2f seconds", elapsed_test_time)
 
     if is_linux():
         mangohud_log_toggle()
@@ -191,7 +193,7 @@ try:
     write_report_json(LOG_DIRECTORY, "report.json", report)
     create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     terminate_game_processes()
     sys.exit(1)

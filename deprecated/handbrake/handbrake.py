@@ -22,6 +22,8 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.output_logging import setup_logging
 from harness_utils.report import write_report_json
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 setup_logging(LOG_DIRECTORY)
@@ -94,26 +96,26 @@ def main():
     args = parser.parse_args()
 
     if args.encoder not in ENCODER_TO_PRESET:
-        logging.error("Invalid encoder selection: %s", args.encoder)
+        logger.error("Invalid encoder selection: %s", args.encoder)
         sys.exit(1)
 
     try:
         score = 0
         preset = ENCODER_TO_PRESET[args.encoder]
         if handbrake_present() is False:
-            logging.info("copying handbrake from network drive")
+            logger.info("copying handbrake from network drive")
             copy_handbrake_from_network_drive()
         else:
-            logging.info("detected handbrake")
+            logger.info("detected handbrake")
 
         if is_video_source_present() is False:
-            logging.info("copying big buck bunny from network drive")
+            logger.info("copying big buck bunny from network drive")
             copy_video_source()
         else:
-            logging.info("detected big buck bunny source file")
+            logger.info("detected big buck bunny source file")
 
-        logging.info("starting benchmark, this may take a few minutes")
-        logging.info(
+        logger.info("starting benchmark, this may take a few minutes")
+        logger.info(
             "you can ensure the test is running by checking that cpu usage is 100%% in task manager"
         )
         execute_me = f"{SCRIPT_DIRECTORY}\\{HANDBRAKE_EXECUTABLE}"
@@ -125,15 +127,15 @@ def main():
 
         end_time = current_time_ms()
 
-        logging.info(output)
+        logger.info(output)
 
         match = re.search(avgencoding_pattern, output)
         if not match:
             raise Exception("score was not found in the process output!")
         score = match.group(1)
-        logging.info("Average Encoding Speed: %s", score)
+        logger.info("Average Encoding Speed: %s", score)
         duration = (end_time - start_time) / 1000
-        logging.info("Finished in: %f seconds", duration)
+        logger.info("Finished in: %f seconds", duration)
 
         end_time = current_time_ms()
 
@@ -150,8 +152,8 @@ def main():
 
         write_report_json(LOG_DIRECTORY, "report.json", report)
     except Exception as e:
-        logging.error("Something went wrong running the benchmark!")
-        logging.exception(e)
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception(e)
         sys.exit(1)
 
 

@@ -25,6 +25,8 @@ from harness_utils.paths import game_install_path, harness_directories, user_doc
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "F1_24.exe"
 STEAM_GAME_ID = 2488620
@@ -54,7 +56,7 @@ def find_latest_result_file(base_path):
 def find_settings() -> None:
     """Look for and enter settings"""
     if not find_word("settings", interval=1, timeout=15):
-        logging.info("Didn't find settings!")
+        logger.info("Didn't find settings!")
         sys.exit(1)
     user.press("enter")
     time.sleep(1.5)
@@ -63,7 +65,7 @@ def find_settings() -> None:
 def find_graphics() -> None:
     """Look for and enter graphics settings"""
     if not find_word("graphics", interval=1, timeout=15):
-        logging.info("Didn't find graphics!")
+        logger.info("Didn't find graphics!")
         sys.exit(1)
     user.press("right")
     time.sleep(0.2)
@@ -75,7 +77,7 @@ def navigate_startup():
     """press space through the warnings and navigate startup menus"""
     result = find_word("product", timeout=80)
     if not result:
-        logging.info("Game didn't start in time. Check settings and try again.")
+        logger.info("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
     user.press("space")
@@ -88,10 +90,10 @@ def navigate_startup():
     # Press enter to proceed to the main menu
     result = find_word("press", interval=2, timeout=80)
     if not result:
-        logging.info("Game didn't start in time. Check settings and try again.")
+        logger.info("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
-    logging.info("Hit the title screen. Continuing")
+    logger.info("Hit the title screen. Continuing")
     user.click()
     time.sleep(0.3)
     user.press("enter")
@@ -101,7 +103,7 @@ def navigate_startup():
     result = find_word("login", timeout=20)
     if result:
         time.sleep(3)
-        logging.info("Cancelling logging in.")
+        logger.info("Cancelling logging in.")
         user.press("enter")
         time.sleep(2)
 
@@ -110,7 +112,7 @@ def offline_menu():
     """Navigateout of the offline menu"""
     result = find_word("services", timeout=20)
     if not result:
-        logging.info("Didn't find the keyword 'network'")
+        logger.info("Didn't find the keyword 'network'")
         return
     time.sleep(5)
     user.press("down")
@@ -132,10 +134,10 @@ def run_benchmark():
     # Navigate menus and take screenshots using the artifact manager
     result = find_word("theatre", interval=1, timeout=60)
     if not result:
-        logging.info("Didn't land on the main menu!")
+        logger.info("Didn't land on the main menu!")
         sys.exit(1)
 
-    logging.info("Saw the options! we are good to go!")
+    logger.info("Saw the options! we are good to go!")
     time.sleep(1)
 
     press_n_times("down", 6, 0.2)
@@ -151,7 +153,7 @@ def run_benchmark():
 
     result = find_word("vsync", interval=1, timeout=60)
     if not result:
-        logging.info(
+        logger.info(
             "Didn't find the keyword 'vsync'. Did the program navigate to the video mode menu correctly?"
         )
         sys.exit(1)
@@ -163,7 +165,7 @@ def run_benchmark():
 
     result = find_word("steering", interval=1, timeout=60)
     if not result:
-        logging.info(
+        logger.info(
             "Didn't find the keyword 'steering'. Did the program exit the video mode menu correctly?"
         )
         sys.exit(1)
@@ -174,7 +176,7 @@ def run_benchmark():
 
     result = find_word("chromatic", interval=1, timeout=60)
     if not result:
-        logging.info(
+        logger.info(
             "Didn't find the keyword 'chromatic'. Did we navigate the menu correctly?"
         )
         sys.exit(1)
@@ -186,7 +188,7 @@ def run_benchmark():
 
     # Navigate benchmark menu
     if not find_word("weather", interval=1, timeout=15):
-        logging.info("Didn't find weather!")
+        logger.info("Didn't find weather!")
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "benchmark.png")
@@ -196,14 +198,14 @@ def run_benchmark():
     time.sleep(2)
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
+    logger.info("Setup took %f seconds", elapsed_setup_time)
 
     result = find_word("lap", interval=0.5, timeout=90)
     if not result:
-        logging.info("Benchmark didn't start.")
+        logger.info("Benchmark didn't start.")
         sys.exit(1)
 
-    logging.info("Benchmark started. Waiting for benchmark to complete.")
+    logger.info("Benchmark started. Waiting for benchmark to complete.")
     test_start_time = int(time.time()) + 8
 
     # sleep for 3 laps
@@ -213,33 +215,33 @@ def run_benchmark():
 
     result = find_word("loading", interval=0.5, timeout=90)
     if result:
-        logging.info("Found the loading screen. Marking the out time.")
+        logger.info("Found the loading screen. Marking the out time.")
         test_end_time = int(time.time()) - 2
         time.sleep(2)
     else:
-        logging.info("Could not find the loading screen. Could not mark end time!")
+        logger.info("Could not find the loading screen. Could not mark end time!")
 
     result = find_word("results", interval=1, timeout=90)
     if not result:
-        logging.info(
+        logger.info(
             "Results screen was not found!"
             + "Did harness not wait long enough? Or test was too long?"
         )
         sys.exit(1)
-    logging.info("Results screen was found! Finishing benchmark.")
+    logger.info("Results screen was found! Finishing benchmark.")
     results_file = find_latest_result_file(BENCHMARK_RESULTS_PATH)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     copy_artifact(CONFIG, ARTIFACTS_DIRECTORY)
     copy_artifact(results_file, ARTIFACTS_DIRECTORY)
 
     if test_end_time is None:
-        logging.info(
+        logger.info(
             "Loading screen end time not found. Using results screen fallback time."
         )
         test_end_time = int(time.time())
 
     elapsed_test_time = round(test_end_time - test_start_time, 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
 
     terminate_process(PROCESS_NAME)
 
@@ -262,7 +264,7 @@ try:
     write_report_json(LOG_DIRECTORY, "report.json", report)
     create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     terminate_process(PROCESS_NAME)
     sys.exit(1)

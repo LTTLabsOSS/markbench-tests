@@ -11,6 +11,8 @@ from pathlib import Path
 import psutil
 import win32api
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 ARTIFACTS_DIRECTORY = SCRIPT_DIRECTORY / "run" / "artifacts"
 
@@ -50,13 +52,13 @@ def find_procyon_version() -> str:
     install_path = get_install_path()
 
     if not install_path:
-        logging.info("Installation path not found.")
+        logger.info("Installation path not found.")
         return None
 
     exe_path = os.path.join(install_path, "ProcyonCmd.exe")
 
     if not os.path.exists(exe_path):
-        logging.info("Executable not found at %s", exe_path)
+        logger.info("Executable not found at %s", exe_path)
         return None
 
     try:
@@ -68,7 +70,7 @@ def find_procyon_version() -> str:
         ls = info.get("FileVersionLS")
 
         if ms is None or ls is None:
-            logging.info("No FileVersionMS or FileVersionLS found.")
+            logger.info("No FileVersionMS or FileVersionLS found.")
             return None
 
         # Convert to human-readable version: major.minor.build.revision
@@ -81,7 +83,7 @@ def find_procyon_version() -> str:
         return version
 
     except Exception as e:
-        logging.info("Error retrieving version info from %s: %s", exe_path, e)
+        logger.info("Error retrieving version info from %s: %s", exe_path, e)
         return None  # Return None if version info retrieval fails
 
 
@@ -108,7 +110,7 @@ def find_test_version() -> str:
     ]
 
     if args.engine is None or args.engine not in apps:
-        logging.info("unrecognized option for program")
+        logger.info("unrecognized option for program")
         sys.exit(1)
 
     engine_config = {
@@ -127,13 +129,13 @@ def find_test_version() -> str:
     chops_path = f"C:\\ProgramData\\UL\\Procyon\\chops\\dlc\\{folder}\\x64"
 
     if not chops_path:
-        logging.info("Installation path not found.")
+        logger.info("Installation path not found.")
         return None
 
     exe_path = os.path.join(chops_path, exe)
 
     if not os.path.exists(exe_path):
-        logging.info("Executable %s not found at %s", exe, exe_path)
+        logger.info("Executable %s not found at %s", exe, exe_path)
         return None
 
     try:
@@ -143,5 +145,5 @@ def find_test_version() -> str:
         str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
         return win32api.GetFileVersionInfo(exe_path, str_info_path)
     except Exception as e:
-        logging.info("Error retrieving version info from %s: %s", exe_path, e)
+        logger.info("Error retrieving version info from %s: %s", exe_path, e)
         return None  # Return None if version info retrieval fails

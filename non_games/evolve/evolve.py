@@ -18,6 +18,8 @@ from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import is_process_running
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 EVOLVE_DIR = Path(r"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Evolve")
 EXECUTABLE = "evolve.exe"
@@ -46,7 +48,7 @@ def get_scores(results_path):
 def launch_evolve(resolution, renderer, trace_mode, preset):
     """launch evolve with the given render and trace parameters"""
     launch_command = f'"{EXECUTABLE_PATH}"  --offline run-custom --render-resolution {resolution} --renderer {renderer} --mode {trace_mode} --preset {preset} --fullscreen --export-scores {RESULTS_FILE}'
-    logging.info(launch_command)
+    logger.info(launch_command)
     with subprocess.Popen(
         launch_command,
         stdout=subprocess.PIPE,
@@ -54,7 +56,7 @@ def launch_evolve(resolution, renderer, trace_mode, preset):
         universal_newlines=True,
         cwd=(EVOLVE_DIR),
     ) as proc:
-        logging.info("Evolve has started.")
+        logger.info("Evolve has started.")
         start_time = time.time()
         while True:
             now = time.time()
@@ -106,7 +108,7 @@ def main():
 
     args = parser.parse_args()
 
-    logging.info(
+    logger.info(
         "Starting Evolve: \nResolution: %s\nRenderer: %s\nTrace Mode: %s\nPreset: %s",
         args.resolution,
         args.renderer,
@@ -118,7 +120,7 @@ def main():
     launch_evolve(args.resolution, args.renderer, args.trace_mode, args.preset)
     end_time = time.time()
     scores = get_scores(RESULTS_FILE)
-    logging.info("Benchmark took %.2f seconds", end_time - start_time)
+    logger.info("Benchmark took %.2f seconds", end_time - start_time)
 
     report = {
         "test": "Evolve Benchmark",
@@ -145,6 +147,6 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as ex:
-        logging.error("something went wrong running the benchmark!")
-        logging.exception(ex)
+        logger.error("something went wrong running the benchmark!")
+        logger.exception(ex)
         sys.exit(1)

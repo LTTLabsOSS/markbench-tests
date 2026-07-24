@@ -23,6 +23,8 @@ from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
+logger = logging.getLogger(__name__)
+
 USERNAME = getpass.getuser()
 STEAM_GAME_ID = 3159330
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
@@ -77,9 +79,9 @@ def delete_videos():
         if file_path.exists():
             try:
                 file_path.unlink()
-                logging.info("Deleted: %s", file_path)
+                logger.info("Deleted: %s", file_path)
             except Exception as e:
-                logging.error("Error deleting %s: %s", file_path, e)
+                logger.error("Error deleting %s: %s", file_path, e)
 
 
 def move_benchmark_file():
@@ -94,17 +96,17 @@ def move_benchmark_file():
         if src_path.is_file():
             try:
                 src_path.rename(dest_path)
-                logging.info("Benchmark HTML moved")
+                logger.info("Benchmark HTML moved")
             except Exception as e:
-                logging.error("Failed to move %s: %s", src_path, e)
+                logger.error("Failed to move %s: %s", src_path, e)
         else:
-            logging.error("Benchmark HTML not found.")
+            logger.error("Benchmark HTML not found.")
 
 
 def start_game():
     """Starts the game process"""
     exec_steam_game(STEAM_GAME_ID)
-    logging.info("Launching Game from Steam")
+    logger.info("Launching Game from Steam")
 
 
 def navi_settings():
@@ -152,20 +154,20 @@ def run_benchmark():
     time.sleep(15)
 
     if find_word(word="hardware", timeout=30, interval=1) is None:
-        logging.info("did not find hardware")
+        logger.info("did not find hardware")
     else:
         user.mouseDown()
         time.sleep(0.2)
         user.press("space")
 
     if find_word(word="animus", timeout=130, interval=1) is None:
-        logging.info("did not find main menu")
+        logger.info("did not find main menu")
         sys.exit(1)
 
     user.press("f1")
 
     if find_word("system", timeout=30, interval=1) is None:
-        logging.error("Couldn't find 'System' button")
+        logger.error("Couldn't find 'System' button")
         sys.exit(1)
 
     user.press("down")
@@ -175,13 +177,13 @@ def run_benchmark():
     user.press("space")
 
     if find_word("benchmark", timeout=30, interval=1) is None:
-        logging.error("couldn't find 'benchmark' on screen before settings")
+        logger.error("couldn't find 'benchmark' on screen before settings")
         sys.exit(1)
 
     navi_settings()
 
     if find_word("benchmark", timeout=30, interval=1) is None:
-        logging.error("couldn't find 'benchmark' on screen after settings")
+        logger.error("couldn't find 'benchmark' on screen after settings")
         sys.exit(1)
 
     user.press("down")
@@ -192,10 +194,10 @@ def run_benchmark():
 
     setup_end_time = int(time.time())
     elapsed_setup_time = setup_end_time - setup_start_time
-    logging.info("Setup took %d seconds", elapsed_setup_time)
+    logger.info("Setup took %d seconds", elapsed_setup_time)
 
     if find_word(word="benchmark", timeout=50, interval=1) is None:
-        logging.info("did not find benchmark")
+        logger.info("did not find benchmark")
         sys.exit(1)
 
     test_start_time = int(time.time())
@@ -203,13 +205,13 @@ def run_benchmark():
     time.sleep(100)
 
     if find_word("results", timeout=60, interval=1) is None:
-        logging.error("did not find results screen")
+        logger.error("did not find results screen")
         sys.exit(1)
 
     test_end_time = int(time.time()) - 2
 
     elapsed_test_time = test_end_time - test_start_time
-    logging.info("Benchmark took %d seconds", elapsed_test_time)
+    logger.info("Benchmark took %d seconds", elapsed_test_time)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
 
@@ -247,7 +249,7 @@ if __name__ == "__main__":
         setup_logging(LOG_DIRECTORY)
         main()
     except Exception as ex:
-        logging.error("Something went wrong running the benchmark!")
-        logging.exception(ex)
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception(ex)
         terminate_process(PROCESS_NAME)
         sys.exit(1)

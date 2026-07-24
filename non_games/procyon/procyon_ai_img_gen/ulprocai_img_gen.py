@@ -29,6 +29,8 @@ from non_games.procyon.procyoncmd import (
     get_winml_devices,
 )
 
+logger = logging.getLogger(__name__)
+
 #####
 # Globals
 #####
@@ -197,7 +199,7 @@ def run_benchmark(process_name, command_to_run):
         stderr=subprocess.STDOUT,
         universal_newlines=True,
     ) as proc:
-        logging.info("Procyon AI Image Generation benchmark has started.")
+        logger.info("Procyon AI Image Generation benchmark has started.")
         while True:
             now = time.time()
             elapsed = now - start_time
@@ -215,9 +217,9 @@ def run_benchmark(process_name, command_to_run):
 try:
     setup_logging(LOG_DIRECTORY)
     ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
-    logging.info("Detected Windows ML Devices: %s", str(WINML_DEVICES))
-    logging.info("Detected OpenVino Devices: %s", str(OPENVINO_DEVICES))
-    logging.info("Detected CUDA Devices: %s", (CUDA_DEVICES))
+    logger.info("Detected Windows ML Devices: %s", str(WINML_DEVICES))
+    logger.info("Detected OpenVino Devices: %s", str(OPENVINO_DEVICES))
+    logger.info("Detected CUDA Devices: %s", (CUDA_DEVICES))
 
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.engine]["config"]
@@ -226,25 +228,25 @@ try:
         BENCHMARK_CONFIG[args.engine]["process_name"],
         BENCHMARK_CONFIG[args.engine]["device_id"],
     )
-    logging.info("Starting benchmark!")
-    logging.info(cmd)
+    logger.info("Starting benchmark!")
+    logger.info(cmd)
     start_time = time.time()
     pr = run_benchmark(BENCHMARK_CONFIG[args.engine]["process_name"], cmd)
 
     if pr.returncode > 0:
-        logging.error("Procyon exited with return code %d", pr.returncode)
+        logger.error("Procyon exited with return code %d", pr.returncode)
         sys.exit(pr.returncode)
 
     score = find_score_in_xml()
 
     if score is None:
-        logging.error("Could not find overall score!")
+        logger.error("Could not find overall score!")
         sys.exit(1)
 
     end_time = time.time()
     elapsed_test_time = round(end_time - start_time, 2)
-    logging.info("Benchmark took %.2f seconds", elapsed_test_time)
-    logging.info("Score was %s", score)
+    logger.info("Benchmark took %.2f seconds", elapsed_test_time)
+    logger.info("Score was %s", score)
 
     report = {
         "start_time": seconds_to_milliseconds(start_time),
@@ -261,6 +263,6 @@ try:
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     sys.exit(1)

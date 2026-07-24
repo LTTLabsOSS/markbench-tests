@@ -29,6 +29,8 @@ from harness_utils.steam import (
     get_steamapps_common_path,
 )
 
+logger = logging.getLogger(__name__)
+
 STEAM_GAME_ID = 2561580
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "HorizonZeroDawnRemastered.exe"
@@ -53,10 +55,10 @@ intro_videos = [
 
 def run_benchmark() -> tuple[float]:
     """Run the benchmark"""
-    logging.info("Removing intro videos")
+    logger.info("Removing intro videos")
     remove_files([str(path) for path in intro_videos])
 
-    logging.info("Starting game")
+    logger.info("Starting game")
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int(time.time())
 
@@ -65,7 +67,7 @@ def run_benchmark() -> tuple[float]:
     user.press("esc")
     # Make sure the game started correctly
     if find_word(word="quit", timeout=30, interval=1) is None:
-        logging.info("Could not find the main menu. Did the game load?")
+        logger.info("Could not find the main menu. Did the game load?")
         sys.exit(1)
 
     # Navigate to options menu
@@ -77,7 +79,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(0.5)
 
     if find_word(word="language", timeout=30, interval=1) is None:
-        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        logger.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
     user.press("e")
@@ -85,7 +87,7 @@ def run_benchmark() -> tuple[float]:
 
     # Verify that we have navigated to the display settings menu and take a screenshot
     if find_word(word="monitor", timeout=30, interval=1) is None:
-        logging.info("Did not find the display settings menu. Did the menu get stuck?")
+        logger.info("Did not find the display settings menu. Did the menu get stuck?")
         sys.exit(1)
     # Check if its fullscreen only and not exclusive fullscreen
     if find_word(word="exclusive", timeout=3) is None:
@@ -136,7 +138,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(0.5)
 
     if find_word(word="upscale", timeout=30, interval=1) is None:
-        logging.info("Did not find the upscale settings. Did the menu not scroll?")
+        logger.info("Did not find the upscale settings. Did the menu not scroll?")
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display2.png")
 
@@ -145,7 +147,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(0.5)
 
     if find_word(word="preset", timeout=30, interval=1) is None:
-        logging.info("Did not find the graphics settings menu. Did the menu get stuck?")
+        logger.info("Did not find the graphics settings menu. Did the menu get stuck?")
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
 
@@ -153,7 +155,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(0.5)
 
     if find_word(word="sharpness", timeout=30, interval=1) is None:
-        logging.info("Did not find the sharpness settings. Did the menu not scroll?")
+        logger.info("Did not find the sharpness settings. Did the menu not scroll?")
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
 
@@ -164,10 +166,10 @@ def run_benchmark() -> tuple[float]:
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
-    logging.info("Setup took %s seconds", elapsed_setup_time)
+    logger.info("Setup took %s seconds", elapsed_setup_time)
 
     if find_word(word="continue", timeout=120, interval=1) is None:
-        logging.info(
+        logger.info(
             "Did not find the continue button. Did the game not finish loading?"
         )
         sys.exit(1)
@@ -181,7 +183,7 @@ def run_benchmark() -> tuple[float]:
 
     # Wait for results screen to display info
     if find_word(word="results", timeout=20, interval=0.1) is None:
-        logging.info(
+        logger.info(
             "Did not find the results screen. Did the game not finish the benchmark?"
         )
         sys.exit(1)
@@ -194,7 +196,7 @@ def run_benchmark() -> tuple[float]:
     copy_artifact(CONFIG_FILE, ARTIFACTS_DIRECTORY)
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
-    logging.info("Benchmark took %s seconds", elapsed_test_time)
+    logger.info("Benchmark took %s seconds", elapsed_test_time)
 
     terminate_process(PROCESS_NAME)
 
@@ -217,7 +219,7 @@ try:
     write_report_json(LOG_DIRECTORY, "report.json", report)
     create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     terminate_process(PROCESS_NAME)
     sys.exit(1)

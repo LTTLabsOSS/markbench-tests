@@ -34,6 +34,8 @@ from harness_utils.steam import (
     get_build_id,
 )
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 
 APPDATA = os.getenv("LOCALAPPDATA")
@@ -61,7 +63,7 @@ def navigate_game_menus():
     """Navigate in game menus and take screenshots where appropriate"""
     result = find_word("vsync", timeout=25)
     if not result:
-        logging.info(
+        logger.info(
             "Did not see display menu. Did we navigate to the options correctly?"
         )
         sys.exit(1)
@@ -71,7 +73,7 @@ def navigate_game_menus():
     time.sleep(0.5)
     result = find_word("dlss", timeout=25)
     if not result:
-        logging.info(
+        logger.info(
             "Did not see the top of quality menu. Did we navigate to the quality menu correctly?"
         )
         sys.exit(1)
@@ -81,7 +83,7 @@ def navigate_game_menus():
     time.sleep(0.5)
     result = find_word("vegetation", timeout=25)
     if not result:
-        logging.info(
+        logger.info(
             "Did not see the bottom of quality menu. Did we scroll the quality menu correctly?"
         )
         sys.exit(1)
@@ -100,7 +102,7 @@ def run_benchmark():
 
     result = find_word("press", timeout=25)
     if not result:
-        logging.info("Did not see start screen")
+        logger.info("Did not see start screen")
         sys.exit(1)
 
     user.press("space")
@@ -108,7 +110,7 @@ def run_benchmark():
     # This is for the menu checking for if there's a continue option
     result = find_word("continue", timeout=20, interval=1)
     if result:
-        logging.info("Continue option available, navigating accordingly.")
+        logger.info("Continue option available, navigating accordingly.")
         press_n_times("s", 3, 0.5)
         user.press("f")
         time.sleep(0.5)
@@ -123,7 +125,7 @@ def run_benchmark():
         time.sleep(0.5)
         user.press("space")
     else:
-        logging.info("Continue option not available, navigating accordingly.")
+        logger.info("Continue option not available, navigating accordingly.")
         user.press("s")
         time.sleep(0.5)
         user.press("f")
@@ -146,20 +148,20 @@ def run_benchmark():
     # This is for the loading screen continue
     result = find_word("continue", interval=1, timeout=80)
     if not result:
-        logging.info(
+        logger.info(
             "Did not see the option to continue. Check settings and try again."
         )
         sys.exit(1)
 
-    logging.info("Continue found. Starting opening scene benchmark.")
+    logger.info("Continue found. Starting opening scene benchmark.")
     user.press("space")
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
+    logger.info("Setup took %f seconds", elapsed_setup_time)
 
     result = find_word("vibes", interval=0.5, timeout=250)
     if not result:
-        logging.info("Good vibes were not found! Could not mark the start time.")
+        logger.info("Good vibes were not found! Could not mark the start time.")
         sys.exit(1)
 
     test_start_time = int(time.time())
@@ -168,7 +170,7 @@ def run_benchmark():
 
     result = find_word("83", interval=0.5, timeout=250)
     if not result:
-        logging.info("Waypoint distance was not found! Could not mark the end time.")
+        logger.info("Waypoint distance was not found! Could not mark the end time.")
         sys.exit(1)
 
     test_end_time = int(time.time())
@@ -177,16 +179,16 @@ def run_benchmark():
 
     result = find_word("wicked", interval=1, timeout=250)
     if not result:
-        logging.info(
+        logger.info(
             "Wicked was not found! Did harness not wait long enough? Or test was too long?"
         )
         sys.exit(1)
 
-    logging.info("Wicked found. Ending Benchmark.")
+    logger.info("Wicked found. Ending Benchmark.")
     copy_artifact(CONFIG_FULL_PATH, ARTIFACTS_DIRECTORY)
 
     elapsed_test_time = round(test_end_time - test_start_time, 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Exit
     terminate_process(PROCESS_NAME)
@@ -210,7 +212,7 @@ try:
     write_report_json(LOG_DIRECTORY, "report.json", report)
     create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     terminate_process(PROCESS_NAME)
     sys.exit(1)

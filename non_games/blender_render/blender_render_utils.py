@@ -15,6 +15,8 @@ import requests
 
 from win32api import HIWORD, LOWORD, GetFileVersionInfo
 
+logger = logging.getLogger(__name__)
+
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
@@ -58,7 +60,7 @@ def download_scene(scene: BlenderScene) -> None:
     """download blender project to script directory, tries network drive then the internet"""
     destination = SCRIPT_DIRECTORY.joinpath(scene.file_name)
     if destination.exists():
-        logging.info("%s scene file detected, no downloading required", scene.file_name)
+        logger.info("%s scene file detected, no downloading required", scene.file_name)
         return
 
     try:
@@ -66,11 +68,11 @@ def download_scene(scene: BlenderScene) -> None:
         if destination.exists():
             return
     except Exception as ex:
-        logging.warning(ex)
-        logging.warning("could not download from network drive...")
+        logger.warning(ex)
+        logger.warning("could not download from network drive...")
 
     try:
-        logging.info("downloading %s from internet...", scene.file_name)
+        logger.info("downloading %s from internet...", scene.file_name)
         response = requests.get(scene.download_url, allow_redirects=True, timeout=120)
         with open(destination, "wb") as f:
             f.write(response.content)
@@ -80,7 +82,7 @@ def download_scene(scene: BlenderScene) -> None:
         if destination.exists():
             return
     except Exception as ex:
-        logging.error(
+        logger.error(
             "could not download scene from any source, check connections and try again"
         )
         raise Exception("error downloading scene", cause=ex) from ex
@@ -90,7 +92,7 @@ def copy_scene_from_network_drive(file_name, destination):
     """copy blend file from network drive"""
     network_dir = Path("\\\\labs.lmg.gg\\labs\\03_ProcessingFiles\\Blender Render")
     source_path = network_dir.joinpath(file_name)
-    logging.info("Copying %s from %s", file_name, source_path)
+    logger.info("Copying %s from %s", file_name, source_path)
     shutil.copyfile(source_path, destination)
 
 

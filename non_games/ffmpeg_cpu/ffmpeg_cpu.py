@@ -23,6 +23,8 @@ from harness_utils.paths import harness_directories
 from harness_utils.output_logging import setup_logging
 from harness_utils.report import write_report_json
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 setup_logging(LOG_DIRECTORY)
 TEST_OPTIONS = {
@@ -59,20 +61,20 @@ def main():
     ffmpeg_exe_path = ffmpeg_root / "bin" / "ffmpeg.exe"
 
     if args.encoder not in ENCODERS:
-        logging.error("Invalid encoder selection: %s", args.encoder)
+        logger.error("Invalid encoder selection: %s", args.encoder)
         sys.exit(1)
 
     if not ffmpeg_present(args.architecture):
-        logging.info("FFmpeg not found, copying from network drive...")
+        logger.info("FFmpeg not found, copying from network drive...")
         copy_ffmpeg_from_network_drive(args.architecture)
 
     if not is_video_source_present():
-        logging.info("Video source not found, copying from network drive...")
+        logger.info("Video source not found, copying from network drive...")
         copy_video_source()
 
     try:
         start_encoding_time = current_time_ms()
-        logging.info("Starting ffmpeg_cpu benchmark...")
+        logger.info("Starting ffmpeg_cpu benchmark...")
 
         if args.encoder == "h264":
             command = f"{ffmpeg_exe_path} -y -i {INPUT_VIDEO} -c:v libx264 -preset slow -profile:v high -level:v 5.1 -crf 20 -c:a copy {OUTPUT_VIDEO}"
@@ -81,16 +83,16 @@ def main():
         elif args.encoder == "h265":
             command = f"{ffmpeg_exe_path} -y -i {INPUT_VIDEO} -c:v libx265 -preset slow -profile:v main -level:v 5.1 -crf 20 -c:a copy {OUTPUT_VIDEO}"
         else:
-            logging.error("Invalid encoder selection: %s", args.encoder)
+            logger.error("Invalid encoder selection: %s", args.encoder)
             sys.exit(1)
 
-        logging.info("Executing command: %s", command)
+        logger.info("Executing command: %s", command)
 
         encoding_log_path = ARTIFACTS_DIRECTORY / "encoding.log"
         with open(encoding_log_path, "w", encoding="utf-8") as encoding_log:
-            logging.info("Encoding...")
+            logger.info("Encoding...")
             subprocess.run(command, stderr=encoding_log, check=True)
-        logging.info("Encoding completed")
+        logger.info("Encoding completed")
 
         encoding_fps = None
         last_encoding_line = None
@@ -112,12 +114,12 @@ def main():
                     break
         if encoding_fps is None:
             raise RuntimeError("Failed to parse encoding FPS from ffmpeg output")
-        logging.info("Encoding FPS (overall): %s", encoding_fps)
+        logger.info("Encoding FPS (overall): %s", encoding_fps)
 
         vmaf_score = None
         vmaf_duration = None
         if vmaf_supported(args.architecture):
-            logging.info("Beginning VMAF")
+            logger.info("Beginning VMAF")
             start_vmaf_time = current_time_ms()
             source_path = INPUT_VIDEO
             encoded_path = OUTPUT_VIDEO
@@ -134,11 +136,11 @@ def main():
                 "null",
                 "-",
             ]
-            logging.info("VMAF args: %s", argument_list)
+            logger.info("VMAF args: %s", argument_list)
 
             vmaf_log_path = ARTIFACTS_DIRECTORY / "vmaf.log"
             with open(vmaf_log_path, "w+", encoding="utf-8") as vmaf_log:
-                logging.info("Calculating VMAF...")
+                logger.info("Calculating VMAF...")
                 subprocess.run(
                     [ffmpeg_exe_path, *argument_list],
                     cwd=ffmpeg_exe_path.parent,
@@ -155,10 +157,10 @@ def main():
                         break
             end_vmaf_time = current_time_ms()
             vmaf_duration = end_vmaf_time - start_vmaf_time
-            logging.info("VMAF score: %s", vmaf_score)
+            logger.info("VMAF score: %s", vmaf_score)
 
         else:
-            logging.info("VMAF not supported in this FFMPEG build")
+            logger.info("VMAF not supported in this FFMPEG build")
         end_time = current_time_ms()
 
         report = {
@@ -182,8 +184,8 @@ def main():
             )
         write_report_json(LOG_DIRECTORY, "report.json", report)
     except Exception as e:
-        logging.error("Something went wrong running the benchmark!")
-        logging.exception(e)
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception(e)
         sys.exit(1)
 
 

@@ -14,6 +14,8 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.steam import get_active_steam_account_id
 
+logger = logging.getLogger(__name__)
+
 USERFOLDER = os.environ["USERPROFILE"]
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 TLOU_SAVE = SCRIPT_DIRECTORY.joinpath("SAVEFILE0A")
@@ -131,9 +133,9 @@ def copy_autosave():
     # Remove existing savedata (autosave restore should be exact)
     if dest_folder.exists():
         shutil.rmtree(dest_folder)
-        logging.info("Removing old save file")
+        logger.info("Removing old save file")
 
     time.sleep(10)
     shutil.copytree(src_autosave_dir, dest_folder)
 
-    logging.info("Autosave copied from %s -> %s", src_autosave_dir, dest_folder)
+    logger.info("Autosave copied from %s -> %s", src_autosave_dir, dest_folder)

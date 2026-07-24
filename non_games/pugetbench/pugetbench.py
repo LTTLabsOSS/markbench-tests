@@ -27,6 +27,8 @@ from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 timestamp = time.strftime(
     "%Y-%m-%d_%H-%M-%S", time.localtime()
@@ -76,7 +78,7 @@ def safe_terminate(process_names: list[str]):
         try:
             terminate_process(pname)
         except Exception as e:
-            logging.info(
+            logger.info(
                 "Process '%s' could not be terminated (may not exist): %s", pname, e
             )
 
@@ -116,7 +118,7 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         f"C:\\Program Files\\PugetBench for Creators\\{EXECUTABLE_NAME}"
     )
     if not executable_path.exists():
-        logging.error("PugetBench executable not found at %s", executable_path)
+        logger.error("PugetBench executable not found at %s", executable_path)
         sys.exit(1)
 
     command = [
@@ -139,9 +141,9 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         str(LOG_FILE_PATH),
     ]
 
-    logging.info("Running benchmark command: %s", command)
+    logger.info("Running benchmark command: %s", command)
 
-    logging.info(command)
+    logger.info(command)
 
     error_in_output = {"exception": None}  # Shared state for error reporting
 
@@ -186,7 +188,7 @@ def get_app_version_info(app: str, version_arg: str):
     if not full_version:
         full_version, trimmed_version = config["version_func"]()
         if not full_version or not trimmed_version:
-            logging.error(
+            logger.error(
                 "Could not determine %s version. Is it installed?", config["label"]
             )
             sys.exit(1)
@@ -272,8 +274,8 @@ def main():
 
     except RuntimeError as e:
         msg = str(e)
-        logging.error("Something went wrong running the benchmark!")
-        logging.exception(e)
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception(e)
 
         # Terminate the process only for "real" failures
         if "timed out" in msg or "Benchmark failed" in msg:
@@ -282,8 +284,8 @@ def main():
         sys.exit(1)
     except Exception as e:
         # Non-runtime exceptions, e.g., coding errors, still exit
-        logging.error("Unexpected error!")
-        logging.exception(e)
+        logger.error("Unexpected error!")
+        logger.exception(e)
         sys.exit(1)
 
 
