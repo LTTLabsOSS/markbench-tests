@@ -12,9 +12,18 @@ from cs2_utils import get_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import (
+    capture_and_save_screenshot,
+    copy_artifact,
+    create_artifacts_manifest,
+)
+from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import (
@@ -24,8 +33,9 @@ from harness_utils.steam import (
     get_steam_folder_path,
 )
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+logger = logging.getLogger(__name__)
+
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "cs2.exe"
 STEAM_GAME_ID = 730
 
@@ -87,7 +97,7 @@ def identify_settings():
                 confidence=0.6,
             )
         case _:
-            logging.error(
+            logger.error(
                 "Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?",
                 height,
                 width,
@@ -95,7 +105,7 @@ def identify_settings():
             raise RuntimeError
 
     if location is None:
-        logging.error(
+        logger.error(
             "Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?",
             height,
             width,
@@ -110,7 +120,7 @@ def identify_settings():
     time.sleep(0.2)
 
 
-def navigate_settings(am):
+def navigate_settings():
     """Navigates the settings menu and takes screenshots for traceability"""
 
     result = wait_for_word(
@@ -125,9 +135,7 @@ def navigate_settings(am):
 
     wait_for_word(word="brightness", why="find the video settings")
 
-    am.take_screenshot(
-        "video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
 
     result = wait_for_word(
         word="advanced", timeout=10, interval=1, why="find the advanced video menu"
@@ -139,11 +147,7 @@ def navigate_settings(am):
     gui.mouseUp()
     time.sleep(0.2)
 
-    am.take_screenshot(
-        "advanced_video_1.png",
-        ArtifactType.CONFIG_IMAGE,
-        "first picture of advanced video settings",
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_video_1.png")
 
     result = wait_for_word(
         word="boost",
@@ -159,16 +163,12 @@ def navigate_settings(am):
 
     wait_for_word(word="particle", why="verify we scrolled correctly")
 
-    am.take_screenshot(
-        "advanced_video_2.png",
-        ArtifactType.CONFIG_IMAGE,
-        "second picture of advanced video settings",
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_video_2.png")
 
 
 def execute_benchmark():
     """Starts the benchmark"""
-    logging.info("Starting benchmark")
+    logger.info("Starting benchmark")
 
     result = wait_for_word(
         word="play", timeout=10, interval=1, why="click the play tab"
@@ -213,7 +213,6 @@ def run_benchmark():
     """Run cs2 benchmark"""
     setup_start_time = int(time.time())
     start_game()
-    am = ArtifactManager(LOG_DIRECTORY)
     time.sleep(20)  # wait for game to load into main menu
 
     wait_for_word(
@@ -223,7 +222,7 @@ def run_benchmark():
 
     identify_settings()
 
-    navigate_settings(am)
+    navigate_settings()
 
     execute_benchmark()
 
@@ -232,7 +231,7 @@ def run_benchmark():
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
-    logging.info("Harness setup took %f seconds", elapsed_setup_time)
+    logger.info("Harness setup took %f seconds", elapsed_setup_time)
     time.sleep(1)
 
     # Default fallback start time
@@ -240,10 +239,10 @@ def run_benchmark():
 
     result = find_word(word="roll", timeout=30, interval=0.1)
     if result is None:
-        logging.error("Didn't see 'lets roll'. Did the map load?")
+        logger.error("Didn't see 'lets roll'. Did the map load?")
     else:
         test_start_time = int(time.time())
-        logging.info("Saw 'lets roll'! Marking the time.")
+        logger.info("Saw 'lets roll'! Marking the time.")
 
     time.sleep(112)  # sleep duration during gameplay
 
@@ -257,20 +256,19 @@ def run_benchmark():
 
     test_end_time = int(time.time())
     user.press("`")
-    logging.info("The console opened. Marking end time.")
+    logger.info("The console opened. Marking end time.")
 
     # allow time for result screen to populate
     time.sleep(13)
 
-    am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
-    am.copy_file(CFG, ArtifactType.CONFIG_TEXT, "cs2 video config")
-    logging.info("Run completed. Closing game.")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    copy_artifact(CFG, ARTIFACTS_DIRECTORY)
+    logger.info("Run completed. Closing game.")
     time.sleep(2)
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
 
     return test_start_time, test_end_time
 
@@ -288,6 +286,7 @@ def main():
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 
 
 if __name__ == "__main__":
@@ -295,8 +294,8 @@ if __name__ == "__main__":
         setup_logging(LOG_DIRECTORY)
         main()
     except Exception as ex:
-        logging.error("something went wrong running the benchmark!")
-        logging.exception(ex)
+        logger.error("something went wrong running the benchmark!")
+        logger.exception(ex)
         sys.exit(1)
     finally:
         terminate_process(PROCESS_NAME)

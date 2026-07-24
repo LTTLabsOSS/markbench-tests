@@ -13,15 +13,17 @@ from ul3dmark_utils import get_score
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import is_process_running
 
+logger = logging.getLogger(__name__)
+
 #####
 # Globals
 #####
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 DIR_3DMARK = Path(r"C:\\Program Files\\UL\3DMark\\")
 EXECUTABLE = "3DMarkCmd.exe"
 ABS_EXECUTABLE_PATH = DIR_3DMARK / EXECUTABLE
@@ -53,7 +55,7 @@ BENCHMARK_CONFIG = {
     },
 }
 RESULTS_FILENAME = "myresults.xml"
-REPORT_PATH = LOG_DIRECTORY / RESULTS_FILENAME
+REPORT_PATH = ARTIFACTS_DIRECTORY / RESULTS_FILENAME
 
 
 def get_arguments():
@@ -87,7 +89,7 @@ def run_benchmark(process_name, command_to_run):
         stderr=subprocess.STDOUT,
         universal_newlines=True,
     ) as proc:
-        logging.info("3DMark has started.")
+        logger.info("3DMark has started.")
         start_time = time.time()
         while True:
             now = time.time()
@@ -106,24 +108,25 @@ def run_benchmark(process_name, command_to_run):
 def main():
     """Run the selected 3DMark benchmark."""
     setup_logging(LOG_DIRECTORY)
+    ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.benchmark]["config"]
     cmd = create_3dmark_command(option)
-    logging.info("Starting benchmark!")
-    logging.info(cmd)
+    logger.info("Starting benchmark!")
+    logger.info(cmd)
     strt = time.time()
     pr = run_benchmark(BENCHMARK_CONFIG[args.benchmark]["process_name"], cmd)
 
     if pr.returncode > 0:
-        logging.error("3DMark exited with return code %d", pr.returncode)
+        logger.error("3DMark exited with return code %d", pr.returncode)
         return pr.returncode
 
     score = get_score(BENCHMARK_CONFIG[args.benchmark]["score_name"], REPORT_PATH)
 
     end_time = time.time()
     elapsed_test_time = round(end_time - strt, 2)
-    logging.info("Benchmark took %.2f seconds", elapsed_test_time)
-    logging.info("Score was %s", score)
+    logger.info("Benchmark took %.2f seconds", elapsed_test_time)
+    logger.info("Score was %s", score)
 
     report = {
         "test": "3DMark",

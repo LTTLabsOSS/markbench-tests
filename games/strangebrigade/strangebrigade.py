@@ -14,11 +14,16 @@ from strangebrigade_utils import read_current_resolution, replace_exe, restore_e
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, create_artifacts_manifest
+from harness_utils.paths import harness_directories
 from harness_utils.file_cleanup import remove_files
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import (
@@ -27,8 +32,9 @@ from harness_utils.steam import (
     get_build_id,
 )
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+logger = logging.getLogger(__name__)
+
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "StrangeBrigade.exe"
 STEAM_GAME_ID = 312670
 CAPTURE_PATH = SCRIPT_DIRECTORY / "capture"
@@ -46,17 +52,16 @@ intro_videos = [VIDEO_PATH / "rebellion.webm"]
 
 def run_benchmark(render_engine):
     """Starts the benchmark"""
-    logging.info(intro_videos)
+    logger.info(intro_videos)
     remove_files([str(path) for path in intro_videos])
     replace_exe(render_engine)
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int(time.time())
     time.sleep(30)
-    am = ArtifactManager(LOG_DIRECTORY)
 
     result = find_word("options", timeout=30, vulkan=True)
     if not result:
-        logging.info("Did not find the options menu. Did the game launch?")
+        logger.info("Did not find the options menu. Did the game launch?")
         sys.exit(1)
 
     press_n_times("down", 5, 0.2)
@@ -66,21 +71,19 @@ def run_benchmark(render_engine):
 
     result = find_word("display", timeout=10, vulkan=True)
     if not result:
-        logging.info("Did not find the display menu. Did OCR navigate correctly?")
+        logger.info("Did not find the display menu. Did OCR navigate correctly?")
         sys.exit(1)
 
     gui.press("pgdn")
 
     result = find_word("customise", timeout=10, vulkan=True)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the customize graphics detail option. Did navigate correctly?"
         )
         sys.exit(1)
 
-    am.take_screenshot_vulkan(
-        "display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png", vulkan=True)
 
     time.sleep(0.5)
     user.press("escape")
@@ -89,11 +92,11 @@ def run_benchmark(render_engine):
     user.press("enter")
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
+    logger.info("Setup took %f seconds", elapsed_setup_time)
     time.sleep(1)
-    result = find_word("strange", timeout=100, vulkan=True )
+    result = find_word("strange", timeout=100, vulkan=True)
     if not result:
-        logging.info("Could not find FPS. Unable to mark start time!")
+        logger.info("Could not find FPS. Unable to mark start time!")
         sys.exit(1)
 
     test_start_time = int(time.time())
@@ -102,7 +105,7 @@ def run_benchmark(render_engine):
 
     result = find_word("confirm", interval=0.2, timeout=250, vulkan=True)
     if not result:
-        logging.info(
+        logger.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?"
         )
         sys.exit(1)
@@ -112,20 +115,16 @@ def run_benchmark(render_engine):
     # Wait 5 seconds for benchmark info
     time.sleep(5)
 
-    am.take_screenshot_vulkan(
-        "result.png", ArtifactType.RESULTS_IMAGE, "benchmark results"
-    )
-    am.copy_file(
-        Path(CONFIG_FULL_PATH), ArtifactType.RESULTS_TEXT, "preferences.script.txt"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png", vulkan=True)
+    copy_artifact(Path(CONFIG_FULL_PATH), ARTIFACTS_DIRECTORY)
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Exit
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
+
     time.sleep(5)
 
     return test_start_time, test_end_time
@@ -154,9 +153,10 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     terminate_process(PROCESS_NAME)
     sys.exit(1)
 finally:

@@ -16,15 +16,16 @@ from ffmpeg_cpu_utils import (
     current_time_ms,
     ffmpeg_present,
     is_video_source_present,
-    vmaf_supported
+    vmaf_supported,
 )
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.paths import harness_directories
 from harness_utils.output_logging import setup_logging
 from harness_utils.report import write_report_json
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+logger = logging.getLogger(__name__)
+
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 setup_logging(LOG_DIRECTORY)
 TEST_OPTIONS = {
     "x86_64": "ffmpeg-8.0.1-full_build",
@@ -32,19 +33,15 @@ TEST_OPTIONS = {
 }
 
 parser = ArgumentParser()
-parser.add_argument(
-    "--encoder", 
-    dest="encoder",
-    required=True
-)
+parser.add_argument("--encoder", dest="encoder", required=True)
 
 parser.add_argument(
-    "-a", 
-    "--architecture", 
+    "-a",
+    "--architecture",
     dest="architecture",
     help="Architecture type",
     required=True,
-    choices=TEST_OPTIONS.keys()
+    choices=TEST_OPTIONS.keys(),
 )
 
 args = parser.parse_args()
@@ -57,28 +54,27 @@ INPUT_VIDEO = SCRIPT_DIRECTORY / "big_buck_bunny_1080p24.y4m"
 OUTPUT_VIDEO = SCRIPT_DIRECTORY / "output.mp4"
 
 
-
 def main():
     """entrypoint"""
-    am = ArtifactManager(LOG_DIRECTORY)
+    ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
     ffmpeg_root = SCRIPT_DIRECTORY / TEST_OPTIONS[args.architecture]
     ffmpeg_exe_path = ffmpeg_root / "bin" / "ffmpeg.exe"
 
     if args.encoder not in ENCODERS:
-        logging.error("Invalid encoder selection: %s", args.encoder)
+        logger.error("Invalid encoder selection: %s", args.encoder)
         sys.exit(1)
 
     if not ffmpeg_present(args.architecture):
-        logging.info("FFmpeg not found, copying from network drive...")
+        logger.info("FFmpeg not found, copying from network drive...")
         copy_ffmpeg_from_network_drive(args.architecture)
 
     if not is_video_source_present():
-        logging.info("Video source not found, copying from network drive...")
+        logger.info("Video source not found, copying from network drive...")
         copy_video_source()
 
     try:
         start_encoding_time = current_time_ms()
-        logging.info("Starting ffmpeg_cpu benchmark...")
+        logger.info("Starting ffmpeg_cpu benchmark...")
 
         if args.encoder == "h264":
             command = f"{ffmpeg_exe_path} -y -i {INPUT_VIDEO} -c:v libx264 -preset slow -profile:v high -level:v 5.1 -crf 20 -c:a copy {OUTPUT_VIDEO}"
@@ -87,16 +83,16 @@ def main():
         elif args.encoder == "h265":
             command = f"{ffmpeg_exe_path} -y -i {INPUT_VIDEO} -c:v libx265 -preset slow -profile:v main -level:v 5.1 -crf 20 -c:a copy {OUTPUT_VIDEO}"
         else:
-            logging.error("Invalid encoder selection: %s", args.encoder)
+            logger.error("Invalid encoder selection: %s", args.encoder)
             sys.exit(1)
 
-        logging.info("Executing command: %s", command)
+        logger.info("Executing command: %s", command)
 
-        encoding_log_path = LOG_DIRECTORY / "encoding.log"
+        encoding_log_path = ARTIFACTS_DIRECTORY / "encoding.log"
         with open(encoding_log_path, "w", encoding="utf-8") as encoding_log:
-            logging.info("Encoding...")
+            logger.info("Encoding...")
             subprocess.run(command, stderr=encoding_log, check=True)
-        logging.info("Encoding completed")
+        logger.info("Encoding completed")
 
         encoding_fps = None
         last_encoding_line = None
@@ -118,20 +114,17 @@ def main():
                     break
         if encoding_fps is None:
             raise RuntimeError("Failed to parse encoding FPS from ffmpeg output")
-        logging.info("Encoding FPS (overall): %s", encoding_fps)
+        logger.info("Encoding FPS (overall): %s", encoding_fps)
 
         vmaf_score = None
         vmaf_duration = None
         if vmaf_supported(args.architecture):
-
-            logging.info("Beginning VMAF")
+            logger.info("Beginning VMAF")
             start_vmaf_time = current_time_ms()
             source_path = INPUT_VIDEO
             encoded_path = OUTPUT_VIDEO
             vmaf_model_path = f"../vmaf/{VMAF_VERSION}.json"
-            filter_complex = (
-                f"libvmaf=model=path={vmaf_model_path}:n_threads=10:log_path=vmafout.txt"
-            )
+            filter_complex = f"libvmaf=model=path={vmaf_model_path}:n_threads=10:log_path=vmafout.txt"
             argument_list = [
                 "-i",
                 str(source_path),
@@ -143,13 +136,16 @@ def main():
                 "null",
                 "-",
             ]
-            logging.info("VMAF args: %s", argument_list)
+            logger.info("VMAF args: %s", argument_list)
 
-            vmaf_log_path = LOG_DIRECTORY / "vmaf.log"
+            vmaf_log_path = ARTIFACTS_DIRECTORY / "vmaf.log"
             with open(vmaf_log_path, "w+", encoding="utf-8") as vmaf_log:
-                logging.info("Calculating VMAF...")
+                logger.info("Calculating VMAF...")
                 subprocess.run(
-                    [ffmpeg_exe_path, *argument_list], cwd=ffmpeg_exe_path.parent, stderr=vmaf_log, check=True
+                    [ffmpeg_exe_path, *argument_list],
+                    cwd=ffmpeg_exe_path.parent,
+                    stderr=vmaf_log,
+                    check=True,
                 )
                 vmaf_log.flush()
                 vmaf_log.seek(0)
@@ -161,17 +157,11 @@ def main():
                         break
             end_vmaf_time = current_time_ms()
             vmaf_duration = end_vmaf_time - start_vmaf_time
-            logging.info("VMAF score: %s", vmaf_score)
+            logger.info("VMAF score: %s", vmaf_score)
 
-            am.copy_file(str(vmaf_log_path), ArtifactType.RESULTS_TEXT, "vmaf log file")
         else:
-            logging.info("VMAF not supported in this FFMPEG build")
+            logger.info("VMAF not supported in this FFMPEG build")
         end_time = current_time_ms()
-        am.copy_file(
-            str(encoding_log_path), ArtifactType.RESULTS_TEXT, "encoding log file"
-        )
-
-        am.create_manifest()
 
         report = {
             "test": "FFMPEG CPU Encoding",
@@ -185,15 +175,17 @@ def main():
             "end_time": end_time,
         }
         if vmaf_score is not None:
-            report.update({
-                "vmaf_version": VMAF_VERSION,
-                "vmaf_score": vmaf_score,
-                "vmaf_duration": vmaf_duration,
-            })
+            report.update(
+                {
+                    "vmaf_version": VMAF_VERSION,
+                    "vmaf_score": vmaf_score,
+                    "vmaf_duration": vmaf_duration,
+                }
+            )
         write_report_json(LOG_DIRECTORY, "report.json", report)
     except Exception as e:
-        logging.error("Something went wrong running the benchmark!")
-        logging.exception(e)
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception(e)
         sys.exit(1)
 
 

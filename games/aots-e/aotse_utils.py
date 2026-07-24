@@ -18,6 +18,8 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.steam import get_app_install_location
 
+logger = logging.getLogger(__name__)
+
 USERNAME = getpass.getuser()
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
@@ -50,7 +52,7 @@ def delete_old_scores(file):
     for thefile in files:
         try:
             os.remove(thefile)
-            logging.info("Deleted old score file: %s", thefile)
+            logger.info("Deleted old score file: %s", thefile)
         except Exception as e:
             print(f"Error deleting file {thefile}: {e}")
 
@@ -85,7 +87,7 @@ def is_process_running(process_name):
 
 def wait_for_benchmark_process(test_name, process_name, timeout=60):
     """Wait for the benchmark game process to start and then finish."""
-    logging.info("Waiting for benchmark process '%s' to start...", process_name)
+    logger.info("Waiting for benchmark process '%s' to start...", process_name)
 
     start_time = time.time()
 
@@ -93,14 +95,14 @@ def wait_for_benchmark_process(test_name, process_name, timeout=60):
         # Check if the benchmark process is running
         process = is_process_running(process_name)
         if process:
-            logging.info("%s has started. Waiting for it to finish...", test_name)
+            logger.info("%s has started. Waiting for it to finish...", test_name)
             process.wait()  # This will block until the process finishes
-            logging.info("Benchmark has finished.")
+            logger.info("Benchmark has finished.")
             break
 
         # If we exceed the timeout, break out of the loop and log an error
         if time.time() - start_time > timeout:
-            logging.error(
+            logger.error(
                 "Timeout reached while waiting for process '%s'.", process_name
             )
             raise TimeoutError(
@@ -119,13 +121,13 @@ def replace_exe():
     if not os.path.exists(check_backup):
         os.rename(launcher_exe, check_backup)
         shutil.copy(dx12_exe, launcher_exe)
-        logging.info("Replacing launcher file in %s", EXE_PATH)
+        logger.info("Replacing launcher file in %s", EXE_PATH)
     elif os.path.exists(check_backup):
         if not os.path.exists(launcher_exe):
             shutil.copy(dx12_exe, launcher_exe)
-            logging.info("Replacing launcher file in %s", EXE_PATH)
+            logger.info("Replacing launcher file in %s", EXE_PATH)
         else:
-            logging.info("Launcher already replaced with DX12 exe.")
+            logger.info("Launcher already replaced with DX12 exe.")
 
 
 def restore_exe():
@@ -133,12 +135,12 @@ def restore_exe():
     check_backup = Path(f"{EXE_PATH}\\StardockLauncher_launcher.exe")
     launcher_exe = Path(f"{EXE_PATH}\\StardockLauncher.exe")
     if not os.path.exists(check_backup):
-        logging.info("Launcher already restored or file does not exist.")
+        logger.info("Launcher already restored or file does not exist.")
     elif os.path.exists(check_backup):
         if not os.path.exists(launcher_exe):
             os.rename(check_backup, launcher_exe)
-            logging.info("Restoring launcher file in %s", EXE_PATH)
+            logger.info("Restoring launcher file in %s", EXE_PATH)
         else:
             os.remove(launcher_exe)
             os.rename(check_backup, launcher_exe)
-            logging.info("Restoring launcher file in %s", EXE_PATH)
+            logger.info("Restoring launcher file in %s", EXE_PATH)

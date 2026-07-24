@@ -22,6 +22,8 @@ from godot_compile_utils import current_time_ms
 from harness_utils.output_logging import setup_logging
 from harness_utils.report import write_report_json
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 
@@ -30,30 +32,30 @@ def main():
     """test script entry point"""
     setup_logging(LOG_DIRECTORY)
     output = install_mingw()
-    logging.info(output)
+    logger.info(output)
 
     output = install_miniconda()
-    logging.info(output)
+    logger.info(output)
 
     output = copy_godot_source_from_network_drive()
-    logging.info(output)
+    logger.info(output)
 
     output = create_conda_environment()
-    logging.info(output)
+    logger.info(output)
 
     output = run_conda_command(["-m", "pip", "install", "scons"])
-    logging.info(output)
+    logger.info(output)
 
     output = run_conda_command(
         ["-m", "SCons", "--clean", "--no-cache", "platform=windows", "arch=x86_64"]
     )
-    logging.info(output)
+    logger.info(output)
 
     start_time = current_time_ms()
     output = run_conda_command(
         ["-m", "SCons", "--no-cache", "platform=windows", "arch=x86_64"]
     )
-    logging.info(output)
+    logger.info(output)
     end_time = current_time_ms()
 
     score_regex = r"Time elapsed: (\d\d:\d\d:\d\d\.\d+)"
@@ -86,6 +88,6 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as ex:
-        logging.error("error running benchmark")
-        logging.exception(ex)
+        logger.error("error running benchmark")
+        logger.exception(ex)
         sys.exit(1)

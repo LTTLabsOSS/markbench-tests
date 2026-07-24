@@ -54,7 +54,7 @@ def _scale_linux_click_coordinates(x: int, y: int) -> tuple[int, int]:
 
 
 class _WindowsInputBackend:
-    def __init__(self, controller: "InputController") -> None:
+    def __init__(self, controller: "KeyboardMouseDriver") -> None:
         self._pydirectinput = importlib.import_module("pydirectinput")
         setattr(self._pydirectinput, "FAILSAFE", controller.FAILSAFE)
 
@@ -104,23 +104,12 @@ class _YdotoolInputBackend:
             ) from exc
 
     def _run(self, *args: str) -> None:
-        logger.debug("ydotool args=%s", args)
-        try:
-            subprocess.run(
-                [self._ydotool, *args],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-        except subprocess.CalledProcessError as exc:
-            logger.debug(
-                "ydotool failed args=%s stdout=%s stderr=%s",
-                args,
-                exc.stdout,
-                exc.stderr,
-                exc_info=True,
-            )
-            raise
+        subprocess.run(
+            [self._ydotool, *args],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
 
     def press(self, key: str) -> None:
         self.key_down(key)
@@ -157,7 +146,7 @@ class _YdotoolInputBackend:
         self._run("mousemove", "--wheel", "-x", "0", "-y", str(wheel_ticks))
 
 
-class InputController:
+class KeyboardMouseDriver:
     """Keyboard and mouse input controller with Windows and Linux backends."""
 
     FAILSAFE: bool
@@ -165,7 +154,6 @@ class InputController:
     def __init__(self) -> None:
         self.FAILSAFE = False
         self._backend = self._create_backend()
-        logger.debug("Initialized InputController FAILSAFE=%s", self.FAILSAFE)
 
     def _create_backend(self):
         if is_windows():
@@ -176,45 +164,39 @@ class InputController:
 
     def press(self, key: str) -> None:
         """Press and release a key."""
-        logger.debug("input press key=%s", key)
         self._backend.press(key)
 
     def key_down(self, key: str) -> None:
         """Press and hold a key."""
-        logger.debug("input key_down key=%s", key)
         self._backend.key_down(key)
 
     def key_up(self, key: str) -> None:
         """Release a key."""
-        logger.debug("input key_up key=%s", key)
         self._backend.key_up(key)
 
     def hotkey(self, *keys: str) -> None:
         """Press a key chord."""
-        logger.debug("input hotkey keys=%s", keys)
         self._backend.hotkey(*keys)
 
     def move_mouse(self, x: int, y: int) -> None:
         """Move the mouse pointer without clicking."""
-        logger.debug("input move_mouse x=%s y=%s", x, y)
         self._backend.move_mouse(x, y)
 
     def click(self, x: int | None = None, y: int | None = None) -> None:
         """Click the primary mouse button."""
-        logger.debug("input click x=%s y=%s", x, y)
         self._backend.click(x=x, y=y)
 
     def scroll(self, scroll_amount: int) -> None:
         """Scroll the mouse wheel."""
-        logger.debug("input scroll scroll_amount=%s", scroll_amount)
         self._backend.scroll(scroll_amount)
 
 
-user = InputController()
+user = KeyboardMouseDriver()
 
 
 def press(sequence: str, pause: float = 0.3) -> None:
     """Press keys described by a comma-separated sequence like ``up*2, down*3``."""
+    logger.debug("input press sequence=%s", sequence)
     steps = [step.strip() for step in sequence.split(",")]
 
     for step in steps:
@@ -255,6 +237,7 @@ def press(sequence: str, pause: float = 0.3) -> None:
 
 def press_n_times(key: str, n: int, pause: float = 0.5) -> None:
     """Press the same key multiple times."""
+    logger.debug("input press_n_times key=%s n=%s", key, n)
     for _ in range(n):
         user.press(key)
         time.sleep(pause)
@@ -262,6 +245,7 @@ def press_n_times(key: str, n: int, pause: float = 0.5) -> None:
 
 def mouse_scroll_n_times(n: int, scroll_amount: int, pause: float) -> None:
     """Scroll the mouse wheel multiple times."""
+    logger.debug("input mouse_scroll_n_times n=%s scroll_amount=%s", n, scroll_amount)
     for _ in range(n):
         user.scroll(scroll_amount)
         time.sleep(pause)
@@ -269,6 +253,7 @@ def mouse_scroll_n_times(n: int, scroll_amount: int, pause: float) -> None:
 
 def mangohud_log_toggle() -> None:
     """Toggle MangoHud logging with Left Shift + F2 via ydotool."""
+    logger.debug("input mangohud_log_toggle")
     time.sleep(1)
     user.key_down("leftshift")
     time.sleep(0.3)

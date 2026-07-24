@@ -16,6 +16,8 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 
+logger = logging.getLogger(__name__)
+
 CINEBENCH_PATH = r"C:\Cinebench2024\Cinebench.exe"
 GPU_TEST = "g_CinebenchGpuTest=true"
 CPU_1_TEST = "g_CinebenchCpu1Test=true"
@@ -47,7 +49,7 @@ setup_logging(LOG_DIRECTORY)
 test_types = TEST_OPTIONS[args.test]
 
 try:
-    logging.info("Starting benchmark!")
+    logger.info("Starting benchmark!")
     session_report = []
     for test_type in test_types:
         setup_start_time = time.time()
@@ -59,18 +61,18 @@ try:
             cwd=str(Path(CINEBENCH_PATH).parent),
             universal_newlines=True,
         ) as proc:
-            logging.info(
+            logger.info(
                 "Cinebench started. Waiting for setup to finish to set process priority."
             )
             START_TIME = 0
             if proc.stdout is None:
-                logging.error("Cinebench process did not start correctly!")
+                logger.error("Cinebench process did not start correctly!")
                 sys.exit(1)
             for line in proc.stdout:
                 if "BEFORERENDERING" in line:
                     elapsed_setup_time = round(time.time() - setup_start_time, 2)
-                    logging.info("Setup took %.2f seconds", elapsed_setup_time)
-                    logging.info(
+                    logger.info("Setup took %.2f seconds", elapsed_setup_time)
+                    logger.info(
                         "Setting Cinebench process priority to high (PID: %s)", proc.pid
                     )
                     process = psutil.Process(proc.pid)
@@ -80,19 +82,19 @@ try:
             out, _ = proc.communicate()
 
             if proc.returncode > 0:
-                logging.warning("Cinebench exited with return code %d", proc.returncode)
+                logger.warning("Cinebench exited with return code %d", proc.returncode)
 
             score = get_score(out)
             if score is None:
-                logging.error("Could not find score in Cinebench output!")
+                logger.error("Could not find score in Cinebench output!")
                 sys.exit(1)
 
-            logging.info(
+            logger.info(
                 "Cinebench result [%s]: %s", friendly_test_name(test_type), score
             )
             end_time = time.time()
             elapsed_test_time = round(end_time - START_TIME, 2)
-            logging.info("Benchmark took %.2f seconds", elapsed_test_time)
+            logger.info("Benchmark took %.2f seconds", elapsed_test_time)
 
             report = {
                 "test": "Cinebench 2024",
@@ -106,6 +108,6 @@ try:
 
     write_report_json(LOG_DIRECTORY, "report.json", session_report)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     sys.exit(1)

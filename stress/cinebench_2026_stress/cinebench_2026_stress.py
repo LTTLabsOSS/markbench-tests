@@ -17,6 +17,8 @@ from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 
+logger = logging.getLogger(__name__)
+
 CINEBENCH_PATH = r"C:\Cinebench2026\Cinebench.exe"
 GPU_TEST = "g_CinebenchGpuTest=true"
 CPU_1_TEST = "g_CinebenchCpu1Test=true"
@@ -70,11 +72,11 @@ test_type = TEST_OPTIONS[args.test]
 
 # If the test includes SMT but CPU has no hyperthreading, skip it
 if test_type == CPU_1SMT_TEST and not cpu_supports_smt():
-    logging.error("CPU does not support SMT. Cannot run single-core SMT test.")
+    logger.error("CPU does not support SMT. Cannot run single-core SMT test.")
     sys.exit(1)
 
 try:
-    logging.info("Stress duration: %d seconds", args.duration_seconds)
+    logger.info("Stress duration: %d seconds", args.duration_seconds)
     start_time = end_time = time.time()
     with subprocess.Popen(
         [CINEBENCH_PATH, test_type, DURATION_OPTION],
@@ -82,7 +84,7 @@ try:
         stderr=subprocess.STDOUT,
         cwd=str(Path(CINEBENCH_PATH).parent),
     ) as proc:
-        logging.info(
+        logger.info(
             "Cinebench started. Setting process priority to high (PID: %s)",
             proc.pid,
         )
@@ -90,16 +92,16 @@ try:
         process.nice(psutil.HIGH_PRIORITY_CLASS)
         time.sleep(args.duration_seconds)
         if proc.poll() is None:
-            logging.info("Stress duration reached. Terminating Cinebench.")
+            logger.info("Stress duration reached. Terminating Cinebench.")
             terminate_process(Path(CINEBENCH_PATH).name)
             proc.kill()
         proc.wait()
 
         if proc.returncode > 0:
-            logging.debug("Cinebench exited with return code %d", proc.returncode)
+            logger.debug("Cinebench exited with return code %d", proc.returncode)
 
     end_time = time.time()
-    logging.info("Finished Cinebench stress test: %s", friendly_test_name(test_type))
+    logger.info("Finished Cinebench stress test: %s", friendly_test_name(test_type))
     report = {
         "test": "Cinebench 2026 Stress",
         "test_parameter": friendly_test_name(test_type),
@@ -110,6 +112,6 @@ try:
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     sys.exit(1)

@@ -29,6 +29,8 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.output_logging import setup_logging
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 setup_logging(LOG_DIRECTORY)
@@ -49,7 +51,7 @@ def download_and_extract_cli():
 
 
 if ABS_EXECUTABLE_PATH.is_file() is False:
-    logging.info("Downloading blender benchmark CLI")
+    logger.info("Downloading blender benchmark CLI")
     download_and_extract_cli()
 
 
@@ -61,9 +63,9 @@ run_array = [ABS_EXECUTABLE_PATH, "blender", "download", args.version]
 process = subprocess.run(run_array, capture_output=True, text=True, check=False)
 
 if process.returncode > 0:
-    logging.info(process.stdout)
-    logging.info(process.stderr)
-    logging.error("Test failed!")
+    logger.info(process.stdout)
+    logger.info(process.stderr)
+    logger.error("Test failed!")
 
 if args.scene.lower() == "all":
     scene = ["monster", "classroom", "junkshop"]
@@ -77,16 +79,16 @@ else:
     process = subprocess.run(run_array, capture_output=True, text=True, check=False)
 
     if process.returncode > 0:
-        logging.info(process.stdout)
-        logging.info(process.stderr)
-        logging.error("Test failed!")
+        logger.info(process.stdout)
+        logger.info(process.stderr)
+        logger.error("Test failed!")
     else:
         OPTIX = "OPTIX"
         CUDA = "CUDA"
         HIP = "HIP"
         ONE_API = "ONEAPI"
-        logging.info(process.stdout)
-        logging.info(process.stderr)
+        logger.info(process.stdout)
+        logger.info(process.stderr)
         if OPTIX in process.stdout or OPTIX in process.stderr:
             device_type = OPTIX  # nvidia
         elif CUDA in process.stdout or CUDA in process.stderr:
@@ -102,12 +104,12 @@ run_array = (
     + scene
     + ["-b", args.version, "--device-type", device_type, "--json"]
 )
-logging.info("Running with arguments %s", run_array)
+logger.info("Running with arguments %s", run_array)
 process = subprocess.run(run_array, capture_output=True, text=True, check=False)
 
 if process.returncode > 0:
-    logging.error(process.stderr)
-    logging.error("Test failed!")
+    logger.error(process.stderr)
+    logger.error("Test failed!")
 
 json_array = json.loads(process.stdout)
 
@@ -125,7 +127,7 @@ for report in json_array:
         "device_type": device_type,
     }
 
-    logging.info(json.dumps(scene_report, indent=2))
+    logger.info(json.dumps(scene_report, indent=2))
     scene_report["version_json"] = report["blender_version"]
     scene_report["results_json"] = report["stats"]
     json_report.append(scene_report)
@@ -133,4 +135,4 @@ for report in json_array:
 with open(LOG_DIRECTORY / "report.json", "w", encoding="utf-8") as file:
     file.write(json.dumps(json_report))
 
-logging.info("Test finished!")
+logger.info("Test finished!")

@@ -10,19 +10,20 @@ from forzahorizon6_utils import read_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import capture_and_save_screenshot, create_artifacts_manifest
 from harness_utils.input import mangohud_log_toggle, press_n_times, user
 from harness_utils.ocr_service import find_word
 from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
-from harness_utils.paths import local_appdata
+from harness_utils.paths import harness_directories, local_appdata
 from harness_utils.platform import is_linux, is_windows
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game
 
+logger = logging.getLogger(__name__)
+
 STEAM_GAME_ID = 2483190
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "ForzaHorizon6.exe"
 RTSS_PROCESS_NAME = "RTSS.exe"
 
@@ -43,7 +44,7 @@ def get_config_path() -> Path:
 def start_rtss():
     """Sets up the RTSS process"""
     if not is_windows():
-        logging.info("Skipping RTSS setup on Linux.")
+        logger.info("Skipping RTSS setup on Linux.")
         return None
 
     from harness_utils.rtss import copy_rtss_profile, start_rtss_process
@@ -72,10 +73,10 @@ def run_benchmark():
     # Wait for menu to load
     time.sleep(40)
 
-    logging.info("Waiting for start prompt...")
+    logger.info("Waiting for start prompt...")
     result = find_word("start", timeout=30)
     if not result:
-        logging.info("Did not see 'start'. Game didn't start.")
+        logger.info("Did not see 'start'. Game didn't start.")
         sys.exit(1)
 
     user.move_mouse(0, 0)
@@ -84,13 +85,13 @@ def run_benchmark():
     if is_linux():
         mangohud_log_toggle()
 
-    logging.info("At main menu. Pressing x for options.")
+    logger.info("At main menu. Pressing x for options.")
     user.press("x")
 
     # Wait for menu to load
     result = find_word("subtitles", timeout=10)
     if not result:
-        logging.info("Did not see 'subtitles'. Menu did not open?")
+        logger.info("Did not see 'subtitles'. Menu did not open?")
         sys.exit(1)
 
     # Menu defaults to accessibility submenu, so we need to escape first.
@@ -99,63 +100,63 @@ def run_benchmark():
 
     result = find_word("video", timeout=30)
     if not result:
-        logging.info("Did not see 'video'. Game didn't load to the settings menu.")
+        logger.info("Did not see 'video'. Game didn't load to the settings menu.")
         sys.exit(1)
 
-    logging.info("Video found, selecting with keyboard.")
+    logger.info("Video found, selecting with keyboard.")
     press_n_times("down", 6, 1)
     time.sleep(1)
     user.press("enter")
-    am.take_screenshot("Video_pt.png", ArtifactType.CONFIG_IMAGE, "Video menu")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt.png")
     time.sleep(1)
 
     press_n_times("down", 21, 1)
-    am.take_screenshot("Video_pt2.png", ArtifactType.CONFIG_IMAGE, "Video menu2")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt2.png")
     user.press("escape")
     time.sleep(1)
 
     result = find_word("graphics", timeout=30)
     if not result:
-        logging.info("Game didn't load to the settings menu.")
+        logger.info("Game didn't load to the settings menu.")
         sys.exit(1)
 
-    logging.info("Graphics found, selecting with keyboard.")
+    logger.info("Graphics found, selecting with keyboard.")
     user.press("down")
     time.sleep(1)
     user.press("enter")
     time.sleep(1)
-    am.take_screenshot("graphics_pt.png", ArtifactType.CONFIG_IMAGE, "graphics menu")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt.png")
     press_n_times("down", 18, 1)
-    am.take_screenshot("graphics_pt2.png", ArtifactType.CONFIG_IMAGE, "graphics menu2")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt2.png")
     time.sleep(1)
     user.press("down")
     time.sleep(1)
 
     result = find_word("benchmark", timeout=10)
     if not result:
-        logging.info("Didn't find benchmark in settings.")
+        logger.info("Didn't find benchmark in settings.")
         sys.exit(1)
 
-    logging.info("Benchmark found, selecting with keyboard.")
+    logger.info("Benchmark found, selecting with keyboard.")
     user.press("enter")
 
     result = find_word("yes", timeout=10)
     if not result:
-        logging.info("Didn't find confirmation prompt.")
+        logger.info("Didn't find confirmation prompt.")
         sys.exit(1)
 
-    logging.info("Confirmation prompt found, selecting yes with keyboard.")
+    logger.info("Confirmation prompt found, selecting yes with keyboard.")
     user.press("down")
     time.sleep(1)
     user.press("enter")
 
     result = find_word("checkpoint", timeout=60)
     if not result:
-        logging.info("Benchmark didn't start.")
+        logger.info("Benchmark didn't start.")
         sys.exit(1)
 
     elapsed_setup_time = round((int(time.time()) - setup_start_time), 2)
-    logging.info("Harness setup took %.2f seconds", elapsed_setup_time)
+    logger.info("Harness setup took %.2f seconds", elapsed_setup_time)
 
     test_start_time = int(time.time())
 
@@ -163,12 +164,12 @@ def run_benchmark():
 
     result = find_word("results", timeout=30)
     if not result:
-        logging.info("Results screen was not found!")
+        logger.info("Results screen was not found!")
         sys.exit(1)
 
     test_end_time = int(time.time())
     elapsed_test_time = round((test_end_time - test_start_time), 2)
-    logging.info("Benchmark took %.2f seconds", elapsed_test_time)
+    logger.info("Benchmark took %.2f seconds", elapsed_test_time)
 
     if is_linux():
         mangohud_log_toggle()
@@ -179,7 +180,6 @@ def run_benchmark():
 
 
 setup_logging(LOG_DIRECTORY)
-am = ArtifactManager(LOG_DIRECTORY)
 
 try:
     start_time, end_time = run_benchmark()
@@ -189,10 +189,11 @@ try:
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
     }
-    am.create_manifest()
+
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     terminate_game_processes()
     sys.exit(1)

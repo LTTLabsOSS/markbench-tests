@@ -14,15 +14,17 @@ from farcry6_utils import get_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, create_artifacts_manifest
+from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.input import mouse_scroll_n_times, press_n_times
 from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+logger = logging.getLogger(__name__)
+
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "FarCry6.exe"
 GAME_ID = 5266
 username = os.getlogin()
@@ -38,14 +40,13 @@ def start_game():
 
 def skip_logo_screens() -> None:
     """Simulate input to skip logo screens"""
-    logging.info("Skipping logo screens")
+    logger.info("Skipping logo screens")
 
     # skipping the logo screens
     press_n_times("space", 10, 0.5)
 
 
 def run_benchmark():
-    am = ArtifactManager(LOG_DIRECTORY)
     start_game()
     setup_start_time = int(time.time())
     time.sleep(25)
@@ -53,14 +54,14 @@ def run_benchmark():
     # skipping game intros
     result = find_word("government", timeout=20, interval=1)
     if not result:
-        logging.info("Did not see 'government'. Did the game start?")
+        logger.info("Did not see 'government'. Did the game start?")
         sys.exit(1)
 
     skip_logo_screens()
 
     result = find_word("original", timeout=20, interval=1)
     if not result:
-        logging.info("Did not see the Far Cry 6 intro video. Did the game crash?")
+        logger.info("Did not see the Far Cry 6 intro video. Did the game crash?")
         sys.exit(1)
 
     user.press("space")
@@ -75,7 +76,7 @@ def run_benchmark():
 
     result = find_word("options", timeout=10, interval=1)
     if not result:
-        logging.info("Did not find the main menu. Did the game skip the intros?")
+        logger.info("Did not find the main menu. Did the game skip the intros?")
         sys.exit(1)
 
     gui.moveTo(result["x"], result["y"])
@@ -87,7 +88,7 @@ def run_benchmark():
 
     result = find_word("video", timeout=10, interval=1)
     if not result:
-        logging.info("Did not find the options menu. Did OCR click incorrectly?")
+        logger.info("Did not find the options menu. Did OCR click incorrectly?")
         sys.exit(1)
 
     gui.moveTo(result["x"], result["y"])
@@ -100,14 +101,12 @@ def run_benchmark():
     # grabbing screenshots of all the video settings
     result = find_word("adapter", timeout=10, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the Video Adapter setting in the monitor options. Did OCR navigate wrong?"
         )
         sys.exit(1)
 
-    am.take_screenshot(
-        "video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
 
     time.sleep(2)
 
@@ -115,14 +114,12 @@ def run_benchmark():
 
     result = find_word("filtering", timeout=10, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the Texture Filtering setting in the quality options. Did OCR navigate wrong?"
         )
         sys.exit(1)
 
-    am.take_screenshot(
-        "quality1.png", ArtifactType.CONFIG_IMAGE, "1st picture of quality settings"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "quality1.png")
 
     time.sleep(2)
 
@@ -130,14 +127,12 @@ def run_benchmark():
 
     result = find_word("shading", timeout=10, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the FidelityFX Variable Shading setting in the quality options. Did OCR navigate wrong?"
         )
         sys.exit(1)
 
-    am.take_screenshot(
-        "quality2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of quality settings"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "quality2.png")
 
     time.sleep(2)
 
@@ -145,24 +140,22 @@ def run_benchmark():
 
     result = find_word("lock", timeout=10, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the Enable Framerate Lock setting in the advanced options. Did OCR navigate wrong?"
         )
         sys.exit(1)
 
-    am.take_screenshot(
-        "advanced.png", ArtifactType.CONFIG_IMAGE, "picture of advanced settings"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced.png")
 
     # starting the benchmark
     time.sleep(2)
     user.press("f5")
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
+    logger.info("Setup took %f seconds", elapsed_setup_time)
 
     result = find_word("toggle", timeout=10, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the toggle ui button in the lower right. Did the benchmark crash?"
         )
         sys.exit(1)
@@ -172,21 +165,21 @@ def run_benchmark():
 
     result = find_word("results", interval=0.5, timeout=100)
     if not result:
-        logging.info("Didn't find the results screen. Did the benchmark crash?")
+        logger.info("Didn't find the results screen. Did the benchmark crash?")
         sys.exit(1)
 
     test_end_time = int(time.time()) - 1
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
-    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     time.sleep(1)
 
     # Exit
     terminate_process(PROCESS_NAME)
-    am.copy_file(XML_FILE, ArtifactType.CONFIG_TEXT, "config file")
-    am.create_manifest()
+    copy_artifact(XML_FILE, ARTIFACTS_DIRECTORY)
+
 
     return test_start_time, test_end_time
 
@@ -205,8 +198,9 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     terminate_process(PROCESS_NAME)
     sys.exit(1)

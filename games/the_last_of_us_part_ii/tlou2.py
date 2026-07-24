@@ -11,20 +11,26 @@ from pathlib import Path
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import capture_and_save_screenshot, create_artifacts_manifest
+from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times, user
 from harness_utils.ocr_service import find_word
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import (
     exec_steam_run_command,
 )
 
+logger = logging.getLogger(__name__)
+
 USERNAME = getpass.getuser()
 STEAM_GAME_ID = 2531310
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "tlou-ii.exe"
 
 user.FAILSAFE = False
@@ -44,18 +50,18 @@ def reset_savedata():
     # Delete the local savedata folder if it exists
     if local_savegame_path.exists() and local_savegame_path.is_dir():
         shutil.rmtree(local_savegame_path)
-        logging.info("Deleted local savedata folder: %s", local_savegame_path)
+        logger.info("Deleted local savedata folder: %s", local_savegame_path)
 
     # Copy the savedata folder from the network drive
     try:
         shutil.copytree(network_savegame_path, local_savegame_path)
-        logging.info(
+        logger.info(
             "Copied savedata folder from %s to %s",
             network_savegame_path,
             local_savegame_path,
         )
     except Exception as e:
-        logging.error("Failed to copy savedata folder: %s", e)
+        logger.error("Failed to copy savedata folder: %s", e)
 
     # Check if the newly copied directory contains a folder called SAVEFILE0A
 
@@ -72,7 +78,7 @@ def delete_autosave():
     )  # check for autosaved file, delete if exists
     if savefile_path.exists() and savefile_path.is_dir():
         shutil.rmtree(savefile_path)
-        logging.info("Deleted folder: %s", savefile_path)
+        logger.info("Deleted folder: %s", savefile_path)
 
 
 def get_current_resolution():
@@ -98,10 +104,10 @@ def read_registry_value(key_path, value_name):
             value, _ = winreg.QueryValueEx(key, value_name)
             return value
     except FileNotFoundError:
-        logging.error("Registry key not found: %s", value_name)
+        logger.error("Registry key not found: %s", value_name)
         return None
     except OSError as e:
-        logging.error("Error reading registry value: %s", e)
+        logger.error("Error reading registry value: %s", e)
         return None
 
 
@@ -109,24 +115,23 @@ def run_benchmark() -> tuple:
     """Starts Game, Sets Settings, and Runs Benchmark"""
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int(time.time())
-    am = ArtifactManager(LOG_DIRECTORY)
 
     if find_word("sony", timeout=60, interval=0.2) is None:
-        logging.error("Couldn't find 'sony'")
+        logger.error("Couldn't find 'sony'")
     else:
         user.press("escape")
 
     if find_word("story", timeout=30, interval=1) is None:
-        logging.error("Couldn't find main menu : 'story'")
+        logger.error("Couldn't find main menu : 'story'")
         sys.exit(1)
 
     press_n_times("down", 2)
 
     # navigate settings
-    navigate_settings(am)
+    navigate_settings()
 
     if find_word("story", timeout=30, interval=1) is None:
-        logging.error("Couldn't find main menu the second time : 'story'")
+        logger.error("Couldn't find main menu the second time : 'story'")
         sys.exit(1)
 
     press_n_times("up", 2)
@@ -171,7 +176,7 @@ def run_benchmark() -> tuple:
     setup_end_time = test_start_time = test_end_time = int(time.time())
 
     elapsed_setup_time = setup_end_time - setup_start_time
-    logging.info("Setup took %f seconds", elapsed_setup_time)
+    logger.info("Setup took %f seconds", elapsed_setup_time)
 
     # time of benchmark usually is 4:23 = 263 seconds
 
@@ -180,7 +185,7 @@ def run_benchmark() -> tuple:
         time.sleep(240)
 
     else:
-        logging.error("couldn't find 'man'")
+        logger.error("couldn't find 'man'")
         time.sleep(150)
 
     if find_word("rush", timeout=100, interval=0.2) is not None:
@@ -188,20 +193,18 @@ def run_benchmark() -> tuple:
         test_end_time = int(time.time())
 
     else:
-        logging.error("couldn't find 'rush', marks end of benchmark")
+        logger.error("couldn't find 'rush', marks end of benchmark")
         test_end_time = int(time.time())
 
     elapsed_test_time = test_end_time - test_start_time
-    logging.info("Test took %f seconds", elapsed_test_time)
+    logger.info("Test took %f seconds", elapsed_test_time)
 
     terminate_process(PROCESS_NAME)
-
-    am.create_manifest()
 
     return test_start_time, test_end_time
 
 
-def navigate_settings(am: ArtifactManager) -> None:
+def navigate_settings() -> None:
     """Navigate through settings and take screenshots.
     Exits to main menu after taking screenshots.
     """
@@ -209,7 +212,7 @@ def navigate_settings(am: ArtifactManager) -> None:
     user.press("space")
 
     if find_word("display", timeout=30, interval=1) is None:
-        logging.error("Couldn't find display")
+        logger.error("Couldn't find display")
         sys.exit(1)
 
     time.sleep(5)  # slow cards may miss the first down
@@ -221,50 +224,46 @@ def navigate_settings(am: ArtifactManager) -> None:
     time.sleep(0.5)
 
     if find_word("resolution", timeout=30, interval=1) is None:
-        logging.error("Couldn't find resolution")
+        logger.error("Couldn't find resolution")
         sys.exit(1)
 
-    am.take_screenshot("display1.png", ArtifactType.CONFIG_IMAGE, "display settings 1")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display1.png")
 
     user.press("up")
 
     if find_word("brightness", timeout=30, interval=1) is None:
-        logging.error("Couldn't find brightness")
+        logger.error("Couldn't find brightness")
         sys.exit(1)
 
-    am.take_screenshot("display2.png", ArtifactType.CONFIG_IMAGE, "display settings 2")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display2.png")
 
     user.press("q")  # swaps to graphics settings
 
     time.sleep(0.5)
 
     if find_word("preset", timeout=30, interval=1) is None:
-        logging.error("Couldn't find preset")
+        logger.error("Couldn't find preset")
         sys.exit(1)
 
-    am.take_screenshot(
-        "graphics1.png", ArtifactType.CONFIG_IMAGE, "graphics settings 1"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
 
     user.press("up")
 
     if find_word("dirt", timeout=30, interval=1) is None:
-        logging.error("Couldn't find dirt")
+        logger.error("Couldn't find dirt")
         sys.exit(1)
 
-    am.take_screenshot(
-        "graphics3.png", ArtifactType.CONFIG_IMAGE, "graphics settings 3"
+    capture_and_save_screenshot(
+        ARTIFACTS_DIRECTORY / "graphics3.png"
     )  # is at the bottom of the menu
 
     press_n_times("up", 13)
 
     if find_word("scattering", timeout=30, interval=1) is None:
-        logging.error("Couldn't find scattering")
+        logger.error("Couldn't find scattering")
         sys.exit(1)
 
-    am.take_screenshot(
-        "graphics2.png", ArtifactType.CONFIG_IMAGE, "graphics settings 2"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
 
     press_n_times("escape", 2)
 
@@ -272,14 +271,14 @@ def navigate_settings(am: ArtifactManager) -> None:
 def main():
     """Main function to run the benchmark"""
     try:
-        logging.info("Starting The Last of Us Part II benchmark")
+        logger.info("Starting The Last of Us Part II benchmark")
 
         reset_savedata()
 
         start_time, end_time = run_benchmark()
         width, height = get_current_resolution()
         if width is None or height is None:
-            logging.error("Could not read resolution")
+            logger.error("Could not read resolution")
             sys.exit(1)
 
         report = {
@@ -290,10 +289,11 @@ def main():
             "end_time": seconds_to_milliseconds(end_time),
         }
         write_report_json(LOG_DIRECTORY, "report.json", report)
+        create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 
     except Exception as e:
-        logging.error("An error occurred: %s", e)
-        logging.exception(e)
+        logger.error("An error occurred: %s", e)
+        logger.exception(e)
         terminate_process(PROCESS_NAME)
         sys.exit(1)
 

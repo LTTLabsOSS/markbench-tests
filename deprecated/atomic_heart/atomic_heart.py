@@ -12,11 +12,20 @@ from atomic_heart_utils import read_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import (
+    capture_and_save_screenshot,
+    copy_artifact,
+    create_artifacts_manifest,
+)
+from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
 from harness_utils.file_cleanup import remove_files
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import (
@@ -25,8 +34,10 @@ from harness_utils.steam import (
     get_build_id,
 )
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+logger = logging.getLogger(__name__)
+
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
+
 APPDATA = os.getenv("LOCALAPPDATA")
 CONFIG_LOCATION = f"{APPDATA}\\AtomicHeart\\Saved\\Config\\WindowsNoEditor"
 CONFIG_FILENAME = "GameUserSettings.ini"
@@ -48,41 +59,35 @@ intro_videos = [
 user.FAILSAFE = False
 
 
-def navigate_game_menus(am: ArtifactManager):
+def navigate_game_menus():
     """Navigate in game menus and take screenshots where appropriate"""
     result = find_word("vsync", timeout=25)
     if not result:
-        logging.info(
+        logger.info(
             "Did not see display menu. Did we navigate to the options correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "display.png", ArtifactType.CONFIG_IMAGE, "screenshot of the display settings"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
 
     user.press("e")
     time.sleep(0.5)
     result = find_word("dlss", timeout=25)
     if not result:
-        logging.info(
+        logger.info(
             "Did not see the top of quality menu. Did we navigate to the quality menu correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "quality_1.png", ArtifactType.CONFIG_IMAGE, "first screenshot of quality menu"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "quality_1.png")
 
     user.press("w")
     time.sleep(0.5)
     result = find_word("vegetation", timeout=25)
     if not result:
-        logging.info(
+        logger.info(
             "Did not see the bottom of quality menu. Did we scroll the quality menu correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "quality_2.png", ArtifactType.CONFIG_IMAGE, "second screenshot of quality menu"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "quality_2.png")
     user.press("esc")
     time.sleep(0.5)
 
@@ -91,14 +96,13 @@ def run_benchmark():
     """Starts the benchmark"""
     remove_files([str(path) for path in intro_videos])
     exec_steam_run_command(STEAM_GAME_ID)
-    am = ArtifactManager(LOG_DIRECTORY)
     setup_start_time = int(time.time())
 
     time.sleep(10)
 
     result = find_word("press", timeout=25)
     if not result:
-        logging.info("Did not see start screen")
+        logger.info("Did not see start screen")
         sys.exit(1)
 
     user.press("space")
@@ -106,11 +110,11 @@ def run_benchmark():
     # This is for the menu checking for if there's a continue option
     result = find_word("continue", timeout=20, interval=1)
     if result:
-        logging.info("Continue option available, navigating accordingly.")
+        logger.info("Continue option available, navigating accordingly.")
         press_n_times("s", 3, 0.5)
         user.press("f")
         time.sleep(0.5)
-        navigate_game_menus(am)
+        navigate_game_menus()
 
         # Launch benchmark
         user.press("s")
@@ -121,12 +125,12 @@ def run_benchmark():
         time.sleep(0.5)
         user.press("space")
     else:
-        logging.info("Continue option not available, navigating accordingly.")
+        logger.info("Continue option not available, navigating accordingly.")
         user.press("s")
         time.sleep(0.5)
         user.press("f")
         time.sleep(0.5)
-        navigate_game_menus(am)
+        navigate_game_menus()
 
         # Launch benchmark
         user.press("s")
@@ -144,20 +148,20 @@ def run_benchmark():
     # This is for the loading screen continue
     result = find_word("continue", interval=1, timeout=80)
     if not result:
-        logging.info(
+        logger.info(
             "Did not see the option to continue. Check settings and try again."
         )
         sys.exit(1)
 
-    logging.info("Continue found. Starting opening scene benchmark.")
+    logger.info("Continue found. Starting opening scene benchmark.")
     user.press("space")
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
+    logger.info("Setup took %f seconds", elapsed_setup_time)
 
     result = find_word("vibes", interval=0.5, timeout=250)
     if not result:
-        logging.info("Good vibes were not found! Could not mark the start time.")
+        logger.info("Good vibes were not found! Could not mark the start time.")
         sys.exit(1)
 
     test_start_time = int(time.time())
@@ -166,7 +170,7 @@ def run_benchmark():
 
     result = find_word("83", interval=0.5, timeout=250)
     if not result:
-        logging.info("Waypoint distance was not found! Could not mark the end time.")
+        logger.info("Waypoint distance was not found! Could not mark the end time.")
         sys.exit(1)
 
     test_end_time = int(time.time())
@@ -175,20 +179,19 @@ def run_benchmark():
 
     result = find_word("wicked", interval=1, timeout=250)
     if not result:
-        logging.info(
+        logger.info(
             "Wicked was not found! Did harness not wait long enough? Or test was too long?"
         )
         sys.exit(1)
 
-    logging.info("Wicked found. Ending Benchmark.")
-    am.copy_file(CONFIG_FULL_PATH, ArtifactType.CONFIG_TEXT, "GameUserSettings.ini")
+    logger.info("Wicked found. Ending Benchmark.")
+    copy_artifact(CONFIG_FULL_PATH, ARTIFACTS_DIRECTORY)
 
     elapsed_test_time = round(test_end_time - test_start_time, 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Exit
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
 
     return test_start_time, test_end_time
 
@@ -207,8 +210,9 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     terminate_process(PROCESS_NAME)
     sys.exit(1)

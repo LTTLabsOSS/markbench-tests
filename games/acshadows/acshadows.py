@@ -10,18 +10,24 @@ import pydirectinput as user
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import capture_and_save_screenshot, create_artifacts_manifest
+from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
+logger = logging.getLogger(__name__)
+
 USERNAME = getpass.getuser()
 STEAM_GAME_ID = 3159330
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "ACShadows.exe"
 
 CONFIG_LOCATION = f"C:\\Users\\{USERNAME}\\Documents\\Assassin's Creed Shadows"
@@ -73,9 +79,9 @@ def delete_videos():
         if file_path.exists():
             try:
                 file_path.unlink()
-                logging.info("Deleted: %s", file_path)
+                logger.info("Deleted: %s", file_path)
             except Exception as e:
-                logging.error("Error deleting %s: %s", file_path, e)
+                logger.error("Error deleting %s: %s", file_path, e)
 
 
 def move_benchmark_file():
@@ -85,65 +91,57 @@ def move_benchmark_file():
     )
 
     for src_path in src_dir.iterdir():
-        dest_path = LOG_DIRECTORY / src_path.name
+        dest_path = ARTIFACTS_DIRECTORY / src_path.name
 
         if src_path.is_file():
             try:
                 src_path.rename(dest_path)
-                logging.info("Benchmark HTML moved")
+                logger.info("Benchmark HTML moved")
             except Exception as e:
-                logging.error("Failed to move %s: %s", src_path, e)
+                logger.error("Failed to move %s: %s", src_path, e)
         else:
-            logging.error("Benchmark HTML not found.")
+            logger.error("Benchmark HTML not found.")
 
 
 def start_game():
     """Starts the game process"""
     exec_steam_game(STEAM_GAME_ID)
-    logging.info("Launching Game from Steam")
+    logger.info("Launching Game from Steam")
 
 
-def navi_settings(am):
+def navi_settings():
     """navigates and takes pictures of settings"""
     user.press("space")
 
     time.sleep(1)
 
-    am.take_screenshot("display1.png", ArtifactType.CONFIG_IMAGE, "display settings 1")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display1.png")
 
     press_n_times("down", 13, 0.3)
 
-    am.take_screenshot("display2.png", ArtifactType.CONFIG_IMAGE, "display settings 2")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display2.png")
 
     press_n_times("down", 4, 0.3)
 
-    am.take_screenshot("display3.png", ArtifactType.CONFIG_IMAGE, "display settings 3")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display3.png")
 
     user.press("c")
 
     time.sleep(1)
 
-    am.take_screenshot(
-        "scalability1.png", ArtifactType.CONFIG_IMAGE, "scalability settings 1"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability1.png")
 
     press_n_times("down", 10, 0.3)
 
-    am.take_screenshot(
-        "scalability2.png", ArtifactType.CONFIG_IMAGE, "scalability settings 2"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability2.png")
 
     press_n_times("down", 6, 0.3)
 
-    am.take_screenshot(
-        "scalability3.png", ArtifactType.CONFIG_IMAGE, "scalability settings 3"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability3.png")
 
     press_n_times("down", 5, 0.3)
 
-    am.take_screenshot(
-        "scalability4.png", ArtifactType.CONFIG_IMAGE, "scalability settings 4"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability4.png")
 
     user.press("esc")
 
@@ -153,24 +151,23 @@ def run_benchmark():
     delete_videos()
     start_game()
     setup_start_time = int(time.time())
-    am = ArtifactManager(LOG_DIRECTORY)
     time.sleep(15)
 
     if find_word(word="hardware", timeout=30, interval=1) is None:
-        logging.info("did not find hardware")
+        logger.info("did not find hardware")
     else:
         user.mouseDown()
         time.sleep(0.2)
         user.press("space")
 
     if find_word(word="animus", timeout=130, interval=1) is None:
-        logging.info("did not find main menu")
+        logger.info("did not find main menu")
         sys.exit(1)
 
     user.press("f1")
 
     if find_word("system", timeout=30, interval=1) is None:
-        logging.error("Couldn't find 'System' button")
+        logger.error("Couldn't find 'System' button")
         sys.exit(1)
 
     user.press("down")
@@ -180,13 +177,13 @@ def run_benchmark():
     user.press("space")
 
     if find_word("benchmark", timeout=30, interval=1) is None:
-        logging.error("couldn't find 'benchmark' on screen before settings")
+        logger.error("couldn't find 'benchmark' on screen before settings")
         sys.exit(1)
 
-    navi_settings(am)
+    navi_settings()
 
     if find_word("benchmark", timeout=30, interval=1) is None:
-        logging.error("couldn't find 'benchmark' on screen after settings")
+        logger.error("couldn't find 'benchmark' on screen after settings")
         sys.exit(1)
 
     user.press("down")
@@ -197,10 +194,10 @@ def run_benchmark():
 
     setup_end_time = int(time.time())
     elapsed_setup_time = setup_end_time - setup_start_time
-    logging.info("Setup took %d seconds", elapsed_setup_time)
+    logger.info("Setup took %d seconds", elapsed_setup_time)
 
     if find_word(word="benchmark", timeout=50, interval=1) is None:
-        logging.info("did not find benchmark")
+        logger.info("did not find benchmark")
         sys.exit(1)
 
     test_start_time = int(time.time())
@@ -208,17 +205,15 @@ def run_benchmark():
     time.sleep(100)
 
     if find_word("results", timeout=60, interval=1) is None:
-        logging.error("did not find results screen")
+        logger.error("did not find results screen")
         sys.exit(1)
 
     test_end_time = int(time.time()) - 2
 
     elapsed_test_time = test_end_time - test_start_time
-    logging.info("Benchmark took %d seconds", elapsed_test_time)
+    logger.info("Benchmark took %d seconds", elapsed_test_time)
 
-    am.take_screenshot(
-        "benchmark_results.png", ArtifactType.RESULTS_IMAGE, "benchmark results"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
 
     user.press("x")
 
@@ -231,8 +226,6 @@ def run_benchmark():
     time.sleep(5)
 
     terminate_process(PROCESS_NAME)
-
-    am.create_manifest()
 
     return test_start_time, test_end_time
 
@@ -248,6 +241,7 @@ def main():
         "version": get_build_id(STEAM_GAME_ID),
     }
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 
 
 if __name__ == "__main__":
@@ -255,7 +249,7 @@ if __name__ == "__main__":
         setup_logging(LOG_DIRECTORY)
         main()
     except Exception as ex:
-        logging.error("Something went wrong running the benchmark!")
-        logging.exception(ex)
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception(ex)
         terminate_process(PROCESS_NAME)
         sys.exit(1)

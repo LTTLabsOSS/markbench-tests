@@ -13,7 +13,8 @@ from forza5_utils import read_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import capture_and_save_screenshot, create_artifacts_manifest
+from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
 from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
@@ -22,9 +23,10 @@ from harness_utils.process import terminate_process
 from harness_utils.rtss import copy_rtss_profile, start_rtss_process
 from harness_utils.steam import exec_steam_run_command
 
+logger = logging.getLogger(__name__)
+
 STEAM_GAME_ID = 1551360
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 APPDATALOCAL = os.getenv("LOCALAPPDATA")
 CONFIG_LOCATION = (
     f"{APPDATALOCAL}\\ForzaHorizon5\\User_SteamLocalStorageDirectory"
@@ -55,60 +57,60 @@ def run_benchmark():
     # Wait for menu to load
     time.sleep(30)
 
-    logging.info("Waiting for start prompt...")
+    logger.info("Waiting for start prompt...")
     result = find_word("start", timeout=30)
     if not result:
-        logging.info("Game didn't start.")
+        logger.info("Game didn't start.")
         sys.exit(1)
 
-    logging.info("Accessibility found pressing X to continue.")
+    logger.info("Accessibility found pressing X to continue.")
     user.press("x")
     time.sleep(2)
 
     result = find_word("video", timeout=30)
     if not result:
-        logging.info("Game didn't load to the settings menu.")
+        logger.info("Game didn't load to the settings menu.")
         sys.exit(1)
 
-    logging.info("Video found, clicking and continuing.")
+    logger.info("Video found, clicking and continuing.")
     gui.moveTo(result["x"], result["y"])
     time.sleep(0.2)
     gui.mouseDown()
     time.sleep(0.2)
     gui.mouseUp()
-    am.take_screenshot("Video_pt.png", ArtifactType.CONFIG_IMAGE, "Video menu")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt.png")
     time.sleep(0.2)
     press_n_times("down", 19, 0.1)
-    am.take_screenshot("Video_pt2.png", ArtifactType.CONFIG_IMAGE, "Video menu2")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt2.png")
     press_n_times("down", 5, 0.1)
-    am.take_screenshot("Video_pt3.png", ArtifactType.CONFIG_IMAGE, "Video menu3")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt3.png")
     time.sleep(0.2)
     user.press("escape")
     time.sleep(1)
 
     result = find_word("graphics", timeout=30)
     if not result:
-        logging.info("Game didn't load to the settings menu.")
+        logger.info("Game didn't load to the settings menu.")
         sys.exit(1)
 
-    logging.info("Graphics found, clicking and continuing.")
+    logger.info("Graphics found, clicking and continuing.")
     gui.moveTo(result["x"], result["y"])
     time.sleep(0.2)
     gui.mouseDown()
     time.sleep(0.2)
     gui.mouseUp()
     time.sleep(0.2)
-    am.take_screenshot("graphics_pt.png", ArtifactType.CONFIG_IMAGE, "graphics menu")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt.png")
     time.sleep(0.2)
     press_n_times("down", 16, 0.1)
-    am.take_screenshot("graphics_pt2.png", ArtifactType.CONFIG_IMAGE, "graphics menu2")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt2.png")
     time.sleep(0.1)
     user.press("down")
     time.sleep(1)
 
     result = find_word("benchmark", timeout=12)
     if not result:
-        logging.info("Didn't find benchmark in settings.")
+        logger.info("Didn't find benchmark in settings.")
         sys.exit(1)
 
     gui.mouseDown(result["x"], result["y"])
@@ -122,11 +124,11 @@ def run_benchmark():
 
     result = find_word("checkpoint", timeout=360)
     if not result:
-        logging.info("Benchmark didn't start.")
+        logger.info("Benchmark didn't start.")
         sys.exit(1)
 
     elapsed_setup_time = round((int(time.time()) - setup_start_time), 2)
-    logging.info("Harness setup took %.2f seconds", elapsed_setup_time)
+    logger.info("Harness setup took %.2f seconds", elapsed_setup_time)
 
     test_start_time = int(time.time())
 
@@ -134,12 +136,12 @@ def run_benchmark():
 
     result = find_word("results", timeout=25)
     if not result:
-        logging.info("Results screen was not found!")
+        logger.info("Results screen was not found!")
         sys.exit(1)
 
     test_end_time = int(time.time())
     elapsed_test_time = round((test_end_time - test_start_time), 2)
-    logging.info("Benchmark took %.2f seconds", elapsed_test_time)
+    logger.info("Benchmark took %.2f seconds", elapsed_test_time)
 
     for proc_name in PROCESSES:
         terminate_process(proc_name)
@@ -148,7 +150,6 @@ def run_benchmark():
 
 setup_logging(LOG_DIRECTORY)
 
-am = ArtifactManager(LOG_DIRECTORY)
 
 try:
     start_time, end_time = run_benchmark()
@@ -158,11 +159,12 @@ try:
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
     }
-    am.create_manifest()
+
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     for process_name in PROCESSES:
         terminate_process(process_name)
     sys.exit(1)

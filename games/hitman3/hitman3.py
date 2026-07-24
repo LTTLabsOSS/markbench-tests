@@ -18,19 +18,20 @@ from hitman3_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, create_artifacts_manifest
+from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 from harness_utils.steam import exec_steam_run_command, get_build_id
 
+logger = logging.getLogger(__name__)
+
 STEAM_GAME_ID = 1659040
 STEAM_PATH = Path(os.environ["ProgramFiles(x86)"]) / "steam"
 STEAM_EXECUTABLE = "steam.exe"
 PROCESS_NAMES = ["HITMAN3.exe", "Launcher.exe"]
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
-
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 INPUT_FILE = SCRIPT_DIRECTORY / "graphics.reg"
 CONFIG_FILE = SCRIPT_DIRECTORY / "graphics_config.txt"
 hive = winreg.HKEY_CURRENT_USER
@@ -57,9 +58,8 @@ def benchmark_check():
 def run_benchmark():
     """Run the benchmark flow, capture artifacts, and return timing data."""
     setup_start_time = int(time.time())
-    am = ArtifactManager(LOG_DIRECTORY)
     process_registry_file(hive, SUBKEY, str(INPUT_FILE), str(CONFIG_FILE))
-    am.copy_file(CONFIG_FILE, ArtifactType.CONFIG_TEXT, "config file")
+    copy_artifact(CONFIG_FILE, ARTIFACTS_DIRECTORY)
     selected_benchmark_name, benchmark_time = benchmark_check()
     exec_steam_run_command(STEAM_GAME_ID)
 
@@ -74,14 +74,10 @@ def run_benchmark():
     gui.mouseUp()
     time.sleep(2)
 
-    am.take_screenshot(
-        "Options1.png", ArtifactType.CONFIG_IMAGE, "1st picture of options"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Options1.png")
     time.sleep(1)
     gui.scroll(-1000)
-    am.take_screenshot(
-        "Options2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of options"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Options2.png")
     time.sleep(2)
 
     location = gui.locateOnScreen(
@@ -95,13 +91,13 @@ def run_benchmark():
     time.sleep(0.2)
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
+    logger.info("Setup took %f seconds", elapsed_setup_time)
 
     time.sleep(5)
 
     result = find_word("crowd", timeout=20, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the statistics in the corner. Did the benchmark launch?"
         )
         raise RuntimeError("Benchmark failed.")
@@ -114,13 +110,13 @@ def run_benchmark():
 
     result = find_word("overall", timeout=20, interval=1)
     if not result:
-        logging.info("Did not find the overall FPS score. Did the benchmark crash?")
+        logger.info("Did not find the overall FPS score. Did the benchmark crash?")
         raise RuntimeError("Benchmark failed.")
 
     benchmark_end_time = int(time.time()) - 1
     elapsed_test_time = round(benchmark_end_time - benchmark_start_time, 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
-    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     time.sleep(1)
 
     for process in psutil.process_iter():
@@ -130,7 +126,7 @@ def run_benchmark():
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass  # Ignore processes that no longer exist or cannot be accessed
 
-    am.create_manifest()
+
     return benchmark_start_time, benchmark_end_time, selected_benchmark_name
 
 
@@ -150,10 +146,11 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     for proc in psutil.process_iter():
         try:
             if proc.name() in PROCESS_NAMES:

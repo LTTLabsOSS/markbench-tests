@@ -19,15 +19,17 @@ from chrome_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import capture_and_save_screenshot, create_artifacts_manifest
+from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 
+logger = logging.getLogger(__name__)
+
 INTERNAL_TIMEOUT = 900  # 15 minutes
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
+
 setup_logging(LOG_DIRECTORY)
-am = ArtifactManager(LOG_DIRECTORY)
 
 BENCHMARKS = {
     "jetstream2": {
@@ -133,7 +135,7 @@ def wait_for_score(client: CDPClient, score_expr: str) -> float:
             try:
                 return float(val)
             except (TypeError, ValueError):
-                logging.warning("Invalid benchmark score: %r", val)
+                logger.warning("Invalid benchmark score: %r", val)
         time.sleep(3)
     raise TimeoutError("Benchmark did not finish in time")
 
@@ -154,13 +156,13 @@ def main():
     chrome_proc = None
 
     try:
-        logging.info("Detecting Chrome path...")
+        logger.info("Detecting Chrome path...")
         chrome_path = get_chrome_path_from_registry()
-        logging.info("Chrome path: %s", chrome_path)
+        logger.info("Chrome path: %s", chrome_path)
 
         # Determine initial URL
         initial_url = bench.get("landing_url", bench["url"])
-        logging.info("Launching isolated Chrome instance...")
+        logger.info("Launching isolated Chrome instance...")
         chrome_proc = launch_chrome(chrome_path, initial_url)
 
         # Connect CDP
@@ -171,7 +173,7 @@ def main():
         if args.benchmark == "kraken":
             # Wait for landing page link
             wait_for_ready(client, bench["wait_expr_landing"])
-            logging.info(
+            logger.info(
                 "Kraken landing page ready. Pausing 10s before clicking 'Begin'..."
             )
             time.sleep(10)
@@ -179,7 +181,7 @@ def main():
             # Click Begin link
             start_time = time.time()
             start_benchmark(client, bench["start_expr_landing"])
-            logging.info("Clicked 'Begin', driver page now loading...'")
+            logger.info("Clicked 'Begin', driver page now loading...'")
 
             # Reconnect to driver tab
             ws_url = get_browser_websocket_url(bench["url"])
@@ -188,7 +190,7 @@ def main():
 
             # Wait for page to fully load (driver page DOM ready)
             wait_for_ready(client, "document.readyState === 'complete'")
-            logging.info("Kraken driver page loaded and running benchmark.")
+            logger.info("Kraken driver page loaded and running benchmark.")
 
             unit = "ms"
         else:
@@ -201,12 +203,12 @@ def main():
             unit = "score"
 
         browser_version = get_browser_version(client)
-        logging.info("Browser version: %s", browser_version)
+        logger.info("Browser version: %s", browser_version)
 
         score = wait_for_score(client, bench["score_expr"])
         end_time = time.time()
 
-        logging.info("%s score: %s", args.benchmark, score)
+        logger.info("%s score: %s", args.benchmark, score)
 
         # JSON reporting
         report = {
@@ -221,12 +223,9 @@ def main():
         }
 
         write_report_json(LOG_DIRECTORY, "report.json", report)
-        am.take_screenshot(
-            "result.png",
-            ArtifactType.CONFIG_IMAGE,
-            "Screenshot of the benchmark result",
-        )
-        am.create_manifest()
+        capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+        create_artifacts_manifest(ARTIFACTS_DIRECTORY)
+        
 
         time.sleep(15)
 
@@ -248,8 +247,8 @@ def main():
         TypeError,
         subprocess.SubprocessError,
     ) as e:
-        logging.error("Error during benchmark!")
-        logging.exception(e)
+        logger.error("Error during benchmark!")
+        logger.exception(e)
         sys.exit(1)
     finally:
         if chrome_proc is not None and chrome_proc.poll() is None:

@@ -11,6 +11,8 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.paths import game_install_path
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 RUN_DIR = SCRIPT_DIRECTORY / "run"
 STEAM_GAME_ID = 3017860
@@ -55,8 +57,8 @@ def copy_launcher_config() -> None:
         src_path = SCRIPT_DIRECTORY / "launcher.cfg"
         dest_path = launcherconfig_path / "launcher.cfg"
 
-        logging.info("Copying: %s -> %s", src_path, dest_path)
+        logger.info("Copying: %s -> %s", src_path, dest_path)
         shutil.copy(src_path, dest_path)
     except OSError as err:
-        logging.error("Could not copy config file.")
+        logger.error("Could not copy config file.")
         raise err

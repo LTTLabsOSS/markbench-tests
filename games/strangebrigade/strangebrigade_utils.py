@@ -12,6 +12,8 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.steam import get_app_install_location
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
 STEAM_GAME_ID = 312670
@@ -54,14 +56,14 @@ def replace_exe(render_engine):
     # Back up the original launcher once.
     if not check_backup.exists():
         os.rename(launcher_exe, check_backup)
-        logging.info("Backed up original launcher.")
+        logger.info("Backed up original launcher.")
 
     # Always make sure the launcher points at the requested engine.
     if launcher_exe.exists():
         os.remove(launcher_exe)
 
     shutil.copy(engine_exe, launcher_exe)
-    logging.info("Launcher replaced with %s", engine_exe.name)
+    logger.info("Launcher replaced with %s", engine_exe.name)
 
     return True
 
@@ -71,7 +73,7 @@ def restore_exe():
     check_backup = Path(f"{EXE_PATH}\\StrangeBrigade_launcher.exe")
     launcher_exe = Path(f"{EXE_PATH}\\StrangeBrigade.exe")
     if not check_backup.exists():
-        logging.info("No launcher backup found.")
+        logger.info("No launcher backup found.")
         return
 
     if launcher_exe.exists():
@@ -79,4 +81,4 @@ def restore_exe():
 
     shutil.copy(check_backup, launcher_exe)
 
-    logging.info("Original launcher restored.")
+    logger.info("Original launcher restored.")

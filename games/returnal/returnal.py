@@ -12,9 +12,10 @@ from returnal_utils import get_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, create_artifacts_manifest
+from harness_utils.paths import harness_directories
 from harness_utils.file_cleanup import remove_files
 from harness_utils.report import (
     format_resolution,
@@ -29,9 +30,10 @@ from harness_utils.steam import (
     get_steamapps_common_path,
 )
 
+logger = logging.getLogger(__name__)
+
 STEAM_GAME_ID = 1649240
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "Returnal-Win64-Shipping.exe"
 LOCAL_USER_SETTINGS = (
     Path(os.getenv("LOCALAPPDATA"))
@@ -60,7 +62,7 @@ intro_videos = [
 
 def check_vram_alert(attempts: int) -> bool:
     """Look for VRAM alert in menu"""
-    logging.info("Checking for VRAM alert prompt")
+    logger.info("Checking for VRAM alert prompt")
     for _ in range(attempts):
         alert_result = find_word("alert")
         locate_result = find_word("locate")
@@ -82,7 +84,7 @@ def escape_vram_alert():
 
 def navigate_options_menu() -> None:
     """Simulate inputs to navigate to options menu"""
-    logging.info("Navigating to options menu")
+    logger.info("Navigating to options menu")
     user.press("esc")
     time.sleep(0.2)
     user.press("enter")
@@ -96,13 +98,12 @@ def navigate_options_menu() -> None:
 
 def run_benchmark() -> tuple[float]:
     """Run the benchmark"""
-    logging.info("Removing intro videos")
+    logger.info("Removing intro videos")
     remove_files([str(path) for path in intro_videos])
 
-    logging.info("Starting game")
+    logger.info("Starting game")
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int(time.time())
-    am = ArtifactManager(LOG_DIRECTORY)
 
     time.sleep(10)
 
@@ -115,7 +116,7 @@ def run_benchmark() -> tuple[float]:
     # Make sure the game started correctly
     result = find_word("locate", interval=5, timeout=50)
     if not result:
-        logging.info("Could not find prompt to open menu!")
+        logger.info("Could not find prompt to open menu!")
         sys.exit(1)
 
     # Navigate to display menu
@@ -130,59 +131,45 @@ def run_benchmark() -> tuple[float]:
 
     # Verify that we have navigated to the video settings menu and take a screenshot
     if find_word(word="aspect", timeout=30, interval=1) is None:
-        logging.info("Did not find the video settings menu. Did the menu get stuck?")
+        logger.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
-    am.take_screenshot(
-        "video.png", ArtifactType.CONFIG_IMAGE, "picture of video settings"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
 
     # Navigate to graphics menu
     user.press("e")
     time.sleep(1)
 
     if find_word(word="vsync", timeout=30, interval=1) is None:
-        logging.info("Did not find the graphics settings menu. Did the menu get stuck?")
+        logger.info("Did not find the graphics settings menu. Did the menu get stuck?")
         sys.exit(1)
-    am.take_screenshot(
-        "graphics_1.png",
-        ArtifactType.CONFIG_IMAGE,
-        "first picture of graphics settings",
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
 
     # We check for a keyword that indicates DLSS is active because this changes how we navigate the menu
     if find_word(word="sharpness", timeout=10, interval=1) is None:
-        logging.info("No DLSS Settings Detected")
+        logger.info("No DLSS Settings Detected")
         # Scroll down graphics menu
         press_n_times("down", 15, 0.2)
     else:
-        logging.info("DLSS Settings Detected")
+        logger.info("DLSS Settings Detected")
         # Scroll down graphics menu
         press_n_times("down", 17, 0.2)
 
     if find_word(word="volumetric", timeout=30, interval=1) is None:
-        logging.info(
+        logger.info(
             "Did not find the keyword 'volumetric'. Did the the menu scroll correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "graphics_2.png",
-        ArtifactType.CONFIG_IMAGE,
-        "second picture of graphics settings",
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
 
     # Scroll down graphics menu
     press_n_times("down", 15, 0.2)
 
     if find_word(word="hdr", timeout=30, interval=1) is None:
-        logging.info(
+        logger.info(
             "Did not find the keyword 'hdr'. Did the the menu scroll correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "graphics_3.png",
-        ArtifactType.CONFIG_IMAGE,
-        "third picture of graphics settings",
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_3.png")
 
     # Launch the benchmark
     user.keyDown("tab")
@@ -191,11 +178,11 @@ def run_benchmark() -> tuple[float]:
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
-    logging.info("Setup took %s seconds", elapsed_setup_time)
+    logger.info("Setup took %s seconds", elapsed_setup_time)
 
     result = find_word("performance", interval=0.2, timeout=30)
     if not result:
-        logging.info("Performance graph was not found! Could not mark the start time.")
+        logger.info("Performance graph was not found! Could not mark the start time.")
         sys.exit(1)
 
     test_start_time = int(time.time())
@@ -206,29 +193,27 @@ def run_benchmark() -> tuple[float]:
     # Wait for results screen to display info
     result = find_word("lost", interval=0.1, timeout=11)
     if not result:
-        logging.info("Didn't see signal lost. Could not mark the proper end time!")
+        logger.info("Didn't see signal lost. Could not mark the proper end time!")
 
     test_end_time = round(int(time.time()) - 2)
 
     result = find_word("benchmark", interval=0.5, timeout=15)
     if not result:
-        logging.info(
+        logger.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?"
         )
         sys.exit(1)
 
     # Give results screen time to fill out, then save screenshot and config file
     time.sleep(2)
-    am.take_screenshot(
-        "result.png", ArtifactType.RESULTS_IMAGE, "screenshot of benchmark result"
-    )
-    am.copy_file(LOCAL_USER_SETTINGS, ArtifactType.CONFIG_TEXT, "config file")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    copy_artifact(LOCAL_USER_SETTINGS, ARTIFACTS_DIRECTORY)
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
-    logging.info("Benchmark took %s seconds", elapsed_test_time)
+    logger.info("Benchmark took %s seconds", elapsed_test_time)
 
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
+
 
     return test_start_time, test_end_time
 
@@ -246,8 +231,9 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     terminate_process(PROCESS_NAME)
     sys.exit(1)

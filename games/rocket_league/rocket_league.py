@@ -17,7 +17,8 @@ from rocket_league_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, create_artifacts_manifest
+from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
 from harness_utils.controllers import LTTGamePadDS4
 from harness_utils.epic_games import find_eg_game_version
@@ -25,8 +26,9 @@ from harness_utils.report import format_resolution, seconds_to_milliseconds, wri
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+logger = logging.getLogger(__name__)
+
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 USERNAME = getpass.getuser()
 CONFIG_PATH = Path(
     f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Rocket League\\TAGame\\Config\\TASystemSettings.ini"
@@ -35,7 +37,6 @@ PROCESS_NAME = "rocketleague.exe"
 EXECUTABLE_PATH = find_epic_executable()
 GAME_ID = "9773aa1aa54f4f7b80e44bef04986cea%3A530145df28a24424923f5828cc9031a1%3ASugar?action=launch&silent=true"
 GAMEFOLDERNAME = "rocketleague"
-am = ArtifactManager(LOG_DIRECTORY)
 gamepad = LTTGamePadDS4()
 
 setup_logging(LOG_DIRECTORY)
@@ -63,12 +64,12 @@ def camera_cycle(max_attempts=10):
             return True  # Stop checking
 
         # If not found, press the button once
-        gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_TRIANGLE)
+        gamepad.press(button=vg.DS4_BUTTONS.DS4_BUTTON_TRIANGLE)
 
         # Short delay before rechecking
         time.sleep(0.5)
 
-    logging.info(
+    logger.info(
         "Max attempts reached for checking the camera. Did the game load the save?"
     )
     sys.exit(1)  # Word was not found
@@ -77,7 +78,7 @@ def camera_cycle(max_attempts=10):
 def start_game():
     """Start the game"""
     cmd_string = get_run_game_id_command(GAME_ID)
-    logging.info("%s %s", EXECUTABLE_PATH, cmd_string)
+    logger.info("%s %s", EXECUTABLE_PATH, cmd_string)
     return Popen([EXECUTABLE_PATH, cmd_string])
 
 
@@ -90,28 +91,28 @@ def run_benchmark():
 
     # Looking for Syncing Failed message
     if find_word(word="failed", timeout=5, interval=1):
-        gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
+        gamepad.press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
 
     time.sleep(2)
     # Looking for press start
     if find_word(word="press", timeout=30, interval=1) is None:
-        logging.error("Game didn't start in time. Check settings and try again.")
+        logger.error("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
-    gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
+    gamepad.press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
 
     # Looking for news menu close button
     if find_word(word="close", timeout=5, interval=1):
-        gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CIRCLE)
+        gamepad.press(button=vg.DS4_BUTTONS.DS4_BUTTON_CIRCLE)
 
     time.sleep(3)
 
     # Navigating main menu by going to the bottom of the menu first:
     if find_word(word="profile", timeout=60, interval=0.5) is None:
-        logging.error("Main menu didn't show up. Check settings and try again.")
+        logger.error("Main menu didn't show up. Check settings and try again.")
         sys.exit(1)
 
-    gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_WEST)
+    gamepad.dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_WEST)
     time.sleep(0.5)
     gamepad.dpad_press_n_times(
         direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, n=15, pause=0.8
@@ -122,51 +123,51 @@ def run_benchmark():
         direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_NORTH, n=2, pause=0.8
     )
     time.sleep(0.5)
-    gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
+    gamepad.press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(1)
 
     # Entering the match history screen and starting the replay:
     if find_word(word="history", timeout=60, interval=0.5) is None:
-        logging.error(
+        logger.error(
             "Didn't navigate to the replays. Check menu options for any anomalies."
         )
         sys.exit(1)
 
-    gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH)
+    gamepad.dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH)
     time.sleep(0.5)
-    gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
+    gamepad.press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(1)
 
     if find_word(word="recent", timeout=10, interval=1):
-        logging.info("In Match History menu, navigating to Saved Replays.")
-        gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT)
+        logger.info("In Match History menu, navigating to Saved Replays.")
+        gamepad.press(button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT)
         time.sleep(1)
 
     if find_word(word="watch", timeout=60, interval=0.5) is None:
-        logging.error(
+        logger.error(
             "Didn't navigate to the saved replays correctly. Check menu options for any anomalies."
         )
         sys.exit(1)
 
-    gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
+    gamepad.press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
-    logging.info("Harness setup took %f seconds", elapsed_setup_time)
+    logger.info("Harness setup took %f seconds", elapsed_setup_time)
 
     # Beginning the "benchmark":
     if find_word(word="special", timeout=60, interval=0.5) is None:
-        logging.error("Game didn't load map. Check settings and try again.")
+        logger.error("Game didn't load map. Check settings and try again.")
         sys.exit(1)
 
-    gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
+    gamepad.press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(0.8)
-    gamepad.single_dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_WEST)
+    gamepad.dpad_press(direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_WEST)
     time.sleep(0.8)
     camera_cycle()
     time.sleep(0.5)
-    gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
-    logging.info("Benchmark started. Waiting for completion.")
+    gamepad.press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
+    logger.info("Benchmark started. Waiting for completion.")
     time.sleep(4)
     test_start_time = int(time.time())
 
@@ -174,19 +175,19 @@ def run_benchmark():
     time.sleep(359)
 
     if find_word(word="turbopolsa", timeout=10, interval=1) is None:
-        logging.info(
+        logger.info(
             "Couldn't turbopolsa on the field. Did the benchmark play all the way through?"
         )
         sys.exit(1)
     test_end_time = int(time.time())
     time.sleep(2)
     elapsed_test_time = round((test_end_time - test_start_time), 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
 
-    gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_OPTIONS)
+    gamepad.press(button=vg.DS4_BUTTONS.DS4_BUTTON_OPTIONS)
 
     if find_word(word="paused", timeout=10, interval=1) is None:
-        logging.info("Couldn't find the settings option. Did the pause menu open?")
+        logger.info("Couldn't find the settings option. Did the pause menu open?")
         sys.exit(1)
 
     time.sleep(0.5)
@@ -198,37 +199,35 @@ def run_benchmark():
         direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, n=3, pause=0.8
     )
     time.sleep(0.5)
-    gamepad.single_button_press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
+    gamepad.press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(0.4)
 
     if find_word(word="audio", timeout=10, interval=1) is None:
-        logging.info("Couldn't find the audio tab. Did the settings menu open?")
+        logger.info("Couldn't find the audio tab. Did the settings menu open?")
         sys.exit(1)
 
     time.sleep(1)
-    logging.info("Navigating to the Video tab.")
-    gamepad.button_press_n_times(
+    logger.info("Navigating to the Video tab.")
+    gamepad.press_n_times(
         button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT, n=5, pause=0.8
     )
     time.sleep(1)
 
     if find_word(word="window", timeout=10, interval=1) is None:
-        logging.info(
+        logger.info(
             "Couldn't find the window settings header. Did OCR see the right menu?"
         )
         sys.exit(1)
 
-    logging.info("Seen the video settings, capturing the data.")
-    am.take_screenshot(
-        "video.png", ArtifactType.CONFIG_IMAGE, "Screenshot of the display settings"
-    )
+    logger.info("Seen the video settings, capturing the data.")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
 
-    am.copy_file(CONFIG_PATH, ArtifactType.CONFIG_TEXT, "TASystemSettings.ini")
+    copy_artifact(CONFIG_PATH, ARTIFACTS_DIRECTORY)
 
-    logging.info("Run completed. Closing game.")
+    logger.info("Run completed. Closing game.")
     time.sleep(2)
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
+
     return test_start_time, test_end_time
 
 
@@ -243,8 +242,9 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     terminate_process(PROCESS_NAME)
     sys.exit(1)

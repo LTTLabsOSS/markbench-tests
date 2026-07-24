@@ -5,72 +5,26 @@ multiple test harnesses.
 
 ## Artifacts
 
-`artifacts.py`
+Supplemental artifacts belong in each harness's `run/artifacts/` directory.
 
-Contains class for capturing test artifacts.
-
-### Usage:
-
-Import `ArtifactManager` and `ArtifactType`
-
-```
-from harness_utils.artifacts import ArtifactManager, ArtifactType
-```
-
-Instantiate an Artifact Manager; This should ideally be the same directory as specified for the output directory of the harness, e.g. `./run`.
+MarkBench clears each harness's `run/` directory before every run, so every run starts empty. Harnesses must not perform their own cleanup.
 
 ```python
-# Assuming /run is used, get output directory relative to script location.
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR.joinpath("run")
+from harness_utils.artifacts import (
+    capture_and_save_screenshot,
+    copy_artifact,
+    create_artifacts_manifest,
+)
+from harness_utils.paths import harness_directories
 
-am = ArtifactManager(LOG_DIR)
+SCRIPT_DIRECTORY, RUN_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
+
+copy_artifact("path/to/results.txt", ARTIFACTS_DIRECTORY)
+capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 ```
 
-Capture artifacts using `ArtifactManager.copy_file` and `ArtifactManager.take_screenshot`.
-
-```python
-# src as a string, capturing a configuration text file
-am.copy_file("path/to/config.ini", ArtifactType.CONFIG_TEXT, "a config file")
-
-# src as a pathlib.Path, capturing a results text file
-am.copy_file(Path("path", "to", "results.txt"), ArtifactType.RESULTS_TEXT, "some results")
-
-am.take_screenshot("cool_picture.png", ArtifactType.CONFIG_IMAGE, "picture of settings")
-```
-
-Optionally, an override to the screenshot function can optionally be provided if the `mss` library is not sufficient.
-
-```python
-def my_screenshot_function(filename: str) -> None:
-    # Take the screenshot here using the filename
-    pass
-
-am.take_screenshot("something.png", ArtifactType.CONFIG_IMAGE, "a picture taken with my function", my_screenshot_function)
-```
-
-Once all desired artifacts have been captured, create an artifact manifest with `ArtifactManager.create_manifest`.
-
-```python
-am.create_manifest()
-```
-
-Given the configuration and artifacts captured in the above code snippets, the resulting manifest should be created at `./run/artifacts.yaml` and contain the following data:
-
-```yaml
-- filename: config.ini
-  type: config_text
-  description: a config file
-- filename: results.txt
-  type: results_text
-  description: some results
-- filename: cool_picture.png
-  type: config_image
-  description: picture of settings
-- filename: something.png
-  type: config_image
-  description: a picture taken with my function
-```
+`report.json` and `harness.log` stay directly in `run/`. `artifacts.yaml` stays in `run/artifacts/` and lists each artifact's `filename` and `type`.
 
 ## OCR Service
 

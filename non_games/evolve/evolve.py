@@ -13,16 +13,18 @@ import psutil
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import is_process_running
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+logger = logging.getLogger(__name__)
+
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 EVOLVE_DIR = Path(r"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Evolve")
 EXECUTABLE = "evolve.exe"
 EXECUTABLE_PATH = EVOLVE_DIR / EXECUTABLE
-RESULTS_FILE = LOG_DIRECTORY / "evolve-results.csv"
+RESULTS_FILE = ARTIFACTS_DIRECTORY / "evolve-results.csv"
 
 
 TRACE_MODES = ["inline", "pipeline", "work-graph"]
@@ -46,7 +48,7 @@ def get_scores(results_path):
 def launch_evolve(resolution, renderer, trace_mode, preset):
     """launch evolve with the given render and trace parameters"""
     launch_command = f'"{EXECUTABLE_PATH}"  --offline run-custom --render-resolution {resolution} --renderer {renderer} --mode {trace_mode} --preset {preset} --fullscreen --export-scores {RESULTS_FILE}'
-    logging.info(launch_command)
+    logger.info(launch_command)
     with subprocess.Popen(
         launch_command,
         stdout=subprocess.PIPE,
@@ -54,7 +56,7 @@ def launch_evolve(resolution, renderer, trace_mode, preset):
         universal_newlines=True,
         cwd=(EVOLVE_DIR),
     ) as proc:
-        logging.info("Evolve has started.")
+        logger.info("Evolve has started.")
         start_time = time.time()
         while True:
             now = time.time()
@@ -73,6 +75,7 @@ def launch_evolve(resolution, renderer, trace_mode, preset):
 def main():
     """a doc string"""
     setup_logging(LOG_DIRECTORY)
+    ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
     parser = ArgumentParser()
 
     parser.add_argument(
@@ -105,7 +108,7 @@ def main():
 
     args = parser.parse_args()
 
-    logging.info(
+    logger.info(
         "Starting Evolve: \nResolution: %s\nRenderer: %s\nTrace Mode: %s\nPreset: %s",
         args.resolution,
         args.renderer,
@@ -117,7 +120,7 @@ def main():
     launch_evolve(args.resolution, args.renderer, args.trace_mode, args.preset)
     end_time = time.time()
     scores = get_scores(RESULTS_FILE)
-    logging.info("Benchmark took %.2f seconds", end_time - start_time)
+    logger.info("Benchmark took %.2f seconds", end_time - start_time)
 
     report = {
         "test": "Evolve Benchmark",
@@ -125,7 +128,9 @@ def main():
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
         "unit": "Score",
-        "score": scores["Ray tracing"], # Just using Ray Tracing as score field for now. Need to process other score values later.
+        "score": scores[
+            "Ray tracing"
+        ],  # Just using Ray Tracing as score field for now. Need to process other score values later.
         "Raytracing": scores["Ray Tracing"],
         "Acceleration Structure Builds": scores["Acceleration Structure Builds"],
         "Rasterization": scores["Rasterization"],
@@ -142,6 +147,6 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as ex:
-        logging.error("something went wrong running the benchmark!")
-        logging.exception(ex)
+        logger.error("something went wrong running the benchmark!")
+        logger.exception(ex)
         sys.exit(1)

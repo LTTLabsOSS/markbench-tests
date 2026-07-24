@@ -12,7 +12,8 @@ from alanwake2_utils import CONFIG_PATH, copy_save, find_epic_executable, get_re
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, create_artifacts_manifest
+from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
 from harness_utils.epic_games import find_eg_game_version
@@ -20,8 +21,9 @@ from harness_utils.output_logging import setup_logging
 from harness_utils.report import write_report_json
 from harness_utils.process import terminate_process
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+logger = logging.getLogger(__name__)
+
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "alanwake2.exe"
 EXECUTABLE_PATH = find_epic_executable()
 GAME_ID = "c4763f236d08423eb47b4c3008779c84%3A93f2a8c3547846eda966cb3c152a026e%3Adc9d2e595d0e4650b35d659f90d41059?action=launch&silent=true"
@@ -38,7 +40,7 @@ def get_run_game_id_command(game_id: int) -> str:
 def start_game():
     """Start the game"""
     cmd_string = get_run_game_id_command(GAME_ID)
-    logging.info("%s %s", EXECUTABLE_PATH, cmd_string)
+    logger.info("%s %s", EXECUTABLE_PATH, cmd_string)
     return Popen([EXECUTABLE_PATH, cmd_string])
 
 
@@ -51,19 +53,19 @@ def run_benchmark():
     time.sleep(10)  # wait for game to load into main menu
 
     if find_word(word="saving", timeout=30, interval=1) is None:
-        logging.error("Game didn't start in time. Check settings and try again.")
+        logger.error("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
     user.press("enter")
 
     if find_word(word="warning", timeout=30, interval=1) is None:
-        logging.error("Game didn't start in time. Check settings and try again.")
+        logger.error("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
     user.press("enter")
 
     if find_word(word="continue", timeout=30, interval=1) is None:
-        logging.error("Game didn't start in time. Check settings and try again.")
+        logger.error("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
     user.press("enter")
@@ -78,66 +80,54 @@ def run_benchmark():
             "Load game option does not exist. Did the save get copied correctly?"
         )
 
-    logging.info("Navigating to options to get some screenshots")
+    logger.info("Navigating to options to get some screenshots")
     press_n_times("down", 4, 0.2)
 
     if find_word(word="continue", interval=0.5, timeout=3) is None:
-        logging.info("Continue option not listed, navigating accordingly.")
+        logger.info("Continue option not listed, navigating accordingly.")
         press_n_times("up", 2, 0.2)
 
     user.press("enter")
     time.sleep(0.2)
     if find_word(word="graphics", timeout=60, interval=0.5) is None:
-        logging.error(
+        logger.error(
             "Graphics options not available. Did it navigate to the options correctly?"
         )
         sys.exit(1)
     press_n_times("e", 2, 0.2)
     if find_word(word="quality", timeout=60, interval=0.5) is None:
-        logging.error(
+        logger.error(
             "Did not see quality preset. Did it navigate to graphics correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "graphics1.png",
-        ArtifactType.CONFIG_IMAGE,
-        "first screenshot of graphics settings",
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
     time.sleep(0.2)
     press_n_times("down", 19, 0.2)
     if find_word(word="terrain", timeout=60, interval=0.5) is None:
-        logging.error(
+        logger.error(
             "Did not see Terrain Quality. Did it navigate to graphics correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "graphics2.png",
-        ArtifactType.CONFIG_IMAGE,
-        "second screenshot of graphics settings",
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
     press_n_times("down", 10, 0.2)
     if find_word(word="transparency", timeout=60, interval=0.5) is None:
-        logging.error(
+        logger.error(
             "Did not see Transparency. Did it navigate to graphics correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "graphics3.png",
-        ArtifactType.CONFIG_IMAGE,
-        "third screenshot of graphics settings",
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")
     time.sleep(0.2)
     user.press("esc")
     time.sleep(0.2)
 
-    logging.info("Seen the main menu. Loading benchmark.")
+    logger.info("Seen the main menu. Loading benchmark.")
     press_n_times("up", 3, 0.2)
     user.press("enter")
     time.sleep(2)
 
     # Loading the save
     if find_word(word="heart", timeout=60, interval=0.5) is None:
-        logging.error(
+        logger.error(
             "Heart not showing in loadable games. Did the save get copied correctly?"
         )
         sys.exit(1)
@@ -147,11 +137,11 @@ def run_benchmark():
     time.sleep(0.2)
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
-    logging.info("Harness setup took %f seconds", elapsed_setup_time)
+    logger.info("Harness setup took %f seconds", elapsed_setup_time)
 
     # Starting the benchmark:
     if find_word(word="recap", timeout=80, interval=0.5) is None:
-        logging.error("Didn't see the word recap. Did the save game load?")
+        logger.error("Didn't see the word recap. Did the save game load?")
         sys.exit(1)
 
     test_start_time = int(time.time())
@@ -160,21 +150,20 @@ def run_benchmark():
     time.sleep(170)
 
     if find_word(word="insane", timeout=60, interval=0.5) is None:
-        logging.error("Didn't see the word insane. Did the game crash?")
+        logger.error("Didn't see the word insane. Did the game crash?")
         sys.exit(1)
     test_end_time = int(time.time())
     time.sleep(2)
-    logging.info("Run completed. Closing game.")
-    am.copy_file(CONFIG_PATH, ArtifactType.CONFIG_TEXT, "renderer.ini")
+    logger.info("Run completed. Closing game.")
+    copy_artifact(CONFIG_PATH, ARTIFACTS_DIRECTORY)
     elapsed_test_time = round((test_end_time - test_start_time), 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
     terminate_process(PROCESS_NAME)
     return test_start_time, test_end_time
 
 
 try:
     setup_logging(LOG_DIRECTORY)
-    am = ArtifactManager(LOG_DIRECTORY)
     start_time, end_time = run_benchmark()
     height, width = get_resolution()
     report = {
@@ -184,10 +173,11 @@ try:
         "game_version": find_eg_game_version(GAMEFOLDERNAME),
     }
 
-    am.create_manifest()
+
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     terminate_process(PROCESS_NAME)
     sys.exit(1)

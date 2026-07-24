@@ -15,6 +15,8 @@ from harness_utils.steam import (
     get_steam_folder_path,
 )
 
+logger = logging.getLogger(__name__)
+
 STEAM_GAME_ID = 730
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 STEAM_USER_ID = get_active_steam_account_id()
@@ -32,7 +34,7 @@ def apply_runtime_dpi_awareness():
     ctypes.windll.user32.SetProcessDpiAwarenessContext(
         dpi_awareness_context_per_monitor_aware_v2
     )
-    logging.info("Applied runtime DPI awareness to current process")
+    logger.info("Applied runtime DPI awareness to current process")
 
 
 def get_install_path():
@@ -59,7 +61,7 @@ def read_config() -> list[str] | None:
         with open(userdata_path, encoding="utf-8") as f:
             return f.readlines()
     except OSError:
-        logging.error(
+        logger.error(
             "Did not find config file at path %s. Trying path %s",
             userdata_path,
             install_path,
@@ -68,7 +70,7 @@ def read_config() -> list[str] | None:
         with open(install_path, encoding="utf-8") as f:
             return f.readlines()
     except OSError:
-        logging.error("Did not find config file at path %s", install_path)
+        logger.error("Did not find config file at path %s", install_path)
     return None
 
 
@@ -81,7 +83,7 @@ def get_resolution():
     lines = read_config()
 
     if lines is None:
-        logging.error("Could not find the video config file.")
+        logger.error("Could not find the video config file.")
         return (height, width)
 
     for line in lines:

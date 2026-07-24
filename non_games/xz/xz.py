@@ -20,12 +20,14 @@ from xz_utils import (
 
 from harness_utils.output_logging import setup_logging
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 setup_logging(LOG_DIRECTORY)
 
 if xz_executable_exists() is False:
-    logging.info("Downloading xz utils")
+    logger.info("Downloading xz utils")
     copy_from_network_drive()
 
 ABS_EXECUTABLE_PATH = SCRIPT_DIRECTORY / XZ_EXECUTABLE

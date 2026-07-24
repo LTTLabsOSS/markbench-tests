@@ -14,15 +14,21 @@ from twwh3_utils import read_current_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, create_artifacts_manifest
+from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.output_logging import setup_logging
 from harness_utils.process import terminate_process
 from harness_utils.steam import get_app_install_location, get_build_id
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+logger = logging.getLogger(__name__)
+
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "Warhammer3.exe"
 STEAM_GAME_ID = 1142710
 
@@ -37,13 +43,13 @@ user.FAILSAFE = False
 def start_game():
     """Starts the game process"""
     cmd_string = f'start /D "{get_app_install_location(STEAM_GAME_ID)}" {PROCESS_NAME}'
-    logging.info(cmd_string)
+    logger.info(cmd_string)
     return os.system(cmd_string)
 
 
 def skip_logo_screens() -> None:
     """Simulate input to skip logo screens"""
-    logging.info("Skipping logo screens")
+    logger.info("Skipping logo screens")
 
     # Enter menu
     user.press("escape")
@@ -67,11 +73,10 @@ def run_benchmark():
     start_game()
     setup_start_time = int(time.time())
     time.sleep(5)
-    am = ArtifactManager(LOG_DIRECTORY)
 
     result = find_word("warning", timeout=50, interval=5)
     if not result:
-        logging.info("Did not see warnings. Did the game start?")
+        logger.info("Did not see warnings. Did the game start?")
         sys.exit(1)
 
     skip_logo_screens()
@@ -79,7 +84,7 @@ def run_benchmark():
 
     result = find_word("options", timeout=10, interval=1)
     if not result:
-        logging.info("Did not find the options menu. Did the game skip the intros?")
+        logger.info("Did not find the options menu. Did the game skip the intros?")
         sys.exit(1)
 
     gui.moveTo(result["x"], result["y"])
@@ -89,13 +94,11 @@ def run_benchmark():
     gui.mouseUp()
     time.sleep(2)
 
-    am.take_screenshot(
-        "main.png", ArtifactType.CONFIG_IMAGE, "picture of basic settings"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "main.png")
 
     result = find_word("ad", timeout=10, interval=1)
     if not result:
-        logging.info("Did not find the advanced menu. Did the game skip the intros?")
+        logger.info("Did not find the advanced menu. Did the game skip the intros?")
         sys.exit(1)
 
     gui.moveTo(result["x"], result["y"])
@@ -105,13 +108,11 @@ def run_benchmark():
     gui.mouseUp()
     time.sleep(0.5)
 
-    am.take_screenshot(
-        "advanced.png", ArtifactType.CONFIG_IMAGE, "picture of advanced settings"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced.png")
 
     result = find_word("bench", timeout=10, interval=1)
     if not result:
-        logging.info("Did not find the benchmark menu. Did the game skip the intros?")
+        logger.info("Did not find the benchmark menu. Did the game skip the intros?")
         sys.exit(1)
 
     gui.moveTo(result["x"], result["y"])
@@ -132,11 +133,11 @@ def run_benchmark():
         user.press("enter")
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
+    logger.info("Setup took %f seconds", elapsed_setup_time)
 
     result = find_word("fps", interval=0.5, timeout=100)
     if not result:
-        logging.info("Could not find FPS. Unable to mark start time!")
+        logger.info("Could not find FPS. Unable to mark start time!")
         sys.exit(1)
 
     test_start_time = int(time.time())
@@ -148,7 +149,7 @@ def run_benchmark():
 
     result = find_word("summary", interval=0.2, timeout=250)
     if not result:
-        logging.info(
+        logger.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?"
         )
         sys.exit(1)
@@ -158,18 +159,16 @@ def run_benchmark():
     # Wait 5 seconds for benchmark info
     time.sleep(5)
 
-    am.take_screenshot("result.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
-    am.copy_file(
-        Path(CONFIG_FULL_PATH), ArtifactType.RESULTS_TEXT, "preferences.script.txt"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    copy_artifact(Path(CONFIG_FULL_PATH), ARTIFACTS_DIRECTORY)
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Exit
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
+
 
     return test_start_time, test_end_time
 
@@ -198,8 +197,9 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     terminate_process(PROCESS_NAME)
     sys.exit(1)

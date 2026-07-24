@@ -5,6 +5,8 @@ import os
 import re
 import winreg
 
+logger = logging.getLogger(__name__)
+
 EXECUTABLE = "Wonderlands.exe"
 
 
@@ -51,5 +53,5 @@ def read_resolution() -> tuple[int]:
                 w = result2.group(1)
             if int(h) > 0 and int(w) > 0:
                 break
-    logging.info("Current resolution is %dx%d", w, h)
+    logger.info("Current resolution is %dx%d", w, h)
     return (h, w)

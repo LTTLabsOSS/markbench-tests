@@ -12,7 +12,8 @@ from forzams_utils import get_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, create_artifacts_manifest
+from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
 from harness_utils.report import seconds_to_milliseconds, write_report_json
@@ -21,9 +22,10 @@ from harness_utils.process import terminate_process
 from harness_utils.rtss import copy_rtss_profile, start_rtss_process
 from harness_utils.steam import exec_steam_run_command, get_build_id
 
+logger = logging.getLogger(__name__)
+
 STEAM_GAME_ID = 2440510
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 LOCAL_USER_SETTINGS = (
     Path(os.getenv("LOCALAPPDATA"))
     / "Microsoft.ForzaMotorsport"
@@ -49,16 +51,15 @@ def run_benchmark() -> tuple[int, int]:
     start_rtss()
     # Give RTSS time to start
     time.sleep(10)
-    logging.info("Starting game")
+    logger.info("Starting game")
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int(time.time())
-    am = ArtifactManager(LOG_DIRECTORY)
 
     time.sleep(50)
 
     # Make sure the game started correctly
     if find_word(word="play", timeout=30, interval=1) is None:
-        logging.info("Could not find the main menu. Did the game load?")
+        logger.info("Could not find the main menu. Did the game load?")
         sys.exit(1)
 
     # Navigate to display menu
@@ -66,7 +67,7 @@ def run_benchmark() -> tuple[int, int]:
     time.sleep(1)
 
     if find_word(word="contrast", timeout=30, interval=1) is None:
-        logging.info(
+        logger.info(
             "Did not find the accessibility settings menu. Did the menu get stuck?"
         )
         sys.exit(1)
@@ -80,32 +81,26 @@ def run_benchmark() -> tuple[int, int]:
 
     # Verify that we have navigated to the video settings menu and take a screenshot
     if find_word(word="resolution", timeout=30, interval=1) is None:
-        logging.info("Did not find the display settings menu. Did the menu get stuck?")
+        logger.info("Did not find the display settings menu. Did the menu get stuck?")
         sys.exit(1)
 
-    am.take_screenshot(
-        "display.png", ArtifactType.CONFIG_IMAGE, "picture of display settings"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
     user.press("]")
     time.sleep(0.5)
 
     if find_word(word="filtering", timeout=30, interval=1) is None:
-        logging.info("Did not find the graphics settings menu. Did the menu get stuck?")
+        logger.info("Did not find the graphics settings menu. Did the menu get stuck?")
         sys.exit(1)
-    am.take_screenshot(
-        "graphics1.png", ArtifactType.CONFIG_IMAGE, "1st picture of graphics settings"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
 
     press_n_times("down", 15, 0.5)
 
     if find_word(word="particle", timeout=30, interval=1) is None:
-        logging.info(
+        logger.info(
             "Did not find the particle effect settings. Did the menu get stuck?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "graphics2.png", ArtifactType.CONFIG_IMAGE, "2nd picture of graphics settings"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
 
     press_n_times("down", 3, 0.5)
     user.press("up")
@@ -114,11 +109,9 @@ def run_benchmark() -> tuple[int, int]:
     time.sleep(0.5)
 
     if find_word(word="flare", timeout=30, interval=1) is None:
-        logging.info("Did not find the lens flare settings. Did the menu get stuck?")
+        logger.info("Did not find the lens flare settings. Did the menu get stuck?")
         sys.exit(1)
-    am.take_screenshot(
-        "graphics3.png", ArtifactType.CONFIG_IMAGE, "3rd picture of graphics settings"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")
 
     # Navigate to graphics menu
     user.press("[")
@@ -127,16 +120,14 @@ def run_benchmark() -> tuple[int, int]:
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
-    logging.info("Setup took %s seconds", elapsed_setup_time)
+    logger.info("Setup took %s seconds", elapsed_setup_time)
 
     time.sleep(15)
 
     if find_word(word="results", timeout=60, interval=0.5) is None:
-        logging.info("Did not find the results screen. Did the game load?")
+        logger.info("Did not find the results screen. Did the game load?")
         sys.exit(1)
-    am.take_screenshot(
-        "results.png", ArtifactType.CONFIG_IMAGE, "picture of results screen"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
 
     test_start_time = int(time.time())
 
@@ -145,7 +136,7 @@ def run_benchmark() -> tuple[int, int]:
 
     # Wait for results screen to display info
     if find_word(word="results", timeout=15, interval=0.5) is None:
-        logging.info(
+        logger.info(
             "Did not find the results screen. Did the game crash during the run?"
         )
         sys.exit(1)
@@ -153,14 +144,14 @@ def run_benchmark() -> tuple[int, int]:
     test_end_time = round(int(time.time()))
     # Give results screen time to fill out, then save screenshot and config file
     time.sleep(2)
-    am.copy_file(LOCAL_USER_SETTINGS, ArtifactType.CONFIG_TEXT, "config file")
+    copy_artifact(LOCAL_USER_SETTINGS, ARTIFACTS_DIRECTORY)
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
-    logging.info("Benchmark took %s seconds", elapsed_test_time)
+    logger.info("Benchmark took %s seconds", elapsed_test_time)
 
     for proc_name in PROCESSES:
         terminate_process(proc_name)
-    am.create_manifest()
+
 
     return test_start_time, test_end_time
 
@@ -178,9 +169,10 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     for process_name in PROCESSES:
         terminate_process(process_name)
     sys.exit(1)
