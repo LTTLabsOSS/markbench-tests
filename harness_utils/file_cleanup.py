@@ -9,6 +9,6 @@ def remove_files(paths: list[str]) -> None:
     for path in paths:
         try:
             os.remove(path)
-            logging.info("Removed file: %s", path)
+            logging.debug("Removed file: %s", path)
         except FileNotFoundError:
-            logging.info("File already removed: %s", path)
+            logging.debug("File already removed: %s", path)

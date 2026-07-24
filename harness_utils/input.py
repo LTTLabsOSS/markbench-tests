@@ -54,7 +54,7 @@ def _scale_linux_click_coordinates(x: int, y: int) -> tuple[int, int]:
 
 
 class _WindowsInputBackend:
-    def __init__(self, controller: "InputController") -> None:
+    def __init__(self, controller: "KeyboardMouseDriver") -> None:
         self._pydirectinput = importlib.import_module("pydirectinput")
         setattr(self._pydirectinput, "FAILSAFE", controller.FAILSAFE)
 
@@ -157,7 +157,7 @@ class _YdotoolInputBackend:
         self._run("mousemove", "--wheel", "-x", "0", "-y", str(wheel_ticks))
 
 
-class InputController:
+class KeyboardMouseDriver:
     """Keyboard and mouse input controller with Windows and Linux backends."""
 
     FAILSAFE: bool
@@ -210,7 +210,7 @@ class InputController:
         self._backend.scroll(scroll_amount)
 
 
-user = InputController()
+user = KeyboardMouseDriver()
 
 
 def press(sequence: str, pause: float = 0.3) -> None:
