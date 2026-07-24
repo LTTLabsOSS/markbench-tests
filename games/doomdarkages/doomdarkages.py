@@ -12,7 +12,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from doomdarkages_utils import copy_launcher_config
 
-from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, create_artifacts_manifest
 from harness_utils.input import (
     mangohud_log_toggle,
     mouse_scroll_n_times,
@@ -249,6 +249,7 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
     logging.exception(e)

@@ -15,6 +15,7 @@ from harness_utils.paths import harness_directories, network_drive_path
 from harness_utils.artifacts import (
     capture_and_save_screenshot,
     copy_artifact,
+    create_artifacts_manifest,
 )
 from harness_utils.input import user
 from harness_utils.ocr_service import find_word
@@ -215,6 +216,7 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
     terminate_process(PROCESS_NAME)
     terminate_process(DX_PROCESS_NAME)
     terminate_process("Notepad.exe")

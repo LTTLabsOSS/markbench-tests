@@ -13,6 +13,7 @@ MarkBench clears each harness's `run/` directory before every run, so every run 
 from harness_utils.artifacts import (
     capture_and_save_screenshot,
     copy_artifact,
+    create_artifacts_manifest,
 )
 from harness_utils.paths import harness_directories
 
@@ -20,9 +21,10 @@ SCRIPT_DIRECTORY, RUN_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__fil
 
 copy_artifact("path/to/results.txt", ARTIFACTS_DIRECTORY)
 capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 ```
 
-`report.json` and `harness.log` stay directly in `run/`. No artifact manifest exists.
+`report.json` and `harness.log` stay directly in `run/`. `artifacts.yaml` stays in `run/artifacts/` and lists each artifact's `filename` and `type`.
 
 ## OCR Service
 

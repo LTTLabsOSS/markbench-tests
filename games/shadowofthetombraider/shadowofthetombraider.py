@@ -14,6 +14,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.artifacts import (
     capture_and_save_screenshot,
     copy_artifact,
+    create_artifacts_manifest,
 )
 from harness_utils.paths import harness_directories
 from harness_utils.input import user
@@ -148,6 +149,7 @@ def run_benchmark():
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 
 
 def main():

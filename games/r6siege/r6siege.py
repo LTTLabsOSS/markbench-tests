@@ -18,7 +18,7 @@ from harness_utils.process import terminate_process
 from harness_utils.input import user
 from harness_utils.output_logging import setup_logging
 from harness_utils.ocr_service import find_word
-from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact
+from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, create_artifacts_manifest
 from harness_utils.paths import harness_directories
 from harness_utils.report import (
     format_resolution,
@@ -190,6 +190,7 @@ def run_benchmark():
     time.sleep(30)  # sleeping to let the game processes finish closing
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 
 
 def main():

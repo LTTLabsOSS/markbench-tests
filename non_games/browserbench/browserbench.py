@@ -19,7 +19,7 @@ from chrome_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import capture_and_save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, create_artifacts_manifest
 from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
@@ -222,6 +222,7 @@ def main():
 
         write_report_json(LOG_DIRECTORY, "report.json", report)
         capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+        create_artifacts_manifest(ARTIFACTS_DIRECTORY)
         
 
         time.sleep(15)

@@ -12,7 +12,7 @@ from the_last_of_us_part_i_utils import copy_autosave, get_resolution
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import capture_and_save_screenshot
+from harness_utils.artifacts import capture_and_save_screenshot, create_artifacts_manifest
 from harness_utils.paths import harness_directories
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
@@ -284,6 +284,7 @@ try:
         "end_time": seconds_to_milliseconds(end_time),
     }
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
