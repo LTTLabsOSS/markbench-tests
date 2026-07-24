@@ -28,4 +28,4 @@ linux = [
 target-version = "py311"
 
 [tool.ruff.lint]
-ignore = ["E402"]
+ignore = ["E402", "BLE001", "TRY002", "RUF015"]

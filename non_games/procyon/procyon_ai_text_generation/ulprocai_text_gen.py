@@ -1,3 +1,4 @@
+# ruff: noqa: EXE002, RUF100
 """UL Procyon AI Text Generation test script"""
 
 import logging
@@ -173,10 +174,7 @@ try:
     end_time = time.time()
     elapsed_test_time = round(end_time - start_time, 2)
 
-    if (
-        args.engine != "All_Models_OPENVINO"
-        and args.engine != "All_Models_ONNX"
-    ):
+    if args.engine != "All_Models_OPENVINO" and args.engine != "All_Models_ONNX":
         results_regex = BENCHMARK_CONFIG[args.engine]["result_regex"]
         score = regex_find_score_in_xml(results_regex)
 

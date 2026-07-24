@@ -1,3 +1,4 @@
+# ruff: noqa: DTZ007
 """Blender render test script"""
 
 import logging
@@ -84,7 +85,7 @@ def download_scene(scene: BlenderScene) -> None:
         logger.error(
             "could not download scene from any source, check connections and try again"
         )
-        raise Exception("error downloading scene", cause=ex) from ex
+        raise RuntimeError("error downloading scene") from ex
 
 
 def copy_scene_from_network_drive(file_name, destination):

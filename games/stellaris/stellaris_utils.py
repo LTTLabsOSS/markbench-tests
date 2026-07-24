@@ -77,7 +77,7 @@ def copy_benchmarkfiles() -> None:
             logger.info("copying: %s -> %s", src_path, dest_path)
             shutil.copy(src_path, dest_path)
         except OSError as ex:
-            raise Exception("could not copy benchmark config files", cause=ex) from ex
+            raise RuntimeError("could not copy benchmark config files") from ex
 
 
 def copy_save_from_network_drive(file_name, destination):

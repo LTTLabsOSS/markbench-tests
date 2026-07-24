@@ -1,3 +1,4 @@
+# ruff: noqa: TRY004
 """Utility functions related to using Steam for running games."""
 
 import logging
