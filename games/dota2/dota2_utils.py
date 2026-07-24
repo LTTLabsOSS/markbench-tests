@@ -10,8 +10,8 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.steam import (
-    get_app_install_location,
     get_active_steam_account_id,
+    get_app_install_location,
     get_steam_folder_path,
 )
 

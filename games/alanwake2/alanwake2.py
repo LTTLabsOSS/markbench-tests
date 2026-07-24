@@ -12,14 +12,18 @@ from alanwake2_utils import CONFIG_PATH, copy_save, find_epic_executable, get_re
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, create_artifacts_manifest
-from harness_utils.paths import harness_directories
+from harness_utils.artifacts import (
+    capture_and_save_screenshot,
+    copy_artifact,
+    create_artifacts_manifest,
+)
+from harness_utils.epic_games import find_eg_game_version
 from harness_utils.input import press_n_times
 from harness_utils.ocr_service import find_word
-from harness_utils.epic_games import find_eg_game_version
 from harness_utils.output_logging import setup_logging
-from harness_utils.report import write_report_json
+from harness_utils.paths import harness_directories
 from harness_utils.process import terminate_process
+from harness_utils.report import write_report_json
 
 logger = logging.getLogger(__name__)
 
@@ -168,16 +172,16 @@ try:
     height, width = get_resolution()
     report = {
         "resolution": f"{width}x{height}",
-        "start_time": round((start_time * 1000)),
-        "end_time": round((end_time * 1000)),
+        "start_time": round(start_time * 1000),
+        "end_time": round(end_time * 1000),
         "game_version": find_eg_game_version(GAMEFOLDERNAME),
     }
 
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
     create_artifacts_manifest(ARTIFACTS_DIRECTORY)
-except Exception as e:
+except Exception:
     logger.error("Something went wrong running the benchmark!")
-    logger.exception(e)
+    logger.exception("Unhandled exception")
     terminate_process(PROCESS_NAME)
     sys.exit(1)

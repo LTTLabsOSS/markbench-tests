@@ -19,10 +19,13 @@ from chrome_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import capture_and_save_screenshot, create_artifacts_manifest
+from harness_utils.artifacts import (
+    capture_and_save_screenshot,
+    create_artifacts_manifest,
+)
+from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
-from harness_utils.output_logging import setup_logging
 
 logger = logging.getLogger(__name__)
 
@@ -246,9 +249,9 @@ def main():
         KeyError,
         TypeError,
         subprocess.SubprocessError,
-    ) as e:
+    ):
         logger.error("Error during benchmark!")
-        logger.exception(e)
+        logger.exception("Unhandled exception")
         sys.exit(1)
     finally:
         if chrome_proc is not None and chrome_proc.poll() is None:

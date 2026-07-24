@@ -6,7 +6,6 @@ import subprocess
 import time
 from datetime import timedelta
 from pathlib import Path
-from typing import List
 from zipfile import ZipFile
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
@@ -39,7 +38,7 @@ def get_conda_subprocess_env() -> dict[str, str]:
     return env
 
 
-def run_subprocess(command: List[str], cwd: Path | None = None) -> str:
+def run_subprocess(command: list[str], cwd: Path | None = None) -> str:
     """run a subprocess and surface stdout/stderr on failure"""
     try:
         completed = subprocess.run(
@@ -104,7 +103,7 @@ def install_miniconda() -> str:
         "powershell",
         "start-process",
         "-FilePath",
-        f'"{str(SCRIPT_DIRECTORY.joinpath(MINICONDA_INSTALLER))}"',
+        f'"{SCRIPT_DIRECTORY.joinpath(MINICONDA_INSTALLER)!s}"',
         "-ArgumentList",
         '"/S"',
         "-Wait",
@@ -148,8 +147,7 @@ def check_conda_environment_exists() -> bool:
     process = subprocess.run(
         command,
         env=get_conda_subprocess_env(),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         text=True,
         check=False,
     )
@@ -159,9 +157,7 @@ def check_conda_environment_exists() -> bool:
         if error_output:
             raise Exception(f"command failed: {command_string}\n{error_output}")
         raise Exception(f"command failed: {command_string}")
-    if process.returncode == 1:
-        return False
-    return True
+    return process.returncode != 1
 
 
 def remove_conda_environment() -> str:
@@ -195,7 +191,7 @@ def create_conda_environment() -> str:
     return "\n".join(line for line in output_lines if line)
 
 
-def run_conda_command(conda_cmd: List[str]) -> str:
+def run_conda_command(conda_cmd: list[str]) -> str:
     """run a command using the conda environment's interpreter"""
     command = [str(CONDA_ENV_PYTHON)] + conda_cmd
     output = run_subprocess(command, cwd=SCRIPT_DIRECTORY.joinpath(GODOT_DIR))

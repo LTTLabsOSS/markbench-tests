@@ -64,11 +64,9 @@ for i in range(5):
 end_time = current_time_ms()
 
 SCORE_SUM = 0
-core_count = 0
-for score in scores:
+for core_count, score in enumerate(scores):
     print(f"core {core_count} took {score} milliseconds")
     SCORE_SUM += score
-    core_count += 1
 avg_score = round(SCORE_SUM / len(scores), 2)
 
 report = {

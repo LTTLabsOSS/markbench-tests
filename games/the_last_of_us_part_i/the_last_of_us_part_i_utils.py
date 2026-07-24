@@ -1,11 +1,11 @@
 """Utility functions for The Last of Us Part I test script"""
 
 import ctypes
+import logging
 import os
 import re
 import shutil
 import sys
-import logging
 import time
 from pathlib import Path
 

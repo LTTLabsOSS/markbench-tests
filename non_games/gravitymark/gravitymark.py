@@ -62,7 +62,7 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
-except Exception as e:
+except Exception:
     logger.error("Something went wrong running the benchmark!")
-    logger.exception(e)
+    logger.exception("Unhandled exception")
     sys.exit(1)

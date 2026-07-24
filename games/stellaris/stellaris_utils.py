@@ -115,6 +115,6 @@ def copy_benchmarksave() -> None:
         delete_existing_saves()
         logger.info("Copying: %s -> %s", copy_destination, config_dest)
         shutil.copy(copy_destination, config_dest)
-    except OSError as err:
+    except OSError:
         logger.error("Could not copy benchmark save game.")
-        raise err
+        raise

@@ -11,28 +11,30 @@ def export_registry_key(hive, subkey, input_file):
         if not os.path.exists(input_file):
             with open(input_file, "w", encoding="utf-8") as file:
                 file.write("")
-        with winreg.OpenKey(hive, subkey) as reg_key:
-            with open(input_file, "w", encoding="utf-8") as reg_file:
-                reg_file.write("Windows Registry Editor Version 5.00\n\n")
-                reg_file.write(f"[{subkey}]\n")
-                try:
-                    index = 0
-                    while True:
-                        value_name, value_data, value_type = winreg.EnumValue(
-                            reg_key, index
-                        )
-                        if value_type == winreg.REG_DWORD:
-                            value_data = f"dword:{value_data:08x}"
-                        elif value_type == winreg.REG_SZ:
-                            value_data = f'"{value_data}"'
-                        elif value_type == winreg.REG_QWORD:
-                            value_data = f"qword:{value_data:0x16x}"
-                        else:
-                            value_data = f'"{value_data}"'
-                        reg_file.write(f'"{value_name}"={value_data}\n')
-                        index += 1
-                except OSError:
-                    pass
+        with (
+            winreg.OpenKey(hive, subkey) as reg_key,
+            open(input_file, "w", encoding="utf-8") as reg_file,
+        ):
+            reg_file.write("Windows Registry Editor Version 5.00\n\n")
+            reg_file.write(f"[{subkey}]\n")
+            try:
+                index = 0
+                while True:
+                    value_name, value_data, value_type = winreg.EnumValue(
+                        reg_key, index
+                    )
+                    if value_type == winreg.REG_DWORD:
+                        value_data = f"dword:{value_data:08x}"
+                    elif value_type == winreg.REG_SZ:
+                        value_data = f'"{value_data}"'
+                    elif value_type == winreg.REG_QWORD:
+                        value_data = f"qword:{value_data:0x16x}"
+                    else:
+                        value_data = f'"{value_data}"'
+                    reg_file.write(f'"{value_name}"={value_data}\n')
+                    index += 1
+            except OSError:
+                pass
     except OSError as e:
         print(f"Failed to open the registry key: {e}")
 

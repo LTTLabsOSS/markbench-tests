@@ -13,10 +13,10 @@ import psutil
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.paths import harness_directories
-from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
 from harness_utils.process import is_process_running
+from harness_utils.report import seconds_to_milliseconds, write_report_json
 
 logger = logging.getLogger(__name__)
 
@@ -146,7 +146,7 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except Exception as ex:
+    except Exception:
         logger.error("something went wrong running the benchmark!")
-        logger.exception(ex)
+        logger.exception("Unhandled exception")
         sys.exit(1)

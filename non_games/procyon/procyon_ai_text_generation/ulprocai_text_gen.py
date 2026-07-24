@@ -19,9 +19,9 @@ from ulprocai_text_gen_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
-from harness_utils.output_logging import setup_logging
 
 logger = logging.getLogger(__name__)
 
@@ -174,8 +174,8 @@ try:
     elapsed_test_time = round(end_time - start_time, 2)
 
     if (
-        not args.engine == "All_Models_OPENVINO"
-        and not args.engine == "All_Models_ONNX"
+        args.engine != "All_Models_OPENVINO"
+        and args.engine != "All_Models_ONNX"
     ):
         results_regex = BENCHMARK_CONFIG[args.engine]["result_regex"]
         score = regex_find_score_in_xml(results_regex)
@@ -237,7 +237,7 @@ try:
 
         write_report_json(LOG_DIRECTORY, "report.json", session_report)
 
-except Exception as e:
+except Exception:
     logger.error("Something went wrong running the benchmark!")
-    logger.exception(e)
+    logger.exception("Unhandled exception")
     sys.exit(1)

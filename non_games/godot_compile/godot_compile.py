@@ -87,7 +87,7 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except Exception as ex:
+    except Exception:
         logger.error("error running benchmark")
-        logger.exception(ex)
+        logger.exception("Unhandled exception")
         sys.exit(1)

@@ -61,11 +61,11 @@ def copy_save() -> None:
     # Validate/create path to directory where we will copy benchmark to
     try:
         Path(save_location).mkdir(parents=True, exist_ok=True)
-    except FileExistsError as e:
+    except FileExistsError:
         logger.error(
             "Could not copy files - likely due to non-directory file existing at path."
         )
-        raise e
+        raise
 
     # Copy the benchmark over
     logger.info("Copying benchmark to install folder")

@@ -19,9 +19,9 @@ from procyon_ai_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
-from harness_utils.output_logging import setup_logging
 from non_games.procyon.procyoncmd import (
     get_cuda_devices,
     get_openvino_devices,
@@ -146,7 +146,7 @@ def get_arguments():
 
 def create_procyon_command(test_option, process_name, device_id):
     """create command string"""
-    command = str()
+    command = ""
 
     if device_id == "CPU":
         command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}"'
@@ -229,7 +229,7 @@ try:
         "score": score,
     }
     write_report_json(LOG_DIRECTORY, "report.json", report)
-except Exception as e:
+except Exception:
     logger.error("Something went wrong running the benchmark!")
-    logger.exception(e)
+    logger.exception("Unhandled exception")
     sys.exit(1)

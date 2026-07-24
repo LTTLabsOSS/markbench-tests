@@ -29,12 +29,12 @@ def copy_rtss_profile(
     # Validate/create path to directory where we will copy profile to
     try:
         Path(rtss_profiles_directory).mkdir(parents=True, exist_ok=True)
-    except FileExistsError as err:
+    except FileExistsError:
         logger.error(
             "Could not create rtss profiles directory"
             + " - likely due to non-directory file existing at path."
         )
-        raise err
+        raise
 
     # Copy the profile over
     destination_file = os.path.join(

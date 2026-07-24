@@ -59,6 +59,6 @@ def copy_launcher_config() -> None:
 
         logger.info("Copying: %s -> %s", src_path, dest_path)
         shutil.copy(src_path, dest_path)
-    except OSError as err:
+    except OSError:
         logger.error("Could not copy config file.")
-        raise err
+        raise

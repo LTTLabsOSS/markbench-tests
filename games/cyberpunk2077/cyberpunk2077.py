@@ -10,14 +10,17 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from cyberpunk_utils import copy_no_intro_mod, read_current_resolution
 
-from harness_utils.artifacts import capture_and_save_screenshot, create_artifacts_manifest
-from harness_utils.paths import harness_directories
+from harness_utils.artifacts import (
+    capture_and_save_screenshot,
+    create_artifacts_manifest,
+)
 from harness_utils.input import mangohud_log_toggle, press_n_times, user
 from harness_utils.ocr_service import find_word
-from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
 from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
+from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.steam import exec_steam_game, get_build_id
 
 logger = logging.getLogger(__name__)
@@ -259,8 +262,8 @@ try:
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
     create_artifacts_manifest(ARTIFACTS_DIRECTORY)
-except Exception as e:
+except Exception:
     logger.error("Something went wrong running the benchmark!")
-    logger.exception(e)
+    logger.exception("Unhandled exception")
     terminate_process(PROCESS_NAME)
     sys.exit(1)

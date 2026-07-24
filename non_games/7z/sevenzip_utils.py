@@ -3,7 +3,6 @@
 import os
 import shutil
 
-
 NETWORK_SHARE = r"\\labs.lmg.gg\labs\01_Installers_Utilities\7ZIP"
 
 

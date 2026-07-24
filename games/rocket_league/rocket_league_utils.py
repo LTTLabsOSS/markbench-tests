@@ -50,9 +50,9 @@ def copy_replay() -> None:
         dest_path = REPLAY_LOCATION / replay_file
         logger.info("Copying: %s -> %s", src_path, dest_path)
         shutil.copy(src_path, dest_path)
-    except OSError as err:
+    except OSError:
         logger.error("Could not copy replay file")
-        raise err
+        raise
 
 
 def find_epic_executable() -> any:

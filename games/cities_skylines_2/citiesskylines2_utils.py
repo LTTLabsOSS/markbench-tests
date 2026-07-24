@@ -51,7 +51,7 @@ def copy_continuegame(config_files: list[str]) -> None:
             shutil.copy(src_path, dest_path)
         except OSError as err:
             logger.error("Could not copy save information files. %s", err)
-            raise err
+            raise
 
 
 def copy_launcherfiles(launcher_files: list[str]) -> None:
@@ -65,7 +65,7 @@ def copy_launcherfiles(launcher_files: list[str]) -> None:
             shutil.copy(src_path, dest_path)
         except OSError as err:
             logger.error("Could not copy launcher files %s", err)
-            raise err
+            raise
 
 
 def copy_launcherpath():
@@ -94,7 +94,7 @@ def copy_launcherpath():
         # os.chmod(dest_path, stat.S_IREAD)
     except OSError as err:
         logger.error("Could not copy the launcherpath file. %s", err)
-        raise err
+        raise
 
 
 def copy_benchmarksave(save_files: list[str]) -> None:
@@ -108,4 +108,4 @@ def copy_benchmarksave(save_files: list[str]) -> None:
             shutil.copy(src_path, dest_path)
         except OSError as err:
             logger.error("Could not copy the save game. %s", err)
-            raise err
+            raise

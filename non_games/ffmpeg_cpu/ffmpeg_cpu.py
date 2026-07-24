@@ -19,8 +19,8 @@ from ffmpeg_cpu_utils import (
     vmaf_supported,
 )
 
-from harness_utils.paths import harness_directories
 from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
 from harness_utils.report import write_report_json
 
 logger = logging.getLogger(__name__)
@@ -183,9 +183,9 @@ def main():
                 }
             )
         write_report_json(LOG_DIRECTORY, "report.json", report)
-    except Exception as e:
+    except Exception:
         logger.error("Something went wrong running the benchmark!")
-        logger.exception(e)
+        logger.exception("Unhandled exception")
         sys.exit(1)
 
 

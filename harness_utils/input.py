@@ -56,7 +56,7 @@ def _scale_linux_click_coordinates(x: int, y: int) -> tuple[int, int]:
 class _WindowsInputBackend:
     def __init__(self, controller: "KeyboardMouseDriver") -> None:
         self._pydirectinput = importlib.import_module("pydirectinput")
-        setattr(self._pydirectinput, "FAILSAFE", controller.FAILSAFE)
+        self._pydirectinput.FAILSAFE = controller.FAILSAFE
 
     def press(self, key: str) -> None:
         self._pydirectinput.press(key)

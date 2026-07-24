@@ -12,7 +12,6 @@ from pathlib import Path
 from zipfile import ZipFile
 
 import requests
-
 from win32api import HIWORD, LOWORD, GetFileVersionInfo
 
 logger = logging.getLogger(__name__)
@@ -118,7 +117,7 @@ def run_blender_render(
     """Execute the blender render of barbershop, returns the duration as string"""
     blend_log = log_directory.joinpath("blender.log")
     blend_path = SCRIPT_DIRECTORY.joinpath(benchmark.file_name)
-    cmd_line = f'"{str(executable_path)}" -b -E CYCLES -y "{str(blend_path)}" -f 1 -- --cycles-device {device} --cycles-print-stats'
+    cmd_line = f'"{executable_path!s}" -b -E CYCLES -y "{blend_path!s}" -f 1 -- --cycles-device {device} --cycles-print-stats'
     with open(blend_log, "w", encoding="utf-8") as f_obj:
         subprocess.run(cmd_line, stdout=f_obj, text=True, check=True)
 
@@ -129,9 +128,7 @@ def run_blender_render(
     with open(blend_log, "r", encoding="utf-8") as file:
         lines = file.readlines()
         lines.reverse()
-        count = 0
         for line in lines:
-            count += 1
             match = re.match(time_regex, line.strip())
             if match:
                 time = match.group(1)

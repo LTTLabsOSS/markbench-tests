@@ -22,10 +22,10 @@ from pugetbench_utils import (
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
-from harness_utils.paths import harness_directories
-from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
 from harness_utils.process import terminate_process
+from harness_utils.report import seconds_to_milliseconds, write_report_json
 
 logger = logging.getLogger(__name__)
 
@@ -275,17 +275,17 @@ def main():
     except RuntimeError as e:
         msg = str(e)
         logger.error("Something went wrong running the benchmark!")
-        logger.exception(e)
+        logger.exception("Unhandled exception")
 
         # Terminate the process only for "real" failures
         if "timed out" in msg or "Benchmark failed" in msg:
             safe_terminate([EXECUTABLE_NAME, APP_CONFIG[args.app]["app_name"]])
 
         sys.exit(1)
-    except Exception as e:
+    except Exception:
         # Non-runtime exceptions, e.g., coding errors, still exit
         logger.error("Unexpected error!")
-        logger.exception(e)
+        logger.exception("Unhandled exception")
         sys.exit(1)
 
 

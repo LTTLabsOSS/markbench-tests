@@ -1,32 +1,37 @@
 """Rainbow Six Siege test script"""
 
 import logging
-from pathlib import Path
-import time
 import sys
+import time
+from pathlib import Path
+
 import vgamepad as vg
 from r6siege_utils import (
-    read_current_resolution,
-    get_r6s_config_path,
     find_latest_result_file,
+    get_r6s_config_path,
+    read_current_resolution,
 )
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.process import terminate_process
+from harness_utils.artifacts import (
+    capture_and_save_screenshot,
+    copy_artifact,
+    create_artifacts_manifest,
+)
+from harness_utils.controllers import LTTGamePadDS4
 from harness_utils.input import user
-from harness_utils.output_logging import setup_logging
 from harness_utils.ocr_service import find_word
-from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, create_artifacts_manifest
+from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
+from harness_utils.process import terminate_process
 from harness_utils.report import (
     format_resolution,
     seconds_to_milliseconds,
     write_report_json,
 )
 from harness_utils.steam import exec_steam_game, get_build_id
-from harness_utils.controllers import LTTGamePadDS4
 
 logger = logging.getLogger(__name__)
 
@@ -204,8 +209,8 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except Exception as ex:
+    except Exception:
         logger.error("Something went wrong running the benchmark!")
-        logger.exception(ex)
+        logger.exception("Unhandled exception")
         terminate_process(PROCESS_NAME)
         sys.exit(1)

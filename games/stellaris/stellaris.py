@@ -18,12 +18,19 @@ from stellaris_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import capture_and_save_screenshot, create_artifacts_manifest
-from harness_utils.paths import harness_directories
+from harness_utils.artifacts import (
+    capture_and_save_screenshot,
+    create_artifacts_manifest,
+)
 from harness_utils.ocr_service import find_word
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
 from harness_utils.process import terminate_process
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.steam import get_app_install_location
 
 logger = logging.getLogger(__name__)
@@ -191,8 +198,8 @@ if __name__ == "__main__":
     try:
         setup_logging(LOG_DIRECTORY)
         main()
-    except Exception as ex:
+    except Exception:
         logger.error("Something went wrong running the benchmark!")
-        logger.exception(ex)
+        logger.exception("Unhandled exception")
         terminate_process(PROCESS_NAME)
         sys.exit(1)

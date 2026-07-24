@@ -19,9 +19,9 @@ from procyon_ai_img_gen_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
-from harness_utils.output_logging import setup_logging
 from non_games.procyon.procyoncmd import (
     get_cuda_devices,
     get_openvino_devices,
@@ -262,7 +262,7 @@ try:
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
-except Exception as e:
+except Exception:
     logger.error("Something went wrong running the benchmark!")
-    logger.exception(e)
+    logger.exception("Unhandled exception")
     sys.exit(1)

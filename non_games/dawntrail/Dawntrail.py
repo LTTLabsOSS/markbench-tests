@@ -1,17 +1,17 @@
 import logging
+import os
+import re
+import shutil
 import sys
 import time
-import os
-import shutil
-import re
 import zipfile
-import pygetwindow as gw
 from pathlib import Path
+
+import pygetwindow as gw
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.paths import harness_directories, network_drive_path
 from harness_utils.artifacts import (
     capture_and_save_screenshot,
     copy_artifact,
@@ -19,9 +19,10 @@ from harness_utils.artifacts import (
 )
 from harness_utils.input import user
 from harness_utils.ocr_service import find_word
-from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories, network_drive_path
 from harness_utils.process import terminate_process
+from harness_utils.report import seconds_to_milliseconds, write_report_json
 
 logger = logging.getLogger(__name__)
 
@@ -223,9 +224,9 @@ try:
     terminate_process(DX_PROCESS_NAME)
     terminate_process("Notepad.exe")
 
-except Exception as e:
+except Exception:
     logger.info("Something went wrong running the benchmark!")
-    logger.exception(e)
+    logger.exception("Unhandled exception")
     terminate_process(PROCESS_NAME)
     terminate_process(DX_PROCESS_NAME)
     sys.exit(1)

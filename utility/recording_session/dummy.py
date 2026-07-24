@@ -9,8 +9,8 @@ from pathlib import Path
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
+from harness_utils.report import seconds_to_milliseconds, write_report_json
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 start_time = time.time()
 try:
     s.bind((HOST, PORT))
-except socket.error as msg:
+except OSError as msg:
     logger.error("Bind failed %s", msg)
     sys.exit(1)
 

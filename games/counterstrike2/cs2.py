@@ -17,19 +17,19 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.paths import harness_directories
 from harness_utils.ocr_service import find_word
+from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
+from harness_utils.process import terminate_process
 from harness_utils.report import (
     format_resolution,
     seconds_to_milliseconds,
     write_report_json,
 )
-from harness_utils.output_logging import setup_logging
-from harness_utils.process import terminate_process
 from harness_utils.steam import (
     exec_steam_game,
-    get_build_id,
     get_active_steam_account_id,
+    get_build_id,
     get_steam_folder_path,
 )
 
@@ -293,9 +293,9 @@ if __name__ == "__main__":
     try:
         setup_logging(LOG_DIRECTORY)
         main()
-    except Exception as ex:
+    except Exception:
         logger.error("something went wrong running the benchmark!")
-        logger.exception(ex)
+        logger.exception("Unhandled exception")
         sys.exit(1)
     finally:
         terminate_process(PROCESS_NAME)

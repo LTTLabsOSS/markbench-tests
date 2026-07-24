@@ -1,7 +1,7 @@
 """Utility functions for Rainbow Six Siege X test script"""
+import configparser
 import os
 from pathlib import Path
-import configparser
 
 USERPROFILE = os.getenv("USERPROFILE")
 LOCALAPPDATA = os.getenv("LOCALAPPDATA")

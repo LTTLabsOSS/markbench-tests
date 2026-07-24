@@ -13,8 +13,8 @@ from cinebench_2024_utils import friendly_test_name, get_score
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
+from harness_utils.report import seconds_to_milliseconds, write_report_json
 
 logger = logging.getLogger(__name__)
 
@@ -107,7 +107,7 @@ try:
             session_report.append(report)
 
     write_report_json(LOG_DIRECTORY, "report.json", session_report)
-except Exception as e:
+except Exception:
     logger.error("Something went wrong running the benchmark!")
-    logger.exception(e)
+    logger.exception("Unhandled exception")
     sys.exit(1)

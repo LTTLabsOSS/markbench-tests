@@ -12,7 +12,11 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from doomdarkages_utils import copy_launcher_config
 
-from harness_utils.artifacts import capture_and_save_screenshot, copy_artifact, create_artifacts_manifest
+from harness_utils.artifacts import (
+    capture_and_save_screenshot,
+    copy_artifact,
+    create_artifacts_manifest,
+)
 from harness_utils.input import (
     mangohud_log_toggle,
     mouse_scroll_n_times,
@@ -20,15 +24,15 @@ from harness_utils.input import (
     user,
 )
 from harness_utils.ocr_service import find_word
+from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories, user_saved_games
+from harness_utils.platform import is_linux
+from harness_utils.process import terminate_process
 from harness_utils.report import (
     format_resolution,
     seconds_to_milliseconds,
     write_report_json,
 )
-from harness_utils.output_logging import setup_logging
-from harness_utils.paths import harness_directories, user_saved_games
-from harness_utils.platform import is_linux
-from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
 logger = logging.getLogger(__name__)
@@ -252,8 +256,8 @@ try:
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
     create_artifacts_manifest(ARTIFACTS_DIRECTORY)
-except Exception as e:
+except Exception:
     logger.error("Something went wrong running the benchmark!")
-    logger.exception(e)
+    logger.exception("Unhandled exception")
     terminate_process(PROCESS_NAME)
     sys.exit(1)
