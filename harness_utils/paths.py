@@ -14,10 +14,13 @@ PROTON_USERNAME = "steamuser"
 def harness_directories(
     script_file: str | os.PathLike,
 ) -> tuple[Path, Path, Path]:
-    """Return the script, run, and artifact directories for a harness."""
+    """Ensure run and artifact directories exist, then return all harness paths."""
     script_directory = Path(script_file).resolve().parent
     log_directory = script_directory / "run"
-    return script_directory, log_directory, log_directory / "artifacts"
+    log_directory.mkdir(parents=True, exist_ok=True)
+    artifacts_directory = log_directory / "artifacts"
+    artifacts_directory.mkdir(parents=True, exist_ok=True)
+    return script_directory, log_directory, artifacts_directory
 
 
 def _proton_user_dir(app_id: int | None) -> Path:
