@@ -20,6 +20,7 @@ from ulprocai_text_gen_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.artifacts import create_artifacts_manifest
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
@@ -235,6 +236,7 @@ try:
 
         write_report_json(LOG_DIRECTORY, "report.json", session_report)
 
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 except Exception:
     logger.error("Something went wrong running the benchmark!")
     logger.exception("Unhandled exception")

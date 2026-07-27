@@ -30,12 +30,11 @@ API = f"-{args.api}"
 
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 setup_logging(LOG_DIRECTORY)
-ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
 GRAVITYMARK_LOG_PATH = Path(
     "C:/Users", getpass.getuser(), ".GravityMark", "GravityMark.log"
 )
-IMAGE_PATH = ARTIFACTS_DIRECTORY / "results.png"
+IMAGE_PATH = LOG_DIRECTORY / "results.png"
 command = create_gravitymark_command(GRAVITYMARK_EXE, API, IMAGE_PATH)
 
 try:

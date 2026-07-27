@@ -44,7 +44,6 @@ def main():
     if args.device not in VALID_DEVICES:
         raise Exception(f"invalid device selection: {args.device}")
 
-    ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
     logger.info("The selected scene is %s", args.benchmark)
     benchmark = BENCHMARK_CONFIG[args.benchmark]
     download_scene(benchmark)
@@ -53,7 +52,7 @@ def main():
     logger.info("Starting benchmark!")
     start_time = time.time()
     score = run_blender_render(
-        executable_path, ARTIFACTS_DIRECTORY, args.device.upper(), benchmark
+        executable_path, LOG_DIRECTORY, args.device.upper(), benchmark
     )
     end_time = time.time()
     logger.info(

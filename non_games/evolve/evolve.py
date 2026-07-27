@@ -24,7 +24,7 @@ SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__fil
 EVOLVE_DIR = Path(r"C:\\Program Files (x86)\\Steam\\steamapps\\common\\Evolve")
 EXECUTABLE = "evolve.exe"
 EXECUTABLE_PATH = EVOLVE_DIR / EXECUTABLE
-RESULTS_FILE = ARTIFACTS_DIRECTORY / "evolve-results.csv"
+RESULTS_FILE = LOG_DIRECTORY / "evolve-results.csv"
 
 
 TRACE_MODES = ["inline", "pipeline", "work-graph"]
@@ -75,7 +75,6 @@ def launch_evolve(resolution, renderer, trace_mode, preset):
 def main():
     """a doc string"""
     setup_logging(LOG_DIRECTORY)
-    ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
     parser = ArgumentParser()
 
     parser.add_argument(

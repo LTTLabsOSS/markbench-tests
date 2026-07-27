@@ -55,7 +55,7 @@ BENCHMARK_CONFIG = {
     },
 }
 RESULTS_FILENAME = "myresults.xml"
-REPORT_PATH = ARTIFACTS_DIRECTORY / RESULTS_FILENAME
+REPORT_PATH = LOG_DIRECTORY / RESULTS_FILENAME
 
 
 def get_arguments():
@@ -108,7 +108,6 @@ def run_benchmark(process_name, command_to_run):
 def main():
     """Run the selected 3DMark benchmark."""
     setup_logging(LOG_DIRECTORY)
-    ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.benchmark]["config"]
     cmd = create_3dmark_command(option)

@@ -40,13 +40,12 @@ if args.preset not in avail_presets:
 
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 setup_logging(LOG_DIRECTORY)
-ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
 cmd = f"{INSTALL_DIR}\\{EXECUTABLE}"
 argstr = (
     f"-fullscreen 1 -mode default -api {args.api} -quality {args.preset} -iterations 1"
 )
-argstr += f" -log_txt {ARTIFACTS_DIRECTORY}\\log.txt"
+argstr += f" -log_txt {LOG_DIRECTORY}\\log.txt"
 
 logger.info(cmd)
 logger.info(argstr)
@@ -61,7 +60,7 @@ if EXIT_CODE > 0:
 
 SCORE = ""
 pattern = re.compile(r"Score: (\d+)")
-LOG_PATH = ARTIFACTS_DIRECTORY / "log.txt"
+LOG_PATH = LOG_DIRECTORY / "log.txt"
 with open(LOG_PATH, encoding="utf-8") as log:
     lines = log.readlines()
     for line in lines:

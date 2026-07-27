@@ -41,7 +41,6 @@ def match_tune(subject: str):
 def main():
     """Test script entrypoint"""
     setup_logging(LOG_DIRECTORY)
-    ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
 
     if not ycruncher_folder_exists():
         logger.info("Downloading ycruncher")
@@ -50,7 +49,7 @@ def main():
     # omit the first arg which is the script name
     logger.info(sys.argv[1:])
 
-    arg_string = ["skip-warnings", "bench", "1b", "-o", ARTIFACTS_DIRECTORY]
+    arg_string = ["skip-warnings", "bench", "1b", "-o", LOG_DIRECTORY]
 
     logger.info(arg_string)
     scores = []
@@ -66,7 +65,7 @@ def main():
                 sys.exit(exit_code)
 
         latest_file = max(
-            ARTIFACTS_DIRECTORY.glob("*.txt"), key=lambda item: item.stat().st_ctime
+            LOG_DIRECTORY.glob("*.txt"), key=lambda item: item.stat().st_ctime
         )
         logger.info(latest_file)
 
