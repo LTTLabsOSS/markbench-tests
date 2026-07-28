@@ -1,16 +1,10 @@
 """tiny tinas wonderlands test script"""
 
 import logging
+import re
 import sys
 import time
 from pathlib import Path
-
-import pydirectinput as user
-from tinytinaswonderland_utils import (
-    find_latest_result_file,
-    get_documents_path,
-    read_resolution,
-)
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -20,8 +14,9 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
+from harness_utils.input import mangohud_log_toggle, user
 from harness_utils.ocr_service import find_word
-from harness_utils.paths import harness_directories
+from harness_utils.paths import harness_directories, user_documents
 from harness_utils.process import terminate_process
 from harness_utils.report import (
     format_resolution,
@@ -39,7 +34,7 @@ EXECUTABLE = "Wonderlands.exe"
 user.FAILSAFE = False
 
 
-def start_game() -> any:
+def start_game():
     """start the game"""
     return exec_steam_game(STEAM_GAME_ID, game_params=["-nostartupmovies"])
 
@@ -59,6 +54,10 @@ def run_benchmark():
     options_present = find_word("options", interval=1, timeout=60)
     if options_present is None:
         raise ValueError("game did not load within time")
+
+    time.sleep(1)
+    mangohud_log_toggle()
+    time.sleep(1)
 
     logger.info("Saw the options! we are good to go!")
     user.press("down")
@@ -123,7 +122,38 @@ def run_benchmark():
 
 try:
     start_time, end_time = run_benchmark()
-    height, width = read_resolution()
+    documents_path = user_documents(STEAM_GAME_ID)
+    settings_path = (
+        documents_path
+        / "My Games"
+        / "Tiny Tina's Wonderlands"
+        / "Saved"
+        / "Config"
+        / "WindowsNoEditor"
+        / "GameUserSettings.ini"
+    )
+    benchmark_results_directory = (
+        documents_path
+        / "My Games"
+        / "Tiny Tina's Wonderlands"
+        / "Saved"
+        / "BenchmarkData"
+    )
+    height_pattern = re.compile(r"ResolutionSizeY=(\d+)")
+    width_pattern = re.compile(r"ResolutionSizeX=(\d+)")
+    height = width = 0
+    with settings_path.open(encoding="utf-8") as settings_file:
+        for line in settings_file:
+            height_match = height_pattern.match(line)
+            width_match = width_pattern.match(line)
+            if height_match is not None:
+                height = int(height_match.group(1))
+            if width_match is not None:
+                width = int(width_match.group(1))
+            if height > 0 and width > 0:
+                break
+    logger.info("Current resolution is %dx%d", width, height)
+
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
@@ -131,18 +161,17 @@ try:
         "version": get_build_id(STEAM_GAME_ID),
     }
 
-    my_documents_path = get_documents_path()
-    settings_path = Path(
-        my_documents_path,
-        r"My Games\Tiny Tina's Wonderlands\Saved\Config\WindowsNoEditor\GameUserSettings.ini",
-    )
     copy_artifact(settings_path, ARTIFACTS_DIRECTORY)
-    saved_results_dir = Path(
-        my_documents_path, r"My Games\Tiny Tina's Wonderlands\Saved\BenchmarkData"
+    result_pattern = re.compile(r"BenchmarkData.*\.txt", re.IGNORECASE)
+    benchmark_results = max(
+        (
+            path
+            for path in benchmark_results_directory.iterdir()
+            if result_pattern.search(path.name)
+        ),
+        key=lambda path: path.stat().st_mtime,
     )
-    benchmark_results = find_latest_result_file(str(saved_results_dir))
     copy_artifact(benchmark_results, ARTIFACTS_DIRECTORY)
-
 
     create_artifacts_manifest(ARTIFACTS_DIRECTORY)
     write_report_json(LOG_DIRECTORY, "report.json", report)

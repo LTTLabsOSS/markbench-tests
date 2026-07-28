@@ -14,7 +14,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import user
+from harness_utils.input import mangohud_log_toggle, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, user_documents
@@ -73,6 +73,12 @@ def run_benchmark():
     if find_word(word="press", timeout=80, interval=1) is None:
         logger.error("Game didn't load to start screen. Did the game load?")
         sys.exit(1)
+
+    time.sleep(1)
+    mangohud_log_toggle()
+    time.sleep(1)
+
+    user.move_mouse(0,0)
     user.click()
     logger.info("Game started. Entering main menu")
     time.sleep(4)

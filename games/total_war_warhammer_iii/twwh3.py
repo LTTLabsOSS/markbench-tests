@@ -15,7 +15,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import user
+from harness_utils.input import mangohud_log_toggle, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, roaming_appdata
@@ -96,6 +96,10 @@ def run_benchmark():
     if not result:
         logger.info("Did not see warnings. Did the game start?")
         sys.exit(1)
+
+    time.sleep(1)
+    mangohud_log_toggle()
+    time.sleep(1)
 
     skip_logo_screens()
     time.sleep(2)
