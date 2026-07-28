@@ -62,7 +62,7 @@ def read_current_resolution() -> tuple[int, int]:
 
 def start_game():
     """Start the game through Steam without the launcher."""
-    return exec_steam_game(STEAM_GAME_ID, game_params=["--skip-launcher"])
+    return exec_steam_game(STEAM_GAME_ID, game_params=["--launcher-skip"])
 
 
 def skip_logo_screens() -> None:
