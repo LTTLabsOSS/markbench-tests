@@ -42,6 +42,18 @@ def local_appdata(app_id: int | None = None) -> Path:
     raise RuntimeError("Local AppData lookup is only supported on Windows and Linux")
 
 
+def roaming_appdata(app_id: int | None = None) -> Path:
+    """Return the native or Proton Roaming AppData path."""
+    if is_windows():
+        path = os.getenv("APPDATA")
+        if not path:
+            raise RuntimeError("Missing environment variable: APPDATA")
+        return Path(path)
+    if is_linux():
+        return _proton_user_dir(app_id) / "AppData" / "Roaming"
+    raise RuntimeError("Roaming AppData lookup is only supported on Windows and Linux")
+
+
 def user_documents(app_id: int | None = None) -> Path:
     """Return the native or Proton user Documents path."""
     if is_windows():

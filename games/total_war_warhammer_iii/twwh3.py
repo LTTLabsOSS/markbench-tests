@@ -1,15 +1,11 @@
 """Total War: Warhammer III test script"""
 
 import logging
-import os
+import re
 import sys
 import time
 from argparse import ArgumentParser
 from pathlib import Path
-
-import pyautogui as gui
-import pydirectinput as user
-from twwh3_utils import read_current_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -19,36 +15,54 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
+from harness_utils.input import user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
-from harness_utils.paths import harness_directories
+from harness_utils.paths import harness_directories, roaming_appdata
 from harness_utils.process import terminate_process
 from harness_utils.report import (
     format_resolution,
     seconds_to_milliseconds,
     write_report_json,
 )
-from harness_utils.steam import get_app_install_location, get_build_id
+from harness_utils.steam import exec_steam_game, get_build_id
 
 logger = logging.getLogger(__name__)
 
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "Warhammer3.exe"
 STEAM_GAME_ID = 1142710
-
-APPDATA = os.getenv("APPDATA")
-CONFIG_LOCATION = f"{APPDATA}\\The Creative Assembly\\Warhammer3\\scripts"
-CONFIG_FILENAME = "preferences.script.txt"
-CONFIG_FULL_PATH = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
+CONFIG_FULL_PATH = (
+    roaming_appdata(STEAM_GAME_ID)
+    / "The Creative Assembly"
+    / "Warhammer3"
+    / "scripts"
+    / "preferences.script.txt"
+)
 
 user.FAILSAFE = False
 
 
+def read_current_resolution() -> tuple[int, int]:
+    """Read the configured game resolution."""
+    height_pattern = re.compile(r"y_res (\d+);")
+    width_pattern = re.compile(r"x_res (\d+);")
+    height_value = 0
+    width_value = 0
+    with open(CONFIG_FULL_PATH, encoding="utf-8") as file:
+        for line in file:
+            height_match = height_pattern.search(line)
+            width_match = width_pattern.search(line)
+            if height_match is not None:
+                height_value = int(height_match.group(1))
+            if width_match is not None:
+                width_value = int(width_match.group(1))
+    return height_value, width_value
+
+
 def start_game():
-    """Starts the game process"""
-    cmd_string = f'start /D "{get_app_install_location(STEAM_GAME_ID)}" {PROCESS_NAME}'
-    logger.info(cmd_string)
-    return os.system(cmd_string)
+    """Start the game through Steam without the launcher."""
+    return exec_steam_game(STEAM_GAME_ID, game_params=["--skip-launcher"])
 
 
 def skip_logo_screens() -> None:
@@ -91,11 +105,10 @@ def run_benchmark():
         logger.info("Did not find the options menu. Did the game skip the intros?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
-    gui.mouseDown()
+    user.click()
     time.sleep(0.2)
-    gui.mouseUp()
     time.sleep(2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "main.png")
@@ -105,11 +118,10 @@ def run_benchmark():
         logger.info("Did not find the advanced menu. Did the game skip the intros?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
-    gui.mouseDown()
+    user.click()
     time.sleep(0.2)
-    gui.mouseUp()
     time.sleep(0.5)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced.png")
@@ -119,16 +131,18 @@ def run_benchmark():
         logger.info("Did not find the benchmark menu. Did the game skip the intros?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
-    gui.mouseDown()
+    user.click()
     time.sleep(0.2)
-    gui.mouseUp()
     if args.benchmark != "battle":
         result = find_word("mirrors", timeout=10, interval=1)
-        gui.moveTo(result["x"], result["y"])
+        if not result:
+            logger.info("Did not find the Mirrors of Madness benchmark.")
+            sys.exit(1)
+        user.move_mouse(result["x"], result["y"])
         time.sleep(0.2)
-        gui.mouseDown()
+        user.click()
         time.sleep(0.2)
         time.sleep(2)
         user.press("enter")
@@ -164,7 +178,7 @@ def run_benchmark():
     time.sleep(5)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
-    copy_artifact(Path(CONFIG_FULL_PATH), ARTIFACTS_DIRECTORY)
+    copy_artifact(CONFIG_FULL_PATH, ARTIFACTS_DIRECTORY)
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
@@ -172,7 +186,6 @@ def run_benchmark():
 
     # Exit
     terminate_process(PROCESS_NAME)
-
 
     return test_start_time, test_end_time
 
