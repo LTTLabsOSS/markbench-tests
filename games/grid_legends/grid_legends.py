@@ -1,13 +1,10 @@
 """Grid Legends test script"""
 
 import logging
-import os
 import re
 import sys
 import time
 from pathlib import Path
-
-import pydirectinput as user
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -17,9 +14,10 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
+from harness_utils.input import user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
-from harness_utils.paths import harness_directories
+from harness_utils.paths import harness_directories, user_documents
 from harness_utils.process import terminate_process
 from harness_utils.report import (
     format_resolution,
@@ -34,17 +32,16 @@ SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__fil
 PROCESS_NAME = "gridlegends.exe"
 STEAM_GAME_ID = 1307710
 
-username = os.getlogin()
 CONFIG_PATH = (
-    f"C:\\Users\\{username}\\Documents\\My Games\\GRID Legends\\hardwaresettings"
+    user_documents(STEAM_GAME_ID) / "My Games" / "GRID Legends" / "hardwaresettings"
 )
 CONFIG_FILENAME = "hardware_settings_config.xml"
-CONFIG_FULL_PATH = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
+CONFIG_FULL_PATH = CONFIG_PATH / CONFIG_FILENAME
 
 user.FAILSAFE = False
 
 
-def get_resolution() -> tuple[int]:
+def get_resolution() -> tuple[int, int]:
     """Gets resolution width and height from local xml file created by game."""
     resolution = re.compile(r"<resolution width=\"(\d+)\" height=\"(\d+)\"")
     height = 0
@@ -55,9 +52,9 @@ def get_resolution() -> tuple[int]:
             height_match = resolution.search(line)
             width_match = resolution.search(line)
             if height_match is not None:
-                height = height_match.group(2)
+                height = int(height_match.group(2))
             if width_match is not None:
-                width = width_match.group(1)
+                width = int(width_match.group(1))
     return (height, width)
 
 
@@ -152,7 +149,6 @@ def run_benchmark():
 
     logger.info("Run completed. Closing game.")
     time.sleep(2)
-
 
     return test_start_time, test_end_time
 

@@ -27,9 +27,12 @@ _YDOTOOL_KEYS = {
     "esc": 1,
     "escape": 1,
     "f2": 60,
+    "f3": 61,
     "space": 57,
     "b": 48,
+    "e": 18,
     "q": 16,
+    "tab": 15,
     "x": 45,
     "3": 4,
 }
@@ -56,7 +59,7 @@ def _scale_linux_click_coordinates(x: int, y: int) -> tuple[int, int]:
 class _WindowsInputBackend:
     def __init__(self, controller: "KeyboardMouseDriver") -> None:
         self._pydirectinput = importlib.import_module("pydirectinput")
-        self._pydirectinput.FAILSAFE = controller.FAILSAFE
+        vars(self._pydirectinput)["FAILSAFE"] = controller.FAILSAFE
 
     def press(self, key: str) -> None:
         self._pydirectinput.press(key)

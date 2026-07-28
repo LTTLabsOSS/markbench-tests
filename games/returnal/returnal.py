@@ -1,13 +1,10 @@
 """Returnal test script"""
 
 import logging
-import os
+import re
 import sys
 import time
 from pathlib import Path
-
-import pydirectinput as user
-from returnal_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -18,10 +15,10 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.file_cleanup import remove_files
-from harness_utils.input import press_n_times
+from harness_utils.input import press_n_times, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
-from harness_utils.paths import harness_directories
+from harness_utils.paths import harness_directories, local_appdata
 from harness_utils.process import terminate_process
 from harness_utils.report import (
     format_resolution,
@@ -40,7 +37,7 @@ STEAM_GAME_ID = 1649240
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "Returnal-Win64-Shipping.exe"
 LOCAL_USER_SETTINGS = (
-    Path(os.getenv("LOCALAPPDATA"))
+    local_appdata(STEAM_GAME_ID)
     / "Returnal"
     / "Steam"
     / "Saved"
@@ -64,6 +61,26 @@ intro_videos = [
 ]
 
 
+def get_resolution(config_path: str) -> tuple[int, int]:
+    """Retrieve the resolution from the local configuration file."""
+    width_pattern = re.compile(r"ResolutionSizeX=(\d+)")
+    height_pattern = re.compile(r"ResolutionSizeY=(\d+)")
+    width = 0
+    height = 0
+
+    with open(config_path, encoding="utf-8") as file:
+        for line in file:
+            width_match = width_pattern.match(line)
+            height_match = height_pattern.match(line)
+
+            if width_match:
+                width = int(width_match.group(1))
+            if height_match:
+                height = int(height_match.group(1))
+
+    return height, width
+
+
 def check_vram_alert(attempts: int) -> bool:
     """Look for VRAM alert in menu"""
     logger.info("Checking for VRAM alert prompt")
@@ -81,9 +98,9 @@ def check_vram_alert(attempts: int) -> bool:
 
 def escape_vram_alert():
     """Navigate VRAM alert"""
-    user.keyDown("space")
+    user.key_down("space")
     time.sleep(4)
-    user.keyUp("space")
+    user.key_up("space")
 
 
 def navigate_options_menu() -> None:
@@ -95,12 +112,12 @@ def navigate_options_menu() -> None:
     time.sleep(0.2)
     user.press("q")
     time.sleep(0.2)
-    user.keyDown("tab")
+    user.key_down("tab")
     time.sleep(5)
-    user.keyUp("tab")
+    user.key_up("tab")
 
 
-def run_benchmark() -> tuple[float]:
+def run_benchmark() -> tuple[int, int]:
     """Run the benchmark"""
     logger.info("Removing intro videos")
     remove_files([str(path) for path in intro_videos])
@@ -176,9 +193,9 @@ def run_benchmark() -> tuple[float]:
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_3.png")
 
     # Launch the benchmark
-    user.keyDown("tab")
+    user.key_down("tab")
     time.sleep(5)
-    user.keyUp("tab")
+    user.key_up("tab")
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
@@ -217,7 +234,6 @@ def run_benchmark() -> tuple[float]:
     logger.info("Benchmark took %s seconds", elapsed_test_time)
 
     terminate_process(PROCESS_NAME)
-
 
     return test_start_time, test_end_time
 
