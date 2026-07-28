@@ -247,6 +247,7 @@ try:
     logging.info("Score was %s", score)
 
     write_report_json(str(LOG_DIR), "report.json", report)
+    time.sleep(60)
 
 except Exception as e:
     logging.error("Something went wrong running the benchmark!")
