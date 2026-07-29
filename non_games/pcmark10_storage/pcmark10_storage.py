@@ -6,6 +6,7 @@ import time
 import shutil
 from argparse import ArgumentParser
 from pathlib import Path
+import os
 import threading
 
 import psutil
@@ -43,12 +44,14 @@ BENCHMARK_CONFIG = {
         "process_name": "PCMark10-Storage.exe",
         "result_regex": r"<Pcm10StorageFullScore>(\d+)",
         "test_name": "full",
+        "reserve_gb": 200
     },
     "quick": {
         "config": str(CONFIG_DIR / "pcm10_storage_quick_default.pcmdef"),
         "process_name": "PCMark10-Storage.exe",
         "result_regex": r"<Pcm10StorageQuickScore>(\d+)",
         "test_name": "quick",
+        "reserve_gb": 20
     },
 }
 
@@ -70,8 +73,124 @@ def get_arguments():
         required=True,
         choices=BENCHMARK_CONFIG.keys(),
     )
+    parser.add_argument(
+            "--drive_prepare",
+            dest="drive_prepare",
+            default="no",
+            choices=["no", "25", "50", "80"],
+            help="Prepare the drive to the requested utilization.",
+        )
     argies = parser.parse_args()
     return argies
+
+def prepare_drive(drive_letter: str, fill_percent: str, test_type: str):
+    """
+    Prepare the drive by resizing a filler file so that after the benchmark
+    writes its temporary data, the drive reaches the requested utilization.
+
+    fill_percent:
+        no, 25, 50, 80
+
+    test_type:
+        full or quick
+    """
+
+    if fill_percent.lower() == "no":
+        logging.info("Drive preparation disabled.")
+        return
+
+    reserve_bytes = (
+    BENCHMARK_CONFIG[test_type]["reserve_gb"] * 1024**3
+    )
+
+    filler_path = Path(f"{drive_letter}\\pcmark_prepare.bin")
+
+    usage = shutil.disk_usage(f"{drive_letter}\\")
+    total = usage.total
+    free = usage.free
+
+    existing_filler = (
+        filler_path.stat().st_size
+        if filler_path.exists()
+        else 0
+    )
+
+    # Ignore the existing filler file when calculating current usage.
+    current_used = total - free - existing_filler
+
+    target_used = total * (int(fill_percent) / 100)
+
+    if current_used > target_used:
+        raise ValueError("Current used drive space exceeds target, please clear files or adjust test.")
+
+    desired_filler = int(target_used - reserve_bytes - current_used)
+
+    if desired_filler < 0:
+        desired_filler = 0
+
+    resize_filler_file(
+        filler_path,
+        desired_filler,
+        existing_filler,
+    )
+
+
+def resize_filler_file(path: Path, desired_size: int, current_size: int):
+    """
+    Grow or shrink the filler file as needed.
+    """
+
+    if desired_size == current_size:
+        logging.info(
+            "Drive already prepared (%.2f GB filler).",
+            current_size / 1024**3,
+        )
+        return
+
+    if desired_size == 0:
+        if path.exists():
+            logging.info("Removing filler file.")
+            path.unlink()
+        return
+
+    if current_size == 0:
+        logging.info(
+            "Creating %.2f GB filler file.",
+            desired_size / 1024**3,
+        )
+    elif desired_size > current_size:
+        logging.info(
+            "Increasing filler file by %.2f GB.",
+            (desired_size - current_size) / 1024**3,
+        )
+    else:
+        logging.info(
+            "Reducing filler file by %.2f GB.",
+            (current_size - desired_size) / 1024**3,
+        )
+
+    chunk_size = 1024 * 1024  # 1 MB
+    zero_chunk = b"\0" * chunk_size
+
+    mode = "r+b" if path.exists() else "wb"
+
+    with open(path, mode) as f:
+
+        if desired_size < current_size:
+            f.truncate(desired_size)
+            return
+
+        f.seek(current_size)
+
+        remaining = desired_size - current_size
+
+        while remaining > 0:
+            write_size = min(chunk_size, remaining)
+            f.write(zero_chunk[:write_size])
+            remaining -= write_size
+
+        f.flush()
+        os.fsync(f.fileno())
 
 def cleanup_pcmark():
     logging.info("Cleaning up lingering PCMark processes...")
@@ -199,6 +318,17 @@ try:
     option = BENCHMARK_CONFIG[args.test]["config"]
     cmd = create_pcmark10_command(letter,option)
     cleanup_pcmark()
+    logging.info(
+        "Preparing %s drive to %s%% utilization (%s test).",
+        letter,
+        args.drive_prepare,
+        args.test
+    )
+    prepare_drive(
+        letter,
+        args.drive_prepare,
+        args.test
+    )
     logging.info("Starting benchmark!")
     logging.info(cmd)
     time.sleep(7)

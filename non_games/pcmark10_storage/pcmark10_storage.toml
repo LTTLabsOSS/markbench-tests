@@ -15,3 +15,9 @@ name = "test"
 type = "select"
 tooltip = "Full requires 200GB free space, Quick requires 25GB"
 values = ["full","quick"]
+
+[[args]]
+name = "drive_prepare"
+type = "select"
+tooltip = "Adds a filler file to target a specific drive filled % size"
+values = ["No", "25", "50", "80"]
