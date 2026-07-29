@@ -1,13 +1,11 @@
 """The Last of Us Part I test script"""
 
 import logging
-import os
+import re
+import shutil
 import sys
 import time
 from pathlib import Path
-
-import pydirectinput as user
-from the_last_of_us_part_i_utils import copy_autosave, get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -16,16 +14,17 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import press_n_times
+from harness_utils.input import mangohud_log_toggle, press_n_times, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
-from harness_utils.paths import harness_directories
+from harness_utils.paths import harness_directories, user_saved_games
 from harness_utils.process import terminate_process
 from harness_utils.report import (
     format_resolution,
     seconds_to_milliseconds,
     write_report_json,
 )
+from harness_utils.screenshot import capture_screenshot_array
 from harness_utils.steam import (
     exec_steam_run_command,
     get_active_steam_account_id,
@@ -38,6 +37,69 @@ SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__fil
 PROCESS_NAME = "tlou-i.exe"
 
 user.FAILSAFE = False
+
+
+def read_resolution(config_path: Path) -> tuple[int, int]:
+    """Read the configured resolution, falling back to the native display size."""
+    window_mode_pattern = re.compile(r"WindowMode=(\d)")
+    with config_path.open(encoding="utf-8") as config_file:
+        window_mode_match = window_mode_pattern.search(config_file.readline())
+        if window_mode_match is None:
+            raise ValueError(f"WindowMode not found in {config_path}")
+
+        if int(window_mode_match.group(1)) == 1:
+            width_pattern = re.compile(r"BorderlessWidth=(\d+)")
+            height_pattern = re.compile(r"BorderlessHeight=(\d+)")
+        else:
+            width_pattern = re.compile(r"WindowWidth=(\d+)")
+            height_pattern = re.compile(r"WindowHeight=(\d+)")
+
+        width = 0
+        height = 0
+        for line in config_file:
+            width_match = width_pattern.search(line)
+            height_match = height_pattern.search(line)
+            if width_match is not None:
+                width = int(width_match.group(1))
+            if height_match is not None:
+                height = int(height_match.group(1))
+
+    if width == 0 or height == 0:
+        screenshot = capture_screenshot_array()
+        if screenshot is None:
+            raise RuntimeError("Could not determine the native display resolution")
+        native_height, native_width = screenshot.shape[:2]
+        if width == 0:
+            width = native_width
+        if height == 0:
+            height = native_height
+
+    return height, width
+
+
+def copy_autosave(steam_account_id: int) -> None:
+    """Replace the active user's autosave with the benchmark save."""
+    source = SCRIPT_DIRECTORY / "SAVEFILE0A"
+    save_data_directory = (
+        user_saved_games(STEAM_GAME_ID)
+        / "The Last of Us Part I"
+        / "users"
+        / str(steam_account_id)
+        / "SaveData"
+    )
+    destination = save_data_directory / source.name
+
+    if not source.exists():
+        raise FileNotFoundError(f"Source autosave folder not found: {source}")
+
+    save_data_directory.mkdir(parents=True, exist_ok=True)
+    if destination.exists():
+        shutil.rmtree(destination)
+        logger.info("Removing old save file")
+
+    time.sleep(10)
+    shutil.copytree(source, destination)
+    logger.info("Autosave copied from %s -> %s", source, destination)
 
 
 def take_screenshots() -> None:
@@ -165,7 +227,7 @@ def take_screenshots() -> None:
         sys.exit(1)
 
 
-def navigate_main_menu() -> None:
+def navigate_main_menu(steam_account_id: int) -> None:
     """Input to navigate main menu"""
     logger.info("Navigating main menu")
 
@@ -176,7 +238,7 @@ def navigate_main_menu() -> None:
     take_screenshots()
 
     # Copy the autosave here
-    copy_autosave()
+    copy_autosave(steam_account_id)
     time.sleep(5)
 
     # navigating to the load menu
@@ -207,7 +269,7 @@ def navigate_main_menu() -> None:
     time.sleep(0.5)
 
 
-def run_benchmark():
+def run_benchmark(steam_account_id: int):
     """Starts the benchmark"""
     exec_steam_run_command(STEAM_GAME_ID)
     setup_start_time = int(time.time())
@@ -218,9 +280,11 @@ def run_benchmark():
         logger.info("Did not see start screen")
         sys.exit(1)
 
-    # copy_autosave()
+    time.sleep(1)
+    mangohud_log_toggle()
+    time.sleep(1)
 
-    navigate_main_menu()
+    navigate_main_menu(steam_account_id)
 
     # press load save
     result = find_word("yes", timeout=10, interval=1)
@@ -272,17 +336,17 @@ def run_benchmark():
 setup_logging(LOG_DIRECTORY)
 
 try:
-    start_time, end_time = run_benchmark()
-    steam_id = get_active_steam_account_id()
+    steam_account_id = get_active_steam_account_id()
+    start_time, end_time = run_benchmark(steam_account_id)
     config_path = (
-        Path(os.environ["USERPROFILE"])
-        / "Saved Games"
+        user_saved_games(STEAM_GAME_ID)
         / "The Last of Us Part I"
         / "users"
-        / str(steam_id)
+        / str(steam_account_id)
         / "screeninfo.cfg"
     )
-    height, width = get_resolution(str(config_path))
+
+    height, width = read_resolution(config_path)
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),

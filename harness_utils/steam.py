@@ -101,12 +101,16 @@ def get_active_steam_account_id() -> int:
     """Returns the most recent Steam user's Steam3 account ID.
 
     Steam stores users as SteamID64 values in loginusers.vdf, while userdata folders
-    use the Steam3 account ID value. Falls back to Steam's ActiveUser registry value
-    if loginusers.vdf cannot be read.
+    use the Steam3 account ID value. On Windows, falls back to Steam's ActiveUser
+    registry value if loginusers.vdf cannot be read.
     """
     logger.debug("Resolving most recent Steam account ID")
+    if is_linux():
+        return _get_active_steam_account_id_from_login_users()
     if not is_windows():
-        raise RuntimeError("Steam active user lookup requires Windows")
+        raise RuntimeError(
+            "Steam active user lookup is only supported on Windows and Linux"
+        )
 
     try:
         return _get_active_steam_account_id_from_login_users()

@@ -18,7 +18,9 @@ LINUX_CLICK_TARGET_WIDTH = 1920
 LINUX_CLICK_TARGET_HEIGHT = 1080
 
 _YDOTOOL_KEYS = {
+    "a": 30,
     "altleft": 56,
+    "backspace": 14,
     "left": 105,
     "leftshift": 42,
     "right": 106,
@@ -33,7 +35,9 @@ _YDOTOOL_KEYS = {
     "b": 48,
     "e": 18,
     "q": 16,
+    "s": 31,
     "tab": 15,
+    "w": 17,
     "x": 45,
     "3": 4,
 }
