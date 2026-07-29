@@ -44,14 +44,14 @@ BENCHMARK_CONFIG = {
         "process_name": "PCMark10-Storage.exe",
         "result_regex": r"<Pcm10StorageFullScore>(\d+)",
         "test_name": "full",
-        "reserve_gb": 200
+        "reserve_gb": 80
     },
     "quick": {
         "config": str(CONFIG_DIR / "pcm10_storage_quick_default.pcmdef"),
         "process_name": "PCMark10-Storage.exe",
         "result_regex": r"<Pcm10StorageQuickScore>(\d+)",
         "test_name": "quick",
-        "reserve_gb": 20
+        "reserve_gb": 10
     },
 }
 

@@ -13,7 +13,7 @@ tooltip = "The drive letter without colon that you wish to test (Default is C)"
 [[args]]
 name = "test"
 type = "select"
-tooltip = "Full requires 200GB free space, Quick requires 25GB"
+tooltip = "Full requires 80GB free space, Quick requires 10GB"
 values = ["full","quick"]
 
 [[args]]
