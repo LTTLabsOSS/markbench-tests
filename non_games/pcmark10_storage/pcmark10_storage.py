@@ -44,14 +44,14 @@ BENCHMARK_CONFIG = {
         "process_name": "PCMark10-Storage.exe",
         "result_regex": r"<Pcm10StorageFullScore>(\d+)",
         "test_name": "full",
-        "reserve_gb": 80
+        "benchmark_gb": 80
     },
     "quick": {
         "config": str(CONFIG_DIR / "pcm10_storage_quick_default.pcmdef"),
         "process_name": "PCMark10-Storage.exe",
         "result_regex": r"<Pcm10StorageQuickScore>(\d+)",
         "test_name": "quick",
-        "reserve_gb": 10
+        "benchmark_gb": 10
     },
 }
 
@@ -100,7 +100,7 @@ def prepare_drive(drive_letter: str, fill_percent: str, test_type: str):
         return
 
     reserve_bytes = (
-    BENCHMARK_CONFIG[test_type]["reserve_gb"] * 1024**3
+    BENCHMARK_CONFIG[test_type]["benchmark_gb"] * 1024**3
     )
 
     filler_path = Path(f"{drive_letter}\\pcmark_prepare.bin")
@@ -116,12 +116,16 @@ def prepare_drive(drive_letter: str, fill_percent: str, test_type: str):
     )
 
     # Ignore the existing filler file when calculating current usage.
-    current_used = total - free - existing_filler
+    current_used = total - (free + existing_filler)
 
     target_used = total * (int(fill_percent) / 100)
 
     if current_used > target_used:
-        raise ValueError("Current used drive space exceeds target, please clear files or adjust test.")
+        raise ValueError(
+            f"Drive already contains {current_used / 1024**3:.2f} GB of real data, "
+            f"which exceeds the requested {fill_percent}% preparation target. "
+            "Remove files or select a higher preparation percentage."
+        )
 
     desired_filler = int(target_used - reserve_bytes - current_used)
 
@@ -190,7 +194,6 @@ def resize_filler_file(path: Path, desired_size: int, current_size: int):
             remaining -= write_size
 
         f.flush()
-        os.fsync(f.fileno())
 
 def cleanup_pcmark():
     logging.info("Cleaning up lingering PCMark processes...")
