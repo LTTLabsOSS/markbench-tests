@@ -4,7 +4,6 @@ import logging
 import shutil
 import sys
 import time
-from importlib import import_module
 from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
@@ -20,6 +19,7 @@ from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, network_drive_path, user_documents
 from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
+from harness_utils.registry import read_registry_value
 from harness_utils.report import (
     format_resolution,
     seconds_to_milliseconds,
@@ -29,7 +29,6 @@ from harness_utils.steam import (
     STEAMID64_ACCOUNT_ID_OFFSET,
     exec_steam_game,
     get_active_steam_account_id,
-    get_proton_prefix,
 )
 
 logger = logging.getLogger(__name__)
@@ -90,50 +89,17 @@ def get_current_resolution():
     Reads resolutions settings from registry
     """
     key_path = r"Software\Naughty Dog\The Last of Us Part II\Graphics"
-    fullscreen_width = read_registry_value(key_path, "FullscreenWidth")
-    fullscreen_height = read_registry_value(key_path, "FullscreenHeight")
+    fullscreen_width = read_registry_value(
+        key_path, "FullscreenWidth", steam_app_id=STEAM_GAME_ID
+    )
+    fullscreen_height = read_registry_value(
+        key_path, "FullscreenHeight", steam_app_id=STEAM_GAME_ID
+    )
 
-    return (fullscreen_width, fullscreen_height)
-
-
-def read_registry_value(key_path, value_name):
-    """
-    Reads value from registry
-        A helper function for get_current_resolution
-    """
-    if is_linux():
-        registry_path = get_proton_prefix(STEAM_GAME_ID) / "user.reg"
-        escaped_key_path = key_path.replace("\\", "\\\\")
-        section_prefix = f"[{escaped_key_path}]".casefold()
-        value_prefix = f'"{value_name}"=dword:'.casefold()
-        in_section = False
-
-        try:
-            with registry_path.open(encoding="utf-8") as registry_file:
-                for line in registry_file:
-                    line = line.strip()
-                    if line.startswith("["):
-                        in_section = line.casefold().startswith(section_prefix)
-                    elif in_section and line.casefold().startswith(value_prefix):
-                        return int(line.split(":", 1)[1], 16)
-        except OSError as e:
-            logger.error("Error reading registry value: %s", e)
-            return None
-
-        logger.error("Registry key not found: %s", value_name)
-        return None
-
-    winreg = import_module("winreg")
-    try:
-        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path) as key:
-            value, _ = winreg.QueryValueEx(key, value_name)
-            return value
-    except FileNotFoundError:
-        logger.error("Registry key not found: %s", value_name)
-        return None
-    except OSError as e:
-        logger.error("Error reading registry value: %s", e)
-        return None
+    return (
+        fullscreen_width if isinstance(fullscreen_width, int) else None,
+        fullscreen_height if isinstance(fullscreen_height, int) else None,
+    )
 
 
 def run_benchmark(local_savegame_path) -> tuple:
