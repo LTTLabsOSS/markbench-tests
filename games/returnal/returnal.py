@@ -19,6 +19,7 @@ from harness_utils.input import mangohud_log_toggle, press_n_times, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, local_appdata
+from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
 from harness_utils.report import (
     format_resolution,
@@ -131,14 +132,10 @@ def run_benchmark() -> tuple[int, int]:
     # Check if GPU has too little v ram and skip alert
     alert_found = check_vram_alert(7)
     if not alert_found:
-        result = find_word("locate", interval=5, timeout=50)
+        result = find_word("locate", interval=1, timeout=50)
         if not result:
             logger.info("Could not find prompt to open menu!")
             sys.exit(1)
-
-    time.sleep(1)
-    mangohud_log_toggle()
-    time.sleep(1)
 
     if alert_found:
         escape_vram_alert()
@@ -147,6 +144,10 @@ def run_benchmark() -> tuple[int, int]:
             logger.info("Could not find prompt to open menu!")
             sys.exit(1)
 
+    if is_linux():
+        time.sleep(1)
+        mangohud_log_toggle()
+        time.sleep(1)
     # Navigate to display menu
     user.press("esc")
     time.sleep(1)
