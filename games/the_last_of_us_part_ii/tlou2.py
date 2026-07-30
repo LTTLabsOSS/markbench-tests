@@ -1,11 +1,10 @@
 """The Last of Us Part I test script"""
 
-import getpass
 import logging
 import shutil
 import sys
 import time
-import winreg  # for accessing settings, including resolution, in the registry
+from importlib import import_module
 from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
@@ -15,10 +14,11 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import press_n_times, user
+from harness_utils.input import mangohud_log_toggle, press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
-from harness_utils.paths import harness_directories
+from harness_utils.paths import harness_directories, network_drive_path, user_documents
+from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
 from harness_utils.report import (
     format_resolution,
@@ -26,12 +26,14 @@ from harness_utils.report import (
     write_report_json,
 )
 from harness_utils.steam import (
-    exec_steam_run_command,
+    STEAMID64_ACCOUNT_ID_OFFSET,
+    exec_steam_game,
+    get_active_steam_account_id,
+    get_proton_prefix,
 )
 
 logger = logging.getLogger(__name__)
 
-USERNAME = getpass.getuser()
 STEAM_GAME_ID = 2531310
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "tlou-ii.exe"
@@ -39,15 +41,15 @@ PROCESS_NAME = "tlou-ii.exe"
 user.FAILSAFE = False
 
 
-def reset_savedata():
+def reset_savedata(local_savegame_path):
     """
     Deletes the savegame folder from the local directory and replaces it with a new one from the network drive.
     """
-    local_savegame_path = Path(
-        f"C:\\Users\\{USERNAME}\\Documents\\The Last of Us Part II\\76561199405246658\\savedata"
-    )  # make this global
-    network_savegame_path = Path(
-        r"\\labs.lmg.gg\Labs\03_ProcessingFiles\The Last of Us Part II\savedata"
+    network_savegame_path = (
+        network_drive_path()
+        / "03_ProcessingFiles"
+        / "The Last of Us Part II"
+        / "savedata"
     )
 
     # Delete the local savedata folder if it exists
@@ -69,13 +71,10 @@ def reset_savedata():
     # Check if the newly copied directory contains a folder called SAVEFILE0A
 
 
-def delete_autosave():
+def delete_autosave(local_savegame_path):
     """
     Deletes the autosave folder from the local directory if it exists.
     """
-    local_savegame_path = Path(
-        f"C:\\Users\\{USERNAME}\\Documents\\The Last of Us Part II\\76561199405246658\\savedata"
-    )
     savefile_path = (
         local_savegame_path / "SAVEFILE0A"
     )  # check for autosaved file, delete if exists
@@ -102,6 +101,29 @@ def read_registry_value(key_path, value_name):
     Reads value from registry
         A helper function for get_current_resolution
     """
+    if is_linux():
+        registry_path = get_proton_prefix(STEAM_GAME_ID) / "user.reg"
+        escaped_key_path = key_path.replace("\\", "\\\\")
+        section_prefix = f"[{escaped_key_path}]".casefold()
+        value_prefix = f'"{value_name}"=dword:'.casefold()
+        in_section = False
+
+        try:
+            with registry_path.open(encoding="utf-8") as registry_file:
+                for line in registry_file:
+                    line = line.strip()
+                    if line.startswith("["):
+                        in_section = line.casefold().startswith(section_prefix)
+                    elif in_section and line.casefold().startswith(value_prefix):
+                        return int(line.split(":", 1)[1], 16)
+        except OSError as e:
+            logger.error("Error reading registry value: %s", e)
+            return None
+
+        logger.error("Registry key not found: %s", value_name)
+        return None
+
+    winreg = import_module("winreg")
     try:
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path) as key:
             value, _ = winreg.QueryValueEx(key, value_name)
@@ -114,67 +136,52 @@ def read_registry_value(key_path, value_name):
         return None
 
 
-def run_benchmark() -> tuple:
+def run_benchmark(local_savegame_path) -> tuple:
     """Starts Game, Sets Settings, and Runs Benchmark"""
-    exec_steam_run_command(STEAM_GAME_ID)
+    exec_steam_game(STEAM_GAME_ID)
     setup_start_time = int(time.time())
 
-    if find_word("sony", timeout=60, interval=0.2) is None:
+    if find_word("sony", timeout=60, interval=0.5) is None:
         logger.error("Couldn't find 'sony'")
     else:
-        user.press("escape")
+        press("escape")
 
     if find_word("story", timeout=30, interval=1) is None:
         logger.error("Couldn't find main menu : 'story'")
         sys.exit(1)
-
-    press_n_times("down", 2)
+    if is_linux():
+        time.sleep(1)
+        mangohud_log_toggle()
+        time.sleep(1)
+    press("down*2")
 
     # navigate settings
     navigate_settings()
 
-    if find_word("story", timeout=30, interval=1) is None:
+    if find_word("story", timeout=5, interval=1) is None:
         logger.error("Couldn't find main menu the second time : 'story'")
         sys.exit(1)
 
-    press_n_times("up", 2)
+    press("up*2, space*2")
 
-    user.press("space")
-
-    time.sleep(0.3)
-
-    user.press("space")
-
-    if find_word("continue", timeout=5, interval=0.2) is None:
-        user.press("down")
+    if find_word("continue", timeout=5, interval=1) is None:
+        press("down")
     else:
-        press_n_times("down", 2)
+        press("down*2")
 
-    delete_autosave()
-
-    time.sleep(0.3)
-
-    user.press("space")
+    delete_autosave(local_savegame_path)
 
     time.sleep(0.3)
 
-    if find_word("autosave", timeout=5, interval=0.2) is None:
-        user.press("space")
+    press("space")
+
+    if find_word("autosave", timeout=5, interval=1) is None:
+        press("space")
 
     else:
-        user.press("up")
+        press("up, space")
 
-        time.sleep(0.3)
-
-        user.press("space")
-
-    time.sleep(0.3)
-
-    user.press("left")
-
-    time.sleep(0.3)
-
-    user.press("space")
+    press("left, space")
 
     setup_end_time = test_start_time = test_end_time = int(time.time())
 
@@ -183,18 +190,16 @@ def run_benchmark() -> tuple:
 
     # time of benchmark usually is 4:23 = 263 seconds
 
-    if find_word("man", timeout=100, interval=0.2) is not None:
+    if find_word("man", timeout=100) is not None:
         test_start_time = int(time.time()) - 14
         time.sleep(240)
-
     else:
         logger.error("couldn't find 'man'")
         time.sleep(150)
 
-    if find_word("rush", timeout=100, interval=0.2) is not None:
+    if find_word("rush", timeout=100) is not None:
         time.sleep(3)
         test_end_time = int(time.time())
-
     else:
         logger.error("couldn't find 'rush', marks end of benchmark")
         test_end_time = int(time.time())
@@ -212,7 +217,7 @@ def navigate_settings() -> None:
     Exits to main menu after taking screenshots.
     """
 
-    user.press("space")
+    press("space")
 
     if find_word("display", timeout=30, interval=1) is None:
         logger.error("Couldn't find display")
@@ -220,11 +225,7 @@ def navigate_settings() -> None:
 
     time.sleep(5)  # slow cards may miss the first down
 
-    press_n_times("down", 4)
-
-    user.press("space")
-
-    time.sleep(0.5)
+    press("down*4, space")
 
     if find_word("resolution", timeout=30, interval=1) is None:
         logger.error("Couldn't find resolution")
@@ -232,7 +233,7 @@ def navigate_settings() -> None:
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display1.png")
 
-    user.press("up")
+    press("up")
 
     if find_word("brightness", timeout=30, interval=1) is None:
         logger.error("Couldn't find brightness")
@@ -240,9 +241,7 @@ def navigate_settings() -> None:
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display2.png")
 
-    user.press("q")  # swaps to graphics settings
-
-    time.sleep(0.5)
+    press("q")  # swaps to graphics settings
 
     if find_word("preset", timeout=30, interval=1) is None:
         logger.error("Couldn't find preset")
@@ -250,7 +249,7 @@ def navigate_settings() -> None:
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
 
-    user.press("up")
+    press("up")
 
     if find_word("dirt", timeout=30, interval=1) is None:
         logger.error("Couldn't find dirt")
@@ -260,7 +259,7 @@ def navigate_settings() -> None:
         ARTIFACTS_DIRECTORY / "graphics3.png"
     )  # is at the bottom of the menu
 
-    press_n_times("up", 13)
+    press("up*13")
 
     if find_word("scattering", timeout=30, interval=1) is None:
         logger.error("Couldn't find scattering")
@@ -268,7 +267,7 @@ def navigate_settings() -> None:
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
 
-    press_n_times("escape", 2)
+    press("escape*2")
 
 
 def main():
@@ -276,9 +275,17 @@ def main():
     try:
         logger.info("Starting The Last of Us Part II benchmark")
 
-        reset_savedata()
+        steam_account_id = get_active_steam_account_id()
+        steam_id64 = steam_account_id + STEAMID64_ACCOUNT_ID_OFFSET
+        local_savegame_path = (
+            user_documents(STEAM_GAME_ID)
+            / "The Last of Us Part II"
+            / str(steam_id64)
+            / "savedata"
+        )
+        reset_savedata(local_savegame_path)
 
-        start_time, end_time = run_benchmark()
+        start_time, end_time = run_benchmark(local_savegame_path)
         width, height = get_current_resolution()
         if width is None or height is None:
             logger.error("Could not read resolution")
