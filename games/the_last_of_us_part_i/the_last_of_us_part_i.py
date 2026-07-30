@@ -27,7 +27,7 @@ from harness_utils.report import (
 )
 from harness_utils.screenshot import capture_screenshot_array
 from harness_utils.steam import (
-    exec_steam_run_command,
+    exec_steam_game,
     get_active_steam_account_id,
 )
 
@@ -268,7 +268,7 @@ def navigate_main_menu(steam_account_id: int) -> None:
 
 def run_benchmark(steam_account_id: int):
     """Starts the benchmark"""
-    exec_steam_run_command(STEAM_GAME_ID)
+    exec_steam_game(STEAM_GAME_ID)
     setup_start_time = int(time.time())
     time.sleep(30)
 
