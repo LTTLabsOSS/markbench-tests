@@ -202,7 +202,7 @@ class KeyboardMouseDriver:
 user = KeyboardMouseDriver()
 
 
-def press(sequence: str, pause: float = 0.3) -> None:
+def press(sequence: str, pause: float = 0.5) -> None:
     """Press keys described by a comma-separated sequence like ``up*2, down*3``."""
     logger.debug("input press sequence=%s", sequence)
     steps = [step.strip() for step in sequence.split(",")]
@@ -237,10 +237,9 @@ def press(sequence: str, pause: float = 0.3) -> None:
                 )
                 continue
 
-        for press_index in range(count):
+        for _ in range(count):
             user.press(key)
-            if press_index + 1 < count:
-                time.sleep(pause)
+            time.sleep(pause)
 
 
 def press_n_times(key: str, n: int, pause: float = 0.5) -> None:

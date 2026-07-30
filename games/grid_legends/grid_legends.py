@@ -14,7 +14,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mangohud_log_toggle, user
+from harness_utils.input import mangohud_log_toggle, press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, user_documents
@@ -80,12 +80,12 @@ def run_benchmark():
     if is_linux():
         mangohud_log_toggle()
     else:
-        user.move_mouse(0,0)
+        user.move_mouse(0, 0)
         user.click()
 
     logger.info("Game started. Entering main menu")
     time.sleep(4)
-    user.press("enter")
+    press("enter")
     time.sleep(2)
 
     # waiting about a minute for the main menu to appear
@@ -94,22 +94,14 @@ def run_benchmark():
         sys.exit(1)
 
     logger.info("Starting benchmark")
-    user.press("f3")
-    time.sleep(0.2)
-    user.press("right")
-    time.sleep(0.2)
-    user.press("right")
-    time.sleep(0.2)
-    user.press("enter")
-    time.sleep(0.2)
+    press("f3, right*2, enter")
 
     if find_word(word="basic", timeout=30, interval=0.1) is None:
         logger.error("Didn't basic video options. Did the menu navigate correctly?")
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "basic.png")
 
-    user.press("f3")
-    time.sleep(0.2)
+    press("f3")
 
     if find_word(word="benchmark", timeout=30, interval=0.1) is None:
         logger.error(
@@ -118,8 +110,7 @@ def run_benchmark():
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_1.png")
 
-    user.press("up")
-    time.sleep(0.2)
+    press("up")
 
     if find_word(word="shading", timeout=30, interval=0.1) is None:
         logger.error(
@@ -128,10 +119,7 @@ def run_benchmark():
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_2.png")
 
-    user.press("down")
-    time.sleep(0.2)
-    user.press("enter")
-    time.sleep(0.2)
+    press("down, enter")
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
