@@ -113,7 +113,7 @@ def take_screenshots() -> None:
     if not result:
         logger.info("Did not see main menu. Did something mess up?")
         sys.exit(1)
-    press_n_times("s", 2, 0.2)
+    press_n_times("s", 2,0.5)
     user.press("enter")
 
     result = find_word("display", interval=1, timeout=5)
@@ -122,7 +122,7 @@ def take_screenshots() -> None:
             "Did not see options menu (looking for display). Did something mess up?"
         )
         sys.exit(1)
-    press_n_times("s", 4, 0.2)
+    press_n_times("s", 4, 0.5)
     user.press("enter")
 
     # taking the display menu screenshots
@@ -131,14 +131,14 @@ def take_screenshots() -> None:
         logger.info("Did not see aspect ratio setting. Did something mess up?")
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video1.png")
-    press_n_times("s", 14, 0.2)
+    press_n_times("s", 14, 0.5)
 
     result = find_word("safezone", interval=1, timeout=5)
     if not result:
         logger.info("Did not see safezone scale setting. Did something mess up?")
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
-    press_n_times("s", 7, 0.2)
+    press_n_times("s", 7, 0.5)
 
     result = find_word("gore", interval=1, timeout=5)
     if not result:
@@ -163,7 +163,7 @@ def take_screenshots() -> None:
         logger.info("Did not see graphics preset setting. Did something mess up?")
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
-    press_n_times("s", 10, 0.2)
+    press_n_times("s", 10, 0.5)
 
     result = find_word("sampling", interval=1, timeout=5)
     if not result:
@@ -172,7 +172,7 @@ def take_screenshots() -> None:
         )
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
-    press_n_times("s", 7, 0.2)
+    press_n_times("s", 7, 0.5)
 
     result = find_word("point", interval=1, timeout=5)
     if not result:
@@ -181,7 +181,7 @@ def take_screenshots() -> None:
         )
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")
-    press_n_times("s", 8, 0.2)
+    press_n_times("s", 8, 0.5)
 
     result = find_word("tracing", interval=1, timeout=5)
     if not result:
@@ -190,7 +190,7 @@ def take_screenshots() -> None:
         )
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics4.png")
-    press_n_times("s", 7, 0.2)
+    press_n_times("s", 7, 0.5)
 
     result = find_word("scattering", interval=1, timeout=5)
     if not result:
@@ -199,14 +199,14 @@ def take_screenshots() -> None:
         )
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics5.png")
-    press_n_times("s", 6, 0.2)
+    press_n_times("s", 6, 0.5)
 
     result = find_word("bloom", interval=1, timeout=5)
     if not result:
         logger.info("Did not see bloom resolution setting. Did something mess up?")
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics6.png")
-    press_n_times("s", 6, 0.2)
+    press_n_times("s", 6, 0.5)
 
     result = find_word("ambient", interval=1, timeout=5)
     if not result:
@@ -218,7 +218,7 @@ def take_screenshots() -> None:
     time.sleep(0.5)
 
     # navigating back to main menu
-    press_n_times("backspace", 2, 0.2)
+    press_n_times("backspace", 2, 0.5)
 
     result = find_word("behind", interval=1, timeout=5)
     if not result:
@@ -239,7 +239,7 @@ def navigate_main_menu(steam_account_id: int) -> None:
     time.sleep(5)
 
     # navigating to the load menu
-    press_n_times("w", 2, 0.2)
+    press_n_times("w", 2, 0.5)
     user.press("space")
     time.sleep(0.5)
 
@@ -249,7 +249,7 @@ def navigate_main_menu(steam_account_id: int) -> None:
         sys.exit(1)
 
     # Press load game
-    press_n_times("s", 2, 0.2)
+    press_n_times("s", 2, 0.5)
     user.press("space")
     time.sleep(0.5)
 
