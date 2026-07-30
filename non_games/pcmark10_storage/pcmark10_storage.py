@@ -77,7 +77,7 @@ def get_arguments():
             "--drive_prepare",
             dest="drive_prepare",
             default="no",
-            choices=["no", "25", "50", "80"],
+            choices=["no", "25", "50", "75", "90"],
             help="Prepare the drive to the requested utilization.",
         )
     argies = parser.parse_args()
@@ -89,7 +89,7 @@ def prepare_drive(drive_letter: str, fill_percent: str, test_type: str):
     writes its temporary data, the drive reaches the requested utilization.
 
     fill_percent:
-        no, 25, 50, 80
+        no, 25, 50, 75, 90
 
     test_type:
         full or quick

@@ -20,4 +20,4 @@ values = ["full","quick"]
 name = "drive_prepare"
 type = "select"
 tooltip = "Adds a filler file to target a specific drive filled % size"
-values = ["No", "25", "50", "80"]
+values = ["No", "25", "50", "75", "90"]
