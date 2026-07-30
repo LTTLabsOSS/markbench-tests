@@ -18,6 +18,7 @@ from harness_utils.input import mangohud_log_toggle, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, user_documents
+from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
 from harness_utils.report import (
     format_resolution,
@@ -75,11 +76,13 @@ def run_benchmark():
         sys.exit(1)
 
     time.sleep(1)
-    mangohud_log_toggle()
-    time.sleep(1)
 
-    user.move_mouse(0,0)
-    user.click()
+    if is_linux():
+        mangohud_log_toggle()
+    else:
+        user.move_mouse(0,0)
+        user.click()
+
     logger.info("Game started. Entering main menu")
     time.sleep(4)
     user.press("enter")
