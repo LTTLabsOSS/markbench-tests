@@ -233,10 +233,6 @@ def navigate_main_menu(steam_account_id: int) -> None:
     """Input to navigate main menu"""
     logger.info("Navigating main menu")
 
-    # Enter TLOU menu
-    time.sleep(1)
-    user.press("space")
-    time.sleep(1)
     take_screenshots()
 
     # Copy the autosave here
@@ -282,11 +278,12 @@ def run_benchmark(steam_account_id: int):
         logger.info("Did not see start screen")
         sys.exit(1)
 
+    time.sleep(1)
     if is_linux():
-        time.sleep(1)
         mangohud_log_toggle()
-        time.sleep(1)
-
+    else:
+        user.press("enter")
+    time.sleep(1)
     navigate_main_menu(steam_account_id)
 
     # press load save
