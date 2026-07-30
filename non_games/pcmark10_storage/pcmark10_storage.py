@@ -95,61 +95,64 @@ def prepare_drive(drive_letter: str, fill_percent: str, test_type: str):
         full or quick
     """
 
-    if fill_percent.lower() == "no":
-        logging.info("Drive preparation disabled.")
-        return
-
-    reserve_bytes = (
-        BENCHMARK_CONFIG[test_type]["benchmark_gb"] * 1024**3
-    )
-
     filler_path = Path(f"{drive_letter}\\pcmark_prepare.bin")
 
-    usage = shutil.disk_usage(f"{drive_letter}\\")
-    total = usage.total
-    free = usage.free
-
-    existing_filler = (
-        filler_path.stat().st_size
-        if filler_path.exists()
-        else 0
-    )
-
-    # Ignore the existing filler file when calculating current usage.
-    current_used = total - (free + existing_filler)
-
-    target_used = total * (int(fill_percent) / 100)
-
-    if current_used > target_used:
-        raise ValueError(
-            f"Drive already contains {current_used / 1024**3:.2f} GB of real data, "
-            f"which exceeds the requested {fill_percent}% preparation target. "
-            "Remove files or select a higher preparation percentage."
+    if fill_percent.lower() != "no":
+        reserve_bytes = (
+            BENCHMARK_CONFIG[test_type]["benchmark_gb"] * 1024**3
         )
 
-    desired_filler = int(target_used - reserve_bytes - current_used)
+        usage = shutil.disk_usage(f"{drive_letter}\\")
+        total = usage.total
+        free = usage.free
 
-    if desired_filler < 0:
-        desired_filler = 0
-
-    changed = resize_filler_file(
-        filler_path,
-        desired_filler,
-        existing_filler,
-    )
-
-    if changed:
-        logging.info("Drive size has changed. Issuing TRIM.")
-
-        subprocess.run(
-            ["defrag", f"{drive_letter}:", "/L"],
-            check=True,
-            capture_output=True,
-            text=True,
+        existing_filler = (
+            filler_path.stat().st_size
+            if filler_path.exists()
+            else 0
         )
 
-        logging.info("Waiting 60 seconds for drive to settle.")
-        time.sleep(60)
+        current_used = total - (free + existing_filler)
+
+        target_used = total * (int(fill_percent) / 100)
+
+        if current_used > target_used:
+            raise ValueError(
+                f"Drive already contains {current_used / 1024**3:.2f} GB of real data, "
+                f"which exceeds the requested {fill_percent}% preparation target. "
+                "Remove files or select a higher preparation percentage."
+            )
+
+        desired_filler = int(
+            target_used - (reserve_bytes + current_used)
+        )
+
+        if desired_filler < 0:
+            desired_filler = 0
+
+        resize_filler_file(
+            filler_path,
+            desired_filler,
+            existing_filler,
+        )
+    else:
+        logging.info("Drive preparation disabled.")
+
+        if filler_path.exists():
+            logging.info("Filler file found. Removing existing filler file.")
+            filler_path.unlink()
+
+    logging.info("Issuing TRIM for consistency.")
+
+    subprocess.run(
+        ["defrag", f"{drive_letter}:", "/L"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    logging.info("Waiting 60 seconds for drive to settle.")
+    time.sleep(60)
 
 def resize_filler_file(path: Path, desired_size: int, current_size: int):
     """
@@ -161,14 +164,13 @@ def resize_filler_file(path: Path, desired_size: int, current_size: int):
             "Drive already prepared (%.2f GB filler).",
             current_size / 1024**3,
         )
-        return False
+        return
 
     if desired_size == 0:
         if path.exists():
             logging.info("Removing filler file.")
             path.unlink()
-            return True
-        return False
+        return
 
     if current_size == 0:
         logging.info(
@@ -195,7 +197,6 @@ def resize_filler_file(path: Path, desired_size: int, current_size: int):
 
         if desired_size < current_size:
             f.truncate(desired_size)
-            f.flush()
 
         else:
             f.seek(current_size)
@@ -207,8 +208,7 @@ def resize_filler_file(path: Path, desired_size: int, current_size: int):
                 f.write(zero_chunk[:write_size])
                 remaining -= write_size
 
-            f.flush()
-    return True
+        f.flush()
 
 def cleanup_pcmark():
     logging.info("Cleaning up lingering PCMark processes...")
