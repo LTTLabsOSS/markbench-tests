@@ -7,6 +7,8 @@ import sys
 import time
 from pathlib import Path
 
+from harness_utils.platform import is_linux
+
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
@@ -232,9 +234,9 @@ def navigate_main_menu(steam_account_id: int) -> None:
     logger.info("Navigating main menu")
 
     # Enter TLOU menu
-    time.sleep(5)
+    time.sleep(1)
     user.press("space")
-    time.sleep(0.5)
+    time.sleep(1)
     take_screenshots()
 
     # Copy the autosave here
@@ -280,9 +282,10 @@ def run_benchmark(steam_account_id: int):
         logger.info("Did not see start screen")
         sys.exit(1)
 
-    time.sleep(1)
-    mangohud_log_toggle()
-    time.sleep(1)
+    if is_linux():
+        time.sleep(1)
+        mangohud_log_toggle()
+        time.sleep(1)
 
     navigate_main_menu(steam_account_id)
 
