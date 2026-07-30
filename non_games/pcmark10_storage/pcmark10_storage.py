@@ -100,7 +100,7 @@ def prepare_drive(drive_letter: str, fill_percent: str, test_type: str):
         return
 
     reserve_bytes = (
-    BENCHMARK_CONFIG[test_type]["benchmark_gb"] * 1024**3
+        BENCHMARK_CONFIG[test_type]["benchmark_gb"] * 1024**3
     )
 
     filler_path = Path(f"{drive_letter}\\pcmark_prepare.bin")
@@ -132,12 +132,24 @@ def prepare_drive(drive_letter: str, fill_percent: str, test_type: str):
     if desired_filler < 0:
         desired_filler = 0
 
-    resize_filler_file(
+    changed = resize_filler_file(
         filler_path,
         desired_filler,
         existing_filler,
     )
 
+    if changed:
+        logging.info("Drive size has changed. Issuing TRIM.")
+
+        subprocess.run(
+            ["defrag", f"{drive_letter}:", "/L"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+        logging.info("Waiting 60 seconds for drive to settle.")
+        time.sleep(60)
 
 def resize_filler_file(path: Path, desired_size: int, current_size: int):
     """
@@ -149,13 +161,14 @@ def resize_filler_file(path: Path, desired_size: int, current_size: int):
             "Drive already prepared (%.2f GB filler).",
             current_size / 1024**3,
         )
-        return
+        return False
 
     if desired_size == 0:
         if path.exists():
             logging.info("Removing filler file.")
             path.unlink()
-        return
+            return True
+        return False
 
     if current_size == 0:
         logging.info(
@@ -182,18 +195,20 @@ def resize_filler_file(path: Path, desired_size: int, current_size: int):
 
         if desired_size < current_size:
             f.truncate(desired_size)
-            return
+            f.flush()
 
-        f.seek(current_size)
+        else:
+            f.seek(current_size)
 
-        remaining = desired_size - current_size
+            remaining = desired_size - current_size
 
-        while remaining > 0:
-            write_size = min(chunk_size, remaining)
-            f.write(zero_chunk[:write_size])
-            remaining -= write_size
+            while remaining > 0:
+                write_size = min(chunk_size, remaining)
+                f.write(zero_chunk[:write_size])
+                remaining -= write_size
 
-        f.flush()
+            f.flush()
+    return True
 
 def cleanup_pcmark():
     logging.info("Cleaning up lingering PCMark processes...")
