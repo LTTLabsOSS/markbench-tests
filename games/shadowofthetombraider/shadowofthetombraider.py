@@ -51,7 +51,7 @@ def run_benchmark():
         user.press("enter")
 
     # Check for if notification for services unavailable is up
-    if find_word(word="unavailable", timeout=30, interval=1):
+    if find_word(word="unavailable", timeout=10, interval=1):
         user.press("enter")
 
     if find_word(word="options", timeout=30, interval=1) is None:
