@@ -1,15 +1,14 @@
 """Shadow of the Tomb Raider test script"""
 
 import logging
-import os
 import sys
 import time
 from pathlib import Path
 
-from shadow_of_the_tomb_raider_utils import get_latest_file_report, get_resolution
-
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
+
+from shadow_of_the_tomb_raider_utils import get_latest_file_report, get_resolution
 
 from harness_utils.artifacts import (
     capture_and_save_screenshot,
@@ -19,7 +18,7 @@ from harness_utils.artifacts import (
 from harness_utils.input import user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
-from harness_utils.paths import harness_directories
+from harness_utils.paths import harness_directories, user_documents
 from harness_utils.process import terminate_process
 from harness_utils.report import (
     format_resolution,
@@ -115,9 +114,7 @@ def run_benchmark():
 
     result = find_word(word="tomb", timeout=10, interval=0.1)
     if result is None:
-        logger.error(
-            "Unable to find the loading screen. Using default end time value."
-        )
+        logger.error("Unable to find the loading screen. Using default end time value.")
     else:
         test_end_time = int(time.time())
 
@@ -133,13 +130,13 @@ def run_benchmark():
     logger.info("Benchmark took %f seconds", elapsed_test_time)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
 
-    username = os.getlogin()
-    game_document_dir = Path(
-        f"C:\\Users\\{username}\\Documents\\Shadow of the Tomb Raider"
-    )
+    game_document_dir = user_documents(STEAM_GAME_ID) / "Shadow of the Tomb Raider"
     game_log = game_document_dir.joinpath("Shadow of the Tomb Raider.log")
-    copy_artifact(Path(game_log), ARTIFACTS_DIRECTORY)
-    copy_artifact(get_latest_file_report(game_document_dir), ARTIFACTS_DIRECTORY)
+    copy_artifact(game_log, ARTIFACTS_DIRECTORY)
+    latest_report = get_latest_file_report(game_document_dir)
+    if latest_report is None:
+        raise FileNotFoundError("Could not find the benchmark report")
+    copy_artifact(latest_report, ARTIFACTS_DIRECTORY)
 
     terminate_process(PROCESS_NAME)
     height, width = get_resolution()
