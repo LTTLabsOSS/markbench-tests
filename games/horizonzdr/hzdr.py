@@ -1,13 +1,10 @@
 """Horizon Zero Dawn Remastered test script"""
 
 import logging
+import re
 import sys
 import time
-import winreg
 from pathlib import Path
-
-import pydirectinput as user
-from hzdr_utils import get_resolution, process_registry_file
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -18,10 +15,13 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.file_cleanup import remove_files
+from harness_utils.input import mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
+from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
+from harness_utils.registry import RegistryEntry, read_registry_key
 from harness_utils.report import (
     format_resolution,
     seconds_to_milliseconds,
@@ -41,12 +41,8 @@ PROCESS_NAME = "HorizonZeroDawnRemastered.exe"
 VIDEO_PATH = (
     get_steamapps_common_path() / "Horizon Zero Dawn Remastered" / "Movies" / "Mono"
 )
-INPUT_FILE = SCRIPT_DIRECTORY / "graphics.reg"
 CONFIG_FILE = SCRIPT_DIRECTORY / "graphics_config.txt"
-hive = winreg.HKEY_CURRENT_USER
-SUBKEY = r"SOFTWARE\\Guerrilla Games\\Horizon Zero Dawn Remastered\\Graphics"
-
-user.FAILSAFE = False
+SUBKEY = r"SOFTWARE\Guerrilla Games\Horizon Zero Dawn Remastered\Graphics"
 
 intro_videos = [
     VIDEO_PATH / "weaseltron_logo.bk2",
@@ -57,7 +53,50 @@ intro_videos = [
 ]
 
 
-def run_benchmark() -> tuple[float]:
+def process_registry_file(
+    registry_values: dict[str, RegistryEntry],
+    subkey: str,
+    config_file: str | Path,
+) -> None:
+    """Write registry values to a readable graphics configuration file."""
+    lines = ["Windows Registry Editor Version 5.00\n", "\n", f"[{subkey}]\n"]
+
+    for value_name, entry in registry_values.items():
+        if entry.kind == "dword":
+            value_data = str(entry.value)
+        elif entry.kind == "qword":
+            value_data = f"qword:{entry.value:016x}"
+        else:
+            escaped_value = str(entry.value).replace("\\", "\\\\").replace('"', '\\"')
+            value_data = f'"{escaped_value}"'
+        lines.append(f'"{value_name}"={value_data}\n')
+
+    with open(config_file, "w", encoding="utf-8") as file:
+        file.writelines(lines)
+
+
+def get_resolution(config_file: str | Path) -> tuple[int, int]:
+    """Retrieve the resolution from local configuration files."""
+    width_pattern = re.compile(r'"FullscreenWidth"=(\d+)')
+    height_pattern = re.compile(r'"FullscreenHeight"=(\d+)')
+    width = 0
+    height = 0
+
+    with open(config_file, encoding="utf-8") as file:
+        lines = file.readlines()
+        for line in lines:
+            width_match = width_pattern.match(line)
+            height_match = height_pattern.match(line)
+
+            if width_match:
+                width = int(width_match.group(1))
+            if height_match:
+                height = int(height_match.group(1))
+
+    return height, width
+
+
+def run_benchmark() -> tuple[int, int]:
     """Run the benchmark"""
     logger.info("Removing intro videos")
     remove_files([str(path) for path in intro_videos])
@@ -68,78 +107,57 @@ def run_benchmark() -> tuple[float]:
 
     time.sleep(10)
     # skip intro
-    user.press("esc")
+    press("esc")
     # Make sure the game started correctly
     if find_word(word="quit", timeout=30, interval=1) is None:
         logger.info("Could not find the main menu. Did the game load?")
         sys.exit(1)
 
+    if is_linux():
+        mangohud_log_toggle()
+
     # Navigate to options menu
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("enter")
-    time.sleep(0.5)
+    press("down*2, enter")
 
     if find_word(word="language", timeout=30, interval=1) is None:
         logger.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
-    user.press("e")
-    time.sleep(0.5)
+    press("e")
 
     # Verify that we have navigated to the display settings menu and take a screenshot
     if find_word(word="monitor", timeout=30, interval=1) is None:
         logger.info("Did not find the display settings menu. Did the menu get stuck?")
         sys.exit(1)
     # Check if its fullscreen only and not exclusive fullscreen
-    if find_word(word="exclusive", timeout=3) is None:
-        user.press("down")
-        user.press("right")
+    if find_word(word="exclusive", timeout=3, interval=0.5) is None:
+        press("down, right, up, r")
         # Resets focus to first position before applying settings
-        user.press("up")
-        user.press("r")
-        user.press("enter")
-        time.sleep(1)
-        user.press("enter")
+        press("enter", pause=1)
+        press("enter")
     # Checks frame rate setting, sometimes this can be incorrect even if it is set to exclusive fullscreen
-    if find_word(word="144", timeout=3) is None:
-        user.press("down")
+    if find_word(word="144", timeout=3, interval=0.5) is None:
+        press("down")
         # Sometimes when the screen refreshes if the setting is changed from fullscreen to exclusive, the cursor highlights on v-sync because technically it moves it to the center so the game picks that up as a focusing movement.
         # This checks if we are in the proper position by going down one and seeing if we can see 'generation' from frame generation, which should not be visible if we are in the correct focus location
         # Either position once known is routed to the correct position via this if/else statement
-        if find_word(word="generation", timeout=3):
-            user.press("up")
-            user.press("up")
+        if find_word(word="generation", timeout=3, interval=0.5):
+            press("up*2")
         else:
-            user.press("down")
-            user.press("down")
-            user.press("down")
-            user.press("down")
-            user.press("down")
-            user.press("right")
+            press("down*5, right")
         # This while loop is for the case when we switch to exclusive fullscreen from fullscreen, occasionally it will set to 30Hz, we want to get to 144Hz
-        # So we should be highlighted on refresh rate at this point, it will (if not 144) do the first user.input("right") then check for 144, if not present it will continue pressing right and checking after for 144
+        # So we should be highlighted on refresh rate at this point, it will (if not 144) do the first press("right") then check for 144, if not present it will continue pressing right and checking after for 144
         # This solves arbitrary steps to get to 144Hz, and sets us up if we want to alter that target hz setting we can just change the word variable below.
         # KNOWN LIMITATION  we can maybe pull the max refresh some other way if we care about whether the display is not 144Hz max, so as to handle all edge cases here.
-        while find_word(word="144", timeout=1) is None:
-            user.press("right")
+        while find_word(word="144", timeout=1, interval=0.5) is None:
+            press("right")
         # Apply Hz setting once it is correct, then go up one so the proper settings are in view for the screenshot
-        user.press("r")
-        user.press("enter")
-        time.sleep(1)
-        user.press("enter")
-        user.press("up")
-        user.press("up")
-        user.press("up")
-        user.press("up")
-        user.press("up")
-        user.press("up")
+        press("r")
+        press("enter", pause=1)
+        press("enter, up*6")
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display1.png")
 
-    user.press("up")
-    time.sleep(0.5)
+    press("up")
 
     if find_word(word="upscale", timeout=30, interval=1) is None:
         logger.info("Did not find the upscale settings. Did the menu not scroll?")
@@ -147,16 +165,14 @@ def run_benchmark() -> tuple[float]:
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display2.png")
 
     # Navigate to graphics menu
-    user.press("e")
-    time.sleep(0.5)
+    press("e")
 
     if find_word(word="preset", timeout=30, interval=1) is None:
         logger.info("Did not find the graphics settings menu. Did the menu get stuck?")
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
 
-    user.press("up")
-    time.sleep(0.5)
+    press("up")
 
     if find_word(word="sharpness", timeout=30, interval=1) is None:
         logger.info("Did not find the sharpness settings. Did the menu not scroll?")
@@ -164,9 +180,7 @@ def run_benchmark() -> tuple[float]:
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
 
     # Launch the benchmark
-    user.press("tab")
-    time.sleep(0.5)
-    user.press("enter")
+    press("tab, enter")
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
@@ -178,7 +192,7 @@ def run_benchmark() -> tuple[float]:
         )
         sys.exit(1)
 
-    user.press("enter")
+    press("enter")
 
     test_start_time = int(time.time())
 
@@ -186,7 +200,7 @@ def run_benchmark() -> tuple[float]:
     time.sleep(180)
 
     # Wait for results screen to display info
-    if find_word(word="results", timeout=20, interval=0.1) is None:
+    if find_word(word="results", timeout=20, interval=0.5) is None:
         logger.info(
             "Did not find the results screen. Did the game not finish the benchmark?"
         )
@@ -196,7 +210,8 @@ def run_benchmark() -> tuple[float]:
     # Give results screen time to fill out, then save screenshot and config file
     time.sleep(2)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
-    process_registry_file(hive, SUBKEY, str(INPUT_FILE), str(CONFIG_FILE))
+    registry_values = read_registry_key(SUBKEY, steam_app_id=STEAM_GAME_ID)
+    process_registry_file(registry_values, SUBKEY, CONFIG_FILE)
     copy_artifact(CONFIG_FILE, ARTIFACTS_DIRECTORY)
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
