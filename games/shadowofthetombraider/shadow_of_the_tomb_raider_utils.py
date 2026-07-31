@@ -22,13 +22,14 @@ def get_resolution() -> tuple[int, int]:
     return (height, width)
 
 
-def get_latest_file_report(directory: Path) -> Path | None:
-    """
-    get latest benchmark report from SOTTR documents directory
-    """
+def get_latest_file_report(directory: Path, modified_after: float) -> Path | None:
+    """Get the latest report created after the benchmark started."""
     files = [
         file
         for file in directory.iterdir()
-        if file.is_file() and file.suffix != ".log" and "frametimes" not in file.name
+        if file.is_file()
+        and file.suffix != ".log"
+        and "frametimes" not in file.name
+        and file.stat().st_mtime >= modified_after
     ]
     return max(files, key=lambda path: path.stat().st_mtime, default=None)

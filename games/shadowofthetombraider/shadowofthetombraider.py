@@ -98,6 +98,7 @@ def run_benchmark():
     user.press("right")
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics.png")
 
+    report_cutoff = time.time()
     user.press("r")
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
@@ -133,7 +134,7 @@ def run_benchmark():
     game_document_dir = user_documents(STEAM_GAME_ID) / "Shadow of the Tomb Raider"
     game_log = game_document_dir.joinpath("Shadow of the Tomb Raider.log")
     copy_artifact(game_log, ARTIFACTS_DIRECTORY)
-    latest_report = get_latest_file_report(game_document_dir)
+    latest_report = get_latest_file_report(game_document_dir, report_cutoff)
     if latest_report is None:
         raise FileNotFoundError("Could not find the benchmark report")
     copy_artifact(latest_report, ARTIFACTS_DIRECTORY)

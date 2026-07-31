@@ -23,7 +23,9 @@ LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 STEAM_GAME_ID = 507490
 CONFIG_FILENAME = "settings.ini"
 CONFIG_PATH = (
-    user_documents(STEAM_GAME_ID) / "My Games" / "Ashes of the Singularity - Escalation"
+    user_documents(STEAM_GAME_ID)
+    / ("my games" if sys.platform == "linux" else "My Games")
+    / "Ashes of the Singularity - Escalation"
 )
 EXE_PATH = get_app_install_location(STEAM_GAME_ID)
 
@@ -50,11 +52,8 @@ def read_current_resolution() -> tuple[int, int]:
 def delete_old_scores(file):
     """Deletes old score files based on a given pattern"""
     for thefile in CONFIG_PATH.glob(file):
-        try:
-            thefile.unlink()
-            logger.info("Deleted old score file: %s", thefile)
-        except Exception as e:
-            print(f"Error deleting file {thefile}: {e}")
+        thefile.unlink()
+        logger.info("Deleted old score file: %s", thefile)
 
 
 def find_score_in_log(score_name, file):

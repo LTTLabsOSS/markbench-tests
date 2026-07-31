@@ -35,7 +35,9 @@ logger = logging.getLogger(__name__)
 #####
 STEAM_GAME_ID = 507490
 CONFIG_PATH = (
-    user_documents(STEAM_GAME_ID) / "My Games" / "Ashes of the Singularity - Escalation"
+    user_documents(STEAM_GAME_ID)
+    / ("my games" if sys.platform == "linux" else "My Games")
+    / "Ashes of the Singularity - Escalation"
 )
 CONFIG_FILENAME = "settings.ini"
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
