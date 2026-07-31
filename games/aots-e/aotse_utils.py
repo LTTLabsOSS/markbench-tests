@@ -39,7 +39,11 @@ def read_current_resolution() -> tuple[int, int]:
         for line in lines:
             resolution_match = resolution_pattern.search(line)
             if resolution_match is not None:
-                width, height = map(int, resolution_match.groups())
+                try:
+                    width = int(resolution_match.group(1))
+                    height = int(resolution_match.group(2))
+                except ValueError:
+                    logger.warning("Ignoring invalid resolution: %s", line.strip())
     return width, height
 
 
@@ -109,9 +113,9 @@ def wait_for_benchmark_process(test_name, process_name, timeout=60):
 
 def replace_exe():
     """Replaces the Strange Brigade launcher exe with the Vulkan exe for immediate launching"""
-    launcher_exe = Path(EXE_PATH, "StardockLauncher.exe")
-    check_backup = launcher_exe.with_name("StardockLauncher_launcher.exe")
-    dx12_exe = launcher_exe.with_name("AshesEscalation_DX12.exe")
+    check_backup = EXE_PATH / "StardockLauncher_launcher.exe"
+    launcher_exe = EXE_PATH / "StardockLauncher.exe"
+    dx12_exe = EXE_PATH / "AshesEscalation_DX12.exe"
     if not check_backup.exists():
         launcher_exe.rename(check_backup)
         try:
@@ -121,7 +125,11 @@ def replace_exe():
             raise
         logger.info("Replacing launcher file in %s", EXE_PATH)
     elif not launcher_exe.exists():
-        shutil.copy(dx12_exe, launcher_exe)
+        try:
+            shutil.copy(dx12_exe, launcher_exe)
+        except OSError:
+            logger.exception("Could not replace launcher file in %s", EXE_PATH)
+            raise
         logger.info("Replacing launcher file in %s", EXE_PATH)
     else:
         logger.info("Launcher already replaced with DX12 exe.")
@@ -129,8 +137,8 @@ def replace_exe():
 
 def restore_exe():
     """Restores the launcher exe back to the original exe name to close the loop."""
-    launcher_exe = Path(EXE_PATH, "StardockLauncher.exe")
-    check_backup = launcher_exe.with_name("StardockLauncher_launcher.exe")
+    check_backup = EXE_PATH / "StardockLauncher_launcher.exe"
+    launcher_exe = EXE_PATH / "StardockLauncher.exe"
     if not check_backup.exists():
         logger.info("Launcher already restored or file does not exist.")
     elif not launcher_exe.exists():
