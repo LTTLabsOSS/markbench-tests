@@ -1,7 +1,6 @@
 """Horizon Zero Dawn Remastered test script"""
 
 import logging
-import re
 import sys
 import time
 from pathlib import Path
@@ -21,7 +20,7 @@ from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
 from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
-from harness_utils.registry import RegistryEntry, read_registry_key
+from harness_utils.registry import RegistryEntry, read_registry_key, read_registry_value
 from harness_utils.report import (
     format_resolution,
     seconds_to_milliseconds,
@@ -73,27 +72,6 @@ def process_registry_file(
 
     with open(config_file, "w", encoding="utf-8") as file:
         file.writelines(lines)
-
-
-def get_resolution(config_file: str | Path) -> tuple[int, int]:
-    """Retrieve the resolution from local configuration files."""
-    width_pattern = re.compile(r'"FullscreenWidth"=(\d+)')
-    height_pattern = re.compile(r'"FullscreenHeight"=(\d+)')
-    width = 0
-    height = 0
-
-    with open(config_file, encoding="utf-8") as file:
-        lines = file.readlines()
-        for line in lines:
-            width_match = width_pattern.match(line)
-            height_match = height_pattern.match(line)
-
-            if width_match:
-                width = int(width_match.group(1))
-            if height_match:
-                height = int(height_match.group(1))
-
-    return height, width
 
 
 def run_benchmark() -> tuple[int, int]:
@@ -227,7 +205,11 @@ setup_logging(LOG_DIRECTORY)
 
 try:
     start_time, end_time = run_benchmark()
-    height, width = get_resolution(str(CONFIG_FILE))
+    width = read_registry_value(SUBKEY, "FullscreenWidth", steam_app_id=STEAM_GAME_ID)
+    height = read_registry_value(SUBKEY, "FullscreenHeight", steam_app_id=STEAM_GAME_ID)
+    if not isinstance(width, int) or not isinstance(height, int):
+        raise TypeError("Could not read resolution from the registry")
+
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
