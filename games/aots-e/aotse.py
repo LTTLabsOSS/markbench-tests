@@ -1,6 +1,5 @@
 """Ashes of the Singularity: Escalation test script"""
 
-import getpass
 import logging
 import sys
 import time
@@ -21,7 +20,7 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.artifacts import copy_artifact, create_artifacts_manifest
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
-from harness_utils.paths import harness_directories
+from harness_utils.paths import harness_directories, user_documents
 from harness_utils.report import (
     format_resolution,
     seconds_to_milliseconds,
@@ -34,12 +33,11 @@ logger = logging.getLogger(__name__)
 #####
 ### Globals
 #####
-USERNAME = getpass.getuser()
-CONFIG_PATH = Path(
-    f"C:\\Users\\{USERNAME}\\Documents\\My Games\\Ashes of the Singularity - Escalation"
+STEAM_GAME_ID = 507490
+CONFIG_PATH = (
+    user_documents(STEAM_GAME_ID) / "My Games" / "Ashes of the Singularity - Escalation"
 )
 CONFIG_FILENAME = "settings.ini"
-STEAM_GAME_ID = 507490
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 EXECUTABLE = "StardockLauncher.exe"
 CONFIG_DIR = SCRIPT_DIRECTORY / "config"
@@ -57,7 +55,7 @@ BENCHMARK_CONFIG = {
         "test_name": "Ashes of the Singularity: Escalation CPU Benchmark",
     },
 }
-CFG = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
+CFG = CONFIG_PATH / CONFIG_FILENAME
 
 
 def start_game():
@@ -111,12 +109,12 @@ setup_logging(LOG_DIRECTORY)
 
 parser = ArgumentParser()
 parser.add_argument(
-        "--benchmark",
-        dest="benchmark",
-        help="Benchmark test type",
-        required=True,
-        choices=BENCHMARK_CONFIG.keys(),
-    )
+    "--benchmark",
+    dest="benchmark",
+    help="Benchmark test type",
+    required=True,
+    choices=BENCHMARK_CONFIG.keys(),
+)
 args, unknown = parser.parse_known_args()
 try:
     logger.info("Starting benchmark!")
@@ -149,7 +147,6 @@ try:
         "end_time": seconds_to_milliseconds(end_time),
         "version": get_build_id(STEAM_GAME_ID),
     }
-
 
     create_artifacts_manifest(ARTIFACTS_DIRECTORY)
     write_report_json(LOG_DIRECTORY, "report.json", report)
