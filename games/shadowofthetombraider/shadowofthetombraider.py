@@ -8,18 +8,18 @@ from pathlib import Path
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from shadow_of_the_tomb_raider_utils import get_latest_file_report, get_resolution
-
 from harness_utils.artifacts import (
     capture_and_save_screenshot,
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import user
+from harness_utils.input import mangohud_log_toggle, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, user_documents
+from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
+from harness_utils.registry import read_registry_value
 from harness_utils.report import (
     format_resolution,
     seconds_to_milliseconds,
@@ -31,8 +31,32 @@ logger = logging.getLogger(__name__)
 
 STEAM_GAME_ID = 750920
 PROCESS_NAME = "SOTTR.exe"
+REGISTRY_PATH = r"SOFTWARE\Eidos Montreal\Shadow of the Tomb Raider\Graphics"
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 user.FAILSAFE = False
+
+
+def get_resolution() -> tuple[int, int]:
+    """Get resolution from the registry."""
+    width = read_registry_value(
+        REGISTRY_PATH, "FullscreenWidth", steam_app_id=STEAM_GAME_ID
+    )
+    height = read_registry_value(
+        REGISTRY_PATH, "FullscreenHeight", steam_app_id=STEAM_GAME_ID
+    )
+    if not isinstance(width, int) or not isinstance(height, int):
+        raise TypeError("Could not read resolution from the registry")
+    return height, width
+
+
+def get_latest_file_report(directory: Path) -> Path | None:
+    """Get the latest benchmark report."""
+    files = [
+        file
+        for file in directory.iterdir()
+        if file.is_file() and file.suffix != ".log" and "frametimes" not in file.name
+    ]
+    return max(files, key=lambda path: path.stat().st_mtime, default=None)
 
 
 def start_game():
@@ -53,6 +77,9 @@ def run_benchmark():
     # Check for if notification for services unavailable is up
     if find_word(word="unavailable", timeout=10, interval=1):
         user.press("enter")
+
+    if is_linux():
+        mangohud_log_toggle()
 
     if find_word(word="options", timeout=30, interval=1) is None:
         logger.info("Did not find the options menu. Did the game launch correctly?")
