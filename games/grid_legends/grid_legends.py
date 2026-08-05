@@ -59,16 +59,11 @@ def get_resolution() -> tuple[int, int]:
     return (height, width)
 
 
-def start_game():
-    """Launch the game"""
-    return exec_steam_game(STEAM_GAME_ID)
-
-
 def run_benchmark():
     """Run Grid Legends benchmark"""
     setup_start_time = int(time.time())
-    start_game()
 
+    exec_steam_game(STEAM_GAME_ID)
     time.sleep(20)  # wait for game to load to the start screen
 
     if find_word(word="press", timeout=80, interval=1) is None:
