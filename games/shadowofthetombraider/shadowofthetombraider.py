@@ -125,7 +125,7 @@ def run_benchmark():
 
     test_end_time = int(time.time())
 
-    result = find_word(word="tomb", timeout=40)
+    result = find_word(word="tomb", timeout=40, interval=0.5)
     if result is None:
         logger.error("Unable to find the loading screen. Using default end time value.")
     else:
