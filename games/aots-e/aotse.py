@@ -18,9 +18,11 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.artifacts import copy_artifact, create_artifacts_manifest
+from harness_utils.input import mangohud_log_toggle
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, user_documents
+from harness_utils.platform import is_linux
 from harness_utils.report import (
     format_resolution,
     seconds_to_milliseconds,
@@ -79,6 +81,9 @@ def run_benchmark():
     if not result:
         logger.info("Did not see the benchmark starting.")
         sys.exit(1)
+
+    if is_linux():
+        mangohud_log_toggle()
 
     # Start the benchmark!
     setup_end_time = time.time()
