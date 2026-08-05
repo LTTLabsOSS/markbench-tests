@@ -15,7 +15,7 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.file_cleanup import remove_files
-from harness_utils.input import mangohud_log_toggle, press_n_times, user
+from harness_utils.input import mangohud_log_toggle, press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, local_appdata
@@ -107,12 +107,7 @@ def escape_vram_alert():
 def navigate_options_menu() -> None:
     """Simulate inputs to navigate to options menu"""
     logger.info("Navigating to options menu")
-    user.press("esc")
-    time.sleep(0.2)
-    user.press("enter")
-    time.sleep(0.2)
-    user.press("q")
-    time.sleep(0.2)
+    press("esc, enter, q")
     user.key_down("tab")
     time.sleep(5)
     user.key_up("tab")
@@ -149,14 +144,7 @@ def run_benchmark() -> tuple[int, int]:
         mangohud_log_toggle()
         time.sleep(1)
     # Navigate to display menu
-    user.press("esc")
-    time.sleep(1)
-    user.press("enter")
-    time.sleep(1)
-    user.press("q")
-    time.sleep(1)
-    user.press("q")
-    time.sleep(1)
+    press("esc, enter, q*2", pause=1)
 
     # Verify that we have navigated to the video settings menu and take a screenshot
     if find_word(word="aspect", timeout=30, interval=1) is None:
@@ -165,8 +153,7 @@ def run_benchmark() -> tuple[int, int]:
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
 
     # Navigate to graphics menu
-    user.press("e")
-    time.sleep(1)
+    press("e", pause=1)
 
     if find_word(word="vsync", timeout=30, interval=1) is None:
         logger.info("Did not find the graphics settings menu. Did the menu get stuck?")
@@ -177,11 +164,11 @@ def run_benchmark() -> tuple[int, int]:
     if find_word(word="sharpness", timeout=10, interval=1) is None:
         logger.info("No DLSS Settings Detected")
         # Scroll down graphics menu
-        press_n_times("down", 15, 0.2)
+        press("down*15")
     else:
         logger.info("DLSS Settings Detected")
         # Scroll down graphics menu
-        press_n_times("down", 17, 0.2)
+        press("down*17")
 
     if find_word(word="volumetric", timeout=30, interval=1) is None:
         logger.info(
@@ -191,7 +178,7 @@ def run_benchmark() -> tuple[int, int]:
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
 
     # Scroll down graphics menu
-    press_n_times("down", 15, 0.2)
+    press("down*15")
 
     if find_word(word="hdr", timeout=30, interval=1) is None:
         logger.info(

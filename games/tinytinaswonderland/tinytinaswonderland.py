@@ -14,7 +14,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mangohud_log_toggle, user
+from harness_utils.input import mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.paths import harness_directories, user_documents
 from harness_utils.process import terminate_process
@@ -30,8 +30,6 @@ logger = logging.getLogger(__name__)
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 STEAM_GAME_ID = 1286680
 EXECUTABLE = "Wonderlands.exe"
-
-user.FAILSAFE = False
 
 
 def start_game():
@@ -60,12 +58,8 @@ def run_benchmark():
     time.sleep(1)
 
     logger.info("Saw the options! we are good to go!")
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("enter")
-    time.sleep(4)
+    press("down*2")
+    press("enter", pause=4)
 
     visuals = find_word("visuals", interval=1, timeout=10)
     if visuals is None:
@@ -73,29 +67,23 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
 
-    user.press("altleft")
-    time.sleep(0.5)
+    press("altleft")
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
     time.sleep(1)
 
-    for _ in range(18):
-        user.press("down")
-        time.sleep(0.5)
+    press("down*18")
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_3.png")
 
-    user.press("altleft")
-    time.sleep(0.5)
+    press("altleft")
 
     benchmark = find_word("benchmark", interval=1, timeout=10)
     if benchmark is None:
         raise ValueError("could not find benchmark button")
 
-    user.press("down")
-    time.sleep(0.5)
-    user.press("enter")
-    time.sleep(1)
+    press("down")
+    press("enter", pause=1)
 
     t2 = int(time.time())
     duration = round((t2 - t1), 2)

@@ -13,7 +13,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mangohud_log_toggle, user
+from harness_utils.input import mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, user_documents
@@ -33,7 +33,6 @@ STEAM_GAME_ID = 750920
 PROCESS_NAME = "SOTTR.exe"
 REGISTRY_PATH = r"SOFTWARE\Eidos Montreal\Shadow of the Tomb Raider\Graphics"
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
-user.FAILSAFE = False
 
 
 def get_resolution() -> tuple[int, int]:
@@ -72,11 +71,11 @@ def run_benchmark():
 
     # Check for if no display adapter warning is up
     if find_word(word="adapter", timeout=30, interval=1):
-        user.press("enter")
+        press("enter")
 
     # Check for if notification for services unavailable is up
     if find_word(word="unavailable", timeout=10, interval=1):
-        user.press("enter")
+        press("enter")
 
     if is_linux():
         mangohud_log_toggle()
@@ -87,14 +86,8 @@ def run_benchmark():
 
     logger.info("found options")
 
-    user.press("up")
-    time.sleep(0.5)
-    user.press("up")
-    time.sleep(0.5)
-    user.press("up")
-    time.sleep(0.5)
-    user.press("enter")
-    time.sleep(1)
+    press("up*3")
+    press("enter", pause=1)
 
     if find_word(word="graphics", timeout=30, interval=1) is None:
         logger.info("Did not find the graphics menu. Did the menu get stuck?")
@@ -103,14 +96,8 @@ def run_benchmark():
     logger.info("found graphics")
     # wait for menu to fully move
     time.sleep(1)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("enter")
-    time.sleep(4)
+    press("down*3")
+    press("enter", pause=4)
 
     if find_word(word="benchmark", timeout=30, interval=1) is None:
         logger.info(
@@ -120,12 +107,11 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
 
-    user.press("up")
-    time.sleep(0.5)
-    user.press("right")
+    press("up")
+    press("right")
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics.png")
 
-    user.press("r")
+    press("r")
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
 

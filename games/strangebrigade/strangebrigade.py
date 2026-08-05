@@ -1,15 +1,12 @@
 """Strange Brigade test script"""
 
 import logging
-import os
+import re
+import shutil
 import sys
 import time
 from argparse import ArgumentParser
 from pathlib import Path
-
-import pyautogui as gui
-import pydirectinput as user
-from strangebrigade_utils import read_current_resolution, replace_exe, restore_exe
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -20,21 +17,18 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.file_cleanup import remove_files
-from harness_utils.input import press_n_times
+from harness_utils.input import mangohud_log_toggle, press_n_times, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
-from harness_utils.paths import harness_directories
+from harness_utils.paths import harness_directories, local_appdata
+from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
 from harness_utils.report import (
     format_resolution,
     seconds_to_milliseconds,
     write_report_json,
 )
-from harness_utils.steam import (
-    exec_steam_run_command,
-    get_app_install_location,
-    get_build_id,
-)
+from harness_utils.steam import exec_steam_game, get_app_install_location, get_build_id
 
 logger = logging.getLogger(__name__)
 
@@ -42,16 +36,71 @@ SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__fil
 PROCESS_NAME = "StrangeBrigade.exe"
 STEAM_GAME_ID = 312670
 CAPTURE_PATH = SCRIPT_DIRECTORY / "capture"
-LOCALAPPDATA = os.getenv("LOCALAPPDATA")
-CONFIG_LOCATION = f"{LOCALAPPDATA}\\Strange Brigade"
+CONFIG_LOCATION = local_appdata(STEAM_GAME_ID) / "Strange Brigade"
 CONFIG_FILENAME = "GraphicsOptions.ini"
-CONFIG_FULL_PATH = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
-EXE_PATH = get_app_install_location(STEAM_GAME_ID) / "bin"
-VIDEO_PATH = get_app_install_location(STEAM_GAME_ID) / "FMV"
-
-user.FAILSAFE = False
+CONFIG_FULL_PATH = CONFIG_LOCATION / CONFIG_FILENAME
+GAME_PATH = get_app_install_location(STEAM_GAME_ID)
+EXE_PATH = GAME_PATH / "bin"
+VIDEO_PATH = GAME_PATH / "FMV"
 
 intro_videos = [VIDEO_PATH / "rebellion.webm"]
+
+
+def read_current_resolution() -> tuple[int, int]:
+    """Read the current resolution from the game config."""
+    width_pattern = re.compile(r"Resolution_Width = (\d+);")
+    height_pattern = re.compile(r"Resolution_Height = (\d+);")
+    width = 0
+    height = 0
+    with CONFIG_FULL_PATH.open(encoding="utf-8") as file:
+        for line in file:
+            width_match = width_pattern.search(line)
+            height_match = height_pattern.search(line)
+            if width_match is not None:
+                width = int(width_match.group(1))
+            if height_match is not None:
+                height = int(height_match.group(1))
+    return width, height
+
+
+def replace_exe(render_engine):
+    """Replace the launcher with the selected renderer executable."""
+    check_backup = EXE_PATH / "StrangeBrigade_launcher.exe"
+    launcher_exe = EXE_PATH / "StrangeBrigade.exe"
+
+    if render_engine == "vulkan":
+        engine_exe = EXE_PATH / "StrangeBrigade_Vulkan.exe"
+    elif render_engine == "dx12":
+        engine_exe = EXE_PATH / "StrangeBrigade_DX12.exe"
+    else:
+        raise ValueError(f"Unsupported render engine: {render_engine}")
+
+    staged_exe = EXE_PATH / "StrangeBrigade_harness.exe"
+    shutil.copy(engine_exe, staged_exe)
+
+    if not check_backup.exists():
+        staged_backup = EXE_PATH / "StrangeBrigade_launcher_harness.exe"
+        try:
+            shutil.copy(launcher_exe, staged_backup)
+        except OSError:
+            staged_backup.unlink(missing_ok=True)
+            raise
+        staged_backup.replace(check_backup)
+
+    staged_exe.replace(launcher_exe)
+    logger.info("Launcher replaced with %s", engine_exe.name)
+
+
+def restore_exe():
+    """Restore the original launcher executable."""
+    check_backup = EXE_PATH / "StrangeBrigade_launcher.exe"
+    launcher_exe = EXE_PATH / "StrangeBrigade.exe"
+    if not check_backup.exists():
+        logger.info("No launcher backup found.")
+        return
+
+    check_backup.replace(launcher_exe)
+    logger.info("Original launcher restored.")
 
 
 def run_benchmark(render_engine):
@@ -59,7 +108,7 @@ def run_benchmark(render_engine):
     logger.info(intro_videos)
     remove_files([str(path) for path in intro_videos])
     replace_exe(render_engine)
-    exec_steam_run_command(STEAM_GAME_ID)
+    exec_steam_game(STEAM_GAME_ID)
     setup_start_time = int(time.time())
     time.sleep(30)
 
@@ -67,6 +116,9 @@ def run_benchmark(render_engine):
     if not result:
         logger.info("Did not find the options menu. Did the game launch?")
         sys.exit(1)
+
+    if is_linux():
+        mangohud_log_toggle()
 
     press_n_times("down", 5, 0.2)
     user.press("left")
@@ -78,7 +130,7 @@ def run_benchmark(render_engine):
         logger.info("Did not find the display menu. Did OCR navigate correctly?")
         sys.exit(1)
 
-    gui.press("pgdn")
+    user.press("pgdn")
 
     result = find_word("customise", timeout=10, vulkan=True)
     if not result:
@@ -120,7 +172,7 @@ def run_benchmark(render_engine):
     time.sleep(5)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png", vulkan=True)
-    copy_artifact(Path(CONFIG_FULL_PATH), ARTIFACTS_DIRECTORY)
+    copy_artifact(CONFIG_FULL_PATH, ARTIFACTS_DIRECTORY)
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
@@ -140,7 +192,7 @@ parser = ArgumentParser()
 parser.add_argument(
     "-s",
     "--render_engine",
-    choices=["vulkan","dx12"],
+    choices=["vulkan", "dx12"],
     help="Render Engine",
     required=True,
 )
