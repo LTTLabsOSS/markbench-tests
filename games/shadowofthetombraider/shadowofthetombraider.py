@@ -129,17 +129,17 @@ def run_benchmark():
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
 
-    if find_word(word="fps", timeout=60, interval=0.5) is None:
+    if find_word(word="fps", timeout=60) is None:
         logger.info("Did not find the FPS counter. Did the benchmark crash?")
         sys.exit(1)
     test_start_time = int(time.time())
 
     # Wait for benchmark to complete
-    time.sleep(180)
+    time.sleep(150)
 
     test_end_time = int(time.time())
 
-    result = find_word(word="tomb", timeout=10, interval=0.1)
+    result = find_word(word="tomb", timeout=30)
     if result is None:
         logger.error("Unable to find the loading screen. Using default end time value.")
     else:
