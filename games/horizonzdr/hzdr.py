@@ -109,9 +109,9 @@ def run_benchmark() -> tuple[int, int]:
         sys.exit(1)
     # Check if its fullscreen only and not exclusive fullscreen
     if find_word(word="exclusive", timeout=3, interval=0.5) is None:
-        press("down, right, up, r")
         # Resets focus to first position before applying settings
-        press("enter", pause=1)
+        press("down, right, up, r, enter")
+        time.sleep(1)
         press("enter")
     # Checks frame rate setting, sometimes this can be incorrect even if it is set to exclusive fullscreen
     if find_word(word="144", timeout=3, interval=0.5) is None:
@@ -130,8 +130,8 @@ def run_benchmark() -> tuple[int, int]:
         while find_word(word="144", timeout=1, interval=0.5) is None:
             press("right")
         # Apply Hz setting once it is correct, then go up one so the proper settings are in view for the screenshot
-        press("r")
-        press("enter", pause=1)
+        press("r, enter")
+        time.sleep(1)
         press("enter, up*6")
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display1.png")
 

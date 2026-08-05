@@ -58,8 +58,8 @@ def run_benchmark():
     time.sleep(1)
 
     logger.info("Saw the options! we are good to go!")
-    press("down*2")
-    press("enter", pause=4)
+    press("down*2, enter")
+    time.sleep(4)
 
     visuals = find_word("visuals", interval=1, timeout=10)
     if visuals is None:
@@ -82,8 +82,7 @@ def run_benchmark():
     if benchmark is None:
         raise ValueError("could not find benchmark button")
 
-    press("down")
-    press("enter", pause=1)
+    press("down, enter")
 
     t2 = int(time.time())
     duration = round((t2 - t1), 2)

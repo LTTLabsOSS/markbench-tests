@@ -153,7 +153,7 @@ def run_benchmark() -> tuple[int, int]:
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
 
     # Navigate to graphics menu
-    press("e", pause=1)
+    press("e")
 
     if find_word(word="vsync", timeout=30, interval=1) is None:
         logger.info("Did not find the graphics settings menu. Did the menu get stuck?")

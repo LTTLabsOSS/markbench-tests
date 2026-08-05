@@ -86,8 +86,7 @@ def run_benchmark():
 
     logger.info("found options")
 
-    press("up*3")
-    press("enter", pause=1)
+    press("up*3, enter")
 
     if find_word(word="graphics", timeout=30, interval=1) is None:
         logger.info("Did not find the graphics menu. Did the menu get stuck?")
@@ -96,8 +95,8 @@ def run_benchmark():
     logger.info("found graphics")
     # wait for menu to fully move
     time.sleep(1)
-    press("down*3")
-    press("enter", pause=4)
+    press("down*3, enter")
+    time.sleep(4)
 
     if find_word(word="benchmark", timeout=30, interval=1) is None:
         logger.info(
@@ -107,8 +106,7 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
 
-    press("up")
-    press("right")
+    press("up, right")
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics.png")
 
     press("r")
