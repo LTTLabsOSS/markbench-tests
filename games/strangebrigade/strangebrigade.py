@@ -127,7 +127,7 @@ def run_benchmark(render_engine):
         logger.info("Did not find the display menu. Did OCR navigate correctly?")
         sys.exit(1)
 
-    press("pgdn")
+    press("pagedown")
 
     result = find_word("customise", timeout=10, vulkan=True)
     if not result:
@@ -182,8 +182,6 @@ def run_benchmark(render_engine):
     return test_start_time, test_end_time
 
 
-
-
 def main():
     setup_logging(LOG_DIRECTORY)
 
@@ -216,6 +214,7 @@ def main():
         sys.exit(1)
     finally:
         restore_exe()
+
 
 if __name__ == "__main__":
     try:

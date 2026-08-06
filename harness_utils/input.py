@@ -23,7 +23,7 @@ _YDOTOOL_KEYS = {
     "backspace": 14,
     "left": 105,
     "leftshift": 42,
-    "pgdn": 109,
+    "pagedown": 109,
     "right": 106,
     "up": 103,
     "down": 108,
