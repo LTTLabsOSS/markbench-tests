@@ -62,22 +62,15 @@ BENCHMARK_CONFIG = {
 CFG = CONFIG_PATH / CONFIG_FILENAME
 
 
-def start_game():
-    """Launch the game with no launcher or start screen"""
-    test_option = BENCHMARK_CONFIG[args.benchmark]["config"]
-    return exec_steam_game(STEAM_GAME_ID, game_params=["-benchmark", f"{test_option}"])
-
-
 def run_benchmark():
     """Start the benchmark"""
     # Start game via Steam and enter fullscreen mode
     setup_start_time = time.time()
     replace_exe()
-    start_game()
 
-    time.sleep(10)
-
-    result = find_word("preparing", interval=1, timeout=60)
+    test_option = BENCHMARK_CONFIG[args.benchmark]["config"]
+    exec_steam_game(STEAM_GAME_ID, game_params=["-benchmark", f"{test_option}"])
+    result = find_word("preparing", interval=1, timeout=70)
     if not result:
         logger.info("Did not see the benchmark starting.")
         sys.exit(1)

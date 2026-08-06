@@ -4,10 +4,7 @@ import logging
 import re
 import shutil
 import sys
-import time
 from pathlib import Path
-
-import psutil
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -72,42 +69,6 @@ def find_score_in_log(score_name, file):
             score_value = score_match.group(1).decode("ascii")
             break
     return score_value
-
-
-def is_process_running(process_name):
-    """check if given process is running"""
-    for process in psutil.process_iter(["pid", "name"]):
-        if process.info["name"] == process_name:
-            return process
-    return None
-
-
-def wait_for_benchmark_process(test_name, process_name, timeout=60):
-    """Wait for the benchmark game process to start and then finish."""
-    logger.info("Waiting for benchmark process '%s' to start...", process_name)
-
-    start_time = time.time()
-
-    while True:
-        # Check if the benchmark process is running
-        process = is_process_running(process_name)
-        if process:
-            logger.info("%s has started. Waiting for it to finish...", test_name)
-            process.wait()  # This will block until the process finishes
-            logger.info("Benchmark has finished.")
-            break
-
-        # If we exceed the timeout, break out of the loop and log an error
-        if time.time() - start_time > timeout:
-            logger.error(
-                "Timeout reached while waiting for process '%s'.", process_name
-            )
-            raise TimeoutError(
-                f"Process '{process_name}' did not start within the expected time. Is the game configured for DX12?"
-            )
-
-        # Wait for 1 second before checking again
-        time.sleep(1)
 
 
 def replace_exe():
