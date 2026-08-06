@@ -83,9 +83,8 @@ def run_benchmark():
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logger.info("Harness setup took %f seconds", elapsed_setup_time)
 
-    time.sleep(15)
 
-    result = find_word("59", timeout=60, interval=0.2)
+    result = find_word("59", timeout=60)
     if not result:
         logger.info("Benchmark didn't start.")
         sys.exit(1)
