@@ -112,7 +112,7 @@ def run_benchmark(render_engine):
     setup_start_time = int(time.time())
     time.sleep(30)
 
-    result = find_word("options", timeout=30, vulkan=True)
+    result = find_word("options", timeout=120, vulkan=True, interval=3)
     if not result:
         logger.info("Did not find the options menu. Did the game launch?")
         sys.exit(1)
