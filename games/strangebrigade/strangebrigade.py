@@ -1,4 +1,4 @@
-"""Strange Brigade test script"""
+"""Strange Brigade Benchmark Script"""
 
 import logging
 import re
@@ -17,7 +17,7 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.file_cleanup import remove_files
-from harness_utils.input import mangohud_log_toggle, press_n_times, user
+from harness_utils.input import mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, local_appdata
@@ -105,7 +105,7 @@ def restore_exe():
 
 def run_benchmark(render_engine):
     """Starts the benchmark"""
-    logger.info(intro_videos)
+    logger.debug("deleting intro videos")
     remove_files([str(path) for path in intro_videos])
     replace_exe(render_engine)
     exec_steam_game(STEAM_GAME_ID)
@@ -120,17 +120,14 @@ def run_benchmark(render_engine):
     if is_linux():
         mangohud_log_toggle()
 
-    press_n_times("down", 5, 0.2)
-    user.press("left")
-    time.sleep(0.2)
-    user.press("enter")
+    press("down*5,left,enter")
 
     result = find_word("display", timeout=10, vulkan=True)
     if not result:
         logger.info("Did not find the display menu. Did OCR navigate correctly?")
         sys.exit(1)
 
-    user.press("pgdn")
+    press("pgdn")
 
     result = find_word("customise", timeout=10, vulkan=True)
     if not result:
@@ -142,10 +139,9 @@ def run_benchmark(render_engine):
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png", vulkan=True)
 
     time.sleep(0.5)
-    user.press("escape")
+    press("escape")
 
-    press_n_times("down", 5, 0.2)
-    user.press("enter")
+    press("down*5, enter")
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
@@ -159,7 +155,7 @@ def run_benchmark(render_engine):
 
     time.sleep(55)  # Wait time for battle benchmark
 
-    result = find_word("confirm", interval=0.2, timeout=250, vulkan=True)
+    result = find_word("confirm", timeout=30, vulkan=True)
     if not result:
         logger.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?"
@@ -186,34 +182,45 @@ def run_benchmark(render_engine):
     return test_start_time, test_end_time
 
 
-setup_logging(LOG_DIRECTORY)
 
-parser = ArgumentParser()
-parser.add_argument(
-    "-s",
-    "--render_engine",
-    choices=["vulkan", "dx12"],
-    help="Render Engine",
-    required=True,
-)
-args, unknown = parser.parse_known_args()
 
-try:
-    start_time, endtime = run_benchmark(args.render_engine)
-    height, width = read_current_resolution()
-    report = {
-        "resolution": format_resolution(width, height),
-        "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(endtime),
-        "version": get_build_id(STEAM_GAME_ID),
-    }
+def main():
+    setup_logging(LOG_DIRECTORY)
 
-    write_report_json(LOG_DIRECTORY, "report.json", report)
-    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
-except Exception:
-    logger.error("Something went wrong running the benchmark!")
-    logger.exception("Unhandled exception")
-    terminate_process(PROCESS_NAME)
-    sys.exit(1)
-finally:
-    restore_exe()
+    parser = ArgumentParser()
+    parser.add_argument(
+        "-s",
+        "--render_engine",
+        choices=["vulkan", "dx12"],
+        help="Render Engine",
+        required=True,
+    )
+    args, _ = parser.parse_known_args()
+
+    try:
+        start_time, endtime = run_benchmark(args.render_engine)
+        height, width = read_current_resolution()
+        report = {
+            "resolution": format_resolution(width, height),
+            "start_time": seconds_to_milliseconds(start_time),
+            "end_time": seconds_to_milliseconds(endtime),
+            "version": get_build_id(STEAM_GAME_ID),
+        }
+
+        write_report_json(LOG_DIRECTORY, "report.json", report)
+        create_artifacts_manifest(ARTIFACTS_DIRECTORY)
+    except Exception:
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception("Unhandled exception")
+        terminate_process(PROCESS_NAME)
+        sys.exit(1)
+    finally:
+        restore_exe()
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception:
+        logger.error("big oops")
+        terminate_process(PROCESS_NAME)
+        sys.exit(1)
