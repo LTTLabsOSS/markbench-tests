@@ -1,23 +1,17 @@
 # Strange Brigade
 
-This script navigates through in-game menus to the built in benchmark and runs it with the current settings. It then waits for a results screen before exiting.
+- Runs the benchmark with the selected renderer.
 
-## Prerequisites
+## Requirements
 
-- Python 3.10+
-- Strange Brigade installed via Steam
-- OCR service
-- DXcam
+- OCR
 
 ## Options
 
-- `render_engine`: Allows you to choose which render engine you want to test the game with, e.x. `Vulkan`
-- `ocrHost`: string representing the IP address of the OCR service. e.x. `0.0.0.0`
-- `ocrPort`: string representing the port of the OCR service. e.x. `8080`
+- `render_engine`
+  - `vulkan`
+  - `dx12`
 
-## Output
+## Artifacts
 
-report.json
-- `resolution`: string representing the resolution the test was run at, formatted as "[width]x[height]", e.x. `1920x1080`
-- `start_time`: number representing a timestamp of the test's start time in milliseconds
-- `end_time`: number representing a timestamp of the test's end time in milliseconds
+- `GraphicsOptions.ini`
