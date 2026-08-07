@@ -14,7 +14,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import mangohud_log_toggle, press_n_times, user
+from harness_utils.input import mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -28,8 +28,6 @@ logger = logging.getLogger(__name__)
 STEAM_GAME_ID = 1091500
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "Cyberpunk2077.exe"
-
-user.FAILSAFE = False
 
 
 def start_game():
@@ -45,29 +43,21 @@ def navigate_to_settings():
     result = find_word("continue", timeout=10)
     if not result:
         # an account with no save game has less menu options, so just press left and enter settings
-        user.press("left")
-        time.sleep(0.5)
-        user.press("enter")
-        time.sleep(0.5)
+        press("left, enter")
     else:
-        user.press("left")
-        time.sleep(0.5)
-        user.press("down")
-        time.sleep(0.5)
-        user.press("enter")
-        time.sleep(0.5)
+        press("left, down, enter")
 
 
 def check_for_rt():
     """Checks for if RT is enabled"""
     result = find_word("reflections", interval=1, timeout=2)
     if result:
-        press_n_times("down", 3, 0.2)
+        press("down*3")
         capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_rt.png")
     if not result:
         result = find_word("path", interval=1, timeout=2)
         if result:
-            user.press("down")
+            press("down")
             capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt.png")
 
 
@@ -81,7 +71,7 @@ def check_anisotropy(max_attempts=10):
             return True  # Stop checking
 
         # If not found, press the button once
-        user.press("down")
+        press("down")
 
         # Short delay before rechecking
         time.sleep(0.5)
@@ -102,12 +92,7 @@ def navigate_settings() -> None:
         )
         sys.exit(1)
     # entered settings
-    user.press("3")
-    time.sleep(0.5)
-    user.press("3")
-    time.sleep(0.5)
-    user.press("3")
-    time.sleep(0.5)
+    press("3*3")
 
     result = find_word("preset", interval=3, timeout=20)
     if not result:
@@ -118,44 +103,35 @@ def navigate_settings() -> None:
     # now on graphics tab
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
 
-    user.press("down")
-    time.sleep(0.5)
-    user.press("down")  # gets you to film grain
-    time.sleep(0.5)
+    press("down*2")  # gets you to film grain
 
     dlss = find_word("dlss", interval=1, timeout=2)
     if dlss:
         result = find_word("multi", interval=1, timeout=2)
         if result:
-            user.press("down")
-        press_n_times(
-            "down", 2, 0.2
-        )  # gets you to film grain usually except for combined with RT
+            press("down")
+        press("down*2")  # gets you to film grain usually except for combined with RT
         result = find_word("grain", interval=1, timeout=2)
         if not result:
-            user.press("down")
+            press("down")
 
     fsr = find_word("amd", interval=1, timeout=2)
     if fsr:
-        user.press("down")  # gets you to film grain
+        press("down")  # gets you to film grain
 
     xess = find_word("intel", interval=1, timeout=2)
     if xess:
-        user.press("down")  # gets you to film grain
+        press("down")  # gets you to film grain
 
     check_for_rt()
 
-    for _ in range(7):
-        user.press("down")
-        time.sleep(0.5)
+    press("down*7")
 
     check_anisotropy()
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
 
-    for _ in range(11):
-        user.press("down")
-        time.sleep(0.5)
+    press("down*11")
 
     result = find_word("occlusion", interval=3, timeout=20)
     if not result:
@@ -165,9 +141,7 @@ def navigate_settings() -> None:
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_3.png")
 
-    for _ in range(3):
-        user.press("down")
-        time.sleep(0.5)
+    press("down*3")
 
     result = find_word("level", interval=3, timeout=20)
     if not result:
@@ -177,8 +151,7 @@ def navigate_settings() -> None:
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_4.png")
 
-    user.press("3")
-    time.sleep(0.5)
+    press("3")
 
     result = find_word("resolution", interval=3, timeout=20)
     if not result:
@@ -189,9 +162,7 @@ def navigate_settings() -> None:
     # now on video tab
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
 
-    user.press("b")
-    time.sleep(1)
-    user.press("enter")
+    press("b, enter")
 
 
 def run_benchmark():
@@ -258,7 +229,6 @@ try:
         "end_time": seconds_to_milliseconds(end_time),
         "version": get_build_id(STEAM_GAME_ID),
     }
-
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
     create_artifacts_manifest(ARTIFACTS_DIRECTORY)
