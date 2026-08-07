@@ -1,14 +1,12 @@
-"""Stellaris test script"""
+"""Cities: Skylines II"""
 
 import logging
-import os
 import sys
 import time
 from pathlib import Path
 
-import pyautogui as gui
-import pydirectinput as user
 from citiesskylines2_utils import (
+    CONFIG_FULL_PATH,
     copy_benchmarksave,
     copy_continuegame,
     copy_launcherfiles,
@@ -24,10 +22,11 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mouse_scroll_n_times
+from harness_utils.input import mangohud_log_toggle, mouse_scroll_n_times, press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
+from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.steam import exec_steam_game, get_build_id
@@ -41,50 +40,29 @@ launcher_files = ["bootstrapper-v2.exe", "launcher.exe", "notlauncher-options.js
 save_files = ["Benchmark.cok", "Benchmark.cok.cid"]
 config_files = ["UserState.coc"]
 
-APPDATA = os.getenv("APPDATA")
-CONFIG_LOCATION = Path(f"{APPDATA}\\..\\LocalLow\\Colossal Order\\Cities Skylines II")
-CONFIG_FILENAME = "launcher-settings.json"
-CONFIG_FULL_PATH = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
-
-user.FAILSAFE = False
-
-
-def start_game():
-    """Launch the game with no launcher or start screen"""
-    return exec_steam_game(STEAM_GAME_ID)
-
-
-def console_command(command):
-    """Enter a console command"""
-    gui.write(command)
-    user.press("enter")
-
 
 def run_benchmark():
-    """Starts the benchmark"""
+    """Run the benchmark."""
     copy_launcherfiles(launcher_files)
     copy_launcherpath()
     copy_benchmarksave(save_files)
     copy_continuegame(config_files)
 
-
-    start_game()
+    exec_steam_game(STEAM_GAME_ID)
     setup_start_time = int(time.time())
     time.sleep(14)
 
-    result = find_word("paradox", interval=0.5, timeout=100)
-    if not result:
+    if not find_word("paradox", interval=0.5, timeout=100):
         logger.info("Could not find the Paradox logo. Did the game launch?")
         sys.exit(1)
-    user.press("esc")
-    user.press("esc")
-    user.press("esc")
+    press("esc*3")
     time.sleep(15)
 
-    result = find_word("new", interval=0.5, timeout=100)
-    if not result:
+    if not find_word("new", interval=0.5, timeout=100):
         logger.info("Did not find the main menu. Did the game crash?")
         sys.exit(1)
+    if is_linux():
+        mangohud_log_toggle()
 
     result = find_word("load", timeout=10, interval=1)
     if not result:
@@ -92,9 +70,9 @@ def run_benchmark():
         sys.exit(1)
 
     # Navigate to load save menu
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
-    gui.click()
+    user.click()
     time.sleep(0.2)
 
     result = find_word("benchmark", timeout=10, interval=1, crop="top_left")
@@ -105,37 +83,34 @@ def run_benchmark():
         sys.exit(1)
 
     # Loading the game
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
-    gui.click()
+    user.click()
     time.sleep(0.2)
-    user.press("enter")
+    press("enter")
     time.sleep(10)
 
-    result = find_word("grand", interval=0.5, timeout=100)
-    if not result:
+    if not find_word("grand", interval=0.5, timeout=100):
         logger.info(
             "Could not find the paused notification. Unable to mark start time!"
         )
         sys.exit(1)
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
     time.sleep(2)
     logger.info("Starting benchmark")
-    user.press("3")
+    press("3")
     time.sleep(2)
 
-    # TODO: switch back to 180 after testing
     test_start_time = int(time.time())
     time.sleep(180)
 
     test_end_time = int(time.time())
     time.sleep(2)
-    user.press("1")
+    press("1")
 
-    # Wait 5 seconds for benchmark info
+
+    # Wait for benchmark info
     time.sleep(10)
 
     # End the run
@@ -143,8 +118,7 @@ def run_benchmark():
     logger.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Open quick menu
-    user.press("esc")
-    time.sleep(0.2)
+    press("esc")
 
     result = find_word("options", timeout=10, interval=1)
     if not result:
@@ -154,9 +128,9 @@ def run_benchmark():
         sys.exit(1)
 
     # Navigate to options menu
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
-    gui.click()
+    user.click()
     time.sleep(0.2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "general.png")
@@ -169,9 +143,9 @@ def run_benchmark():
         sys.exit(1)
 
     # Navigate to graphics menu
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
-    gui.click()
+    user.click()
     time.sleep(0.2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
@@ -183,7 +157,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
 
     mouse_scroll_n_times(8, -800, 0.2)
@@ -206,15 +180,13 @@ def run_benchmark():
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_3.png")
     copy_artifact(CONFIG_FULL_PATH, ARTIFACTS_DIRECTORY)
 
-    # Exit
     terminate_process(PROCESS_NAME)
-
 
     return test_start_time, test_end_time
 
 
 def main():
-    """main entry point to the script"""
+    """Run the benchmark and write its report."""
     test_start_time, test_end_time = run_benchmark()
     resolution = read_current_resolution()
     report = {
