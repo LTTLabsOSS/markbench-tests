@@ -1,6 +1,7 @@
 """Utility functions for Total War: Warhammer III test script"""
 
 import logging
+import os
 import re
 import shutil
 import sys
@@ -9,30 +10,26 @@ from pathlib import Path
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.paths import local_appdata
 from harness_utils.steam import get_app_install_location
-
-logger = logging.getLogger(__name__)
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 STEAM_GAME_ID = 949230
-LOCAL_APPDATA = local_appdata(STEAM_GAME_ID)
-LAUNCHCONFIG_LOCATION = LOCAL_APPDATA / "Paradox Interactive"
+LOCALAPPDATA = os.getenv("LOCALAPPDATA")
+LAUNCHCONFIG_LOCATION = Path(f"{LOCALAPPDATA}\\Paradox Interactive")
 INSTALL_LOCATION = get_app_install_location(STEAM_GAME_ID)
-CONFIG_LOCATION = (
-    LOCAL_APPDATA.parent / "LocalLow" / "Colossal Order" / "Cities Skylines II"
-)
-SAVE_LOCATION = CONFIG_LOCATION / "Saves" / "76561199517889423"
+APPDATA = os.getenv("APPDATA")
+CONFIG_LOCATION = Path(f"{APPDATA}\\..\\LocalLow\\Colossal Order\\Cities Skylines II")
+SAVE_LOCATION = Path(f"{CONFIG_LOCATION}\\Saves\\76561199517889423")
 CONFIG_FILENAME = "launcher-settings.json"
-CONFIG_FULL_PATH = CONFIG_LOCATION / CONFIG_FILENAME
 
 
 def read_current_resolution():
     """Reads resolutions settings from local game file"""
     resolution_pattern = re.compile(r"\"fullscreen_resolution\"\: \"(\d+x\d+)\"\,")
+    cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
     resolution = 0
-    with CONFIG_FULL_PATH.open(encoding="utf-8") as file:
+    with open(cfg, encoding="utf-8") as file:
         lines = file.readlines()
         for line in lines:
             resolution_match = resolution_pattern.search(line)
@@ -48,11 +45,11 @@ def copy_continuegame(config_files: list[str]) -> None:
             src_path = SCRIPT_DIRECTORY / "config" / file
             CONFIG_LOCATION.mkdir(parents=True, exist_ok=True)
             dest_path = CONFIG_LOCATION / file
-            logger.debug("Copying: %s -> %s", file, dest_path)
+            logging.info("Copying: %s -> %s", file, dest_path)
             shutil.copy(src_path, dest_path)
         except OSError as err:
-            logger.error("Could not copy save information files. %s", err)
-            raise
+            logging.error("Could not copy save information files. %s", err)
+            raise err
 
 
 def copy_launcherfiles(launcher_files: list[str]) -> None:
@@ -62,27 +59,40 @@ def copy_launcherfiles(launcher_files: list[str]) -> None:
             src_path = SCRIPT_DIRECTORY / "launcher" / file
             INSTALL_LOCATION.mkdir(parents=True, exist_ok=True)
             dest_path = INSTALL_LOCATION / file
-            logger.debug("Copying: %s -> %s", file, dest_path)
+            logging.info("Copying: %s -> %s", file, dest_path)
             shutil.copy(src_path, dest_path)
         except OSError as err:
-            logger.error("Could not copy launcher files %s", err)
-            raise
+            logging.error("Could not copy launcher files %s", err)
+            raise err
 
 
 def copy_launcherpath():
-    """Write the override launcher path to the launcher config directory."""
+    """Copy the override launcherpath file to launcherpath directory"""
     try:
         launcherpath = "launcherpath"
+        src_path = SCRIPT_DIRECTORY / "launcher" / launcherpath
         LAUNCHCONFIG_LOCATION.mkdir(parents=True, exist_ok=True)
         dest_path = LAUNCHCONFIG_LOCATION / launcherpath
-        if dest_path.exists():
-            dest_path.unlink()
-            logger.debug("Removing old launcher file from %s", LAUNCHCONFIG_LOCATION)
-        logger.debug("Copying: %s -> %s", launcherpath, dest_path)
-        dest_path.write_text(str(INSTALL_LOCATION), encoding="utf-8")
+        if os.path.exists(dest_path) is True:
+            try:
+                file_path = os.path.join(LAUNCHCONFIG_LOCATION, launcherpath)
+                os.remove(file_path)
+                logging.info(
+                    "Removing old launcher file from %s", LAUNCHCONFIG_LOCATION
+                )
+            except OSError as e:
+                logging.error(
+                    "The following error occurred while trying to remove the launcherpath file: %s.",
+                    e,
+                )
+        logging.info("Copying: %s -> %s", launcherpath, dest_path)
+        with open(f"{src_path}", "w", encoding="utf-8") as f:
+            f.write(f"{INSTALL_LOCATION}")
+        shutil.copy(src_path, dest_path)
+        # os.chmod(dest_path, stat.S_IREAD)
     except OSError as err:
-        logger.error("Could not copy the launcherpath file. %s", err)
-        raise
+        logging.error("Could not copy the launcherpath file. %s", err)
+        raise err
 
 
 def copy_benchmarksave(save_files: list[str]) -> None:
@@ -92,8 +102,8 @@ def copy_benchmarksave(save_files: list[str]) -> None:
             src_path = SCRIPT_DIRECTORY / "save" / file
             SAVE_LOCATION.mkdir(parents=True, exist_ok=True)
             dest_path = SAVE_LOCATION / file
-            logger.debug("Copying: %s -> %s", file, dest_path)
+            logging.info("Copying: %s -> %s", file, dest_path)
             shutil.copy(src_path, dest_path)
         except OSError as err:
-            logger.error("Could not copy the save game. %s", err)
-            raise
+            logging.error("Could not copy the save game. %s", err)
+            raise err

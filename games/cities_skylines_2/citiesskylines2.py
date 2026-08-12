@@ -1,12 +1,14 @@
 """Cities: Skylines II"""
 
 import logging
+import os
 import sys
 import time
 from pathlib import Path
 
+import pyautogui as gui
+import pydirectinput as user
 from citiesskylines2_utils import (
-    CONFIG_FULL_PATH,
     copy_benchmarksave,
     copy_continuegame,
     copy_launcherfiles,
@@ -17,176 +19,211 @@ from citiesskylines2_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import (
-    capture_and_save_screenshot,
-    copy_artifact,
-    create_artifacts_manifest,
-)
-from harness_utils.input import mangohud_log_toggle, mouse_scroll_n_times, press, user
+from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.input import mouse_scroll_n_times
 from harness_utils.ocr_service import find_word
-from harness_utils.output_logging import setup_logging
-from harness_utils.paths import harness_directories
-from harness_utils.platform import is_linux
-from harness_utils.process import terminate_process
 from harness_utils.report import seconds_to_milliseconds, write_report_json
+from harness_utils.output_logging import setup_logging
+from harness_utils.process import terminate_process
 from harness_utils.steam import exec_steam_game, get_build_id
 
-logger = logging.getLogger(__name__)
-
-SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 PROCESS_NAME = "cities2.exe"
 STEAM_GAME_ID = 949230
 launcher_files = ["bootstrapper-v2.exe", "launcher.exe", "notlauncher-options.json"]
 save_files = ["Benchmark.cok", "Benchmark.cok.cid"]
 config_files = ["UserState.coc"]
 
+APPDATA = os.getenv("APPDATA")
+CONFIG_LOCATION = Path(f"{APPDATA}\\..\\LocalLow\\Colossal Order\\Cities Skylines II")
+CONFIG_FILENAME = "launcher-settings.json"
+CONFIG_FULL_PATH = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
+
+user.FAILSAFE = False
+
+
+def start_game():
+    """Launch the game with no launcher or start screen"""
+    return exec_steam_game(STEAM_GAME_ID)
+
+
+def console_command(command):
+    """Enter a console command"""
+    gui.write(command)
+    user.press("enter")
+
 
 def run_benchmark():
-    """Run the benchmark."""
+    """Starts the benchmark"""
     copy_launcherfiles(launcher_files)
     copy_launcherpath()
     copy_benchmarksave(save_files)
     copy_continuegame(config_files)
 
-    exec_steam_game(STEAM_GAME_ID)
+    am = ArtifactManager(LOG_DIRECTORY)
+
+    start_game()
     setup_start_time = int(time.time())
     time.sleep(14)
 
-    if not find_word("paradox", interval=0.5, timeout=100):
-        logger.info("Could not find the Paradox logo. Did the game launch?")
+    result = find_word("paradox", interval=0.5, timeout=100)
+    if not result:
+        logging.info("Could not find the Paradox logo. Did the game launch?")
         sys.exit(1)
-    press("esc*3")
+    user.press("esc")
+    user.press("esc")
+    user.press("esc")
     time.sleep(15)
 
-    if not find_word("new", interval=0.5, timeout=100):
-        logger.info("Did not find the main menu. Did the game crash?")
+    result = find_word("new", interval=0.5, timeout=100)
+    if not result:
+        logging.info("Did not find the main menu. Did the game crash?")
         sys.exit(1)
-    if is_linux():
-        mangohud_log_toggle()
 
     result = find_word("load", timeout=10, interval=1)
     if not result:
-        logger.info("Did not find the load game option. Did the save game copy?")
+        logging.info("Did not find the load game option. Did the save game copy?")
         sys.exit(1)
 
     # Navigate to load save menu
-    user.move_mouse(result["x"], result["y"])
+    gui.moveTo(result["x"], result["y"])
     time.sleep(0.2)
-    user.click()
+    gui.click()
     time.sleep(0.2)
 
     result = find_word("benchmark", timeout=10, interval=1, crop="top_left")
     if not result:
-        logger.info(
+        logging.info(
             "Did not find the save game original date. Did the OCR click correctly?"
         )
         sys.exit(1)
 
     # Loading the game
-    user.move_mouse(result["x"], result["y"])
+    gui.moveTo(result["x"], result["y"])
     time.sleep(0.2)
-    user.click()
+    gui.click()
     time.sleep(0.2)
-    press("enter")
+    user.press("enter")
     time.sleep(10)
 
-    if not find_word("grand", interval=0.5, timeout=100):
-        logger.info(
+    result = find_word("grand", interval=0.5, timeout=100)
+    if not result:
+        logging.info(
             "Could not find the paused notification. Unable to mark start time!"
         )
         sys.exit(1)
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logger.info("Setup took %f seconds", elapsed_setup_time)
+    logging.info("Setup took %f seconds", elapsed_setup_time)
+    gui.moveTo(result["x"], result["y"])
+    time.sleep(0.2)
     time.sleep(2)
-    logger.info("Starting benchmark")
-    press("3")
+    logging.info("Starting benchmark")
+    user.press("3")
     time.sleep(2)
 
+    # TODO: switch back to 180 after testing
     test_start_time = int(time.time())
     time.sleep(180)
 
     test_end_time = int(time.time())
     time.sleep(2)
-    press("1")
+    user.press("1")
 
-
-    # Wait for benchmark info
+    # Wait 5 seconds for benchmark info
     time.sleep(10)
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
-    logger.info("Benchmark took %f seconds", elapsed_test_time)
+    logging.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Open quick menu
-    press("esc")
+    user.press("esc")
+    time.sleep(0.2)
 
     result = find_word("options", timeout=10, interval=1)
     if not result:
-        logger.info(
+        logging.info(
             "Did not find the options menu. Did the game open the quick dialog menu properly?"
         )
         sys.exit(1)
 
     # Navigate to options menu
-    user.move_mouse(result["x"], result["y"])
+    gui.moveTo(result["x"], result["y"])
     time.sleep(0.2)
-    user.click()
+    gui.click()
     time.sleep(0.2)
 
-    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "general.png")
+    am.take_screenshot(
+        "general.png", ArtifactType.CONFIG_IMAGE, "general settings menu"
+    )
 
     result = find_word("graphics", timeout=10, interval=1)
     if not result:
-        logger.info(
+        logging.info(
             "Did not find the graphics menu. Did the game navigate to the general settings correctly?"
         )
         sys.exit(1)
 
     # Navigate to graphics menu
-    user.move_mouse(result["x"], result["y"])
+    gui.moveTo(result["x"], result["y"])
     time.sleep(0.2)
-    user.click()
+    gui.click()
     time.sleep(0.2)
 
-    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
+    am.take_screenshot(
+        "graphics_1.png",
+        ArtifactType.CONFIG_IMAGE,
+        "first picture of graphics settings menu",
+    )
 
     result = find_word("window", timeout=10, interval=1)
     if not result:
-        logger.info(
+        logging.info(
             "Did not find the keyword 'window' in graphics menu. Did the game navigate to the graphics menu correctly?"
         )
         sys.exit(1)
 
-    user.move_mouse(result["x"], result["y"])
+    gui.moveTo(result["x"], result["y"])
     time.sleep(0.2)
 
     mouse_scroll_n_times(8, -800, 0.2)
 
     if find_word(word="water", timeout=30, interval=1) is None:
-        logger.info(
+        logging.info(
             "Did not find the keyword 'water' in menu. Did the game scroll correctly?"
         )
         sys.exit(1)
-    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
+    am.take_screenshot(
+        "graphics_2.png",
+        ArtifactType.CONFIG_IMAGE,
+        "second picture of graphics settings menu",
+    )
 
     mouse_scroll_n_times(8, -400, 0.2)
 
     # verify that we scrolled through the menu correctly
     if find_word(word="texture", timeout=30, interval=1) is None:
-        logger.info(
+        logging.info(
             "Did not find the keyword 'texture' in menu. Did the game scroll correctly?"
         )
         sys.exit(1)
-    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_3.png")
-    copy_artifact(CONFIG_FULL_PATH, ARTIFACTS_DIRECTORY)
+    am.take_screenshot(
+        "graphics_3.png",
+        ArtifactType.CONFIG_IMAGE,
+        "third picture of graphics settings menu",
+    )
+    am.copy_file(CONFIG_FULL_PATH, ArtifactType.CONFIG_TEXT, "config file")
 
+    # Exit
     terminate_process(PROCESS_NAME)
+    am.create_manifest()
 
     return test_start_time, test_end_time
 
 
 def main():
-    """Run the benchmark and write its report."""
+    """main entry point to the script"""
     test_start_time, test_end_time = run_benchmark()
     resolution = read_current_resolution()
     report = {
@@ -197,15 +234,14 @@ def main():
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
-    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 
 
 if __name__ == "__main__":
     try:
         setup_logging(LOG_DIRECTORY)
         main()
-    except Exception:
-        logger.error("Something went wrong running the benchmark!")
-        logger.exception("Unhandled exception")
+    except Exception as ex:
+        logging.error("Something went wrong running the benchmark!")
+        logging.exception(ex)
         terminate_process(PROCESS_NAME)
         sys.exit(1)
