@@ -188,7 +188,6 @@ def run_benchmark(process_name, command_to_run):
 
 try:
     setup_logging(LOG_DIRECTORY)
-    ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
     logger.info("Detected Windows ML Devices: %s", str(WINML_DEVICES))
     logger.info("Detected OpenVino Devices: %s", str(OPENVINO_DEVICES))
     logger.info("Detected CUDA Devices: %s", (CUDA_DEVICES))
