@@ -22,11 +22,10 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mangohud_log_toggle, mouse_scroll_n_times, press, user
+from harness_utils.input import mouse_scroll_n_times, press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
-from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.steam import exec_steam_game, get_build_id
@@ -61,8 +60,6 @@ def run_benchmark():
     if not find_word("new", interval=0.5, timeout=100):
         logger.info("Did not find the main menu. Did the game crash?")
         sys.exit(1)
-    if is_linux():
-        mangohud_log_toggle()
 
     result = find_word("load", timeout=10, interval=1)
     if not result:
@@ -108,7 +105,6 @@ def run_benchmark():
     test_end_time = int(time.time())
     time.sleep(2)
     press("1")
-
 
     # Wait for benchmark info
     time.sleep(10)
