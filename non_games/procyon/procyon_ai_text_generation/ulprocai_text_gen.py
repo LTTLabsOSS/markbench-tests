@@ -159,7 +159,6 @@ def run_benchmark(process_name, command_to_run):
 
 try:
     setup_logging(LOG_DIRECTORY)
-    ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.engine]["config"]
     cmd = create_procyon_command(option)
