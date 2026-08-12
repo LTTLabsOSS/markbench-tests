@@ -32,14 +32,9 @@ STEAM_GAME_ID = 1286680
 EXECUTABLE = "Wonderlands.exe"
 
 
-def start_game():
-    """start the game"""
-    return exec_steam_game(STEAM_GAME_ID, game_params=["-nostartupmovies"])
-
-
 def run_benchmark():
     """run benchmark"""
-    start_game()
+    exec_steam_game(STEAM_GAME_ID, game_params=["-nostartupmovies"])
 
     t1 = int(time.time())
     optimizing_shaders = find_word("optimize", interval=1, timeout=10)
