@@ -14,11 +14,10 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import mangohud_log_toggle, press, user
+from harness_utils.input import press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, user_saved_games
-from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
 from harness_utils.report import (
     format_resolution,
