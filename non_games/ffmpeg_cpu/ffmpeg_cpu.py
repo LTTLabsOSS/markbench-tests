@@ -57,7 +57,6 @@ OUTPUT_VIDEO = SCRIPT_DIRECTORY / "output.mp4"
 
 def main():
     """entrypoint"""
-    ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
     ffmpeg_root = SCRIPT_DIRECTORY / TEST_OPTIONS[args.architecture]
     ffmpeg_exe_path = ffmpeg_root / "bin" / "ffmpeg.exe"
 
