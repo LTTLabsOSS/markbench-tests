@@ -14,7 +14,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import mangohud_log_toggle, press_n_times, user
+from harness_utils.input import mangohud_log_toggle, press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, user_saved_games
@@ -40,7 +40,7 @@ PROCESS_NAME = "tlou-i.exe"
 user.FAILSAFE = False
 
 
-def read_resolution(config_path: Path) -> tuple[int, int]:
+def read_resolution_from_config(config_path: Path) -> tuple[int, int]:
     """Read the configured resolution, falling back to the native display size."""
     window_mode_pattern = re.compile(r"WindowMode=(\d)")
     with config_path.open(encoding="utf-8") as config_file:
@@ -113,8 +113,7 @@ def take_screenshots() -> None:
     if not result:
         logger.info("Did not see main menu. Did something mess up?")
         sys.exit(1)
-    press_n_times("s", 2,0.5)
-    user.press("enter")
+    press("s*2,enter")
 
     result = find_word("display", interval=1, timeout=5)
     if not result:
@@ -122,24 +121,20 @@ def take_screenshots() -> None:
             "Did not see options menu (looking for display). Did something mess up?"
         )
         sys.exit(1)
-    press_n_times("s", 4, 0.5)
-    user.press("enter")
-
+    press("s*4,enter")
     # taking the display menu screenshots
     result = find_word("aspect", interval=1, timeout=5)
     if not result:
         logger.info("Did not see aspect ratio setting. Did something mess up?")
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video1.png")
-    press_n_times("s", 14, 0.5)
-
+    press("s*14")
     result = find_word("safezone", interval=1, timeout=5)
     if not result:
         logger.info("Did not see safezone scale setting. Did something mess up?")
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
-    press_n_times("s", 7, 0.5)
-
+    press("s*7")
     result = find_word("gore", interval=1, timeout=5)
     if not result:
         logger.info("Did not see gore setting. Did something mess up?")
@@ -147,24 +142,21 @@ def take_screenshots() -> None:
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video3.png")
 
     # navigating to the graphics menu
-    user.press("backspace")
+    press("backspace")
     result = find_word("graphics", interval=1, timeout=5)
     if not result:
         logger.info(
             "Did not see options menu (looking for graphics). Did something mess up?"
         )
         sys.exit(1)
-    user.press("s")
-    user.press("enter")
-
+    press("s,enter")
     # taking the graphics screenshots
     result = find_word("preset", interval=1, timeout=5)
     if not result:
         logger.info("Did not see graphics preset setting. Did something mess up?")
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
-    press_n_times("s", 10, 0.5)
-
+    press("s*10")
     result = find_word("sampling", interval=1, timeout=5)
     if not result:
         logger.info(
@@ -172,8 +164,7 @@ def take_screenshots() -> None:
         )
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
-    press_n_times("s", 7, 0.5)
-
+    press("s*7")
     result = find_word("point", interval=1, timeout=5)
     if not result:
         logger.info(
@@ -181,8 +172,7 @@ def take_screenshots() -> None:
         )
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")
-    press_n_times("s", 8, 0.5)
-
+    press("s*8")
     result = find_word("tracing", interval=1, timeout=5)
     if not result:
         logger.info(
@@ -190,8 +180,7 @@ def take_screenshots() -> None:
         )
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics4.png")
-    press_n_times("s", 7, 0.5)
-
+    press("s*7")
     result = find_word("scattering", interval=1, timeout=5)
     if not result:
         logger.info(
@@ -199,15 +188,13 @@ def take_screenshots() -> None:
         )
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics5.png")
-    press_n_times("s", 6, 0.5)
-
+    press("s*6")
     result = find_word("bloom", interval=1, timeout=5)
     if not result:
         logger.info("Did not see bloom resolution setting. Did something mess up?")
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics6.png")
-    press_n_times("s", 6, 0.5)
-
+    press("s*6")
     result = find_word("ambient", interval=1, timeout=5)
     if not result:
         logger.info(
@@ -218,8 +205,7 @@ def take_screenshots() -> None:
     time.sleep(0.5)
 
     # navigating back to main menu
-    press_n_times("backspace", 2, 0.5)
-
+    press("backspace*2")
     result = find_word("behind", interval=1, timeout=5)
     if not result:
         logger.info(
@@ -239,20 +225,14 @@ def navigate_main_menu(steam_account_id: int) -> None:
     time.sleep(5)
 
     # navigating to the load menu
-    press_n_times("w", 2, 0.5)
-    user.press("space")
-    time.sleep(0.5)
-
+    press("w*2,space")
     result = find_word("load", interval=1, timeout=5)
     if not result:
         logger.info("Did not see story menu. Did something mess up?")
         sys.exit(1)
 
     # Press load game
-    press_n_times("s", 2, 0.5)
-    user.press("space")
-    time.sleep(0.5)
-
+    press("s*2,space")
     # Verify in the load section
     result = find_word("hometown", interval=1, timeout=5)
     if not result:
@@ -262,8 +242,7 @@ def navigate_main_menu(steam_account_id: int) -> None:
         sys.exit(1)
 
     # load the save
-    user.press("space")
-    time.sleep(0.5)
+    press("space")
 
 
 def run_benchmark(steam_account_id: int):
@@ -281,7 +260,7 @@ def run_benchmark(steam_account_id: int):
     if is_linux():
         mangohud_log_toggle()
     else:
-        user.press("enter")
+        press("space")
     time.sleep(1)
     navigate_main_menu(steam_account_id)
 
@@ -291,10 +270,7 @@ def run_benchmark(steam_account_id: int):
         logger.info("Did not load the save")
         sys.exit(1)
 
-    user.press("a")
-    time.sleep(0.5)
-    user.press("space")
-
+    press("a,space")
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
 
@@ -345,7 +321,7 @@ try:
         / "screeninfo.cfg"
     )
 
-    height, width = read_resolution(config_path)
+    height, width = read_resolution_from_config(config_path)
     report = {
         "resolution": format_resolution(width, height),
         "start_time": seconds_to_milliseconds(start_time),
