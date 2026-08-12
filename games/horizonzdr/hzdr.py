@@ -84,9 +84,8 @@ def run_benchmark() -> tuple[int, int]:
     setup_start_time = int(time.time())
 
     time.sleep(10)
-    # skip intro
     press("esc")
-    # Make sure the game started correctly
+
     if find_word(word="quit", timeout=30, interval=1) is None:
         logger.info("Could not find the main menu. Did the game load?")
         sys.exit(1)
@@ -94,42 +93,29 @@ def run_benchmark() -> tuple[int, int]:
     if is_linux():
         mangohud_log_toggle()
 
-    # Navigate to options menu
     press("down*2, enter")
 
-    if find_word(word="language", timeout=30, interval=1) is None:
+    if find_word(word="language", timeout=5, interval=1) is None:
         logger.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
 
     press("e")
 
-    # Verify that we have navigated to the display settings menu and take a screenshot
-    if find_word(word="monitor", timeout=30, interval=1) is None:
+    if find_word(word="monitor", timeout=5, interval=1) is None:
         logger.info("Did not find the display settings menu. Did the menu get stuck?")
         sys.exit(1)
-    # Check if its fullscreen only and not exclusive fullscreen
-    if find_word(word="exclusive", timeout=3, interval=0.5) is None:
-        # Resets focus to first position before applying settings
+    if find_word(word="exclusive", timeout=3, interval=1) is None:
         press("down, right, up, r, enter")
         time.sleep(1)
         press("enter")
-    # Checks frame rate setting, sometimes this can be incorrect even if it is set to exclusive fullscreen
     if find_word(word="144", timeout=3, interval=0.5) is None:
         press("down")
-        # Sometimes when the screen refreshes if the setting is changed from fullscreen to exclusive, the cursor highlights on v-sync because technically it moves it to the center so the game picks that up as a focusing movement.
-        # This checks if we are in the proper position by going down one and seeing if we can see 'generation' from frame generation, which should not be visible if we are in the correct focus location
-        # Either position once known is routed to the correct position via this if/else statement
         if find_word(word="generation", timeout=3, interval=0.5):
             press("up*2")
         else:
             press("down*5, right")
-        # This while loop is for the case when we switch to exclusive fullscreen from fullscreen, occasionally it will set to 30Hz, we want to get to 144Hz
-        # So we should be highlighted on refresh rate at this point, it will (if not 144) do the first press("right") then check for 144, if not present it will continue pressing right and checking after for 144
-        # This solves arbitrary steps to get to 144Hz, and sets us up if we want to alter that target hz setting we can just change the word variable below.
-        # KNOWN LIMITATION  we can maybe pull the max refresh some other way if we care about whether the display is not 144Hz max, so as to handle all edge cases here.
         while find_word(word="144", timeout=1, interval=0.5) is None:
             press("right")
-        # Apply Hz setting once it is correct, then go up one so the proper settings are in view for the screenshot
         press("r, enter")
         time.sleep(1)
         press("enter, up*6")
@@ -142,7 +128,6 @@ def run_benchmark() -> tuple[int, int]:
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display2.png")
 
-    # Navigate to graphics menu
     press("e")
 
     if find_word(word="preset", timeout=30, interval=1) is None:
@@ -157,7 +142,6 @@ def run_benchmark() -> tuple[int, int]:
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
 
-    # Launch the benchmark
     press("tab, enter")
 
     setup_end_time = int(time.time())
@@ -174,10 +158,8 @@ def run_benchmark() -> tuple[int, int]:
 
     test_start_time = int(time.time())
 
-    # Wait for benchmark to complete
     time.sleep(180)
 
-    # Wait for results screen to display info
     if find_word(word="results", timeout=20, interval=0.5) is None:
         logger.info(
             "Did not find the results screen. Did the game not finish the benchmark?"
@@ -185,7 +167,6 @@ def run_benchmark() -> tuple[int, int]:
         sys.exit(1)
 
     test_end_time = round(int(time.time()))
-    # Give results screen time to fill out, then save screenshot and config file
     time.sleep(2)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     registry_values = read_registry_key(SUBKEY, steam_app_id=STEAM_GAME_ID)
