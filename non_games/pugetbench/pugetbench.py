@@ -253,7 +253,6 @@ def main():
     if args.benchmark_version is None or args.benchmark_version == "":
         args.benchmark_version = get_latest_benchmark_by_version(args.app)
 
-    ARTIFACTS_DIRECTORY.mkdir(parents=True, exist_ok=True)
     try:
         start_time, end_time, score = execute_benchmark(
             args.app, trimmed_version, args.benchmark_version
