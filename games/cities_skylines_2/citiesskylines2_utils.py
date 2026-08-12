@@ -48,7 +48,7 @@ def copy_continuegame(config_files: list[str]) -> None:
             src_path = SCRIPT_DIRECTORY / "config" / file
             CONFIG_LOCATION.mkdir(parents=True, exist_ok=True)
             dest_path = CONFIG_LOCATION / file
-            logger.info("Copying: %s -> %s", file, dest_path)
+            logger.debug("Copying: %s -> %s", file, dest_path)
             shutil.copy(src_path, dest_path)
         except OSError as err:
             logger.error("Could not copy save information files. %s", err)
@@ -62,7 +62,7 @@ def copy_launcherfiles(launcher_files: list[str]) -> None:
             src_path = SCRIPT_DIRECTORY / "launcher" / file
             INSTALL_LOCATION.mkdir(parents=True, exist_ok=True)
             dest_path = INSTALL_LOCATION / file
-            logger.info("Copying: %s -> %s", file, dest_path)
+            logger.debug("Copying: %s -> %s", file, dest_path)
             shutil.copy(src_path, dest_path)
         except OSError as err:
             logger.error("Could not copy launcher files %s", err)
@@ -77,8 +77,8 @@ def copy_launcherpath():
         dest_path = LAUNCHCONFIG_LOCATION / launcherpath
         if dest_path.exists():
             dest_path.unlink()
-            logger.info("Removing old launcher file from %s", LAUNCHCONFIG_LOCATION)
-        logger.info("Copying: %s -> %s", launcherpath, dest_path)
+            logger.debug("Removing old launcher file from %s", LAUNCHCONFIG_LOCATION)
+        logger.debug("Copying: %s -> %s", launcherpath, dest_path)
         dest_path.write_text(str(INSTALL_LOCATION), encoding="utf-8")
     except OSError as err:
         logger.error("Could not copy the launcherpath file. %s", err)
@@ -92,7 +92,7 @@ def copy_benchmarksave(save_files: list[str]) -> None:
             src_path = SCRIPT_DIRECTORY / "save" / file
             SAVE_LOCATION.mkdir(parents=True, exist_ok=True)
             dest_path = SAVE_LOCATION / file
-            logger.info("Copying: %s -> %s", file, dest_path)
+            logger.debug("Copying: %s -> %s", file, dest_path)
             shutil.copy(src_path, dest_path)
         except OSError as err:
             logger.error("Could not copy the save game. %s", err)
