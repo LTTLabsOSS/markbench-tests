@@ -108,11 +108,14 @@ def run_benchmark(render_engine):
     logger.debug("deleting intro videos")
     remove_files([str(path) for path in intro_videos])
     replace_exe(render_engine)
+    is_vulkan = False
+    if render_engine == "vulkan":
+        is_vulkan = True
     exec_steam_game(STEAM_GAME_ID)
     setup_start_time = int(time.time())
     time.sleep(30)
 
-    result = find_word("options", timeout=120, vulkan=True, interval=3)
+    result = find_word("options", timeout=120, vulkan=is_vulkan, interval=3)
     if not result:
         logger.info("Did not find the options menu. Did the game launch?")
         sys.exit(1)
@@ -122,21 +125,21 @@ def run_benchmark(render_engine):
 
     press("down*5,left,enter")
 
-    result = find_word("display", timeout=10, vulkan=True)
+    result = find_word("display", timeout=10, vulkan=is_vulkan)
     if not result:
         logger.info("Did not find the display menu. Did OCR navigate correctly?")
         sys.exit(1)
 
     press("pagedown")
 
-    result = find_word("customise", timeout=10, vulkan=True)
+    result = find_word("customise", timeout=10, vulkan=is_vulkan)
     if not result:
         logger.info(
             "Did not find the customize graphics detail option. Did navigate correctly?"
         )
         sys.exit(1)
 
-    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png", vulkan=True)
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png", vulkan=is_vulkan)
 
     time.sleep(0.5)
     press("escape")
@@ -146,7 +149,7 @@ def run_benchmark(render_engine):
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
     time.sleep(1)
-    result = find_word("strange", timeout=100, vulkan=True)
+    result = find_word("strange", timeout=100, vulkan=is_vulkan)
     if not result:
         logger.info("Could not find FPS. Unable to mark start time!")
         sys.exit(1)
@@ -155,7 +158,7 @@ def run_benchmark(render_engine):
 
     time.sleep(55)  # Wait time for battle benchmark
 
-    result = find_word("confirm", timeout=30, vulkan=True)
+    result = find_word("confirm", timeout=30, vulkan=is_vulkan)
     if not result:
         logger.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?"
@@ -167,7 +170,7 @@ def run_benchmark(render_engine):
     # Wait 5 seconds for benchmark info
     time.sleep(5)
 
-    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png", vulkan=True)
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png", vulkan=is_vulkan)
     copy_artifact(CONFIG_FULL_PATH, ARTIFACTS_DIRECTORY)
 
     # End the run
