@@ -220,9 +220,4 @@ def main():
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception:
-        logger.error("big oops")
-        terminate_process(PROCESS_NAME)
-        sys.exit(1)
+    main()
