@@ -257,10 +257,8 @@ def run_benchmark(steam_account_id: int):
         sys.exit(1)
 
     time.sleep(1)
-    if is_linux():
-        mangohud_log_toggle()
-    else:
-        press("space")
+
+    press("space")
     time.sleep(1)
     navigate_main_menu(steam_account_id)
 
