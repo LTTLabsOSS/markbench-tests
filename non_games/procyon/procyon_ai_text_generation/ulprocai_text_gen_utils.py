@@ -9,8 +9,10 @@ from pathlib import Path
 import psutil
 import win32api
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+ARTIFACTS_DIRECTORY = SCRIPT_DIRECTORY / "run" / "artifacts"
 
 
 def is_process_running(process_name):
@@ -24,7 +26,7 @@ def is_process_running(process_name):
 def regex_find_score_in_xml(result_regex):
     """Reads score from local game log"""
     score_pattern = re.compile(result_regex)
-    cfg = f"{LOG_DIRECTORY}\\result.xml"
+    cfg = ARTIFACTS_DIRECTORY / "result.xml"
     score_value = 0
     with open(cfg, encoding="utf-8") as file:
         lines = file.readlines()
@@ -48,13 +50,13 @@ def find_procyon_version() -> str:
     install_path = get_install_path()
 
     if not install_path:
-        logging.info("Installation path not found.")
+        logger.info("Installation path not found.")
         return ""
 
     exe_path = os.path.join(install_path, "ProcyonCmd.exe")
 
     if not os.path.exists(exe_path):
-        logging.info("Executable not found at %s", exe_path)
+        logger.info("Executable not found at %s", exe_path)
         return ""
 
     try:
@@ -66,7 +68,7 @@ def find_procyon_version() -> str:
         ls = info.get("FileVersionLS")
 
         if ms is None or ls is None:
-            logging.info("No FileVersionMS or FileVersionLS found.")
+            logger.info("No FileVersionMS or FileVersionLS found.")
             return ""
 
         # Convert to human-readable version: major.minor.build.revision
@@ -79,7 +81,7 @@ def find_procyon_version() -> str:
         return version
 
     except Exception as e:
-        logging.info("Error retrieving version info from %s: %s", exe_path, e)
+        logger.info("Error retrieving version info from %s: %s", exe_path, e)
         return ""  # Return empty string if version info retrieval fails
 
 
@@ -89,16 +91,16 @@ def find_test_version() -> str:
         "C:\\ProgramData\\UL\\Procyon\\chops\\dlc\\ai-textgeneration-benchmark\\x64"
     )
 
-    logging.info("The install path for the test is %s", chops_path)
+    logger.info("The install path for the test is %s", chops_path)
 
     if not chops_path:
-        logging.info("Installation path not found.")
+        logger.info("Installation path not found.")
         return ""
 
     exe_path = os.path.join(chops_path, "Handler.exe")
 
     if not os.path.exists(exe_path):
-        logging.info("Executable 'Handler.exe' not found at %s", exe_path)
+        logger.info("Executable 'Handler.exe' not found at %s", exe_path)
         return ""
 
     try:
@@ -108,5 +110,5 @@ def find_test_version() -> str:
         str_info_path = f"\\StringFileInfo\\{lang:04X}{codepage:04X}\\ProductVersion"
         return str(win32api.GetFileVersionInfo(exe_path, str_info_path))
     except Exception as e:
-        logging.info("Error retrieving version info from %s: %s", exe_path, e)
+        logger.info("Error retrieving version info from %s: %s", exe_path, e)
         return ""  # Return empty string if version info retrieval fails

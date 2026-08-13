@@ -1,3 +1,4 @@
+# ruff: noqa: EXE002, RUF100
 """UL Procyon AI Text Generation test script"""
 
 import logging
@@ -19,15 +20,18 @@ from ulprocai_text_gen_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.report import seconds_to_milliseconds, write_report_json
+from harness_utils.artifacts import create_artifacts_manifest
 from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
+from harness_utils.report import seconds_to_milliseconds, write_report_json
+
+logger = logging.getLogger(__name__)
 
 #####
 # Globals
 #####
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
+
 DIR_PROCYON = Path(get_install_path())
 EXECUTABLE = "ProcyonCmd.exe"
 ABS_EXECUTABLE_PATH = DIR_PROCYON / EXECUTABLE
@@ -106,7 +110,7 @@ BENCHMARK_CONFIG = {
 }
 
 RESULTS_FILENAME = "result.xml"
-RESULTS_XML_PATH = LOG_DIRECTORY / RESULTS_FILENAME
+RESULTS_XML_PATH = ARTIFACTS_DIRECTORY / RESULTS_FILENAME
 
 
 def get_arguments():
@@ -138,7 +142,7 @@ def run_benchmark(process_name, command_to_run):
         stderr=subprocess.STDOUT,
         universal_newlines=True,
     ) as proc:
-        logging.info("Procyon AI Text Generation benchmark has started.")
+        logger.info("Procyon AI Text Generation benchmark has started.")
         while True:
             now = time.time()
             elapsed = now - start_time
@@ -158,30 +162,24 @@ try:
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.engine]["config"]
     cmd = create_procyon_command(option)
-    logging.info("Starting benchmark!")
-    logging.info(cmd)
+    logger.info("Starting benchmark!")
+    logger.info(cmd)
     start_time = time.time()
     pr = run_benchmark(BENCHMARK_CONFIG[args.engine]["process_name"], cmd)
 
     if pr.returncode > 0:
-        logging.error("Procyon exited with return code %d", pr.returncode)
+        logger.error("Procyon exited with return code %d", pr.returncode)
         sys.exit(pr.returncode)
 
     end_time = time.time()
     elapsed_test_time = round(end_time - start_time, 2)
 
-    am = ArtifactManager(LOG_DIRECTORY)
-    am.copy_file(RESULTS_XML_PATH, ArtifactType.RESULTS_TEXT, "results xml file")
-    am.create_manifest()
-    if (
-        not args.engine == "All_Models_OPENVINO"
-        and not args.engine == "All_Models_ONNX"
-    ):
+    if args.engine != "All_Models_OPENVINO" and args.engine != "All_Models_ONNX":
         results_regex = BENCHMARK_CONFIG[args.engine]["result_regex"]
         score = regex_find_score_in_xml(results_regex)
 
         if score is None:
-            logging.error("Could not find overall score!")
+            logger.error("Could not find overall score!")
             sys.exit(1)
 
         report = {
@@ -193,14 +191,14 @@ try:
             "end_time": seconds_to_milliseconds(end_time),
         }
 
-        logging.info("Benchmark took %.2f seconds", elapsed_test_time)
-        logging.info("Score was %s", score)
+        logger.info("Benchmark took %.2f seconds", elapsed_test_time)
+        logger.info("Score was %s", score)
 
         write_report_json(LOG_DIRECTORY, "report.json", report)
     else:
         session_report = []
 
-        logging.info("Benchmark took %.2f seconds", elapsed_test_time)
+        logger.info("Benchmark took %.2f seconds", elapsed_test_time)
 
         for test_type in BENCHMARK_CONFIG.items():
             if (
@@ -215,10 +213,10 @@ try:
                 results_regex = test_type[1]["result_regex"]
                 score = regex_find_score_in_xml(results_regex)
 
-                logging.info("%s score was %s", test_type[0], score)
+                logger.info("%s score was %s", test_type[0], score)
 
                 if score is None:
-                    logging.error("Could not find overall score!")
+                    logger.error("Could not find overall score!")
                     sys.exit(1)
 
                 report = {
@@ -237,7 +235,8 @@ try:
 
         write_report_json(LOG_DIRECTORY, "report.json", session_report)
 
-except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
+except Exception:
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception("Unhandled exception")
     sys.exit(1)

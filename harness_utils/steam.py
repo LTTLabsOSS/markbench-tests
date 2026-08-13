@@ -1,3 +1,4 @@
+# ruff: noqa: TRY004
 """Utility functions related to using Steam for running games."""
 
 import logging
@@ -78,34 +79,47 @@ def _get_active_steam_account_id_from_login_users() -> int:
     if not isinstance(users, dict):
         raise RuntimeError(f"Steam login users file missing users: {login_users_path}")
 
-    for steamid64, user in users.items():
-        if isinstance(user, dict) and _get_vdf_value(user, "MostRecent") == "1":
-            try:
-                account_id = int(steamid64) - STEAMID64_ACCOUNT_ID_OFFSET
-            except ValueError as err:
-                raise RuntimeError(f"Invalid SteamID64: {steamid64}") from err
-            if account_id < 0:
-                raise RuntimeError(f"Invalid SteamID64: {steamid64}")
-            logger.debug(
-                "Resolved Steam active account ID=%s steamid64=%s",
-                account_id,
-                steamid64,
-            )
-            return account_id
+    if not users:
+        raise RuntimeError(f"No Steam users found in: {login_users_path}")
 
-    raise RuntimeError(f"No most recent Steam user found in: {login_users_path}")
+    if len(users) == 1:
+        steamid64 = next(iter(users))
+    else:
+        try:
+            steamid64 = max(
+                users,
+                key=lambda user_id: int(
+                    str(_get_vdf_value(users[user_id], "Timestamp"))
+                ),
+            )
+        except (TypeError, ValueError) as err:
+            raise RuntimeError(
+                f"Could not read Steam user Timestamp in: {login_users_path}"
+            ) from err
+
+    try:
+        account_id = int(steamid64) - STEAMID64_ACCOUNT_ID_OFFSET
+    except ValueError as err:
+        raise RuntimeError(f"Invalid SteamID64: {steamid64}") from err
+    logger.debug(
+        "Resolved Steam active account ID=%s steamid64=%s", account_id, steamid64
+    )
+    return account_id
 
 
 def get_active_steam_account_id() -> int:
-    """Returns the most recent Steam user's Steam3 account ID.
+    """Returns a Steam3 account ID for user-specific files.
 
-    Steam stores users as SteamID64 values in loginusers.vdf, while userdata folders
-    use the Steam3 account ID value. Falls back to Steam's ActiveUser registry value
-    if loginusers.vdf cannot be read.
+    Uses the sole login user or the user with the latest login Timestamp.
+    Windows falls back to Steam's ActiveUser registry value if VDF lookup fails.
     """
-    logger.debug("Resolving most recent Steam account ID")
+    logger.debug("Resolving Steam account ID")
+    if is_linux():
+        return _get_active_steam_account_id_from_login_users()
     if not is_windows():
-        raise RuntimeError("Steam active user lookup requires Windows")
+        raise RuntimeError(
+            "Steam active user lookup is only supported on Windows and Linux"
+        )
 
     try:
         return _get_active_steam_account_id_from_login_users()

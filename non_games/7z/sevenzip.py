@@ -17,6 +17,8 @@ from sevenzip_utils import copy_from_network_drive
 
 from harness_utils.output_logging import setup_logging
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 setup_logging(LOG_DIRECTORY)
@@ -42,12 +44,12 @@ ABS_EXECUTABLE_PATH = SCRIPT_DIRECTORY / EXECUTABLE
 
 
 if not ABS_EXECUTABLE_PATH.is_file():
-    logging.info("7-Zip executable not found, downloading from network drive")
+    logger.info("7-Zip executable not found, downloading from network drive")
     copy_from_network_drive(EXECUTABLE)
 
 command = [str(ABS_EXECUTABLE_PATH), "b", "3"]
 t1 = time.time()
-logging.info("Starting 7-Zip benchmark! This may take a minute or so...")
+logger.info("Starting 7-Zip benchmark! This may take a minute or so...")
 with Popen(
     command, cwd=SCRIPT_DIRECTORY, stdout=subprocess.PIPE
 ) as process:
@@ -65,7 +67,7 @@ with Popen(
     for line in list_of_strings:
         if line.isspace():
             continue
-        logging.info(line.strip())
+        logger.info(line.strip())
         if "7-Zip" in line:
             match = re.match(VERSION_PATTERN, line)
             if match:
@@ -75,7 +77,7 @@ with Popen(
             speed_d = re.match(SPEED_PATTERN, line).group(2)
 
     t2 = time.time()
-    logging.info("Benchmark took %s seconds", round((t2 - t1), 3))
+    logger.info("Benchmark took %s seconds", round((t2 - t1), 3))
     result = [
         {
             "test": "7-Zip Compression",

@@ -20,12 +20,14 @@ from xz_utils import (
 
 from harness_utils.output_logging import setup_logging
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 setup_logging(LOG_DIRECTORY)
 
 if xz_executable_exists() is False:
-    logging.info("Downloading xz utils")
+    logger.info("Downloading xz utils")
     copy_from_network_drive()
 
 ABS_EXECUTABLE_PATH = SCRIPT_DIRECTORY / XZ_EXECUTABLE
@@ -62,11 +64,9 @@ for i in range(5):
 end_time = current_time_ms()
 
 SCORE_SUM = 0
-core_count = 0
-for score in scores:
+for core_count, score in enumerate(scores):
     print(f"core {core_count} took {score} milliseconds")
     SCORE_SUM += score
-    core_count += 1
 avg_score = round(SCORE_SUM / len(scores), 2)
 
 report = {

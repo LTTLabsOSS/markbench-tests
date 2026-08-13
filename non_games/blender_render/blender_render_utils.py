@@ -1,3 +1,4 @@
+# ruff: noqa: DTZ007
 """Blender render test script"""
 
 import logging
@@ -12,8 +13,9 @@ from pathlib import Path
 from zipfile import ZipFile
 
 import requests
-
 from win32api import HIWORD, LOWORD, GetFileVersionInfo
+
+logger = logging.getLogger(__name__)
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -58,7 +60,7 @@ def download_scene(scene: BlenderScene) -> None:
     """download blender project to script directory, tries network drive then the internet"""
     destination = SCRIPT_DIRECTORY.joinpath(scene.file_name)
     if destination.exists():
-        logging.info("%s scene file detected, no downloading required", scene.file_name)
+        logger.info("%s scene file detected, no downloading required", scene.file_name)
         return
 
     try:
@@ -66,11 +68,11 @@ def download_scene(scene: BlenderScene) -> None:
         if destination.exists():
             return
     except Exception as ex:
-        logging.warning(ex)
-        logging.warning("could not download from network drive...")
+        logger.warning(ex)
+        logger.warning("could not download from network drive...")
 
     try:
-        logging.info("downloading %s from internet...", scene.file_name)
+        logger.info("downloading %s from internet...", scene.file_name)
         response = requests.get(scene.download_url, allow_redirects=True, timeout=120)
         with open(destination, "wb") as f:
             f.write(response.content)
@@ -80,17 +82,17 @@ def download_scene(scene: BlenderScene) -> None:
         if destination.exists():
             return
     except Exception as ex:
-        logging.error(
+        logger.error(
             "could not download scene from any source, check connections and try again"
         )
-        raise Exception("error downloading scene", cause=ex) from ex
+        raise RuntimeError("error downloading scene") from ex
 
 
 def copy_scene_from_network_drive(file_name, destination):
     """copy blend file from network drive"""
     network_dir = Path("\\\\labs.lmg.gg\\labs\\03_ProcessingFiles\\Blender Render")
     source_path = network_dir.joinpath(file_name)
-    logging.info("Copying %s from %s", file_name, source_path)
+    logger.info("Copying %s from %s", file_name, source_path)
     shutil.copyfile(source_path, destination)
 
 
@@ -116,7 +118,7 @@ def run_blender_render(
     """Execute the blender render of barbershop, returns the duration as string"""
     blend_log = log_directory.joinpath("blender.log")
     blend_path = SCRIPT_DIRECTORY.joinpath(benchmark.file_name)
-    cmd_line = f'"{str(executable_path)}" -b -E CYCLES -y "{str(blend_path)}" -f 1 -- --cycles-device {device} --cycles-print-stats'
+    cmd_line = f'"{executable_path!s}" -b -E CYCLES -y "{blend_path!s}" -f 1 -- --cycles-device {device} --cycles-print-stats'
     with open(blend_log, "w", encoding="utf-8") as f_obj:
         subprocess.run(cmd_line, stdout=f_obj, text=True, check=True)
 
@@ -127,9 +129,7 @@ def run_blender_render(
     with open(blend_log, "r", encoding="utf-8") as file:
         lines = file.readlines()
         lines.reverse()
-        count = 0
         for line in lines:
-            count += 1
             match = re.match(time_regex, line.strip())
             if match:
                 time = match.group(1)

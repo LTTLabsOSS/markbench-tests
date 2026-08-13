@@ -9,7 +9,6 @@ from pathlib import Path
 from subprocess import PIPE, STDOUT, Popen, TimeoutExpired
 
 from pugetbench_utils import (
-    find_pugetbench_csv,
     find_score_in_log,
     get_aftereffects_version,
     get_davinci_version,
@@ -23,17 +22,19 @@ from pugetbench_utils import (
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
-from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.report import seconds_to_milliseconds, write_report_json
+from harness_utils.artifacts import create_artifacts_manifest
 from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
 from harness_utils.process import terminate_process
+from harness_utils.report import seconds_to_milliseconds, write_report_json
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+logger = logging.getLogger(__name__)
+
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 timestamp = time.strftime(
     "%Y-%m-%d_%H-%M-%S", time.localtime()
 )  # e.g., 20260304_153245
-LOG_FILE_PATH = LOG_DIRECTORY / f"pugetbench_{timestamp}.csv"
+LOG_FILE_PATH = ARTIFACTS_DIRECTORY / f"pugetbench_{timestamp}.csv"
 setup_logging(LOG_DIRECTORY)
 
 EXECUTABLE_NAME = "PugetBench for Creators.exe"
@@ -78,7 +79,7 @@ def safe_terminate(process_names: list[str]):
         try:
             terminate_process(pname)
         except Exception as e:
-            logging.info(
+            logger.info(
                 "Process '%s' could not be terminated (may not exist): %s", pname, e
             )
 
@@ -118,7 +119,7 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         f"C:\\Program Files\\PugetBench for Creators\\{EXECUTABLE_NAME}"
     )
     if not executable_path.exists():
-        logging.error("PugetBench executable not found at %s", executable_path)
+        logger.error("PugetBench executable not found at %s", executable_path)
         sys.exit(1)
 
     command = [
@@ -141,9 +142,9 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         str(LOG_FILE_PATH),
     ]
 
-    logging.info("Running benchmark command: %s", command)
+    logger.info("Running benchmark command: %s", command)
 
-    logging.info(command)
+    logger.info(command)
 
     error_in_output = {"exception": None}  # Shared state for error reporting
 
@@ -188,7 +189,7 @@ def get_app_version_info(app: str, version_arg: str):
     if not full_version:
         full_version, trimmed_version = config["version_func"]()
         if not full_version or not trimmed_version:
-            logging.error(
+            logger.error(
                 "Could not determine %s version. Is it installed?", config["label"]
             )
             sys.exit(1)
@@ -252,7 +253,6 @@ def main():
     if args.benchmark_version is None or args.benchmark_version == "":
         args.benchmark_version = get_latest_benchmark_by_version(args.app)
 
-    am = ArtifactManager(LOG_DIRECTORY)
     try:
         start_time, end_time, score = execute_benchmark(
             args.app, trimmed_version, args.benchmark_version
@@ -270,27 +270,23 @@ def main():
             "score": score,
         }
 
-        csv_path = find_pugetbench_csv(LOG_DIRECTORY)
-        if csv_path is not None:
-            am.copy_file(csv_path, ArtifactType.RESULTS_TEXT)
-            am.create_manifest()
-
         write_report_json(LOG_DIRECTORY, "report.json", report)
+        create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 
     except RuntimeError as e:
         msg = str(e)
-        logging.error("Something went wrong running the benchmark!")
-        logging.exception(e)
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception("Unhandled exception")
 
         # Terminate the process only for "real" failures
         if "timed out" in msg or "Benchmark failed" in msg:
             safe_terminate([EXECUTABLE_NAME, APP_CONFIG[args.app]["app_name"]])
 
         sys.exit(1)
-    except Exception as e:
+    except Exception:
         # Non-runtime exceptions, e.g., coding errors, still exit
-        logging.error("Unexpected error!")
-        logging.exception(e)
+        logger.error("Unexpected error!")
+        logger.exception("Unhandled exception")
         sys.exit(1)
 
 

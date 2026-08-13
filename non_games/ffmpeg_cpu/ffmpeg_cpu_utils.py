@@ -1,10 +1,9 @@
 """utility functions for running ffmpeg tests"""
 
 import shutil
-import time
 import subprocess
+import time
 from pathlib import Path
-
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 

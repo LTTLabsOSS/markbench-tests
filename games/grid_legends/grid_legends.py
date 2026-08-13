@@ -1,40 +1,48 @@
 """Grid Legends test script"""
 
 import logging
-import os
 import re
 import sys
 import time
 from pathlib import Path
 
-import pydirectinput as user
-
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import (
+    capture_and_save_screenshot,
+    copy_artifact,
+    create_artifacts_manifest,
+)
+from harness_utils.input import mangohud_log_toggle, press, user
 from harness_utils.ocr_service import find_word
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories, user_documents
+from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.steam import exec_steam_game, get_build_id
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+logger = logging.getLogger(__name__)
+
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "gridlegends.exe"
 STEAM_GAME_ID = 1307710
 
-username = os.getlogin()
 CONFIG_PATH = (
-    f"C:\\Users\\{username}\\Documents\\My Games\\GRID Legends\\hardwaresettings"
+    user_documents(STEAM_GAME_ID) / "My Games" / "GRID Legends" / "hardwaresettings"
 )
 CONFIG_FILENAME = "hardware_settings_config.xml"
-CONFIG_FULL_PATH = f"{CONFIG_PATH}\\{CONFIG_FILENAME}"
+CONFIG_FULL_PATH = CONFIG_PATH / CONFIG_FILENAME
 
 user.FAILSAFE = False
 
 
-def get_resolution() -> tuple[int]:
+def get_resolution() -> tuple[int, int]:
     """Gets resolution width and height from local xml file created by game."""
     resolution = re.compile(r"<resolution width=\"(\d+)\" height=\"(\d+)\"")
     height = 0
@@ -45,102 +53,82 @@ def get_resolution() -> tuple[int]:
             height_match = resolution.search(line)
             width_match = resolution.search(line)
             if height_match is not None:
-                height = height_match.group(2)
+                height = int(height_match.group(2))
             if width_match is not None:
-                width = width_match.group(1)
+                width = int(width_match.group(1))
     return (height, width)
-
-
-def start_game():
-    """Launch the game"""
-    return exec_steam_game(STEAM_GAME_ID)
 
 
 def run_benchmark():
     """Run Grid Legends benchmark"""
     setup_start_time = int(time.time())
-    start_game()
-    am = ArtifactManager(LOG_DIRECTORY)
 
+    exec_steam_game(STEAM_GAME_ID)
     time.sleep(20)  # wait for game to load to the start screen
 
     if find_word(word="press", timeout=80, interval=1) is None:
-        logging.error("Game didn't load to start screen. Did the game load?")
+        logger.error("Game didn't load to start screen. Did the game load?")
         sys.exit(1)
-    user.click()
-    logging.info("Game started. Entering main menu")
+
+    time.sleep(1)
+
+    if is_linux():
+        mangohud_log_toggle()
+    else:
+        user.move_mouse(0, 0)
+        user.click()
+
+    logger.info("Game started. Entering main menu")
     time.sleep(4)
-    user.press("enter")
+    press("enter")
     time.sleep(2)
 
     # waiting about a minute for the main menu to appear
     if find_word(word="home", timeout=80, interval=1) is None:
-        logging.error("Game didn't load to main menu. Check settings and try again.")
+        logger.error("Game didn't load to main menu. Check settings and try again.")
         sys.exit(1)
 
-    logging.info("Starting benchmark")
-    user.press("f3")
-    time.sleep(0.2)
-    user.press("right")
-    time.sleep(0.2)
-    user.press("right")
-    time.sleep(0.2)
-    user.press("enter")
-    time.sleep(0.2)
+    logger.info("Starting benchmark")
+    press("f3, right*2, enter")
 
     if find_word(word="basic", timeout=30, interval=0.1) is None:
-        logging.error("Didn't basic video options. Did the menu navigate correctly?")
+        logger.error("Didn't basic video options. Did the menu navigate correctly?")
         sys.exit(1)
-    am.take_screenshot(
-        "basic.png", ArtifactType.CONFIG_IMAGE, "picture of basic settings"
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "basic.png")
 
-    user.press("f3")
-    time.sleep(0.2)
+    press("f3")
 
     if find_word(word="benchmark", timeout=30, interval=0.1) is None:
-        logging.error(
+        logger.error(
             "Didn't reach advanced video options. Did the menu navigate correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "advanced_1.png",
-        ArtifactType.CONFIG_IMAGE,
-        "first picture of advanced settings",
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_1.png")
 
-    user.press("up")
-    time.sleep(0.2)
+    press("up")
 
     if find_word(word="shading", timeout=30, interval=0.1) is None:
-        logging.error(
+        logger.error(
             "Didn't reach bottom of advanced video settings. Did the menu navigate correctly?"
         )
         sys.exit(1)
-    am.take_screenshot(
-        "advanced_2.png",
-        ArtifactType.CONFIG_IMAGE,
-        "second picture of advanced settings",
-    )
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_2.png")
 
-    user.press("down")
-    time.sleep(0.2)
-    user.press("enter")
-    time.sleep(0.2)
+    press("down, enter")
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
-    logging.info("Harness setup took %f seconds", elapsed_setup_time)
+    logger.info("Harness setup took %f seconds", elapsed_setup_time)
 
     if find_word(word="manzi", timeout=120, interval=0.1) is None:
-        logging.error("Didn't see Valentino Manzi. Did the benchmark load?")
+        logger.error("Didn't see Valentino Manzi. Did the benchmark load?")
         sys.exit(1)
     test_start_time = int(time.time())
 
     time.sleep(136)
     # TODO -> Mark benchmark start time using video OCR by looking for a players name
     if find_word(word="results", timeout=30, interval=0.1) is None:
-        logging.error(
+        logger.error(
             "Didn't see results screen for the benchmark. Could not mark start time! Did the benchmark crash?"
         )
         sys.exit(1)
@@ -148,12 +136,11 @@ def run_benchmark():
     test_end_time = int(time.time()) - 2
     time.sleep(2)
 
-    am.take_screenshot("results.png", ArtifactType.RESULTS_IMAGE, "benchmark results")
-    am.copy_file(Path(CONFIG_FULL_PATH), ArtifactType.CONFIG_TEXT, "game config")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    copy_artifact(Path(CONFIG_FULL_PATH), ARTIFACTS_DIRECTORY)
 
-    logging.info("Run completed. Closing game.")
+    logger.info("Run completed. Closing game.")
     time.sleep(2)
-    am.create_manifest()
 
     return test_start_time, test_end_time
 
@@ -162,7 +149,7 @@ def main():
     """entry point"""
     start_time, end_time = run_benchmark()
     elapsed_test_time = round((end_time - start_time), 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
     terminate_process(PROCESS_NAME)
     height, width = get_resolution()
     report = {
@@ -173,14 +160,15 @@ def main():
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 
 
 if __name__ == "__main__":
     try:
         setup_logging(LOG_DIRECTORY)
         main()
-    except Exception as ex:
-        logging.error("Something went wrong running the benchmark!")
-        logging.exception(ex)
+    except Exception:
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception("Unhandled exception")
         terminate_process(PROCESS_NAME)
         sys.exit(1)

@@ -11,6 +11,8 @@ import requests
 
 from harness_utils.screenshot import capture_screenshot_jpg_bytes
 
+logger = logging.getLogger(__name__)
+
 CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "configs" / "config.toml"
 OCR_REQUEST_TIMEOUT = 5
 FAILED_RUN = (0, 0)
@@ -30,9 +32,9 @@ def get_ocr_url(
             ocr = data.get("ocr", {})
             host = str(ocr.get("host", host))
             ocr_port = str(ocr.get("port", ocr_port))
-        logging.debug("Found OCR config file. Using config/default values.")
+        logger.debug("Found OCR config file. Using config/default values.")
     else:
-        logging.debug(
+        logger.debug(
             "OCR config file not found. Using defaults unless CLI overrides exist."
         )
         parser = ArgumentParser(add_help=False)
@@ -44,7 +46,7 @@ def get_ocr_url(
 
     host = str(ip_addr) if ip_addr is not None else host
     ocr_port = str(port) if port is not None else ocr_port
-    logging.debug("Resolved OCR url: host=%s, port=%s", host, ocr_port)
+    logger.debug("Resolved OCR url: host=%s, port=%s", host, ocr_port)
     return f"http://{host}:{ocr_port}/process"
 
 
@@ -62,7 +64,7 @@ def _query_ocr_service(word: str, vulkan: bool = False, crop: str | None = None)
             timeout=OCR_REQUEST_TIMEOUT,
         )
     except requests.exceptions.Timeout as exc:
-        logging.warning(
+        logger.warning(
             "OCR service timed out after %ss while searching for word=%r url=%s error=%s",
             OCR_REQUEST_TIMEOUT,
             word,
@@ -71,7 +73,7 @@ def _query_ocr_service(word: str, vulkan: bool = False, crop: str | None = None)
         )
         return None
     except requests.exceptions.ConnectionError as exc:
-        logging.warning(
+        logger.warning(
             "OCR service connection failed while searching for word=%r url=%s error=%s",
             word,
             url,
@@ -79,7 +81,7 @@ def _query_ocr_service(word: str, vulkan: bool = False, crop: str | None = None)
         )
         return None
     except requests.exceptions.RequestException as exc:
-        logging.warning(
+        logger.warning(
             "OCR service request failed while searching for word=%r url=%s error=%s",
             word,
             url,
@@ -93,7 +95,7 @@ def _query_ocr_service(word: str, vulkan: bool = False, crop: str | None = None)
     try:
         return json.loads(response.text)
     except json.JSONDecodeError as exc:
-        logging.warning(
+        logger.warning(
             "OCR service returned invalid JSON while searching for word=%r url=%s error=%s",
             word,
             url,
@@ -110,17 +112,17 @@ def find_word(
     msg: str | None = None,
     crop: str | None = None,
 ):
-    logging.debug("Searching OCR word=%r timeout=%s", word, timeout)
+    logger.debug("Searching OCR word=%r timeout=%s", word, timeout)
     start_time = monotonic()
     while True:
         result = _query_ocr_service(word, vulkan, crop)
         elapsed_time = monotonic() - start_time
         if result is not None:
-            logging.debug(
+            logger.debug(
                 "Found OCR word=%r elapsed=%.2fs result=%s", word, elapsed_time, result
             )
             return result
         if elapsed_time > timeout:
-            logging.debug(msg or f"OCR did not find word={word!r} timeout={timeout}s")
+            logger.debug(msg or f"OCR did not find word={word!r} timeout={timeout}s")
             return None
         sleep(interval)

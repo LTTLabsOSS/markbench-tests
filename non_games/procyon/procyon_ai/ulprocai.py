@@ -19,9 +19,10 @@ from procyon_ai_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.report import seconds_to_milliseconds, write_report_json
+from harness_utils.artifacts import create_artifacts_manifest
 from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
+from harness_utils.report import seconds_to_milliseconds, write_report_json
 from non_games.procyon.procyoncmd import (
     get_cuda_devices,
     get_openvino_devices,
@@ -29,11 +30,13 @@ from non_games.procyon.procyoncmd import (
     get_winml_devices,
 )
 
+logger = logging.getLogger(__name__)
+
 #####
 # Globals
 #####
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
+
 DIR_PROCYON = Path(get_install_path())
 EXECUTABLE = "ProcyonCmd.exe"
 ABS_EXECUTABLE_PATH = DIR_PROCYON / EXECUTABLE
@@ -125,7 +128,7 @@ BENCHMARK_CONFIG = {
 
 
 RESULTS_FILENAME = "result.xml"
-RESULTS_XML_PATH = LOG_DIRECTORY / RESULTS_FILENAME
+RESULTS_XML_PATH = ARTIFACTS_DIRECTORY / RESULTS_FILENAME
 
 
 def get_arguments():
@@ -144,7 +147,7 @@ def get_arguments():
 
 def create_procyon_command(test_option, process_name, device_id):
     """create command string"""
-    command = str()
+    command = ""
 
     if device_id == "CPU":
         command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}"'
@@ -168,7 +171,7 @@ def run_benchmark(process_name, command_to_run):
         stderr=subprocess.STDOUT,
         universal_newlines=True,
     ) as proc:
-        logging.info("Procyon AI Computer Vision benchmark has started.")
+        logger.info("Procyon AI Computer Vision benchmark has started.")
         while True:
             now = time.time()
             elapsed = now - start_time
@@ -185,36 +188,33 @@ def run_benchmark(process_name, command_to_run):
 
 try:
     setup_logging(LOG_DIRECTORY)
-    logging.info("Detected Windows ML Devices: %s", str(WINML_DEVICES))
-    logging.info("Detected OpenVino Devices: %s", str(OPENVINO_DEVICES))
-    logging.info("Detected CUDA Devices: %s", (CUDA_DEVICES))
+    logger.info("Detected Windows ML Devices: %s", str(WINML_DEVICES))
+    logger.info("Detected OpenVino Devices: %s", str(OPENVINO_DEVICES))
+    logger.info("Detected CUDA Devices: %s", (CUDA_DEVICES))
 
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.engine]["config"]
     proc_name = BENCHMARK_CONFIG[args.engine]["process_name"]
     dev_id = BENCHMARK_CONFIG[args.engine]["device_id"]
     cmd = create_procyon_command(option, proc_name, dev_id)
-    logging.info("Starting benchmark!")
-    logging.info(cmd)
+    logger.info("Starting benchmark!")
+    logger.info(cmd)
     start_time = time.time()
     pr = run_benchmark(BENCHMARK_CONFIG[args.engine]["process_name"], cmd)
 
     if pr.returncode > 0:
-        logging.error("Procyon exited with return code %d", pr.returncode)
+        logger.error("Procyon exited with return code %d", pr.returncode)
         sys.exit(pr.returncode)
 
     score = find_score_in_xml()
     if score is None:
-        logging.error("Could not find overall score!")
+        logger.error("Could not find overall score!")
         sys.exit(1)
 
-    am = ArtifactManager(LOG_DIRECTORY)
-    am.copy_file(RESULTS_XML_PATH, ArtifactType.RESULTS_TEXT, "results xml file")
-    am.create_manifest()
     end_time = time.time()
     elapsed_test_time = round(end_time - start_time, 2)
-    logging.info("Benchmark took %.2f seconds", elapsed_test_time)
-    logging.info("Score was %s", score)
+    logger.info("Benchmark took %.2f seconds", elapsed_test_time)
+    logger.info("Score was %s", score)
 
     report = {
         "start_time": seconds_to_milliseconds(start_time),
@@ -229,7 +229,8 @@ try:
         "score": score,
     }
     write_report_json(LOG_DIRECTORY, "report.json", report)
-except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
+except Exception:
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception("Unhandled exception")
     sys.exit(1)

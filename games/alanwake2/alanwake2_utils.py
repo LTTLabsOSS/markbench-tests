@@ -7,6 +7,8 @@ import shutil
 import winreg
 from pathlib import Path
 
+logger = logging.getLogger(__name__)
+
 LOCALAPPDATA = os.getenv("LOCALAPPDATA")
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 AW2_SAVE = SCRIPT_DIRECTORY.joinpath("aw2-savegame-slot-03")
@@ -59,16 +61,16 @@ def copy_save() -> None:
     # Validate/create path to directory where we will copy benchmark to
     try:
         Path(save_location).mkdir(parents=True, exist_ok=True)
-    except FileExistsError as e:
-        logging.error(
+    except FileExistsError:
+        logger.error(
             "Could not copy files - likely due to non-directory file existing at path."
         )
-        raise e
+        raise
 
     # Copy the benchmark over
-    logging.info("Copying benchmark to install folder")
+    logger.info("Copying benchmark to install folder")
     destination_folder = save_location.joinpath(os.path.basename(AW2_SAVE))
-    logging.info("Copying: %s -> %s", AW2_SAVE, destination_folder)
+    logger.info("Copying: %s -> %s", AW2_SAVE, destination_folder)
     shutil.copytree(AW2_SAVE, destination_folder, dirs_exist_ok=True)
 
 
