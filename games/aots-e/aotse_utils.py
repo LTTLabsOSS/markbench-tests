@@ -73,38 +73,21 @@ def find_score_in_log(score_name, file):
 
 def replace_exe():
     """Replaces the Strange Brigade launcher exe with the Vulkan exe for immediate launching"""
-    check_backup = EXE_PATH / "StardockLauncher_launcher.exe"
-    launcher_exe = EXE_PATH / "StardockLauncher.exe"
+    backup_launcher_exe = EXE_PATH / "StardockLauncher_launcher.exe"
+    original_launcher_exe = EXE_PATH / "StardockLauncher.exe"
     dx12_exe = EXE_PATH / "AshesEscalation_DX12.exe"
-    if not check_backup.exists():
-        launcher_exe.rename(check_backup)
-        try:
-            shutil.copy(dx12_exe, launcher_exe)
-        except OSError:
-            check_backup.rename(launcher_exe)
-            raise
-        logger.info("Replacing launcher file in %s", EXE_PATH)
-    elif not launcher_exe.exists():
-        try:
-            shutil.copy(dx12_exe, launcher_exe)
-        except OSError:
-            logger.exception("Could not replace launcher file in %s", EXE_PATH)
-            raise
-        logger.info("Replacing launcher file in %s", EXE_PATH)
-    else:
-        logger.info("Launcher already replaced with DX12 exe.")
 
+    if not backup_launcher_exe.exists():
+        shutil.copy(original_launcher_exe, backup_launcher_exe)
+
+    dx12_exe.replace(original_launcher_exe)
 
 def restore_exe():
     """Restores the launcher exe back to the original exe name to close the loop."""
-    check_backup = EXE_PATH / "StardockLauncher_launcher.exe"
-    launcher_exe = EXE_PATH / "StardockLauncher.exe"
-    if not check_backup.exists():
-        logger.info("Launcher already restored or file does not exist.")
-    elif not launcher_exe.exists():
-        check_backup.rename(launcher_exe)
-        logger.info("Restoring launcher file in %s", EXE_PATH)
+    backup_launcher_exe = EXE_PATH / "StardockLauncher_launcher.exe"
+    original_launcher_exe = EXE_PATH / "StardockLauncher.exe"
+    if not backup_launcher_exe.exists():
+        logger.error("backup launcher exe does not exist")
     else:
-        launcher_exe.unlink()
-        check_backup.rename(launcher_exe)
-        logger.info("Restoring launcher file in %s", EXE_PATH)
+        backup_launcher_exe.replace(original_launcher_exe)
+        logger.debug("restored launcher")
