@@ -80,7 +80,7 @@ def replace_exe():
     if not backup_launcher_exe.exists():
         shutil.copy(original_launcher_exe, backup_launcher_exe)
 
-    dx12_exe.replace(original_launcher_exe)
+    shutil.copy(dx12_exe,original_launcher_exe)
 
 def restore_exe():
     """Restores the launcher exe back to the original exe name to close the loop."""
@@ -89,5 +89,5 @@ def restore_exe():
     if not backup_launcher_exe.exists():
         logger.error("backup launcher exe does not exist")
     else:
-        backup_launcher_exe.replace(original_launcher_exe)
+        shutil.copy(backup_launcher_exe,original_launcher_exe)
         logger.debug("restored launcher")
