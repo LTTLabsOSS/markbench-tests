@@ -10,7 +10,7 @@
 
 ## Notes
 
-- if 144 Hz not avaialble, need to edit the harness to find the highest refresh
+- if 144 Hz not available, need to edit the harness to find the highest refresh
 
 ## Artifacts
 
