@@ -12,7 +12,7 @@ from harness_utils.paths import user_documents
 logger = logging.getLogger(__name__)
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-STEAM_GAME_ID = 1091500
+STEAM_GAME_ID = 3751950
 
 def get_resolution():
     """Get current resolution from settings file"""
