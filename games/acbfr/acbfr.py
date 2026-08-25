@@ -37,7 +37,7 @@ CONFIG_FILENAME = "ACBlackFlag.ini"
 CONFIG = CONFIG_PATH / CONFIG_FILENAME
 
 intro_videos = [
-    VIDEO_PATH / "ANVIL_Logo.webm", 
+    VIDEO_PATH / "ANVIL_Logo.webm",
     VIDEO_PATH / "HUB_Bootflow_AbstergoIntro.webm",
     VIDEO_PATH / "HUB_Bootflow_FranchiseIntro.webm",
     VIDEO_PATH / "HUB_Bootflow_Intro.webm",
@@ -45,7 +45,7 @@ intro_videos = [
     VIDEO_PATH / "UbisoftLogo.webm",
     VIDEO_PATH / "en" / "Epilepsy.webm",
     VIDEO_PATH / "en" / "warning_disclaimer.webm",
-    VIDEO_PATH / "en" / "WarningSaving.webm"
+    VIDEO_PATH / "en" / "WarningSaving.webm",
     ]
 user.FAILSAFE = False
 
@@ -55,18 +55,18 @@ def navigate_to_settings():
     press("enter")
     result = find_word("system", timeout=10)
     if not result:
-            logger.info(
-                "Did not see the main menu. Did OCR navigate to the settings menu correctly?"
-            )
-            sys.exit(1)
-    press ("down, enter")
+        logger.info(
+            "Did not see the main menu. Did OCR navigate to the settings menu correctly?"
+        )
+        sys.exit(1)
+    press("down, enter")
     result = find_word("options", timeout=10)
     if not result:
-            logger.info(
-                "Did not see the system options. Did OCR navigate to the settings menu correctly?"
-            )
-            sys.exit(1)
-    press ("enter")
+        logger.info(
+            "Did not see the system options. Did OCR navigate to the settings menu correctly?"
+        )
+        sys.exit(1)
+    press("enter")
 
 
 def navigate_settings() -> None:

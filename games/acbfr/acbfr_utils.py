@@ -2,7 +2,6 @@
 
 import logging
 import re
-import shutil
 import sys
 from pathlib import Path
 
@@ -18,12 +17,12 @@ STEAM_GAME_ID = 1091500
 def get_resolution():
     """Get current resolution from settings file"""
     config_path = (
-            user_documents(STEAM_GAME_ID)
-            / "Assassin's Creed Black Flag Resynced"
-            / "ACBlackFlag.ini"
+        user_documents(STEAM_GAME_ID)
+        / "Assassin's Creed Black Flag Resynced"
+        / "ACBlackFlag.ini"
         )
     if not config_path.exists():
-            raise RuntimeError(f"Missing path: {config_path}")
+        raise RuntimeError(f"Missing path: {config_path}")
     logger.info("Reading AC Black Flag Resynced settings file path=%s", config_path)
     height_pattern = re.compile(r"FullscreenHeight=(\d+)")
     width_pattern = re.compile(r"FullscreenWidth=(\d+)")
