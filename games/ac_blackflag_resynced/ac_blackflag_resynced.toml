@@ -1,5 +1,5 @@
 friendly_name = "Assassins Creed Black Flag Resynced"
-py_script = "acbfr.py"
+py_script = "ac_blackflag_resynced.py"
 executable = "ACBlackFlag.exe"
 presentmon_enabled = true
 presentmon_ignore_exit = true
