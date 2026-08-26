@@ -16,7 +16,7 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.file_cleanup import remove_files
-from harness_utils.input import mangohud_log_toggle, press, user
+from harness_utils.input import mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import game_install_path, harness_directories, user_documents
@@ -50,8 +50,8 @@ intro_videos = [
     VIDEO_PATH / "en" / "Epilepsy.webm",
     VIDEO_PATH / "en" / "warning_disclaimer.webm",
     VIDEO_PATH / "en" / "WarningSaving.webm",
-    ]
-user.FAILSAFE = False
+]
+
 
 def navigate_to_settings():
     """navigate from main menu to settings menu"""
