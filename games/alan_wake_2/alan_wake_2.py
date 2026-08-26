@@ -7,7 +7,12 @@ from pathlib import Path
 from subprocess import Popen
 
 import pydirectinput as user
-from alan_wake_2_utils import CONFIG_PATH, copy_save, find_epic_executable, get_resolution
+from alan_wake_2_utils import (
+    CONFIG_PATH,
+    copy_save,
+    find_epic_executable,
+    get_resolution,
+)
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -115,9 +120,7 @@ def run_benchmark():
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
     press_n_times("down", 10, 0.2)
     if find_word(word="transparency", timeout=60, interval=0.5) is None:
-        logger.error(
-            "Did not see Transparency. Did it navigate to graphics correctly?"
-        )
+        logger.error("Did not see Transparency. Did it navigate to graphics correctly?")
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")
     time.sleep(0.2)
@@ -176,7 +179,6 @@ try:
         "end_time": round(end_time * 1000),
         "game_version": find_eg_game_version(GAMEFOLDERNAME),
     }
-
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
     create_artifacts_manifest(ARTIFACTS_DIRECTORY)
