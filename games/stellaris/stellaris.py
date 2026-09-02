@@ -6,8 +6,6 @@ import sys
 import time
 from pathlib import Path
 
-import pyautogui as gui
-import pydirectinput as user
 from stellaris_utils import (
     copy_benchmarkfiles,
     copy_benchmarksave,
@@ -22,6 +20,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
+from harness_utils.input import press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -39,8 +38,6 @@ SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__fil
 PROCESS_NAME = "stellaris.exe"
 STEAM_GAME_ID = 281990
 
-user.FAILSAFE = False
-
 
 def start_game():
     """Starts the game process"""
@@ -51,8 +48,8 @@ def start_game():
 
 def console_command(command):
     """Enter a console command"""
-    gui.write(command)
-    user.press("enter")
+    user.write(command)
+    press("enter")
 
 
 def run_benchmark():
@@ -65,11 +62,9 @@ def run_benchmark():
 
     patchnotes = find_word("close", interval=0.5, timeout=100)
     if patchnotes:
-        gui.moveTo(patchnotes["x"], patchnotes["y"])
+        user.move_mouse(patchnotes["x"], patchnotes["y"])
         time.sleep(0.2)
-        gui.mouseDown()
-        time.sleep(0.2)
-        gui.mouseUp()
+        user.click()
         time.sleep(0.2)
 
     result = find_word("credits", interval=0.5, timeout=100)
@@ -86,16 +81,14 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    user.click()
     time.sleep(0.5)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "settings.png")
 
     time.sleep(0.2)
-    user.press("esc")
+    press("esc")
 
     result = find_word("load", timeout=10, interval=1)
     if not result:
@@ -104,11 +97,9 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    user.click()
     time.sleep(2)
 
     result = find_word("latest", timeout=10, interval=1)
@@ -118,11 +109,9 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    user.click()
     time.sleep(0.5)
 
     result = find_word("paused", interval=0.5, timeout=100)
@@ -137,11 +126,11 @@ def run_benchmark():
         logger.info("Did not find the overview in the corner. Did the game load?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
 
     time.sleep(2)
     logger.info("Starting benchmark")
-    user.press("`")
+    press("`")
     time.sleep(0.5)
     console_command("run benchmark.ini")
     time.sleep(1)
@@ -172,7 +161,6 @@ def run_benchmark():
     score = find_score_in_log()
     logger.info("The one year passed in %s seconds", score)
     terminate_process(PROCESS_NAME)
-
 
     return test_start_time, test_end_time, score
 

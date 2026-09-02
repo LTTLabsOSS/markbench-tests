@@ -21,6 +21,7 @@ _YDOTOOL_KEYS = {
     "a": 30,
     "altleft": 56,
     "backspace": 14,
+    "`": 41,
     "left": 105,
     "leftshift": 42,
     "pagedown": 109,
@@ -78,6 +79,9 @@ class _WindowsInputBackend:
     def press(self, key: str) -> None:
         self._pydirectinput.press(key)
 
+    def write(self, text: str) -> None:
+        self._pydirectinput.write(text)
+
     def key_down(self, key: str) -> None:
         self._pydirectinput.keyDown(key)
 
@@ -132,6 +136,9 @@ class _YdotoolInputBackend:
         self.key_down(key)
         self.key_up(key)
 
+    def write(self, text: str) -> None:
+        self._run("type", text)
+
     def key_down(self, key: str) -> None:
         self._run("key", f"{self._keycode(key)}:1")
 
@@ -182,6 +189,10 @@ class KeyboardMouseDriver:
     def press(self, key: str) -> None:
         """Press and release a key."""
         self._backend.press(key)
+
+    def write(self, text: str) -> None:
+        """Type text."""
+        self._backend.write(text)
 
     def key_down(self, key: str) -> None:
         """Press and hold a key."""

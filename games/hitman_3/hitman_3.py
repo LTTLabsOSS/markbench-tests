@@ -23,6 +23,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
+from harness_utils.input import user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -72,15 +73,13 @@ def run_benchmark():
         f"{SCRIPT_DIRECTORY}\\screenshots\\options.png", confidence=0.7
     )  # luckily this seems to be a set resolution for the button
     click_me = gui.center(location)
-    gui.moveTo(click_me.x, click_me.y)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    user.move_mouse(click_me.x, click_me.y)
+    user.click()
     time.sleep(2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Options1.png")
     time.sleep(1)
-    gui.scroll(-1000)
+    user.scroll(-1000)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Options2.png")
     time.sleep(2)
 
@@ -88,10 +87,8 @@ def run_benchmark():
         f"{SCRIPT_DIRECTORY}\\screenshots\\start_benchmark.png", confidence=0.7
     )  # luckily this seems to be a set resolution for the button
     click_me = gui.center(location)
-    gui.moveTo(click_me.x, click_me.y)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    user.move_mouse(click_me.x, click_me.y)
+    user.click()
     time.sleep(0.2)
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
@@ -129,7 +126,6 @@ def run_benchmark():
                 process.terminate()
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass  # Ignore processes that no longer exist or cannot be accessed
-
 
     return benchmark_start_time, benchmark_end_time, selected_benchmark_name
 

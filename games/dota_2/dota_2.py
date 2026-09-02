@@ -6,7 +6,6 @@ import time
 from pathlib import Path
 
 import pyautogui as gui
-import pydirectinput as user
 from dota_2_utils import (
     copy_config,
     copy_replay,
@@ -21,6 +20,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
+from harness_utils.input import press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -42,9 +42,6 @@ STEAM_GAME_ID = 570
 setup_logging(LOG_DIRECTORY)
 
 
-user.FAILSAFE = False
-
-
 def start_game():
     """Launch the game with console enabled and FPS unlocked"""
     return exec_steam_game(
@@ -54,8 +51,8 @@ def start_game():
 
 def console_command(command):
     """Enter a console command"""
-    gui.write(command)
-    user.press("enter")
+    user.write(command)
+    press("enter")
 
 
 def harness_setup():
@@ -102,10 +99,8 @@ def screenshot_settings():
 
     # navigating to the video config section
     click_me = gui.center(location)
-    gui.moveTo(click_me.x, click_me.y)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    user.move_mouse(click_me.x, click_me.y)
+    user.click()
     time.sleep(0.2)
 
     result = find_word(word="video", timeout=10, interval=1)
@@ -115,12 +110,10 @@ def screenshot_settings():
         )
         sys.exit(1)
 
-    gui.moveTo(
+    user.move_mouse(
         result["x"] + int(50 * click_multiple), result["y"] + int(20 * click_multiple)
     )
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    user.click()
     time.sleep(0.2)
     if find_word(word="resolution", timeout=30, interval=1) is None:
         logger.info("Did not find the video settings menu. Did the menu get stuck?")
@@ -128,7 +121,7 @@ def screenshot_settings():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video1.png")
 
-    user.press("down")
+    press("down")
 
     if find_word(word="api", timeout=30, interval=1) is None:
         logger.info("Did not find the video settings menu. Did the menu get stuck?")
@@ -136,7 +129,7 @@ def screenshot_settings():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
 
-    user.press("down")
+    press("down")
 
     if find_word(word="direct", timeout=30, interval=1) is None:
         logger.info("Did not find the video settings menu. Did the menu get stuck?")
@@ -147,7 +140,7 @@ def screenshot_settings():
 
 def load_the_benchmark():
     """Loads the replay and runs the benchmark"""
-    user.press("escape")
+    press("escape")
     logger.info("Starting benchmark")
     user.press("\\")
     time.sleep(0.5)
@@ -204,9 +197,7 @@ def run_benchmark():
 
     result = find_word(word="1195", timeout=30, interval=0.1)
     if result is None:
-        logger.error(
-            "Unable to find gold count of 1195. Using default end time value."
-        )
+        logger.error("Unable to find gold count of 1195. Using default end time value.")
     else:
         test_end_time = int(time.time())
         logger.info("Found the gold. Marking end time.")
