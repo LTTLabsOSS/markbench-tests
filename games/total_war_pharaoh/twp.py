@@ -7,9 +7,6 @@ import sys
 import time
 from pathlib import Path
 
-import pyautogui as gui
-import pydirectinput as user
-
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
@@ -18,7 +15,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mouse_scroll_n_times
+from harness_utils.input import mouse_scroll_n_times, press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -38,8 +35,6 @@ STEAM_GAME_ID = 1937780
 APPDATA = os.getenv("APPDATA")
 CONFIG_LOCATION = f"{APPDATA}\\The Creative Assembly\\Pharaoh\\scripts"
 CONFIG_FILENAME = "preferences.script.txt"
-
-user.FAILSAFE = False
 
 
 def read_current_resolution():
@@ -73,14 +68,7 @@ def skip_logo_screens() -> None:
     logger.info("Skipping logo screens")
 
     # Enter menu
-    user.press("escape")
-    time.sleep(0.5)
-    user.press("escape")
-    time.sleep(0.5)
-    user.press("escape")
-    time.sleep(0.5)
-    user.press("escape")
-    time.sleep(0.5)
+    press("escape*4")
 
 
 def run_benchmark():
@@ -103,11 +91,10 @@ def run_benchmark():
         logger.info("Did not find the options menu. Did the game skip the intros?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
-    gui.mouseDown()
+    user.click()
     time.sleep(0.2)
-    gui.mouseUp()
 
     if find_word(word="brightness", timeout=30, interval=1) is None:
         logger.info("Did not find the main menu. Did OCR click correctly?")
@@ -123,11 +110,10 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
-    gui.mouseDown()
+    user.click()
     time.sleep(0.2)
-    gui.mouseUp()
 
     if find_word(word="water", timeout=30, interval=1) is None:
         logger.info(
@@ -144,7 +130,7 @@ def run_benchmark():
             "Did not find the keyword 'water' in the menu. Did OCR navigate to the advanced menu correctly?"
         )
         sys.exit(1)
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(1)
 
     # Scroll to the middle of the advanced menu
@@ -172,13 +158,12 @@ def run_benchmark():
         logger.info("Did not find the benchmark menu. Did the game skip the intros?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
-    gui.mouseDown()
+    user.click()
     time.sleep(0.2)
-    gui.mouseUp()
     time.sleep(2)
-    user.press("enter")
+    press("enter", pause=0)
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
@@ -212,7 +197,6 @@ def run_benchmark():
 
     # Exit
     terminate_process(PROCESS_NAME)
-
 
     return test_start_time, test_end_time
 

@@ -7,8 +7,6 @@ import sys
 import time
 from pathlib import Path
 
-import pyautogui as gui
-import pydirectinput as user
 from far_cry_6_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
@@ -19,7 +17,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mouse_scroll_n_times, press_n_times
+from harness_utils.input import mouse_scroll_n_times, press, press_n_times, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -37,9 +35,6 @@ PROCESS_NAME = "FarCry6.exe"
 GAME_ID = 5266
 username = os.getlogin()
 XML_FILE = rf"C:\Users\{username}\Documents\My Games\Far Cry 6\gamerprofile.xml"
-
-
-user.FAILSAFE = False
 
 
 def start_game():
@@ -72,26 +67,24 @@ def run_benchmark():
         logger.info("Did not see the Far Cry 6 intro video. Did the game crash?")
         sys.exit(1)
 
-    user.press("space")
-    user.press("space")
+    press("space*2", pause=0)
 
     time.sleep(2)
 
     # navigating the menus to get to the video settings
     result = find_word("later", timeout=5, interval=1)
     if result:
-        user.press("escape")
+        press("escape", pause=0)
 
     result = find_word("options", timeout=10, interval=1)
     if not result:
         logger.info("Did not find the main menu. Did the game skip the intros?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
-    gui.mouseDown()
+    user.click()
     time.sleep(0.2)
-    gui.mouseUp()
     time.sleep(2)
 
     result = find_word("video", timeout=10, interval=1)
@@ -99,11 +92,10 @@ def run_benchmark():
         logger.info("Did not find the options menu. Did OCR click incorrectly?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
-    gui.mouseDown()
+    user.click()
     time.sleep(0.2)
-    gui.mouseUp()
     time.sleep(2)
 
     # grabbing screenshots of all the video settings
@@ -118,7 +110,7 @@ def run_benchmark():
 
     time.sleep(2)
 
-    user.press("e")
+    press("e", pause=0)
 
     result = find_word("filtering", timeout=10, interval=1)
     if not result:
@@ -157,7 +149,7 @@ def run_benchmark():
 
     # starting the benchmark
     time.sleep(2)
-    user.press("f5")
+    press("f5", pause=0)
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
 
@@ -187,7 +179,6 @@ def run_benchmark():
     # Exit
     terminate_process(PROCESS_NAME)
     copy_artifact(XML_FILE, ARTIFACTS_DIRECTORY)
-
 
     return test_start_time, test_end_time
 
