@@ -6,7 +6,6 @@ import sys
 import time
 from pathlib import Path
 
-import pydirectinput as user
 from red_dead_redemption_2_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
@@ -17,7 +16,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import press_n_times
+from harness_utils.input import press, press_n_times, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -44,8 +43,6 @@ CONFIG_FULL_PATH = Path(
     "system.xml",
 )
 
-user.FAILSAFE = False
-
 
 def run_benchmark():
     """Starts the benchmark"""
@@ -58,7 +55,7 @@ def run_benchmark():
     # patch to look for seasonal popup
     result = find_word("strange", vulkan=True, timeout=30)
     if result:
-        user.press("enter")
+        press("enter")
         time.sleep(3)
 
     # Press Z to enter settings
@@ -66,7 +63,7 @@ def run_benchmark():
     if not result:
         logger.info("Did not find the settings menu. Did the game launch?")
         sys.exit(1)
-    user.press("z")
+    press("z")
     time.sleep(3)
 
     # Enter graphics menu
@@ -75,12 +72,7 @@ def run_benchmark():
     if not result:
         logger.info("Did not find the graphics menu. Did OCR get stuck?")
         sys.exit(1)
-    user.press("up")
-    user.press("up")
-    user.press("left")
-    user.press("left")
-    user.press("down")
-    user.press("enter")
+    press("up*2, left*2, down, enter")
     time.sleep(3)
 
     # Take pictures of the graphics settings
@@ -158,14 +150,14 @@ def run_benchmark():
             "Did not see the Run Benchmark Test at the bottom of the screen. Did navigation mess up?"
         )
         sys.exit(1)
-    user.keyDown("x")
+    user.key_down("x")
     time.sleep(1.5)
-    user.keyUp("x")
+    user.key_up("x")
 
     # Press enter to confirm benchmark
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
-    user.press("enter")
+    press("enter")
 
     # Looking for the word Stop to mark the in time
     result = find_word("stop", vulkan=True, timeout=60, interval=1)

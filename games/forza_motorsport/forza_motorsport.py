@@ -6,7 +6,6 @@ import sys
 import time
 from pathlib import Path
 
-import pydirectinput as user
 from forza_motorsport_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
@@ -17,7 +16,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import press_n_times
+from harness_utils.input import press, press_n_times
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -39,8 +38,6 @@ LOCAL_USER_SETTINGS = (
     / "UserConfigSelections"
 )
 PROCESSES = ["forza_steamworks_release_final.exe", "RTSS.exe"]
-
-user.FAILSAFE = False
 
 
 def start_rtss():
@@ -67,7 +64,7 @@ def run_benchmark() -> tuple[int, int]:
         sys.exit(1)
 
     # Navigate to display menu
-    user.press("f")
+    press("f")
     time.sleep(1)
 
     if find_word(word="contrast", timeout=30, interval=1) is None:
@@ -76,11 +73,11 @@ def run_benchmark() -> tuple[int, int]:
         )
         sys.exit(1)
 
-    user.press("]")
+    press("]")
     time.sleep(0.5)
-    user.press("]")
+    press("]")
     time.sleep(0.5)
-    user.press("]")
+    press("]")
     time.sleep(0.5)
 
     # Verify that we have navigated to the video settings menu and take a screenshot
@@ -89,7 +86,7 @@ def run_benchmark() -> tuple[int, int]:
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
-    user.press("]")
+    press("]")
     time.sleep(0.5)
 
     if find_word(word="filtering", timeout=30, interval=1) is None:
@@ -107,9 +104,9 @@ def run_benchmark() -> tuple[int, int]:
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
 
     press_n_times("down", 3, 0.5)
-    user.press("up")
+    press("up")
     time.sleep(0.5)
-    user.press("down")
+    press("down")
     time.sleep(0.5)
 
     if find_word(word="flare", timeout=30, interval=1) is None:
@@ -118,9 +115,9 @@ def run_benchmark() -> tuple[int, int]:
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")
 
     # Navigate to graphics menu
-    user.press("[")
+    press("[")
     time.sleep(0.5)
-    user.press("enter")
+    press("enter")
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
@@ -155,7 +152,6 @@ def run_benchmark() -> tuple[int, int]:
 
     for proc_name in PROCESSES:
         terminate_process(proc_name)
-
 
     return test_start_time, test_end_time
 

@@ -5,8 +5,6 @@ import sys
 import time
 from pathlib import Path
 
-import pydirectinput as user
-
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
@@ -14,7 +12,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import press_n_times
+from harness_utils.input import press, press_n_times, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -35,8 +33,6 @@ PROCESS_NAME = "ACShadows.exe"
 
 CONFIG_LOCATION = f"C:\\Users\\{USERNAME}\\Documents\\Assassin's Creed Shadows"
 CONFIG_FILENAME = "ACShadows.ini"
-
-user.FAILSAFE = False
 
 
 def read_current_resolution():
@@ -114,7 +110,7 @@ def start_game():
 
 def navi_settings():
     """navigates and takes pictures of settings"""
-    user.press("space")
+    press("space")
 
     time.sleep(1)
 
@@ -128,7 +124,7 @@ def navi_settings():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display3.png")
 
-    user.press("c")
+    press("c")
 
     time.sleep(1)
 
@@ -146,7 +142,7 @@ def navi_settings():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability4.png")
 
-    user.press("esc")
+    press("esc")
 
 
 def run_benchmark():
@@ -159,25 +155,25 @@ def run_benchmark():
     if find_word(word="hardware", timeout=30, interval=1) is None:
         logger.info("did not find hardware")
     else:
-        user.mouseDown()
+        user.click()
         time.sleep(0.2)
-        user.press("space")
+        press("space")
 
     if find_word(word="animus", timeout=130, interval=1) is None:
         logger.info("did not find main menu")
         sys.exit(1)
 
-    user.press("f1")
+    press("f1")
 
     if find_word("system", timeout=30, interval=1) is None:
         logger.error("Couldn't find 'System' button")
         sys.exit(1)
 
-    user.press("down")
+    press("down")
 
     time.sleep(1)
 
-    user.press("space")
+    press("space")
 
     if find_word("benchmark", timeout=30, interval=1) is None:
         logger.error("couldn't find 'benchmark' on screen before settings")
@@ -189,11 +185,11 @@ def run_benchmark():
         logger.error("couldn't find 'benchmark' on screen after settings")
         sys.exit(1)
 
-    user.press("down")
+    press("down")
 
     time.sleep(1)
 
-    user.press("space")
+    press("space")
 
     setup_end_time = int(time.time())
     elapsed_setup_time = setup_end_time - setup_start_time
@@ -218,11 +214,11 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
 
-    user.press("x")
+    press("x")
 
     time.sleep(5)
 
-    user.press("esc")
+    press("esc")
 
     move_benchmark_file()
 
