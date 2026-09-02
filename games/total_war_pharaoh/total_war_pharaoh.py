@@ -163,7 +163,7 @@ def run_benchmark():
     user.click()
     time.sleep(0.2)
     time.sleep(2)
-    press("enter", pause=0)
+    press("enter")
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)

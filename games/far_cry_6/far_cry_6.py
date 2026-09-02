@@ -67,14 +67,14 @@ def run_benchmark():
         logger.info("Did not see the Far Cry 6 intro video. Did the game crash?")
         sys.exit(1)
 
-    press("space*2", pause=0)
+    press("space*2")
 
     time.sleep(2)
 
     # navigating the menus to get to the video settings
     result = find_word("later", timeout=5, interval=1)
     if result:
-        press("escape", pause=0)
+        press("escape")
 
     result = find_word("options", timeout=10, interval=1)
     if not result:
@@ -110,7 +110,7 @@ def run_benchmark():
 
     time.sleep(2)
 
-    press("e", pause=0)
+    press("e")
 
     result = find_word("filtering", timeout=10, interval=1)
     if not result:
@@ -149,7 +149,7 @@ def run_benchmark():
 
     # starting the benchmark
     time.sleep(2)
-    press("f5", pause=0)
+    press("f5")
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
 

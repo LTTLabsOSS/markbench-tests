@@ -67,7 +67,7 @@ def run_benchmark():
         sys.exit(1)
 
     logger.info("Accessibility found pressing X to continue.")
-    press("x", pause=0)
+    press("x")
     time.sleep(2)
 
     result = find_word("video", timeout=30)
@@ -87,7 +87,7 @@ def run_benchmark():
     press_n_times("down", 5, 0.1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt3.png")
     time.sleep(0.2)
-    press("escape", pause=0)
+    press("escape")
     time.sleep(1)
 
     result = find_word("graphics", timeout=30)
@@ -105,7 +105,7 @@ def run_benchmark():
     press_n_times("down", 16, 0.1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt2.png")
     time.sleep(0.1)
-    press("down", pause=0)
+    press("down")
     time.sleep(1)
 
     result = find_word("benchmark", timeout=12)
@@ -117,9 +117,9 @@ def run_benchmark():
     user.click()
     time.sleep(0.2)
     time.sleep(1)
-    press("down", pause=0)
+    press("down")
     time.sleep(0.2)
-    press("enter", pause=0)
+    press("enter")
     time.sleep(0.2)
 
     result = find_word("checkpoint", timeout=360)
