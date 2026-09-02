@@ -22,6 +22,7 @@ _YDOTOOL_KEYS = {
     "altleft": 56,
     "backspace": 14,
     "`": 41,
+    "\\": 43,
     "left": 105,
     "leftshift": 42,
     "pagedown": 109,
