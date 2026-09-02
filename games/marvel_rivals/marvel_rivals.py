@@ -8,7 +8,6 @@ import time
 from pathlib import Path
 
 import pyautogui as gui
-import pydirectinput as user
 from marvel_rivals_utils import find_latest_benchmarkcsv, read_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
@@ -19,7 +18,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mouse_scroll_n_times
+from harness_utils.input import mouse_scroll_n_times, press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -42,8 +41,6 @@ CONFIG_LOCATION = f"{APPDATA}\\Marvel\\Saved\\Config\\Windows"
 CONFIG_FILENAME = "GameUserSettings.ini"
 CFG = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
 
-user.FAILSAFE = False
-
 
 def start_game():
     """Starts the game process"""
@@ -65,10 +62,8 @@ def run_benchmark():
         f"{SCRIPT_DIRECTORY}\\screenshots\\launch_button.png", confidence=0.7
     )  # luckily this seems to be a set resolution for the button
     click_me = gui.center(location)
-    gui.moveTo(click_me.x, click_me.y)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    user.move_mouse(click_me.x, click_me.y)
+    user.click()
     time.sleep(0.2)
 
     time.sleep(60)  # wait for game to load into main menu
@@ -79,15 +74,13 @@ def run_benchmark():
         logger.info("Did not find the title screen. Did the game load?")
         sys.exit(1)
 
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    user.click()
     time.sleep(20)
 
     # checking if a marketing notification has come up
     result = find_word("view", timeout=15, interval=1)
     if result:
-        user.press("escape")
+        press("escape")
         time.sleep(0.5)
 
     # navigating to the video settings and taking screenshots
@@ -97,21 +90,17 @@ def run_benchmark():
             "Did not find the play menu. Did it click the mouse to start the game?"
         )
         sys.exit(1)
-    user.press("escape")
+    press("escape")
     time.sleep(0.5)
 
     result = find_word("settings", timeout=30, interval=1)
     if not result:
-        logger.info(
-            "Did not find the settings menu. Did it open the menu with escape?"
-        )
+        logger.info("Did not find the settings menu. Did it open the menu with escape?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    user.click()
     time.sleep(1)
 
     result = find_word("brightness", timeout=30, interval=1)
@@ -159,11 +148,9 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    user.click()
     time.sleep(1)
 
     result = find_word("start", timeout=30, interval=1)
@@ -171,11 +158,9 @@ def run_benchmark():
         logger.info("Did not find the Start Test button. Did OCR click correctly?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
+    user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    user.click()
     time.sleep(1)
 
     # marking the end time
