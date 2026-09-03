@@ -94,7 +94,6 @@ def run_benchmark():
         press("up*2", pause=0.2)
 
     press("enter")
-    time.sleep(0.2)
     if find_word(word="graphics", timeout=60, interval=0.5) is None:
         logger.error(
             "Graphics options not available. Did it navigate to the options correctly?"
@@ -122,11 +121,9 @@ def run_benchmark():
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")
     time.sleep(0.2)
     press("escape")
-    time.sleep(0.2)
 
     logger.info("Seen the main menu. Loading benchmark.")
-    press("up*3", pause=0.2)
-    press("enter")
+    press("up*3, enter", pause=0.2)
     time.sleep(2)
 
     # Loading the save
@@ -136,9 +133,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    press("right*3", pause=0.2)
-    press("enter")
-    time.sleep(0.2)
+    press("right*3, enter", pause=0.2)
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logger.info("Harness setup took %f seconds", elapsed_setup_time)

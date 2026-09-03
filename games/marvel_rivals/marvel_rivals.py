@@ -80,7 +80,6 @@ def run_benchmark():
     result = find_word("view", timeout=15, interval=1)
     if result:
         press("escape")
-        time.sleep(0.5)
 
     # navigating to the video settings and taking screenshots
     result = find_word("play", timeout=30, interval=1)
@@ -90,7 +89,6 @@ def run_benchmark():
         )
         sys.exit(1)
     press("escape")
-    time.sleep(0.5)
 
     result = find_word("settings", timeout=30, interval=1)
     if not result:

@@ -73,12 +73,7 @@ def run_benchmark() -> tuple[int, int]:
         )
         sys.exit(1)
 
-    press("]")
-    time.sleep(0.5)
-    press("]")
-    time.sleep(0.5)
-    press("]")
-    time.sleep(0.5)
+    press("]*3")
 
     # Verify that we have navigated to the video settings menu and take a screenshot
     if find_word(word="resolution", timeout=30, interval=1) is None:
@@ -87,7 +82,6 @@ def run_benchmark() -> tuple[int, int]:
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
     press("]")
-    time.sleep(0.5)
 
     if find_word(word="filtering", timeout=30, interval=1) is None:
         logger.info("Did not find the graphics settings menu. Did the menu get stuck?")
@@ -103,11 +97,7 @@ def run_benchmark() -> tuple[int, int]:
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
 
-    press("down*3")
-    press("up")
-    time.sleep(0.5)
-    press("down")
-    time.sleep(0.5)
+    press("down*3, up, down")
 
     if find_word(word="flare", timeout=30, interval=1) is None:
         logger.info("Did not find the lens flare settings. Did the menu get stuck?")
@@ -115,9 +105,7 @@ def run_benchmark() -> tuple[int, int]:
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")
 
     # Navigate to graphics menu
-    press("[")
-    time.sleep(0.5)
-    press("enter")
+    press("[, enter")
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)

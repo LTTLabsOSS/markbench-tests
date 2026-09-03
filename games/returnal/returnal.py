@@ -15,7 +15,7 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.file_cleanup import remove_files
-from harness_utils.input import mangohud_log_toggle, press, user
+from harness_utils.input import hold, mangohud_log_toggle, press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, local_appdata
@@ -99,14 +99,14 @@ def check_vram_alert(attempts: int) -> bool:
 
 def escape_vram_alert():
     """Navigate VRAM alert"""
-    press("space", hold=4)
+    hold("space", 4)
 
 
 def navigate_options_menu() -> None:
     """Simulate inputs to navigate to options menu"""
     logger.info("Navigating to options menu")
     press("escape, enter, q")
-    press("tab", hold=5)
+    hold("tab", 5)
 
 
 def run_benchmark() -> tuple[int, int]:
@@ -184,7 +184,7 @@ def run_benchmark() -> tuple[int, int]:
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_3.png")
 
     # Launch the benchmark
-    press("tab", hold=5)
+    hold("tab", 5)
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)

@@ -111,7 +111,6 @@ def run_benchmark():
 
     logger.info("Video found, selecting with keyboard.")
     press("down*6", pause=1)
-    time.sleep(1)
     user.press("enter")
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt.png")
     time.sleep(1)

@@ -117,7 +117,6 @@ def run_benchmark():
     time.sleep(2)
     logger.info("Starting benchmark")
     press("`")
-    time.sleep(0.5)
     write("run benchmark.ini")
     press("enter")
     time.sleep(1)

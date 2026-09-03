@@ -253,9 +253,16 @@ def click(
     user.click(x, y, hold, pre_click_delay)
 
 
-def press(sequence: str, pause: float = 0.5, *, hold: float = 0.0) -> None:
+def hold(key: str, duration: float) -> None:
+    """Hold one key for the requested duration."""
+    user.key_down(key)
+    time.sleep(duration)
+    user.key_up(key)
+
+
+def press(sequence: str, pause: float = 0.5) -> None:
     """Press keys described by a comma-separated sequence like ``up*2, down*3``."""
-    logger.debug("input press sequence=%s hold=%s", sequence, hold)
+    logger.debug("input press sequence=%s", sequence)
     steps = [step.strip() for step in sequence.split(",")]
 
     for step in steps:
@@ -289,9 +296,7 @@ def press(sequence: str, pause: float = 0.5, *, hold: float = 0.0) -> None:
                 continue
 
         for _ in range(count):
-            user.key_down(key)
-            time.sleep(hold)
-            user.key_up(key)
+            user.press(key)
             time.sleep(pause)
 
 

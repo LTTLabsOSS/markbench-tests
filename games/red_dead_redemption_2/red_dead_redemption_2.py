@@ -16,7 +16,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import press
+from harness_utils.input import hold, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -150,7 +150,7 @@ def run_benchmark():
             "Did not see the Run Benchmark Test at the bottom of the screen. Did navigation mess up?"
         )
         sys.exit(1)
-    press("x", hold=1.5)
+    hold("x", 1.5)
 
     # Press enter to confirm benchmark
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
