@@ -18,40 +18,48 @@ LINUX_CLICK_TARGET_WIDTH = 1920
 LINUX_CLICK_TARGET_HEIGHT = 1080
 
 _YDOTOOL_KEYS = {
+    # Letters
     "a": 30,
-    "altleft": 56,
-    "backspace": 14,
-    "`": 41,
-    "\\": 43,
-    "left": 105,
-    "leftshift": 42,
-    "pagedown": 109,
-    "right": 106,
-    "up": 103,
-    "down": 108,
-    "enter": 28,
-    "esc": 1,
-    "escape": 1,
-    "f1": 59,
-    "f2": 60,
-    "f3": 61,
-    "f5": 63,
-    "space": 57,
     "b": 48,
     "c": 46,
+    "d": 32,
     "e": 18,
     "f": 33,
     "q": 16,
     "r": 19,
     "s": 31,
-    "tab": 15,
     "w": 17,
     "x": 45,
     "z": 44,
-    "[": 26,
-    "]": 27,
+    # Numbers
     "1": 2,
     "3": 4,
+    # Modifiers
+    "altleft": 56,
+    "leftshift": 42,
+    # Direction and navigation
+    "down": 108,
+    "left": 105,
+    "pagedown": 109,
+    "right": 106,
+    "up": 103,
+    # Control keys
+    "backspace": 14,
+    "enter": 28,
+    "esc": 1,
+    "escape": 1,
+    "space": 57,
+    "tab": 15,
+    # Function keys
+    "f1": 59,
+    "f2": 60,
+    "f3": 61,
+    "f5": 63,
+    # Symbols
+    "`": 41,
+    "\\": 43,
+    "[": 26,
+    "]": 27,
 }
 
 
