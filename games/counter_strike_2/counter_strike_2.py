@@ -147,7 +147,7 @@ def navigate_settings():
 
     user.move_mouse(result["x"], result["y"])
     time.sleep(1)
-    scroll(1, -6000000)
+    scroll(-6000000)
     time.sleep(1)
 
     wait_for_word(word="particle", why="verify we scrolled correctly")

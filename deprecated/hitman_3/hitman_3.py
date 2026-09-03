@@ -78,7 +78,7 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Options1.png")
     time.sleep(1)
-    scroll(1, -1000)
+    scroll(-1000)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Options2.png")
     time.sleep(2)
 

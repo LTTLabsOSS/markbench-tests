@@ -109,7 +109,7 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video1.png")
     time.sleep(1)
-    scroll(1, -1200, 0.2)
+    scroll(-1200, 1, 0.2)
     time.sleep(0.5)
 
     result = find_word("processing", timeout=30, interval=1)
@@ -121,7 +121,7 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
     time.sleep(1)
-    scroll(1, -1200, 0.2)
+    scroll(-1200, 1, 0.2)
     time.sleep(0.5)
 
     result = find_word("times", timeout=30, interval=1)
@@ -135,7 +135,7 @@ def run_benchmark():
     time.sleep(1)
 
     # navigate to the player profile
-    scroll(10, 800, 0.2)
+    scroll(800, 10, 0.2)
     time.sleep(1)
 
     result = find_word("run", timeout=30, interval=1)

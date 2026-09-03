@@ -119,7 +119,7 @@ def run_benchmark():
 
     time.sleep(2)
 
-    scroll(8, -800, 0.2)
+    scroll(-800, 8, 0.2)
 
     result = find_word("shading", timeout=10, interval=1)
     if not result:

@@ -130,7 +130,7 @@ def run_benchmark():
     time.sleep(1)
 
     # Scroll to the middle of the advanced menu
-    scroll(15, -1, 0.1)
+    scroll(-1, 15, 0.1)
     if find_word(word="heat", timeout=30, interval=1) is None:
         logger.info(
             "Did not find the keyword 'heat' in the menu. Did OCR scroll down the advanced menu far enough?"
@@ -140,7 +140,7 @@ def run_benchmark():
     time.sleep(0.5)
 
     # Scroll to the bottom of the advanced menu
-    scroll(15, -1, 0.1)
+    scroll(-1, 15, 0.1)
     if find_word(word="bodies", timeout=30, interval=1) is None:
         logger.info(
             "Did not find the keyword 'bodies' in the menu. Did OCR scroll down the advanced menu far enough?"
