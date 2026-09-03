@@ -96,12 +96,8 @@ class _WindowsInputBackend:
     def move_mouse(self, x: int, y: int) -> None:
         self._pydirectinput.moveTo(x=x, y=y)
 
-    def click(self, x: int | None = None, y: int | None = None) -> None:
-        if x is not None and y is not None:
-            self.move_mouse(x, y)
-            self._pydirectinput.click()
-            return
-        self._pydirectinput.click(x=x, y=y)
+    def click(self) -> None:
+        self._pydirectinput.click()
 
     def scroll(self, scroll_amount: int) -> None:
         import pyautogui as gui
@@ -159,9 +155,7 @@ class _YdotoolInputBackend:
         time.sleep(0.1)
         self._run("mousemove", str(scaled_x), str(scaled_y))
 
-    def click(self, x: int | None = None, y: int | None = None) -> None:
-        if x is not None and y is not None:
-            self.move_mouse(x, y)
+    def click(self) -> None:
         self._run("click", "0xC0")
 
     def scroll(self, scroll_amount: int) -> None:
@@ -212,9 +206,17 @@ class KeyboardMouseDriver:
         """Move the mouse pointer without clicking."""
         self._backend.move_mouse(x, y)
 
-    def click(self, x: int | None = None, y: int | None = None) -> None:
-        """Click the primary mouse button."""
-        self._backend.click(x=x, y=y)
+    def click(
+        self,
+        x: int | None = None,
+        y: int | None = None,
+        pause: float = 0.2,
+    ) -> None:
+        """Optionally move the pointer, wait, and click the primary mouse button."""
+        if x is not None and y is not None:
+            self.move_mouse(x, y)
+        time.sleep(pause)
+        self._backend.click()
 
     def scroll(self, scroll_amount: int) -> None:
         """Scroll the mouse wheel."""

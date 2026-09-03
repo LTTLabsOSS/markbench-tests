@@ -91,9 +91,7 @@ def run_benchmark():
         logger.info("Did not find the options menu. Did the game skip the intros?")
         sys.exit(1)
 
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
 
     if find_word(word="brightness", timeout=30, interval=1) is None:
@@ -110,9 +108,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
 
     if find_word(word="water", timeout=30, interval=1) is None:
@@ -158,9 +154,7 @@ def run_benchmark():
         logger.info("Did not find the benchmark menu. Did the game skip the intros?")
         sys.exit(1)
 
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
     time.sleep(2)
     press("enter")

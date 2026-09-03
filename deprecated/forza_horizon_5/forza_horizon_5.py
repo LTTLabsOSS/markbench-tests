@@ -76,9 +76,7 @@ def run_benchmark():
         sys.exit(1)
 
     logger.info("Video found, clicking and continuing.")
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt.png")
     time.sleep(0.2)
@@ -96,9 +94,7 @@ def run_benchmark():
         sys.exit(1)
 
     logger.info("Graphics found, clicking and continuing.")
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt.png")
     time.sleep(0.2)
@@ -113,8 +109,7 @@ def run_benchmark():
         logger.info("Didn't find benchmark in settings.")
         sys.exit(1)
 
-    user.move_mouse(result["x"], result["y"])
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
     time.sleep(1)
     press("down")

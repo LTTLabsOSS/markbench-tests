@@ -86,8 +86,7 @@ def run_benchmark():
         logger.info("Did not see 'start'. Game didn't start.")
         sys.exit(1)
 
-    user.move_mouse(0, 0)
-    user.click()
+    user.click(0, 0)
 
     if is_linux():
         mangohud_log_toggle()

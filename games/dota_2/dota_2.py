@@ -99,8 +99,7 @@ def screenshot_settings():
 
     # navigating to the video config section
     click_me = gui.center(location)
-    user.move_mouse(click_me.x, click_me.y)
-    user.click()
+    user.click(click_me.x, click_me.y)
     time.sleep(0.2)
 
     result = find_word(word="video", timeout=10, interval=1)
@@ -110,10 +109,9 @@ def screenshot_settings():
         )
         sys.exit(1)
 
-    user.move_mouse(
+    user.click(
         result["x"] + int(50 * click_multiple), result["y"] + int(20 * click_multiple)
     )
-    user.click()
     time.sleep(0.2)
     if find_word(word="resolution", timeout=30, interval=1) is None:
         logger.info("Did not find the video settings menu. Did the menu get stuck?")

@@ -81,9 +81,7 @@ def run_benchmark():
         logger.info("Did not find the main menu. Did the game skip the intros?")
         sys.exit(1)
 
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
     time.sleep(2)
 
@@ -92,9 +90,7 @@ def run_benchmark():
         logger.info("Did not find the options menu. Did OCR click incorrectly?")
         sys.exit(1)
 
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
     time.sleep(2)
 

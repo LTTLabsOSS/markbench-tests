@@ -62,9 +62,7 @@ def run_benchmark():
 
     patchnotes = find_word("close", interval=0.5, timeout=100)
     if patchnotes:
-        user.move_mouse(patchnotes["x"], patchnotes["y"])
-        time.sleep(0.2)
-        user.click()
+        user.click(patchnotes["x"], patchnotes["y"])
         time.sleep(0.2)
 
     result = find_word("credits", interval=0.5, timeout=100)
@@ -81,9 +79,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.5)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "settings.png")
 
@@ -97,9 +93,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(2)
 
     result = find_word("latest", timeout=10, interval=1)
@@ -109,9 +103,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.5)
 
     result = find_word("paused", interval=0.5, timeout=100)

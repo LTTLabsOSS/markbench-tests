@@ -111,8 +111,7 @@ def identify_settings():
         raise RuntimeError
 
     click_me = gui.center(location)
-    user.move_mouse(click_me.x, click_me.y)
-    user.click()
+    user.click(click_me.x, click_me.y)
     time.sleep(0.2)
 
 
@@ -123,8 +122,7 @@ def navigate_settings():
         word="video", timeout=10, interval=1, why="find the video menu button"
     )
 
-    user.move_mouse(result["x"], result["y"])
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
 
     wait_for_word(word="brightness", why="find the video settings")
@@ -135,8 +133,7 @@ def navigate_settings():
         word="advanced", timeout=10, interval=1, why="find the advanced video menu"
     )
 
-    user.move_mouse(result["x"], result["y"])
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_video_1.png")
@@ -166,30 +163,26 @@ def execute_benchmark():
         word="play", timeout=10, interval=1, why="click the play tab"
     )
 
-    user.move_mouse(result["x"], result["y"])
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
 
     result = wait_for_word(
         word="workshop", timeout=10, interval=1, why="click the workshop tab"
     )
 
-    user.move_mouse(result["x"], result["y"])
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
 
     result = wait_for_word(
         word="fps", timeout=10, interval=1, why="click the benchmark icon"
     )
 
-    user.move_mouse(result["x"], result["y"])
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
 
     result = wait_for_word(word="go", timeout=10, interval=1, why="start the benchmark")
 
-    user.move_mouse(result["x"], result["y"])
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
 
 

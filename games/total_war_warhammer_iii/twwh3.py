@@ -109,9 +109,7 @@ def run_benchmark():
         logger.info("Did not find the options menu. Did the game skip the intros?")
         sys.exit(1)
 
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
     time.sleep(2)
 
@@ -122,9 +120,7 @@ def run_benchmark():
         logger.info("Did not find the advanced menu. Did the game skip the intros?")
         sys.exit(1)
 
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
     time.sleep(0.5)
 
@@ -135,18 +131,14 @@ def run_benchmark():
         logger.info("Did not find the benchmark menu. Did the game skip the intros?")
         sys.exit(1)
 
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
     if args.benchmark != "battle":
         result = find_word("mirrors", timeout=10, interval=1)
         if not result:
             logger.info("Did not find the Mirrors of Madness benchmark.")
             sys.exit(1)
-        user.move_mouse(result["x"], result["y"])
-        time.sleep(0.2)
-        user.click()
+        user.click(result["x"], result["y"])
         time.sleep(0.2)
         time.sleep(2)
         user.press("enter")

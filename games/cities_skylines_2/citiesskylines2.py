@@ -67,9 +67,7 @@ def run_benchmark():
         sys.exit(1)
 
     # Navigate to load save menu
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
 
     result = find_word("benchmark", timeout=10, interval=1, crop="top_left")
@@ -80,9 +78,7 @@ def run_benchmark():
         sys.exit(1)
 
     # Loading the game
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
     press("enter")
     time.sleep(10)
@@ -124,9 +120,7 @@ def run_benchmark():
         sys.exit(1)
 
     # Navigate to options menu
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "general.png")
@@ -139,9 +133,7 @@ def run_benchmark():
         sys.exit(1)
 
     # Navigate to graphics menu
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
+    user.click(result["x"], result["y"])
     time.sleep(0.2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")

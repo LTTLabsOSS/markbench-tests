@@ -73,8 +73,7 @@ def run_benchmark():
         f"{SCRIPT_DIRECTORY}\\screenshots\\options.png", confidence=0.7
     )  # luckily this seems to be a set resolution for the button
     click_me = gui.center(location)
-    user.move_mouse(click_me.x, click_me.y)
-    user.click()
+    user.click(click_me.x, click_me.y)
     time.sleep(2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Options1.png")
@@ -87,8 +86,7 @@ def run_benchmark():
         f"{SCRIPT_DIRECTORY}\\screenshots\\start_benchmark.png", confidence=0.7
     )  # luckily this seems to be a set resolution for the button
     click_me = gui.center(location)
-    user.move_mouse(click_me.x, click_me.y)
-    user.click()
+    user.click(click_me.x, click_me.y)
     time.sleep(0.2)
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)

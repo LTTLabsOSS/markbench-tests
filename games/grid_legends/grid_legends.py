@@ -75,8 +75,7 @@ def run_benchmark():
     if is_linux():
         mangohud_log_toggle()
     else:
-        user.move_mouse(0, 0)
-        user.click()
+        user.click(0, 0)
 
     logger.info("Game started. Entering main menu")
     time.sleep(4)
