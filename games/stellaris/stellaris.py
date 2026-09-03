@@ -20,7 +20,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import press, user
+from harness_utils.input import press, user, write
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -44,12 +44,6 @@ def start_game():
     cmd_string = f'start /D "{get_app_install_location(STEAM_GAME_ID)}" {PROCESS_NAME}'
     logger.info(cmd_string)
     return os.system(cmd_string)
-
-
-def console_command(command):
-    """Enter a console command"""
-    user.write(command)
-    press("enter")
 
 
 def run_benchmark():
@@ -124,7 +118,8 @@ def run_benchmark():
     logger.info("Starting benchmark")
     press("`")
     time.sleep(0.5)
-    console_command("run benchmark.ini")
+    write("run benchmark.ini")
+    press("enter")
     time.sleep(1)
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)

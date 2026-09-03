@@ -16,7 +16,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import press, user
+from harness_utils.input import press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -143,16 +143,14 @@ def run_benchmark():
             sys.exit(1)
         capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Graphics4.png", vulkan=True)
 
-    # Run benchmark by holding X for 2 seconds
+    # Run benchmark by holding X for 1.5 seconds
     result = find_word("benchmark", vulkan=True, timeout=5)
     if not result:
         logger.info(
             "Did not see the Run Benchmark Test at the bottom of the screen. Did navigation mess up?"
         )
         sys.exit(1)
-    user.key_down("x")
-    time.sleep(1.5)
-    user.key_up("x")
+    press("x", hold=1.5)
 
     # Press enter to confirm benchmark
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)

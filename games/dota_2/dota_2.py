@@ -20,7 +20,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import press, user
+from harness_utils.input import press, user, write
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -51,7 +51,7 @@ def start_game():
 
 def console_command(command):
     """Enter a console command"""
-    user.write(command)
+    write(command)
     press("enter")
 
 

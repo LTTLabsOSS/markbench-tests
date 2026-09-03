@@ -103,8 +103,10 @@ class _WindowsInputBackend:
     def move_mouse(self, x: int, y: int) -> None:
         self._pydirectinput.moveTo(x=x, y=y)
 
-    def click(self) -> None:
-        self._pydirectinput.click()
+    def click(self, hold: float = 0.0) -> None:
+        self._pydirectinput.mouseDown()
+        time.sleep(hold)
+        self._pydirectinput.mouseUp()
 
     def scroll(self, scroll_amount: int) -> None:
         import pyautogui as gui
@@ -162,8 +164,10 @@ class _YdotoolInputBackend:
         time.sleep(0.1)
         self._run("mousemove", str(scaled_x), str(scaled_y))
 
-    def click(self) -> None:
-        self._run("click", "0xC0")
+    def click(self, hold: float = 0.0) -> None:
+        self._run("click", "0x40")
+        time.sleep(hold)
+        self._run("click", "0x80")
 
     def scroll(self, scroll_amount: int) -> None:
         """Scroll using existing Windows-style wheel delta units."""
@@ -217,13 +221,14 @@ class KeyboardMouseDriver:
         self,
         x: int | None = None,
         y: int | None = None,
-        pause: float = 0.2,
+        hold: float = 0.0,
+        pre_click_delay: float = 0.2,
     ) -> None:
         """Optionally move the pointer, wait, and click the primary mouse button."""
         if x is not None and y is not None:
             self.move_mouse(x, y)
-        time.sleep(pause)
-        self._backend.click()
+        time.sleep(pre_click_delay)
+        self._backend.click(hold)
 
     def scroll(self, scroll_amount: int) -> None:
         """Scroll the mouse wheel."""
@@ -233,9 +238,24 @@ class KeyboardMouseDriver:
 user = KeyboardMouseDriver()
 
 
-def press(sequence: str, pause: float = 0.5) -> None:
+def write(text: str) -> None:
+    """Type text."""
+    user.write(text)
+
+
+def click(
+    x: int | None = None,
+    y: int | None = None,
+    hold: float = 0.0,
+    pre_click_delay: float = 0.2,
+) -> None:
+    """Optionally move the pointer, wait, and click the primary mouse button."""
+    user.click(x, y, hold, pre_click_delay)
+
+
+def press(sequence: str, pause: float = 0.5, *, hold: float = 0.0) -> None:
     """Press keys described by a comma-separated sequence like ``up*2, down*3``."""
-    logger.debug("input press sequence=%s", sequence)
+    logger.debug("input press sequence=%s hold=%s", sequence, hold)
     steps = [step.strip() for step in sequence.split(",")]
 
     for step in steps:
@@ -269,7 +289,9 @@ def press(sequence: str, pause: float = 0.5) -> None:
                 continue
 
         for _ in range(count):
-            user.press(key)
+            user.key_down(key)
+            time.sleep(hold)
+            user.key_up(key)
             time.sleep(pause)
 
 

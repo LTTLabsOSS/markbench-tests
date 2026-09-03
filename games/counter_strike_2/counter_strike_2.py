@@ -64,12 +64,6 @@ def wait_for_word(word, timeout=30, interval=1, why: str = ""):
     return result
 
 
-def console_command(command):
-    """Enter a console command"""
-    user.write(command)
-    press("enter")
-
-
 def identify_settings():
     """Checks the resolution to click the settings cog"""
     height, width = get_resolution()

@@ -99,18 +99,14 @@ def check_vram_alert(attempts: int) -> bool:
 
 def escape_vram_alert():
     """Navigate VRAM alert"""
-    user.key_down("space")
-    time.sleep(4)
-    user.key_up("space")
+    press("space", hold=4)
 
 
 def navigate_options_menu() -> None:
     """Simulate inputs to navigate to options menu"""
     logger.info("Navigating to options menu")
     press("escape, enter, q")
-    user.key_down("tab")
-    time.sleep(5)
-    user.key_up("tab")
+    press("tab", hold=5)
 
 
 def run_benchmark() -> tuple[int, int]:
@@ -188,9 +184,7 @@ def run_benchmark() -> tuple[int, int]:
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_3.png")
 
     # Launch the benchmark
-    user.key_down("tab")
-    time.sleep(5)
-    user.key_up("tab")
+    press("tab", hold=5)
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
