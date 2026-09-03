@@ -18,7 +18,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mouse_scroll_n_times, press, user
+from harness_utils.input import press, scroll, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -109,7 +109,7 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video1.png")
     time.sleep(1)
-    mouse_scroll_n_times(1, -1200, 0.2)
+    scroll(1, -1200, 0.2)
     time.sleep(0.5)
 
     result = find_word("processing", timeout=30, interval=1)
@@ -121,7 +121,7 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
     time.sleep(1)
-    mouse_scroll_n_times(1, -1200, 0.2)
+    scroll(1, -1200, 0.2)
     time.sleep(0.5)
 
     result = find_word("times", timeout=30, interval=1)
@@ -135,7 +135,7 @@ def run_benchmark():
     time.sleep(1)
 
     # navigate to the player profile
-    mouse_scroll_n_times(10, 800, 0.2)
+    scroll(10, 800, 0.2)
     time.sleep(1)
 
     result = find_word("run", timeout=30, interval=1)

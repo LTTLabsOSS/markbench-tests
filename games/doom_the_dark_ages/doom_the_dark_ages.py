@@ -19,8 +19,8 @@ from harness_utils.artifacts import (
 )
 from harness_utils.input import (
     mangohud_log_toggle,
-    mouse_scroll_n_times,
     press,
+    scroll,
     user,
 )
 from harness_utils.ocr_service import find_word
@@ -118,7 +118,7 @@ def run_benchmark():
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video1.png", vulkan=True)
-    mouse_scroll_n_times(5, -120, 0.5)
+    scroll(5, -120, 0.5)
     time.sleep(1)
 
     result = find_word("fsr", vulkan=True, interval=3, timeout=15)
@@ -127,7 +127,7 @@ def run_benchmark():
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png", vulkan=True)
-    mouse_scroll_n_times(5, -120, 0.5)
+    scroll(5, -120, 0.5)
     time.sleep(1)
 
     result = find_word("tracing", vulkan=True, interval=3, timeout=15)
@@ -136,7 +136,7 @@ def run_benchmark():
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video3.png", vulkan=True)
-    mouse_scroll_n_times(5, -120, 0.5)
+    scroll(5, -120, 0.5)
     time.sleep(1)
 
     result = find_word("decal", vulkan=True, interval=3, timeout=15)
@@ -145,7 +145,7 @@ def run_benchmark():
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video4.png", vulkan=True)
-    mouse_scroll_n_times(5, -120, 0.5)
+    scroll(5, -120, 0.5)
     time.sleep(0.5)
 
     result = find_word("brightness", vulkan=True, interval=3, timeout=15)

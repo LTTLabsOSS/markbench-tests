@@ -23,7 +23,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mouse_scroll_n_times, user
+from harness_utils.input import scroll, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -78,7 +78,7 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Options1.png")
     time.sleep(1)
-    mouse_scroll_n_times(1, -1000)
+    scroll(1, -1000)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Options2.png")
     time.sleep(2)
 

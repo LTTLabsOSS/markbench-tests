@@ -17,7 +17,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mouse_scroll_n_times, press, user
+from harness_utils.input import press, scroll, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -119,7 +119,7 @@ def run_benchmark():
 
     time.sleep(2)
 
-    mouse_scroll_n_times(8, -800, 0.2)
+    scroll(8, -800, 0.2)
 
     result = find_word("shading", timeout=10, interval=1)
     if not result:

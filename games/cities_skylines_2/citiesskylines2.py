@@ -22,7 +22,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mouse_scroll_n_times, press, user
+from harness_utils.input import press, scroll, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -148,7 +148,7 @@ def run_benchmark():
     user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
 
-    mouse_scroll_n_times(8, -800, 0.2)
+    scroll(8, -800, 0.2)
 
     if find_word(word="water", timeout=30, interval=1) is None:
         logger.info(
@@ -157,7 +157,7 @@ def run_benchmark():
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
 
-    mouse_scroll_n_times(8, -400, 0.2)
+    scroll(8, -400, 0.2)
 
     # verify that we scrolled through the menu correctly
     if find_word(word="texture", timeout=30, interval=1) is None:

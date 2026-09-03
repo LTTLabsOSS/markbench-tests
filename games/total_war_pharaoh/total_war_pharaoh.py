@@ -15,7 +15,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mouse_scroll_n_times, press, user
+from harness_utils.input import press, scroll, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -130,7 +130,7 @@ def run_benchmark():
     time.sleep(1)
 
     # Scroll to the middle of the advanced menu
-    mouse_scroll_n_times(15, -1, 0.1)
+    scroll(15, -1, 0.1)
     if find_word(word="heat", timeout=30, interval=1) is None:
         logger.info(
             "Did not find the keyword 'heat' in the menu. Did OCR scroll down the advanced menu far enough?"
@@ -140,7 +140,7 @@ def run_benchmark():
     time.sleep(0.5)
 
     # Scroll to the bottom of the advanced menu
-    mouse_scroll_n_times(15, -1, 0.1)
+    scroll(15, -1, 0.1)
     if find_word(word="bodies", timeout=30, interval=1) is None:
         logger.info(
             "Did not find the keyword 'bodies' in the menu. Did OCR scroll down the advanced menu far enough?"

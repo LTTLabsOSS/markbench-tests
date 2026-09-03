@@ -273,9 +273,9 @@ def press(sequence: str, pause: float = 0.5) -> None:
             time.sleep(pause)
 
 
-def mouse_scroll_n_times(n: int, scroll_amount: int, pause: float = 0.5) -> None:
+def scroll(n: int, scroll_amount: int, pause: float = 0.5) -> None:
     """Scroll the mouse wheel multiple times."""
-    logger.debug("input mouse_scroll_n_times n=%s scroll_amount=%s", n, scroll_amount)
+    logger.debug("input scroll n=%s scroll_amount=%s", n, scroll_amount)
     for _ in range(n):
         user.scroll(scroll_amount)
         time.sleep(pause)
