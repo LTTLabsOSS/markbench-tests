@@ -15,7 +15,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import press, press_n_times, user
+from harness_utils.input import press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -80,9 +80,9 @@ def run_benchmark():
     time.sleep(0.2)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt.png")
     time.sleep(0.2)
-    press_n_times("down", 19, 0.1)
+    press("down*19")
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt2.png")
-    press_n_times("down", 5, 0.1)
+    press("down*5")
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt3.png")
     time.sleep(0.2)
     press("escape")
@@ -98,7 +98,7 @@ def run_benchmark():
     time.sleep(0.2)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt.png")
     time.sleep(0.2)
-    press_n_times("down", 16, 0.1)
+    press("down*16")
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt2.png")
     time.sleep(0.1)
     press("down")

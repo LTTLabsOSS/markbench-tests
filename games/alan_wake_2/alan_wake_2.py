@@ -22,7 +22,7 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.epic_games import find_eg_game_version
-from harness_utils.input import press, press_n_times
+from harness_utils.input import press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -87,11 +87,11 @@ def run_benchmark():
         )
 
     logger.info("Navigating to options to get some screenshots")
-    press_n_times("down", 4, 0.2)
+    press("down*4", pause=0.2)
 
     if find_word(word="continue", interval=0.5, timeout=3) is None:
         logger.info("Continue option not listed, navigating accordingly.")
-        press_n_times("up", 2, 0.2)
+        press("up*2", pause=0.2)
 
     press("enter")
     time.sleep(0.2)
@@ -100,7 +100,7 @@ def run_benchmark():
             "Graphics options not available. Did it navigate to the options correctly?"
         )
         sys.exit(1)
-    press_n_times("e", 2, 0.2)
+    press("e*2", pause=0.2)
     if find_word(word="quality", timeout=60, interval=0.5) is None:
         logger.error(
             "Did not see quality preset. Did it navigate to graphics correctly?"
@@ -108,14 +108,14 @@ def run_benchmark():
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
     time.sleep(0.2)
-    press_n_times("down", 19, 0.2)
+    press("down*19", pause=0.2)
     if find_word(word="terrain", timeout=60, interval=0.5) is None:
         logger.error(
             "Did not see Terrain Quality. Did it navigate to graphics correctly?"
         )
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
-    press_n_times("down", 10, 0.2)
+    press("down*10", pause=0.2)
     if find_word(word="transparency", timeout=60, interval=0.5) is None:
         logger.error("Did not see Transparency. Did it navigate to graphics correctly?")
         sys.exit(1)
@@ -125,7 +125,7 @@ def run_benchmark():
     time.sleep(0.2)
 
     logger.info("Seen the main menu. Loading benchmark.")
-    press_n_times("up", 3, 0.2)
+    press("up*3", pause=0.2)
     press("enter")
     time.sleep(2)
 
@@ -136,7 +136,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    press_n_times("right", 3, 0.2)
+    press("right*3", pause=0.2)
     press("enter")
     time.sleep(0.2)
     setup_end_time = int(time.time())

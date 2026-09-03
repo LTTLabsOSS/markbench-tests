@@ -12,7 +12,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import press, press_n_times, user
+from harness_utils.input import press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -116,11 +116,11 @@ def navi_settings():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display1.png")
 
-    press_n_times("down", 13, 0.3)
+    press("down*13")
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display2.png")
 
-    press_n_times("down", 4, 0.3)
+    press("down*4")
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display3.png")
 
@@ -130,15 +130,15 @@ def navi_settings():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability1.png")
 
-    press_n_times("down", 10, 0.3)
+    press("down*10")
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability2.png")
 
-    press_n_times("down", 6, 0.3)
+    press("down*6")
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability3.png")
 
-    press_n_times("down", 5, 0.3)
+    press("down*5")
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability4.png")
 

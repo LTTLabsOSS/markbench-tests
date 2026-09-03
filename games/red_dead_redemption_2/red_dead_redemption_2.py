@@ -16,7 +16,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import press, press_n_times, user
+from harness_utils.input import press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -87,7 +87,7 @@ def run_benchmark():
     result = find_word("nvidia", vulkan=True, timeout=5)
     if result:
         logger.info("NVIDIA card is installed, navigating accordingly.")
-        press_n_times("down", 26, 0.2)
+        press("down*26", pause=0.2)
 
         result = find_word("mode", vulkan=True, timeout=5)
         if not result:
@@ -96,7 +96,7 @@ def run_benchmark():
             )
             sys.exit(1)
         capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Graphics2.png", vulkan=True)
-        press_n_times("down", 14, 0.2)
+        press("down*14", pause=0.2)
 
         result = find_word("long", vulkan=True, timeout=5)
         if not result:
@@ -105,7 +105,7 @@ def run_benchmark():
             )
             sys.exit(1)
         capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Graphics3.png", vulkan=True)
-        press_n_times("down", 15, 0.2)
+        press("down*15", pause=0.2)
 
         result = find_word("tessellation", vulkan=True, timeout=5)
         if not result:
@@ -117,14 +117,14 @@ def run_benchmark():
 
     else:
         logger.info("NVIDIA card not detected on screen, navigating accordingly.")
-        press_n_times("down", 26, 0.2)
+        press("down*26", pause=0.2)
 
         result = find_word("msaa", vulkan=True, timeout=5)
         if not result:
             logger.info("Did not find the MSAA settings. Did OCR navigate correctly?")
             sys.exit(1)
         capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Graphics2.png", vulkan=True)
-        press_n_times("down", 14, 0.2)
+        press("down*14", pause=0.2)
 
         result = find_word("reflection", vulkan=True, timeout=5)
         if not result:
@@ -133,7 +133,7 @@ def run_benchmark():
             )
             sys.exit(1)
         capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Graphics3.png", vulkan=True)
-        press_n_times("down", 12, 0.2)
+        press("down*12", pause=0.2)
 
         result = find_word("tessellation", vulkan=True, timeout=5)
         if not result:

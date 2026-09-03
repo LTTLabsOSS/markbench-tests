@@ -17,7 +17,7 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.file_cleanup import remove_files
-from harness_utils.input import press_n_times, user
+from harness_utils.input import press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import game_install_path, harness_directories, user_documents
@@ -144,14 +144,14 @@ def run_benchmark():
     logger.info("Saw the options! we are good to go!")
     time.sleep(1)
 
-    press_n_times("down", 6, 0.2)
+    press("down*6", pause=0.2)
     user.press("enter")
     time.sleep(2)
     # find_settings()
     find_graphics()
 
     # Navigate to video settings
-    press_n_times("down", 3, 0.2)
+    press("down*3", pause=0.2)
     user.press("enter")
     time.sleep(0.2)
 
@@ -161,7 +161,7 @@ def run_benchmark():
             "Didn't find the keyword 'vsync'. Did the program navigate to the video mode menu correctly?"
         )
         sys.exit(1)
-    press_n_times("down", 18, 0.2)
+    press("down*18", pause=0.2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
     user.press("esc")
@@ -176,7 +176,7 @@ def run_benchmark():
 
     # Navigate through graphics settings and take screenshots of all settings contained within
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
-    press_n_times("down", 29, 0.2)
+    press("down*29", pause=0.2)
 
     result = find_word("chromatic", interval=1, timeout=60)
     if not result:
@@ -186,7 +186,7 @@ def run_benchmark():
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
-    press_n_times("up", 28, 0.2)
+    press("up*28", pause=0.2)
     user.press("enter")
     time.sleep(0.2)
 
@@ -197,7 +197,7 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "benchmark.png")
 
-    press_n_times("down", 6, 0.2)
+    press("down*6", pause=0.2)
     user.press("enter")
     time.sleep(2)
 
@@ -248,7 +248,6 @@ def run_benchmark():
     logger.info("Benchmark took %f seconds", elapsed_test_time)
 
     terminate_process(PROCESS_NAME)
-
 
     return test_start_time, test_end_time
 

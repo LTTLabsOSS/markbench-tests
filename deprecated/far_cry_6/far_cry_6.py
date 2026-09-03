@@ -17,7 +17,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mouse_scroll_n_times, press, press_n_times, user
+from harness_utils.input import mouse_scroll_n_times, press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -46,7 +46,7 @@ def skip_logo_screens() -> None:
     logger.info("Skipping logo screens")
 
     # skipping the logo screens
-    press_n_times("space", 10, 0.5)
+    press("space*10")
 
 
 def run_benchmark():
@@ -132,7 +132,7 @@ def run_benchmark():
 
     time.sleep(2)
 
-    press_n_times("e", 2, 0.2)
+    press("e*2", pause=0.2)
 
     result = find_word("lock", timeout=10, interval=1)
     if not result:

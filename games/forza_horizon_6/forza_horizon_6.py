@@ -14,7 +14,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import mangohud_log_toggle, press_n_times, user
+from harness_utils.input import mangohud_log_toggle, press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, local_appdata
@@ -110,13 +110,13 @@ def run_benchmark():
         sys.exit(1)
 
     logger.info("Video found, selecting with keyboard.")
-    press_n_times("down", 6, 1)
+    press("down*6", pause=1)
     time.sleep(1)
     user.press("enter")
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt.png")
     time.sleep(1)
 
-    press_n_times("down", 21, 1)
+    press("down*21", pause=1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt2.png")
     user.press("escape")
     time.sleep(1)
@@ -132,7 +132,7 @@ def run_benchmark():
     user.press("enter")
     time.sleep(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt.png")
-    press_n_times("down", 18, 1)
+    press("down*18", pause=1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt2.png")
     time.sleep(1)
     user.press("down")

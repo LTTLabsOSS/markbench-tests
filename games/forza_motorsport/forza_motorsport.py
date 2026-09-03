@@ -16,7 +16,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import press, press_n_times
+from harness_utils.input import press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -94,7 +94,7 @@ def run_benchmark() -> tuple[int, int]:
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
 
-    press_n_times("down", 15, 0.5)
+    press("down*15")
 
     if find_word(word="particle", timeout=30, interval=1) is None:
         logger.info(
@@ -103,7 +103,7 @@ def run_benchmark() -> tuple[int, int]:
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
 
-    press_n_times("down", 3, 0.5)
+    press("down*3")
     press("up")
     time.sleep(0.5)
     press("down")

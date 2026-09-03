@@ -20,7 +20,7 @@ from harness_utils.artifacts import (
 from harness_utils.input import (
     mangohud_log_toggle,
     mouse_scroll_n_times,
-    press_n_times,
+    press,
     user,
 )
 from harness_utils.ocr_service import find_word
@@ -98,7 +98,7 @@ def run_benchmark():
     logger.info("Saw the main menu. Proceeding.")
     time.sleep(1)
 
-    press_n_times("down", 4, 0.5)
+    press("down*4")
     user.press("enter")
     time.sleep(1)
 
@@ -108,7 +108,7 @@ def run_benchmark():
         sys.exit(1)
 
     logger.info("Saw the game settings. Proceeding.")
-    press_n_times("q", 2, 0.5)
+    press("q*2")
     time.sleep(1)
 
     # Screenshotting the display settings
@@ -141,9 +141,7 @@ def run_benchmark():
 
     result = find_word("decal", vulkan=True, interval=3, timeout=15)
     if not result:
-        logger.info(
-            "Didn't find the decal quality setting. Did it navigate correctly?"
-        )
+        logger.info("Didn't find the decal quality setting. Did it navigate correctly?")
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video4.png", vulkan=True)
@@ -194,7 +192,7 @@ def run_benchmark():
     logger.info("See the benchmarks. Starting the Abyssal Forest benchmark level.")
     time.sleep(1)
 
-    press_n_times("down", 2, 0.5)
+    press("down*2")
     user.press("enter")
     time.sleep(1)
 
