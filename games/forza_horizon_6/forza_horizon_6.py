@@ -14,7 +14,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import mangohud_log_toggle, press, user
+from harness_utils.input import mangohud_log_toggle, move_mouse, press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, local_appdata
@@ -178,7 +178,7 @@ def run_benchmark():
 
     if is_linux():
         mangohud_log_toggle()
-        user.move_mouse(0, 0)
+        move_mouse(0, 0)
 
     terminate_game_processes()
     return test_start_time, test_end_time

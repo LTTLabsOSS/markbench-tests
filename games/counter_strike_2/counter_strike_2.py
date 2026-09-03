@@ -16,7 +16,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import press, scroll, user
+from harness_utils.input import move_mouse, press, scroll, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -139,7 +139,7 @@ def navigate_settings():
         why="identify we're in the advanced video menu",
     )
 
-    user.move_mouse(result["x"], result["y"])
+    move_mouse(result["x"], result["y"])
     time.sleep(1)
     scroll(-6000000)
     time.sleep(1)

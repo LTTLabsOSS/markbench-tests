@@ -15,7 +15,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import press, scroll, user
+from harness_utils.input import move_mouse, press, scroll, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -126,7 +126,7 @@ def run_benchmark():
             "Did not find the keyword 'water' in the menu. Did OCR navigate to the advanced menu correctly?"
         )
         sys.exit(1)
-    user.move_mouse(result["x"], result["y"])
+    move_mouse(result["x"], result["y"])
     time.sleep(1)
 
     # Scroll to the middle of the advanced menu

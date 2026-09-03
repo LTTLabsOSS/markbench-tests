@@ -20,7 +20,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import press, user, write
+from harness_utils.input import move_mouse, press, user, write
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -112,7 +112,7 @@ def run_benchmark():
         logger.info("Did not find the overview in the corner. Did the game load?")
         sys.exit(1)
 
-    user.move_mouse(result["x"], result["y"])
+    move_mouse(result["x"], result["y"])
 
     time.sleep(2)
     logger.info("Starting benchmark")

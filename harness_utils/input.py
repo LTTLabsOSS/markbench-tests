@@ -238,6 +238,11 @@ class KeyboardMouseDriver:
 user = KeyboardMouseDriver()
 
 
+def move_mouse(x: int, y: int) -> None:
+    """Move the mouse pointer without clicking."""
+    user.move_mouse(x, y)
+
+
 def write(text: str) -> None:
     """Type text."""
     user.write(text)
