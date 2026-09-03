@@ -15,7 +15,7 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.file_cleanup import remove_files
-from harness_utils.input import hold, mangohud_log_toggle, press, user
+from harness_utils.input import hold, mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, local_appdata
@@ -49,8 +49,6 @@ LOCAL_USER_SETTINGS = (
 VIDEO_PATH = (
     get_steamapps_common_path() / "Returnal" / "Returnal" / "Content" / "Movies"
 )
-
-user.FAILSAFE = False
 
 intro_videos = [
     VIDEO_PATH / "Logos_PC.mp4",

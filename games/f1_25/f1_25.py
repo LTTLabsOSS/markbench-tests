@@ -43,7 +43,6 @@ CONFIG = CONFIG_PATH / CONFIG_FILENAME
 BENCHMARK_RESULTS_PATH = F1_DOCUMENTS_PATH / "benchmark"
 
 intro_videos = [VIDEO_PATH / "attract.bk2", VIDEO_PATH / "cm_f1_sting.bk2"]
-user.FAILSAFE = False
 
 
 def find_latest_result_file(base_path):

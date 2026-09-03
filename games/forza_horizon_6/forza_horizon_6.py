@@ -34,8 +34,6 @@ SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__fil
 PROCESS_NAME = "ForzaHorizon6.exe"
 RTSS_PROCESS_NAME = "RTSS.exe"
 
-user.FAILSAFE = False
-
 
 def get_config_path() -> Path:
     """Returns the Forza Horizon 6 user config path."""

@@ -39,8 +39,6 @@ CONFIG_PATH = (
 CONFIG_FILENAME = "hardware_settings_config.xml"
 CONFIG_FULL_PATH = CONFIG_PATH / CONFIG_FILENAME
 
-user.FAILSAFE = False
-
 
 def get_resolution() -> tuple[int, int]:
     """Gets resolution width and height from local xml file created by game."""

@@ -13,7 +13,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import mangohud_log_toggle, press, user
+from harness_utils.input import mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, network_drive_path, user_documents
@@ -36,8 +36,6 @@ logger = logging.getLogger(__name__)
 STEAM_GAME_ID = 2531310
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "tlou-ii.exe"
-
-user.FAILSAFE = False
 
 
 def reset_savedata(local_savegame_path):

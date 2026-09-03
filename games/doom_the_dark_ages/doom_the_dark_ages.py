@@ -48,8 +48,6 @@ BENCHMARK_RESULTS_PATH = (
     / "benchmark"
 )
 
-user.FAILSAFE = False
-
 
 def start_game():
     """Launch the game with no launcher or start screen"""

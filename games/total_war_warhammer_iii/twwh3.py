@@ -40,8 +40,6 @@ CONFIG_FULL_PATH = (
     / "preferences.script.txt"
 )
 
-user.FAILSAFE = False
-
 
 def read_current_resolution() -> tuple[int, int]:
     """Read the configured game resolution."""
