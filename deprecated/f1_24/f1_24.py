@@ -144,14 +144,14 @@ def run_benchmark():
     logger.info("Saw the options! we are good to go!")
     time.sleep(1)
 
-    press("down*6", pause=0.2)
+    press("down*6")
     user.press("enter")
     time.sleep(2)
     # find_settings()
     find_graphics()
 
     # Navigate to video settings
-    press("down*3", pause=0.2)
+    press("down*3")
     user.press("enter")
     time.sleep(0.2)
 
@@ -161,7 +161,7 @@ def run_benchmark():
             "Didn't find the keyword 'vsync'. Did the program navigate to the video mode menu correctly?"
         )
         sys.exit(1)
-    press("down*18", pause=0.2)
+    press("down*18")
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
     user.press("escape")
@@ -176,7 +176,7 @@ def run_benchmark():
 
     # Navigate through graphics settings and take screenshots of all settings contained within
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
-    press("down*29", pause=0.2)
+    press("down*29")
 
     result = find_word("chromatic", interval=1, timeout=60)
     if not result:
@@ -186,7 +186,7 @@ def run_benchmark():
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
-    press("up*28", pause=0.2)
+    press("up*28")
     user.press("enter")
     time.sleep(0.2)
 
@@ -197,7 +197,7 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "benchmark.png")
 
-    press("down*6", pause=0.2)
+    press("down*6")
     user.press("enter")
     time.sleep(2)
 

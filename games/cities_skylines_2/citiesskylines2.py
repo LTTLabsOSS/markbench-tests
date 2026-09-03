@@ -148,7 +148,7 @@ def run_benchmark():
     user.move_mouse(result["x"], result["y"])
     time.sleep(0.2)
 
-    scroll(-800, 8, 0.2)
+    scroll(-800, 8)
 
     if find_word(word="water", timeout=30, interval=1) is None:
         logger.info(
@@ -157,7 +157,7 @@ def run_benchmark():
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
 
-    scroll(-400, 8, 0.2)
+    scroll(-400, 8)
 
     # verify that we scrolled through the menu correctly
     if find_word(word="texture", timeout=30, interval=1) is None:
