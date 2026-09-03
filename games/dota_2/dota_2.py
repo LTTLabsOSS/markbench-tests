@@ -20,7 +20,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import press, user, write
+from harness_utils.input import click, press, user, write
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -99,7 +99,7 @@ def screenshot_settings():
 
     # navigating to the video config section
     click_me = gui.center(location)
-    user.click(click_me.x, click_me.y)
+    click(click_me.x, click_me.y)
     time.sleep(0.2)
 
     result = find_word(word="video", timeout=10, interval=1)
@@ -109,7 +109,7 @@ def screenshot_settings():
         )
         sys.exit(1)
 
-    user.click(
+    click(
         result["x"] + int(50 * click_multiple), result["y"] + int(20 * click_multiple)
     )
     time.sleep(0.2)

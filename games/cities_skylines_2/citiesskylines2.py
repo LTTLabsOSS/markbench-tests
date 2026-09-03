@@ -22,7 +22,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import move_mouse, press, scroll, user
+from harness_utils.input import click, move_mouse, press, scroll
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -67,7 +67,7 @@ def run_benchmark():
         sys.exit(1)
 
     # Navigate to load save menu
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(0.2)
 
     result = find_word("benchmark", timeout=10, interval=1, crop="top_left")
@@ -78,7 +78,7 @@ def run_benchmark():
         sys.exit(1)
 
     # Loading the game
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(0.2)
     press("enter")
     time.sleep(10)
@@ -120,7 +120,7 @@ def run_benchmark():
         sys.exit(1)
 
     # Navigate to options menu
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(0.2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "general.png")
@@ -133,7 +133,7 @@ def run_benchmark():
         sys.exit(1)
 
     # Navigate to graphics menu
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(0.2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")

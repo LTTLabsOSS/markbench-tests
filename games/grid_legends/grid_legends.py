@@ -14,7 +14,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mangohud_log_toggle, press, user
+from harness_utils.input import click, mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, user_documents
@@ -73,7 +73,7 @@ def run_benchmark():
     if is_linux():
         mangohud_log_toggle()
     else:
-        user.click(0, 0)
+        click(0, 0)
 
     logger.info("Game started. Entering main menu")
     time.sleep(4)

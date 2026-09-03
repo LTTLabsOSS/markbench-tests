@@ -15,7 +15,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mangohud_log_toggle, user
+from harness_utils.input import click, mangohud_log_toggle, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, roaming_appdata
@@ -107,7 +107,7 @@ def run_benchmark():
         logger.info("Did not find the options menu. Did the game skip the intros?")
         sys.exit(1)
 
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(0.2)
     time.sleep(2)
 
@@ -118,7 +118,7 @@ def run_benchmark():
         logger.info("Did not find the advanced menu. Did the game skip the intros?")
         sys.exit(1)
 
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(0.2)
     time.sleep(0.5)
 
@@ -129,14 +129,14 @@ def run_benchmark():
         logger.info("Did not find the benchmark menu. Did the game skip the intros?")
         sys.exit(1)
 
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(0.2)
     if args.benchmark != "battle":
         result = find_word("mirrors", timeout=10, interval=1)
         if not result:
             logger.info("Did not find the Mirrors of Madness benchmark.")
             sys.exit(1)
-        user.click(result["x"], result["y"])
+        click(result["x"], result["y"])
         time.sleep(0.2)
         time.sleep(2)
         user.press("enter")

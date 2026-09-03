@@ -16,7 +16,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import move_mouse, press, scroll, user
+from harness_utils.input import click, move_mouse, press, scroll
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -105,7 +105,7 @@ def identify_settings():
         raise RuntimeError
 
     click_me = gui.center(location)
-    user.click(click_me.x, click_me.y)
+    click(click_me.x, click_me.y)
     time.sleep(0.2)
 
 
@@ -116,7 +116,7 @@ def navigate_settings():
         word="video", timeout=10, interval=1, why="find the video menu button"
     )
 
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(0.2)
 
     wait_for_word(word="brightness", why="find the video settings")
@@ -127,7 +127,7 @@ def navigate_settings():
         word="advanced", timeout=10, interval=1, why="find the advanced video menu"
     )
 
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(0.2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_video_1.png")
@@ -157,26 +157,26 @@ def execute_benchmark():
         word="play", timeout=10, interval=1, why="click the play tab"
     )
 
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(0.2)
 
     result = wait_for_word(
         word="workshop", timeout=10, interval=1, why="click the workshop tab"
     )
 
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(0.2)
 
     result = wait_for_word(
         word="fps", timeout=10, interval=1, why="click the benchmark icon"
     )
 
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(0.2)
 
     result = wait_for_word(word="go", timeout=10, interval=1, why="start the benchmark")
 
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(0.2)
 
 

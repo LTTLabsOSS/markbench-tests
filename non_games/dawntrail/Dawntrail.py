@@ -17,7 +17,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import user
+from harness_utils.input import click, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, network_drive_path
@@ -115,7 +115,7 @@ def start_game():
 def navigate_to_settings():
     """Navigate from main launcher menu to settings."""
     result = find_word("settings", timeout=10)
-    user.click(int(result["x"]), int(result["y"]))
+    click(int(result["x"]), int(result["y"]))
 
 
 def navigate_settings() -> None:
@@ -166,7 +166,7 @@ def run_benchmark():
 
     user.press("up")
     user.press("up")
-    user.click(start_pos[0], start_pos[1])
+    click(start_pos[0], start_pos[1])
 
     test_start_time = int(time.time()) - 5
     logger.info("Benchmark started. Waiting for completion...")
@@ -186,7 +186,7 @@ def run_benchmark():
 
     time.sleep(3)
     result = find_word("save", timeout=30)
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     logger.info("Saving results txt...")
     time.sleep(1)
     copy_artifact(get_results_txt(), ARTIFACTS_DIRECTORY)

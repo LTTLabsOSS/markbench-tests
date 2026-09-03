@@ -17,7 +17,7 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.file_cleanup import remove_files
-from harness_utils.input import press, user
+from harness_utils.input import click, press, user
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import game_install_path, harness_directories, user_documents
@@ -97,7 +97,7 @@ def navigate_startup():
         sys.exit(1)
 
     logger.info("Hit the title screen. Continuing")
-    user.click()
+    click()
     time.sleep(0.3)
     user.press("enter")
     time.sleep(1)

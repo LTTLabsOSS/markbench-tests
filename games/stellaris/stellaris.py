@@ -20,7 +20,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import move_mouse, press, user, write
+from harness_utils.input import click, move_mouse, press, write
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -56,7 +56,7 @@ def run_benchmark():
 
     patchnotes = find_word("close", interval=0.5, timeout=100)
     if patchnotes:
-        user.click(patchnotes["x"], patchnotes["y"])
+        click(patchnotes["x"], patchnotes["y"])
         time.sleep(0.2)
 
     result = find_word("credits", interval=0.5, timeout=100)
@@ -73,7 +73,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(0.5)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "settings.png")
 
@@ -87,7 +87,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(2)
 
     result = find_word("latest", timeout=10, interval=1)
@@ -97,7 +97,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(0.5)
 
     result = find_word("paused", interval=0.5, timeout=100)

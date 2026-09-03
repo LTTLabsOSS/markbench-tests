@@ -15,7 +15,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import press, user
+from harness_utils.input import click, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -76,7 +76,7 @@ def run_benchmark():
         sys.exit(1)
 
     logger.info("Video found, clicking and continuing.")
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(0.2)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt.png")
     time.sleep(0.2)
@@ -94,7 +94,7 @@ def run_benchmark():
         sys.exit(1)
 
     logger.info("Graphics found, clicking and continuing.")
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(0.2)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt.png")
     time.sleep(0.2)
@@ -109,7 +109,7 @@ def run_benchmark():
         logger.info("Didn't find benchmark in settings.")
         sys.exit(1)
 
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(0.2)
     time.sleep(1)
     press("down")

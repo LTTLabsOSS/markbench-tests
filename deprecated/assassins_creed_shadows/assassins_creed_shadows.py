@@ -12,7 +12,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import press, user
+from harness_utils.input import click, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -155,7 +155,7 @@ def run_benchmark():
     if find_word(word="hardware", timeout=30, interval=1) is None:
         logger.info("did not find hardware")
     else:
-        user.click()
+        click()
         time.sleep(0.2)
         press("space")
 

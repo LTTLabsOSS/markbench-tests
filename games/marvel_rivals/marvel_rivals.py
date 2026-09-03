@@ -18,7 +18,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import press, scroll, user
+from harness_utils.input import click, press, scroll
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -62,7 +62,7 @@ def run_benchmark():
         f"{SCRIPT_DIRECTORY}\\screenshots\\launch_button.png", confidence=0.7
     )  # luckily this seems to be a set resolution for the button
     click_me = gui.center(location)
-    user.click(click_me.x, click_me.y)
+    click(click_me.x, click_me.y)
     time.sleep(0.2)
 
     time.sleep(60)  # wait for game to load into main menu
@@ -73,7 +73,7 @@ def run_benchmark():
         logger.info("Did not find the title screen. Did the game load?")
         sys.exit(1)
 
-    user.click()
+    click()
     time.sleep(20)
 
     # checking if a marketing notification has come up
@@ -95,7 +95,7 @@ def run_benchmark():
         logger.info("Did not find the settings menu. Did it open the menu with escape?")
         sys.exit(1)
 
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(1)
 
     result = find_word("brightness", timeout=30, interval=1)
@@ -143,7 +143,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(1)
 
     result = find_word("start", timeout=30, interval=1)
@@ -151,7 +151,7 @@ def run_benchmark():
         logger.info("Did not find the Start Test button. Did OCR click correctly?")
         sys.exit(1)
 
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(1)
 
     # marking the end time
