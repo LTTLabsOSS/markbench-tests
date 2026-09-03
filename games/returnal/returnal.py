@@ -107,7 +107,7 @@ def escape_vram_alert():
 def navigate_options_menu() -> None:
     """Simulate inputs to navigate to options menu"""
     logger.info("Navigating to options menu")
-    press("esc, enter, q")
+    press("escape, enter, q")
     user.key_down("tab")
     time.sleep(5)
     user.key_up("tab")
@@ -144,7 +144,7 @@ def run_benchmark() -> tuple[int, int]:
         mangohud_log_toggle()
         time.sleep(1)
     # Navigate to display menu
-    press("esc, enter, q*2", pause=1)
+    press("escape, enter, q*2", pause=1)
 
     # Verify that we have navigated to the video settings menu and take a screenshot
     if find_word(word="aspect", timeout=30, interval=1) is None:

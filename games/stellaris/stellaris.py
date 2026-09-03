@@ -84,7 +84,7 @@ def run_benchmark():
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "settings.png")
 
     time.sleep(0.2)
-    press("esc")
+    press("escape")
 
     result = find_word("load", timeout=10, interval=1)
     if not result:

@@ -142,7 +142,7 @@ def navi_settings():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability4.png")
 
-    press("esc")
+    press("escape")
 
 
 def run_benchmark():
@@ -218,7 +218,7 @@ def run_benchmark():
 
     time.sleep(5)
 
-    press("esc")
+    press("escape")
 
     move_benchmark_file()
 

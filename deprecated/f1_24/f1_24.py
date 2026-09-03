@@ -164,7 +164,7 @@ def run_benchmark():
     press("down*18", pause=0.2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
-    user.press("esc")
+    user.press("escape")
     time.sleep(0.2)
 
     result = find_word("steering", interval=1, timeout=60)

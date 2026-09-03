@@ -77,7 +77,7 @@ def run_benchmark():
     press("enter")
 
     if find_word(word="house", timeout=10, interval=0.5):
-        press("esc")
+        press("escape")
 
     # Navigating main menu:
     is_load_present = find_word("load", interval=1, timeout=5)
@@ -121,7 +121,7 @@ def run_benchmark():
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")
     time.sleep(0.2)
-    press("esc")
+    press("escape")
     time.sleep(0.2)
 
     logger.info("Seen the main menu. Loading benchmark.")

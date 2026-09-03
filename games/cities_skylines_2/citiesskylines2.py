@@ -54,7 +54,7 @@ def run_benchmark():
     if not find_word("paradox", interval=0.5, timeout=100):
         logger.info("Could not find the Paradox logo. Did the game launch?")
         sys.exit(1)
-    press("esc*3")
+    press("escape*3")
     time.sleep(15)
 
     if not find_word("new", interval=0.5, timeout=100):
@@ -110,7 +110,7 @@ def run_benchmark():
     logger.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Open quick menu
-    press("esc")
+    press("escape")
 
     result = find_word("options", timeout=10, interval=1)
     if not result:

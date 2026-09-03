@@ -83,7 +83,7 @@ def navigate_game_menus():
         )
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "quality_2.png")
-    press("esc")
+    press("escape")
 
 
 def run_benchmark():

@@ -46,7 +46,6 @@ _YDOTOOL_KEYS = {
     # Control keys
     "backspace": 14,
     "enter": 28,
-    "esc": 1,
     "escape": 1,
     "space": 57,
     "tab": 15,
