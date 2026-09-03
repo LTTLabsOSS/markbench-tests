@@ -5,7 +5,7 @@ import sys
 import time
 from pathlib import Path
 
-from citiesskylines2_utils import (
+from cities_skylines_2_utils import (
     CONFIG_FULL_PATH,
     copy_benchmarksave,
     copy_continuegame,
