@@ -6,7 +6,6 @@ import sys
 import time
 from pathlib import Path
 
-import pydirectinput as user
 from atomic_heart_utils import read_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
@@ -18,7 +17,7 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.file_cleanup import remove_files
-from harness_utils.input import press_n_times
+from harness_utils.input import press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -56,8 +55,6 @@ intro_videos = [
     VIDEO_PATH / "Launch_FHD_60FPS_PC_Steam.mp4",
 ]
 
-user.FAILSAFE = False
-
 
 def navigate_game_menus():
     """Navigate in game menus and take screenshots where appropriate"""
@@ -69,8 +66,7 @@ def navigate_game_menus():
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
 
-    user.press("e")
-    time.sleep(0.5)
+    press("e")
     result = find_word("dlss", timeout=25)
     if not result:
         logger.info(
@@ -79,8 +75,7 @@ def navigate_game_menus():
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "quality_1.png")
 
-    user.press("w")
-    time.sleep(0.5)
+    press("w")
     result = find_word("vegetation", timeout=25)
     if not result:
         logger.info(
@@ -88,8 +83,7 @@ def navigate_game_menus():
         )
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "quality_2.png")
-    user.press("esc")
-    time.sleep(0.5)
+    press("esc")
 
 
 def run_benchmark():
@@ -105,56 +99,35 @@ def run_benchmark():
         logger.info("Did not see start screen")
         sys.exit(1)
 
-    user.press("space")
+    press("space")
 
     # This is for the menu checking for if there's a continue option
     result = find_word("continue", timeout=20, interval=1)
     if result:
         logger.info("Continue option available, navigating accordingly.")
-        press_n_times("s", 3, 0.5)
-        user.press("f")
-        time.sleep(0.5)
+        press("s*3, f")
         navigate_game_menus()
 
         # Launch benchmark
-        user.press("s")
-        time.sleep(0.5)
-        user.press("d")
-        time.sleep(0.5)
-        user.press("f")
-        time.sleep(0.5)
-        user.press("space")
+        press("s, d, f, space")
     else:
         logger.info("Continue option not available, navigating accordingly.")
-        user.press("s")
-        time.sleep(0.5)
-        user.press("f")
-        time.sleep(0.5)
+        press("s, f")
         navigate_game_menus()
 
         # Launch benchmark
-        user.press("s")
-        time.sleep(0.5)
-        user.press("w")
-        time.sleep(0.5)
-        user.press("d")
-        time.sleep(0.5)
-        user.press("f")
-        time.sleep(0.5)
-        user.press("space")
+        press("s, w, d, f, space")
 
     time.sleep(10)
 
     # This is for the loading screen continue
     result = find_word("continue", interval=1, timeout=80)
     if not result:
-        logger.info(
-            "Did not see the option to continue. Check settings and try again."
-        )
+        logger.info("Did not see the option to continue. Check settings and try again.")
         sys.exit(1)
 
     logger.info("Continue found. Starting opening scene benchmark.")
-    user.press("space")
+    press("space")
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
