@@ -207,7 +207,6 @@ def run_benchmark():
     # Exit
     terminate_process(PROCESS_NAME)
 
-
     return test_start_time, test_end_time
 
 
