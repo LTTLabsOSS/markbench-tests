@@ -97,9 +97,6 @@ class _WindowsInputBackend:
     def key_up(self, key: str) -> None:
         self._pydirectinput.keyUp(key)
 
-    def hotkey(self, *keys: str) -> None:
-        self._pydirectinput.hotkey(*keys)
-
     def move_mouse(self, x: int, y: int) -> None:
         self._pydirectinput.moveTo(x=x, y=y)
 
@@ -151,12 +148,6 @@ class _YdotoolInputBackend:
 
     def key_up(self, key: str) -> None:
         self._run("key", f"{self._keycode(key)}:0")
-
-    def hotkey(self, *keys: str) -> None:
-        for key in keys:
-            self.key_down(key)
-        for key in reversed(keys):
-            self.key_up(key)
 
     def move_mouse(self, x: int, y: int) -> None:
         scaled_x, scaled_y = _scale_linux_click_coordinates(x, y)
@@ -220,37 +211,16 @@ def hold(key: str, duration: float) -> None:
 def press(sequence: str, pause: float = 0.5) -> None:
     """Press keys described by a comma-separated sequence like ``up*2, down*3``."""
     logger.debug("input press sequence=%s", sequence)
-    steps = [step.strip() for step in sequence.split(",")]
 
-    for step in steps:
-        if not step:
-            continue
-
+    for step in sequence.split(","):
         key, separator, count_text = step.partition("*")
         key = key.strip()
         if not key:
-            continue
+            raise ValueError(f"Invalid press step: {step!r}")
 
-        count = 1
-        if separator:
-            count_text = count_text.strip()
-            if not count_text:
-                logger.warning(
-                    "Skipping press step with missing repeat count: %r", step
-                )
-                continue
-            try:
-                count = int(count_text)
-            except ValueError:
-                logger.warning(
-                    "Skipping press step with invalid repeat count: %r", step
-                )
-                continue
-            if count < 1:
-                logger.warning(
-                    "Skipping press step with non-positive repeat count: %r", step
-                )
-                continue
+        count = int(count_text.strip()) if separator else 1
+        if count < 1:
+            raise ValueError(f"Invalid press count: {step!r}")
 
         for _ in range(count):
             _backend.press(key)
