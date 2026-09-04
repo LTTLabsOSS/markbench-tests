@@ -81,9 +81,9 @@ def _scale_linux_click_coordinates(x: int, y: int) -> tuple[int, int]:
 
 
 class _WindowsInputBackend:
-    def __init__(self, controller: "KeyboardMouseDriver") -> None:
+    def __init__(self) -> None:
         self._pydirectinput = importlib.import_module("pydirectinput")
-        vars(self._pydirectinput)["FAILSAFE"] = controller.FAILSAFE
+        vars(self._pydirectinput)["FAILSAFE"] = False
 
     def press(self, key: str) -> None:
         self._pydirectinput.press(key)
@@ -177,75 +177,23 @@ class _YdotoolInputBackend:
         self._run("mousemove", "--wheel", "-x", "0", "-y", str(wheel_ticks))
 
 
-class KeyboardMouseDriver:
-    """Keyboard and mouse input controller with Windows and Linux backends."""
-
-    FAILSAFE: bool
-
-    def __init__(self) -> None:
-        self.FAILSAFE = False
-        self._backend = self._create_backend()
-
-    def _create_backend(self):
-        if is_windows():
-            return _WindowsInputBackend(self)
-        if is_linux():
-            return _YdotoolInputBackend()
-        raise RuntimeError("Input is only supported on Windows and Linux")
-
-    def press(self, key: str) -> None:
-        """Press and release a key."""
-        self._backend.press(key)
-
-    def write(self, text: str) -> None:
-        """Type text."""
-        self._backend.write(text)
-
-    def key_down(self, key: str) -> None:
-        """Press and hold a key."""
-        self._backend.key_down(key)
-
-    def key_up(self, key: str) -> None:
-        """Release a key."""
-        self._backend.key_up(key)
-
-    def hotkey(self, *keys: str) -> None:
-        """Press a key chord."""
-        self._backend.hotkey(*keys)
-
-    def move_mouse(self, x: int, y: int) -> None:
-        """Move the mouse pointer without clicking."""
-        self._backend.move_mouse(x, y)
-
-    def click(
-        self,
-        x: int | None = None,
-        y: int | None = None,
-        hold: float = 0.0,
-        pre_click_delay: float = 0.2,
-    ) -> None:
-        """Optionally move the pointer, wait, and click the primary mouse button."""
-        if x is not None and y is not None:
-            self.move_mouse(x, y)
-        time.sleep(pre_click_delay)
-        self._backend.click(hold)
-
-    def scroll(self, scroll_amount: int) -> None:
-        """Scroll the mouse wheel."""
-        self._backend.scroll(scroll_amount)
-
-
-user = KeyboardMouseDriver()
+_backend: _WindowsInputBackend | _YdotoolInputBackend
+if is_windows():
+    _backend = _WindowsInputBackend()
+elif is_linux():
+    _backend = _YdotoolInputBackend()
+else:
+    raise RuntimeError("Input is only supported on Windows and Linux")
 
 
 def move_mouse(x: int, y: int) -> None:
     """Move the mouse pointer without clicking."""
-    user.move_mouse(x, y)
+    _backend.move_mouse(x, y)
 
 
 def write(text: str) -> None:
     """Type text."""
-    user.write(text)
+    _backend.write(text)
 
 
 def click(
@@ -255,15 +203,18 @@ def click(
     pre_click_delay: float = 0.2,
 ) -> None:
     """Optionally move the pointer, then wait before and after clicking."""
-    user.click(x, y, hold, pre_click_delay)
+    if x is not None and y is not None:
+        _backend.move_mouse(x, y)
+    time.sleep(pre_click_delay)
+    _backend.click(hold)
     time.sleep(pre_click_delay)
 
 
 def hold(key: str, duration: float) -> None:
     """Hold one key for the requested duration."""
-    user.key_down(key)
+    _backend.key_down(key)
     time.sleep(duration)
-    user.key_up(key)
+    _backend.key_up(key)
 
 
 def press(sequence: str, pause: float = 0.5) -> None:
@@ -302,7 +253,7 @@ def press(sequence: str, pause: float = 0.5) -> None:
                 continue
 
         for _ in range(count):
-            user.press(key)
+            _backend.press(key)
             time.sleep(pause)
 
 
@@ -310,7 +261,7 @@ def scroll(scroll_amount: int, count: int = 1, pause: float = 0.5) -> None:
     """Scroll the mouse wheel one or more times."""
     logger.debug("input scroll scroll_amount=%s count=%s", scroll_amount, count)
     for _ in range(count):
-        user.scroll(scroll_amount)
+        _backend.scroll(scroll_amount)
         time.sleep(pause)
 
 
@@ -318,11 +269,11 @@ def mangohud_log_toggle() -> None:
     """Toggle MangoHud logging with Left Shift + F2 via ydotool."""
     logger.debug("input mangohud_log_toggle")
     time.sleep(1)
-    user.key_down("leftshift")
+    _backend.key_down("leftshift")
     time.sleep(0.3)
-    user.key_down("f2")
+    _backend.key_down("f2")
     time.sleep(0.3)
-    user.key_up("f2")
+    _backend.key_up("f2")
     time.sleep(0.3)
-    user.key_up("leftshift")
+    _backend.key_up("leftshift")
     time.sleep(1)
