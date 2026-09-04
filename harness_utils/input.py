@@ -254,8 +254,9 @@ def click(
     hold: float = 0.0,
     pre_click_delay: float = 0.2,
 ) -> None:
-    """Optionally move the pointer, wait, and click the primary mouse button."""
+    """Optionally move the pointer, then wait before and after clicking."""
     user.click(x, y, hold, pre_click_delay)
+    time.sleep(pre_click_delay)
 
 
 def hold(key: str, duration: float) -> None:

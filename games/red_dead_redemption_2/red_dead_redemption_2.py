@@ -56,7 +56,6 @@ def run_benchmark():
     result = find_word("strange", vulkan=True, timeout=30)
     if result:
         press("enter")
-        time.sleep(3)
 
     # Press Z to enter settings
     result = find_word("settings", vulkan=True, timeout=30)
@@ -64,7 +63,6 @@ def run_benchmark():
         logger.info("Did not find the settings menu. Did the game launch?")
         sys.exit(1)
     press("z")
-    time.sleep(3)
 
     # Enter graphics menu
     ## ensure we are starting from the top left of the screen
@@ -73,7 +71,6 @@ def run_benchmark():
         logger.info("Did not find the graphics menu. Did OCR get stuck?")
         sys.exit(1)
     press("up*2, left*2, down, enter")
-    time.sleep(3)
 
     # Take pictures of the graphics settings
     result = find_word("resolution", vulkan=True, timeout=5)

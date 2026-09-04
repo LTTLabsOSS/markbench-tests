@@ -133,7 +133,6 @@ def navigate_settings() -> None:
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display_3.png")
 
     press("c")
-    time.sleep(1)
 
     result = find_word("raytracing", interval=3, timeout=20)
     if not result:

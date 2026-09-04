@@ -20,7 +20,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import click, press, user, write
+from harness_utils.input import click, press, write
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -100,7 +100,6 @@ def screenshot_settings():
     # navigating to the video config section
     click_me = gui.center(location)
     click(click_me.x, click_me.y)
-    time.sleep(0.2)
 
     result = find_word(word="video", timeout=10, interval=1)
     if not result:
@@ -112,7 +111,6 @@ def screenshot_settings():
     click(
         result["x"] + int(50 * click_multiple), result["y"] + int(20 * click_multiple)
     )
-    time.sleep(0.2)
     if find_word(word="resolution", timeout=30, interval=1) is None:
         logger.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
@@ -140,8 +138,7 @@ def load_the_benchmark():
     """Loads the replay and runs the benchmark"""
     press("escape")
     logger.info("Starting benchmark")
-    user.press("\\")
-    time.sleep(0.5)
+    press("\\")
     console_command("sv_cheats true")
     time.sleep(1)
     console_command("exec_async benchmark_load")
@@ -152,7 +149,7 @@ def load_the_benchmark():
     console_command("sv_cheats true")
     time.sleep(1)
     console_command("exec_async benchmark_run")
-    user.press("\\")
+    press("\\")
 
 
 def run_benchmark():

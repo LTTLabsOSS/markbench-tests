@@ -105,9 +105,7 @@ def run_benchmark() -> tuple[int, int]:
         logger.info("Did not find the display settings menu. Did the menu get stuck?")
         sys.exit(1)
     if find_word(word="exclusive", timeout=3, interval=1) is None:
-        press("down, right, up, r, enter")
-        time.sleep(1)
-        press("enter")
+        press("down, right, up, r, enter*2")
     if find_word(word="144", timeout=3, interval=0.5) is None:
         press("down")
         if find_word(word="generation", timeout=3, interval=0.5):
@@ -116,9 +114,7 @@ def run_benchmark() -> tuple[int, int]:
             press("down*5, right")
         while find_word(word="144", timeout=1, interval=0.5) is None:
             press("right")
-        press("r, enter")
-        time.sleep(1)
-        press("enter, up*6")
+        press("r, enter*2, up*6")
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display1.png")
 
     press("up")

@@ -112,8 +112,6 @@ def navi_settings():
     """navigates and takes pictures of settings"""
     press("space")
 
-    time.sleep(1)
-
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display1.png")
 
     press("down*13")
@@ -125,8 +123,6 @@ def navi_settings():
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display3.png")
 
     press("c")
-
-    time.sleep(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability1.png")
 
@@ -156,7 +152,6 @@ def run_benchmark():
         logger.info("did not find hardware")
     else:
         click()
-        time.sleep(0.2)
         press("space")
 
     if find_word(word="animus", timeout=130, interval=1) is None:
@@ -169,11 +164,7 @@ def run_benchmark():
         logger.error("Couldn't find 'System' button")
         sys.exit(1)
 
-    press("down")
-
-    time.sleep(1)
-
-    press("space")
+    press("down, space")
 
     if find_word("benchmark", timeout=30, interval=1) is None:
         logger.error("couldn't find 'benchmark' on screen before settings")
@@ -185,11 +176,7 @@ def run_benchmark():
         logger.error("couldn't find 'benchmark' on screen after settings")
         sys.exit(1)
 
-    press("down")
-
-    time.sleep(1)
-
-    press("space")
+    press("down, space")
 
     setup_end_time = int(time.time())
     elapsed_setup_time = setup_end_time - setup_start_time
@@ -214,11 +201,7 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
 
-    press("x")
-
-    time.sleep(5)
-
-    press("escape")
+    press("x, escape")
 
     move_benchmark_file()
 

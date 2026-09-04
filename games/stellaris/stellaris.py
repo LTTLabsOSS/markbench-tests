@@ -57,7 +57,6 @@ def run_benchmark():
     patchnotes = find_word("close", interval=0.5, timeout=100)
     if patchnotes:
         click(patchnotes["x"], patchnotes["y"])
-        time.sleep(0.2)
 
     result = find_word("credits", interval=0.5, timeout=100)
     if not result:
@@ -74,7 +73,6 @@ def run_benchmark():
         sys.exit(1)
 
     click(result["x"], result["y"])
-    time.sleep(0.5)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "settings.png")
 
     time.sleep(0.2)
@@ -98,7 +96,6 @@ def run_benchmark():
         sys.exit(1)
 
     click(result["x"], result["y"])
-    time.sleep(0.5)
 
     result = find_word("paused", interval=0.5, timeout=100)
     if not result:
@@ -119,7 +116,6 @@ def run_benchmark():
     press("`")
     write("run benchmark.ini")
     press("enter")
-    time.sleep(1)
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)

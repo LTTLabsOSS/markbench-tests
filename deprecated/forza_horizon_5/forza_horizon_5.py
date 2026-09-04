@@ -68,7 +68,6 @@ def run_benchmark():
 
     logger.info("Accessibility found pressing X to continue.")
     press("x")
-    time.sleep(2)
 
     result = find_word("video", timeout=30)
     if not result:
@@ -77,7 +76,6 @@ def run_benchmark():
 
     logger.info("Video found, clicking and continuing.")
     click(result["x"], result["y"])
-    time.sleep(0.2)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt.png")
     time.sleep(0.2)
     press("down*19")
@@ -86,7 +84,6 @@ def run_benchmark():
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt3.png")
     time.sleep(0.2)
     press("escape")
-    time.sleep(1)
 
     result = find_word("graphics", timeout=30)
     if not result:
@@ -95,14 +92,12 @@ def run_benchmark():
 
     logger.info("Graphics found, clicking and continuing.")
     click(result["x"], result["y"])
-    time.sleep(0.2)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt.png")
     time.sleep(0.2)
     press("down*16")
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt2.png")
     time.sleep(0.1)
     press("down")
-    time.sleep(1)
 
     result = find_word("benchmark", timeout=12)
     if not result:
@@ -110,12 +105,8 @@ def run_benchmark():
         sys.exit(1)
 
     click(result["x"], result["y"])
-    time.sleep(0.2)
     time.sleep(1)
-    press("down")
-    time.sleep(0.2)
-    press("enter")
-    time.sleep(0.2)
+    press("down, enter")
 
     result = find_word("checkpoint", timeout=360)
     if not result:

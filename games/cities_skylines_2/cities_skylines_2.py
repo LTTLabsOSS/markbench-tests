@@ -55,7 +55,6 @@ def run_benchmark():
         logger.info("Could not find the Paradox logo. Did the game launch?")
         sys.exit(1)
     press("escape*3")
-    time.sleep(15)
 
     if not find_word("new", interval=0.5, timeout=100):
         logger.info("Did not find the main menu. Did the game crash?")
@@ -68,7 +67,6 @@ def run_benchmark():
 
     # Navigate to load save menu
     click(result["x"], result["y"])
-    time.sleep(0.2)
 
     result = find_word("benchmark", timeout=10, interval=1, crop="top_left")
     if not result:
@@ -79,9 +77,7 @@ def run_benchmark():
 
     # Loading the game
     click(result["x"], result["y"])
-    time.sleep(0.2)
     press("enter")
-    time.sleep(10)
 
     if not find_word("grand", interval=0.5, timeout=100):
         logger.info(
@@ -93,7 +89,6 @@ def run_benchmark():
     time.sleep(2)
     logger.info("Starting benchmark")
     press("3")
-    time.sleep(2)
 
     test_start_time = int(time.time())
     time.sleep(180)
@@ -101,9 +96,6 @@ def run_benchmark():
     test_end_time = int(time.time())
     time.sleep(2)
     press("1")
-
-    # Wait for benchmark info
-    time.sleep(10)
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
@@ -121,7 +113,6 @@ def run_benchmark():
 
     # Navigate to options menu
     click(result["x"], result["y"])
-    time.sleep(0.2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "general.png")
 
@@ -134,7 +125,6 @@ def run_benchmark():
 
     # Navigate to graphics menu
     click(result["x"], result["y"])
-    time.sleep(0.2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
 

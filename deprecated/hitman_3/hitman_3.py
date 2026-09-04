@@ -87,7 +87,6 @@ def run_benchmark():
     )  # luckily this seems to be a set resolution for the button
     click_me = gui.center(location)
     click(click_me.x, click_me.y)
-    time.sleep(0.2)
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)

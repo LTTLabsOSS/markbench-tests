@@ -124,7 +124,6 @@ def run_benchmark():
 
     logger.info("Seen the main menu. Loading benchmark.")
     press("up*3, enter", pause=0.2)
-    time.sleep(2)
 
     # Loading the save
     if find_word(word="heart", timeout=60, interval=0.5) is None:

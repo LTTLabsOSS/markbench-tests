@@ -17,7 +17,7 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.file_cleanup import remove_files
-from harness_utils.input import click, press, user
+from harness_utils.input import click, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import game_install_path, harness_directories, user_documents
@@ -61,8 +61,7 @@ def find_settings() -> None:
     if not find_word("settings", interval=1, timeout=15):
         logger.info("Didn't find settings!")
         sys.exit(1)
-    user.press("enter")
-    time.sleep(1.5)
+    press("enter")
 
 
 def find_graphics() -> None:
@@ -70,10 +69,7 @@ def find_graphics() -> None:
     if not find_word("graphics", interval=1, timeout=15):
         logger.info("Didn't find graphics!")
         sys.exit(1)
-    user.press("right")
-    time.sleep(0.2)
-    user.press("enter")
-    time.sleep(1.5)
+    press("right, enter")
 
 
 def navigate_startup():
@@ -83,12 +79,7 @@ def navigate_startup():
         logger.info("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
-    user.press("space")
-    time.sleep(1)
-    user.press("space")
-    time.sleep(1)
-    user.press("space")
-    time.sleep(4)
+    press("space*3")
 
     # Press enter to proceed to the main menu
     result = find_word("press", interval=2, timeout=80)
@@ -98,17 +89,14 @@ def navigate_startup():
 
     logger.info("Hit the title screen. Continuing")
     click()
-    time.sleep(0.3)
-    user.press("enter")
-    time.sleep(1)
+    press("enter")
 
     # cancel logging into ea services
     result = find_word("login", timeout=20)
     if result:
         time.sleep(3)
         logger.info("Cancelling logging in.")
-        user.press("enter")
-        time.sleep(2)
+        press("enter")
 
 
 def offline_menu():
@@ -118,9 +106,7 @@ def offline_menu():
         logger.info("Didn't find the keyword 'network'")
         return
     time.sleep(5)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("enter")
+    press("down, enter")
 
 
 def run_benchmark():
@@ -143,16 +129,12 @@ def run_benchmark():
     logger.info("Saw the options! we are good to go!")
     time.sleep(1)
 
-    press("down*6")
-    user.press("enter")
-    time.sleep(2)
+    press("down*6, enter")
     # find_settings()
     find_graphics()
 
     # Navigate to video settings
-    press("down*3")
-    user.press("enter")
-    time.sleep(0.2)
+    press("down*3, enter")
 
     result = find_word("vsync", interval=1, timeout=60)
     if not result:
@@ -163,8 +145,7 @@ def run_benchmark():
     press("down*18")
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
-    user.press("escape")
-    time.sleep(0.2)
+    press("escape")
 
     result = find_word("steering", interval=1, timeout=60)
     if not result:
@@ -185,9 +166,7 @@ def run_benchmark():
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
-    press("up*28")
-    user.press("enter")
-    time.sleep(0.2)
+    press("up*28, enter")
 
     # Navigate benchmark menu
     if not find_word("weather", interval=1, timeout=15):
@@ -196,9 +175,7 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "benchmark.png")
 
-    press("down*6")
-    user.press("enter")
-    time.sleep(2)
+    press("down*6, enter")
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)

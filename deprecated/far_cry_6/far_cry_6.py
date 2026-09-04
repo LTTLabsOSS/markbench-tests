@@ -69,8 +69,6 @@ def run_benchmark():
 
     press("space*2")
 
-    time.sleep(2)
-
     # navigating the menus to get to the video settings
     result = find_word("later", timeout=5, interval=1)
     if result:
@@ -82,7 +80,6 @@ def run_benchmark():
         sys.exit(1)
 
     click(result["x"], result["y"])
-    time.sleep(0.2)
     time.sleep(2)
 
     result = find_word("video", timeout=10, interval=1)
@@ -91,7 +88,6 @@ def run_benchmark():
         sys.exit(1)
 
     click(result["x"], result["y"])
-    time.sleep(0.2)
     time.sleep(2)
 
     # grabbing screenshots of all the video settings

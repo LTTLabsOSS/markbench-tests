@@ -54,7 +54,6 @@ def run_benchmark():
 
     logger.info("Saw the options! we are good to go!")
     press("down*2, enter", pause=1)
-    time.sleep(4)
 
     visuals = find_word("visuals", interval=1, timeout=10)
     if visuals is None:

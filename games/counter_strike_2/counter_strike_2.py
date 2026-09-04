@@ -106,7 +106,6 @@ def identify_settings():
 
     click_me = gui.center(location)
     click(click_me.x, click_me.y)
-    time.sleep(0.2)
 
 
 def navigate_settings():
@@ -117,7 +116,6 @@ def navigate_settings():
     )
 
     click(result["x"], result["y"])
-    time.sleep(0.2)
 
     wait_for_word(word="brightness", why="find the video settings")
 
@@ -128,7 +126,6 @@ def navigate_settings():
     )
 
     click(result["x"], result["y"])
-    time.sleep(0.2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_video_1.png")
 
@@ -158,26 +155,22 @@ def execute_benchmark():
     )
 
     click(result["x"], result["y"])
-    time.sleep(0.2)
 
     result = wait_for_word(
         word="workshop", timeout=10, interval=1, why="click the workshop tab"
     )
 
     click(result["x"], result["y"])
-    time.sleep(0.2)
 
     result = wait_for_word(
         word="fps", timeout=10, interval=1, why="click the benchmark icon"
     )
 
     click(result["x"], result["y"])
-    time.sleep(0.2)
 
     result = wait_for_word(word="go", timeout=10, interval=1, why="start the benchmark")
 
     click(result["x"], result["y"])
-    time.sleep(0.2)
 
 
 def run_benchmark():

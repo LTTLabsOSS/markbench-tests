@@ -15,7 +15,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import click, mangohud_log_toggle, user
+from harness_utils.input import click, mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, roaming_appdata
@@ -68,20 +68,7 @@ def skip_logo_screens() -> None:
     logger.info("Skipping logo screens")
 
     # Enter menu
-    user.press("escape")
-    time.sleep(0.5)
-    user.press("escape")
-    time.sleep(0.5)
-    user.press("escape")
-    time.sleep(0.5)
-    user.press("escape")
-    time.sleep(0.5)
-    user.press("escape")
-    time.sleep(0.5)
-    user.press("escape")
-    time.sleep(0.5)
-    user.press("escape")
-    time.sleep(0.5)
+    press("escape*7")
 
 
 def run_benchmark():
@@ -108,7 +95,6 @@ def run_benchmark():
         sys.exit(1)
 
     click(result["x"], result["y"])
-    time.sleep(0.2)
     time.sleep(2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "main.png")
@@ -119,8 +105,7 @@ def run_benchmark():
         sys.exit(1)
 
     click(result["x"], result["y"])
-    time.sleep(0.2)
-    time.sleep(0.5)
+    time.sleep(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced.png")
 
@@ -130,19 +115,17 @@ def run_benchmark():
         sys.exit(1)
 
     click(result["x"], result["y"])
-    time.sleep(0.2)
     if args.benchmark != "battle":
         result = find_word("mirrors", timeout=10, interval=1)
         if not result:
             logger.info("Did not find the Mirrors of Madness benchmark.")
             sys.exit(1)
         click(result["x"], result["y"])
-        time.sleep(0.2)
         time.sleep(2)
-        user.press("enter")
+        press("enter")
     else:
         time.sleep(2)
-        user.press("enter")
+        press("enter")
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)

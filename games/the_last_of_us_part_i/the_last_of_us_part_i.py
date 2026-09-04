@@ -256,7 +256,6 @@ def run_benchmark(steam_account_id: int):
     time.sleep(1)
 
     press("space")
-    time.sleep(1)
     navigate_main_menu(steam_account_id)
 
     # press load save

@@ -78,7 +78,6 @@ def run_benchmark():
     logger.info("Game started. Entering main menu")
     time.sleep(4)
     press("enter")
-    time.sleep(2)
 
     # waiting about a minute for the main menu to appear
     if find_word(word="home", timeout=80, interval=1) is None:

@@ -92,7 +92,6 @@ def run_benchmark():
         sys.exit(1)
 
     click(result["x"], result["y"])
-    time.sleep(0.2)
 
     if find_word(word="brightness", timeout=30, interval=1) is None:
         logger.info("Did not find the main menu. Did OCR click correctly?")
@@ -109,7 +108,6 @@ def run_benchmark():
         sys.exit(1)
 
     click(result["x"], result["y"])
-    time.sleep(0.2)
 
     if find_word(word="water", timeout=30, interval=1) is None:
         logger.info(
@@ -155,7 +153,6 @@ def run_benchmark():
         sys.exit(1)
 
     click(result["x"], result["y"])
-    time.sleep(0.2)
     time.sleep(2)
     press("enter")
 

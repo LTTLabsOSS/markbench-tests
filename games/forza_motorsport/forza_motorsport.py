@@ -65,7 +65,6 @@ def run_benchmark() -> tuple[int, int]:
 
     # Navigate to display menu
     press("f")
-    time.sleep(1)
 
     if find_word(word="contrast", timeout=30, interval=1) is None:
         logger.info(

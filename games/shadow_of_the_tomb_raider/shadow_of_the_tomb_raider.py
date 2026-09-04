@@ -96,7 +96,6 @@ def run_benchmark():
     # wait for menu to fully move
     time.sleep(1)
     press("down*3, enter")
-    time.sleep(4)
 
     if find_word(word="benchmark", timeout=30, interval=1) is None:
         logger.info(
