@@ -21,7 +21,7 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.controllers import LTTGamePadDS4
-from harness_utils.input import user
+from harness_utils.input import press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -54,10 +54,7 @@ def run_benchmark():
 
     # Checking for the main menu
     if find_word(word="conflict", interval=1, timeout=15):
-        user.press("down")
-        time.sleep(0.4)
-        user.press("enter")
-        time.sleep(30)
+        press("down, enter")
 
     # Checking for the main menu
     if find_word(word="shop", interval=1, timeout=60) is None:

@@ -8,7 +8,6 @@ import time
 from pathlib import Path
 
 import pyautogui as gui
-import pydirectinput as user
 from marvel_rivals_utils import find_latest_benchmarkcsv, read_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
@@ -19,7 +18,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mouse_scroll_n_times
+from harness_utils.input import click, press, scroll
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -42,8 +41,6 @@ CONFIG_LOCATION = f"{APPDATA}\\Marvel\\Saved\\Config\\Windows"
 CONFIG_FILENAME = "GameUserSettings.ini"
 CFG = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
 
-user.FAILSAFE = False
-
 
 def start_game():
     """Starts the game process"""
@@ -65,11 +62,7 @@ def run_benchmark():
         f"{SCRIPT_DIRECTORY}\\screenshots\\launch_button.png", confidence=0.7
     )  # luckily this seems to be a set resolution for the button
     click_me = gui.center(location)
-    gui.moveTo(click_me.x, click_me.y)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-    time.sleep(0.2)
+    click(click_me.x, click_me.y)
 
     time.sleep(60)  # wait for game to load into main menu
 
@@ -79,16 +72,13 @@ def run_benchmark():
         logger.info("Did not find the title screen. Did the game load?")
         sys.exit(1)
 
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    click()
     time.sleep(20)
 
     # checking if a marketing notification has come up
     result = find_word("view", timeout=15, interval=1)
     if result:
-        user.press("escape")
-        time.sleep(0.5)
+        press("escape")
 
     # navigating to the video settings and taking screenshots
     result = find_word("play", timeout=30, interval=1)
@@ -97,21 +87,14 @@ def run_benchmark():
             "Did not find the play menu. Did it click the mouse to start the game?"
         )
         sys.exit(1)
-    user.press("escape")
-    time.sleep(0.5)
+    press("escape")
 
     result = find_word("settings", timeout=30, interval=1)
     if not result:
-        logger.info(
-            "Did not find the settings menu. Did it open the menu with escape?"
-        )
+        logger.info("Did not find the settings menu. Did it open the menu with escape?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    click(result["x"], result["y"])
     time.sleep(1)
 
     result = find_word("brightness", timeout=30, interval=1)
@@ -123,7 +106,7 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video1.png")
     time.sleep(1)
-    mouse_scroll_n_times(1, -1200, 0.2)
+    scroll(-1200, 1)
     time.sleep(0.5)
 
     result = find_word("processing", timeout=30, interval=1)
@@ -135,7 +118,7 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
     time.sleep(1)
-    mouse_scroll_n_times(1, -1200, 0.2)
+    scroll(-1200, 1)
     time.sleep(0.5)
 
     result = find_word("times", timeout=30, interval=1)
@@ -149,7 +132,7 @@ def run_benchmark():
     time.sleep(1)
 
     # navigate to the player profile
-    mouse_scroll_n_times(10, 800, 0.2)
+    scroll(800, 10)
     time.sleep(1)
 
     result = find_word("run", timeout=30, interval=1)
@@ -159,11 +142,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    click(result["x"], result["y"])
     time.sleep(1)
 
     result = find_word("start", timeout=30, interval=1)
@@ -171,11 +150,7 @@ def run_benchmark():
         logger.info("Did not find the Start Test button. Did OCR click correctly?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    click(result["x"], result["y"])
     time.sleep(1)
 
     # marking the end time

@@ -17,7 +17,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import user
+from harness_utils.input import click, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, network_drive_path
@@ -115,30 +115,22 @@ def start_game():
 def navigate_to_settings():
     """Navigate from main launcher menu to settings."""
     result = find_word("settings", timeout=10)
-    user.click(int(result["x"]), int(result["y"]))
+    click(int(result["x"]), int(result["y"]))
 
 
 def navigate_settings() -> None:
     """Navigate through settings tabs."""
     navigate_to_settings()
 
-    user.press("tab")
-    time.sleep(0.5)
+    press("tab")
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics.png")
 
-    for _ in range(4):
-        user.press("right")
+    press("right*4")
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
 
-    for _ in range(3):
-        user.press("right")
-
-    for _ in range(9):
-        user.press("tab")
-
-    user.press("enter")
+    press("right*3, tab*9, enter")
 
 
 def run_benchmark():
@@ -157,16 +149,13 @@ def run_benchmark():
     logger.info("Harness setup took %.2f seconds", elapsed_setup_time)
 
     # Start benchmark
-    user.press("tab")
-    user.press("down")
-    user.press("down")
+    press("tab, down*2")
 
     result = find_word("start", timeout=10)
     start_pos = (result["x"], result["y"])
 
-    user.press("up")
-    user.press("up")
-    user.click(start_pos[0], start_pos[1])
+    press("up*2")
+    click(start_pos[0], start_pos[1])
 
     test_start_time = int(time.time()) - 5
     logger.info("Benchmark started. Waiting for completion...")
@@ -186,7 +175,7 @@ def run_benchmark():
 
     time.sleep(3)
     result = find_word("save", timeout=30)
-    user.click(result["x"], result["y"])
+    click(result["x"], result["y"])
     logger.info("Saving results txt...")
     time.sleep(1)
     copy_artifact(get_results_txt(), ARTIFACTS_DIRECTORY)

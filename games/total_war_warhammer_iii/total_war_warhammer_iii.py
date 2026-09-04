@@ -15,7 +15,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mangohud_log_toggle, user
+from harness_utils.input import click, mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, roaming_appdata
@@ -39,8 +39,6 @@ CONFIG_FULL_PATH = (
     / "scripts"
     / "preferences.script.txt"
 )
-
-user.FAILSAFE = False
 
 
 def read_current_resolution() -> tuple[int, int]:
@@ -70,20 +68,7 @@ def skip_logo_screens() -> None:
     logger.info("Skipping logo screens")
 
     # Enter menu
-    user.press("escape")
-    time.sleep(0.5)
-    user.press("escape")
-    time.sleep(0.5)
-    user.press("escape")
-    time.sleep(0.5)
-    user.press("escape")
-    time.sleep(0.5)
-    user.press("escape")
-    time.sleep(0.5)
-    user.press("escape")
-    time.sleep(0.5)
-    user.press("escape")
-    time.sleep(0.5)
+    press("escape*7")
 
 
 def run_benchmark():
@@ -109,10 +94,7 @@ def run_benchmark():
         logger.info("Did not find the options menu. Did the game skip the intros?")
         sys.exit(1)
 
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
-    time.sleep(0.2)
+    click(result["x"], result["y"])
     time.sleep(2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "main.png")
@@ -122,11 +104,8 @@ def run_benchmark():
         logger.info("Did not find the advanced menu. Did the game skip the intros?")
         sys.exit(1)
 
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
-    time.sleep(0.2)
-    time.sleep(0.5)
+    click(result["x"], result["y"])
+    time.sleep(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced.png")
 
@@ -135,24 +114,18 @@ def run_benchmark():
         logger.info("Did not find the benchmark menu. Did the game skip the intros?")
         sys.exit(1)
 
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
-    time.sleep(0.2)
+    click(result["x"], result["y"])
     if args.benchmark != "battle":
         result = find_word("mirrors", timeout=10, interval=1)
         if not result:
             logger.info("Did not find the Mirrors of Madness benchmark.")
             sys.exit(1)
-        user.move_mouse(result["x"], result["y"])
-        time.sleep(0.2)
-        user.click()
-        time.sleep(0.2)
+        click(result["x"], result["y"])
         time.sleep(2)
-        user.press("enter")
+        press("enter")
     else:
         time.sleep(2)
-        user.press("enter")
+        press("enter")
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)

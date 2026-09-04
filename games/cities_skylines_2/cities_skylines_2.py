@@ -5,7 +5,7 @@ import sys
 import time
 from pathlib import Path
 
-from citiesskylines2_utils import (
+from cities_skylines_2_utils import (
     CONFIG_FULL_PATH,
     copy_benchmarksave,
     copy_continuegame,
@@ -22,7 +22,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mouse_scroll_n_times, press, user
+from harness_utils.input import click, move_mouse, press, scroll
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -54,8 +54,7 @@ def run_benchmark():
     if not find_word("paradox", interval=0.5, timeout=100):
         logger.info("Could not find the Paradox logo. Did the game launch?")
         sys.exit(1)
-    press("esc*3")
-    time.sleep(15)
+    press("escape*3")
 
     if not find_word("new", interval=0.5, timeout=100):
         logger.info("Did not find the main menu. Did the game crash?")
@@ -67,10 +66,7 @@ def run_benchmark():
         sys.exit(1)
 
     # Navigate to load save menu
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
-    time.sleep(0.2)
+    click(result["x"], result["y"])
 
     result = find_word("benchmark", timeout=10, interval=1, crop="top_left")
     if not result:
@@ -80,12 +76,8 @@ def run_benchmark():
         sys.exit(1)
 
     # Loading the game
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
-    time.sleep(0.2)
+    click(result["x"], result["y"])
     press("enter")
-    time.sleep(10)
 
     if not find_word("grand", interval=0.5, timeout=100):
         logger.info(
@@ -97,7 +89,6 @@ def run_benchmark():
     time.sleep(2)
     logger.info("Starting benchmark")
     press("3")
-    time.sleep(2)
 
     test_start_time = int(time.time())
     time.sleep(180)
@@ -106,15 +97,12 @@ def run_benchmark():
     time.sleep(2)
     press("1")
 
-    # Wait for benchmark info
-    time.sleep(10)
-
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logger.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Open quick menu
-    press("esc")
+    press("escape")
 
     result = find_word("options", timeout=10, interval=1)
     if not result:
@@ -124,10 +112,7 @@ def run_benchmark():
         sys.exit(1)
 
     # Navigate to options menu
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
-    time.sleep(0.2)
+    click(result["x"], result["y"])
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "general.png")
 
@@ -139,10 +124,7 @@ def run_benchmark():
         sys.exit(1)
 
     # Navigate to graphics menu
-    user.move_mouse(result["x"], result["y"])
-    time.sleep(0.2)
-    user.click()
-    time.sleep(0.2)
+    click(result["x"], result["y"])
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
 
@@ -153,10 +135,10 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    user.move_mouse(result["x"], result["y"])
+    move_mouse(result["x"], result["y"])
     time.sleep(0.2)
 
-    mouse_scroll_n_times(8, -800, 0.2)
+    scroll(-800, 8)
 
     if find_word(word="water", timeout=30, interval=1) is None:
         logger.info(
@@ -165,7 +147,7 @@ def run_benchmark():
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
 
-    mouse_scroll_n_times(8, -400, 0.2)
+    scroll(-400, 8)
 
     # verify that we scrolled through the menu correctly
     if find_word(word="texture", timeout=30, interval=1) is None:

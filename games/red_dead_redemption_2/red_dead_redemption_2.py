@@ -6,7 +6,6 @@ import sys
 import time
 from pathlib import Path
 
-import pydirectinput as user
 from red_dead_redemption_2_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
@@ -17,7 +16,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import press_n_times
+from harness_utils.input import hold, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -44,8 +43,6 @@ CONFIG_FULL_PATH = Path(
     "system.xml",
 )
 
-user.FAILSAFE = False
-
 
 def run_benchmark():
     """Starts the benchmark"""
@@ -58,16 +55,14 @@ def run_benchmark():
     # patch to look for seasonal popup
     result = find_word("strange", vulkan=True, timeout=30)
     if result:
-        user.press("enter")
-        time.sleep(3)
+        press("enter")
 
     # Press Z to enter settings
     result = find_word("settings", vulkan=True, timeout=30)
     if not result:
         logger.info("Did not find the settings menu. Did the game launch?")
         sys.exit(1)
-    user.press("z")
-    time.sleep(3)
+    press("z")
 
     # Enter graphics menu
     ## ensure we are starting from the top left of the screen
@@ -75,13 +70,7 @@ def run_benchmark():
     if not result:
         logger.info("Did not find the graphics menu. Did OCR get stuck?")
         sys.exit(1)
-    user.press("up")
-    user.press("up")
-    user.press("left")
-    user.press("left")
-    user.press("down")
-    user.press("enter")
-    time.sleep(3)
+    press("up*2, left*2, down, enter")
 
     # Take pictures of the graphics settings
     result = find_word("resolution", vulkan=True, timeout=5)
@@ -95,7 +84,7 @@ def run_benchmark():
     result = find_word("nvidia", vulkan=True, timeout=5)
     if result:
         logger.info("NVIDIA card is installed, navigating accordingly.")
-        press_n_times("down", 26, 0.2)
+        press("down*26", pause=0.2)
 
         result = find_word("mode", vulkan=True, timeout=5)
         if not result:
@@ -104,7 +93,7 @@ def run_benchmark():
             )
             sys.exit(1)
         capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Graphics2.png", vulkan=True)
-        press_n_times("down", 14, 0.2)
+        press("down*14", pause=0.2)
 
         result = find_word("long", vulkan=True, timeout=5)
         if not result:
@@ -113,7 +102,7 @@ def run_benchmark():
             )
             sys.exit(1)
         capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Graphics3.png", vulkan=True)
-        press_n_times("down", 15, 0.2)
+        press("down*15", pause=0.2)
 
         result = find_word("tessellation", vulkan=True, timeout=5)
         if not result:
@@ -125,14 +114,14 @@ def run_benchmark():
 
     else:
         logger.info("NVIDIA card not detected on screen, navigating accordingly.")
-        press_n_times("down", 26, 0.2)
+        press("down*26", pause=0.2)
 
         result = find_word("msaa", vulkan=True, timeout=5)
         if not result:
             logger.info("Did not find the MSAA settings. Did OCR navigate correctly?")
             sys.exit(1)
         capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Graphics2.png", vulkan=True)
-        press_n_times("down", 14, 0.2)
+        press("down*14", pause=0.2)
 
         result = find_word("reflection", vulkan=True, timeout=5)
         if not result:
@@ -141,7 +130,7 @@ def run_benchmark():
             )
             sys.exit(1)
         capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Graphics3.png", vulkan=True)
-        press_n_times("down", 12, 0.2)
+        press("down*12", pause=0.2)
 
         result = find_word("tessellation", vulkan=True, timeout=5)
         if not result:
@@ -151,21 +140,19 @@ def run_benchmark():
             sys.exit(1)
         capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Graphics4.png", vulkan=True)
 
-    # Run benchmark by holding X for 2 seconds
+    # Run benchmark by holding X for 1.5 seconds
     result = find_word("benchmark", vulkan=True, timeout=5)
     if not result:
         logger.info(
             "Did not see the Run Benchmark Test at the bottom of the screen. Did navigation mess up?"
         )
         sys.exit(1)
-    user.keyDown("x")
-    time.sleep(1.5)
-    user.keyUp("x")
+    hold("x", 1.5)
 
     # Press enter to confirm benchmark
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
-    user.press("enter")
+    press("enter")
 
     # Looking for the word Stop to mark the in time
     result = find_word("stop", vulkan=True, timeout=60, interval=1)

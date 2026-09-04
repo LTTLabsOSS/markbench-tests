@@ -7,9 +7,6 @@ import sys
 import time
 from pathlib import Path
 
-import pyautogui as gui
-import pydirectinput as user
-
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
@@ -18,7 +15,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mouse_scroll_n_times
+from harness_utils.input import click, move_mouse, press, scroll
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -39,25 +36,23 @@ APPDATA = os.getenv("APPDATA")
 CONFIG_LOCATION = f"{APPDATA}\\The Creative Assembly\\Pharaoh\\scripts"
 CONFIG_FILENAME = "preferences.script.txt"
 
-user.FAILSAFE = False
 
-
-def read_current_resolution():
+def read_current_resolution() -> tuple[int, int]:
     """Reads resolutions settings from local game file"""
     height_pattern = re.compile(r"y_res (\d+);")
     width_pattern = re.compile(r"x_res (\d+);")
     cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
-    height_value = 0
-    width_value = 0
+    height_value: int = 0
+    width_value: int = 0
     with open(cfg, encoding="utf-8") as file:
         lines = file.readlines()
         for line in lines:
             height_match = height_pattern.search(line)
             width_match = width_pattern.search(line)
             if height_match is not None:
-                height_value = height_match.group(1)
+                height_value = int(height_match.group(1))
             if width_match is not None:
-                width_value = width_match.group(1)
+                width_value = int(width_match.group(1))
     return (height_value, width_value)
 
 
@@ -73,14 +68,7 @@ def skip_logo_screens() -> None:
     logger.info("Skipping logo screens")
 
     # Enter menu
-    user.press("escape")
-    time.sleep(0.5)
-    user.press("escape")
-    time.sleep(0.5)
-    user.press("escape")
-    time.sleep(0.5)
-    user.press("escape")
-    time.sleep(0.5)
+    press("escape*4")
 
 
 def run_benchmark():
@@ -103,11 +91,7 @@ def run_benchmark():
         logger.info("Did not find the options menu. Did the game skip the intros?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    click(result["x"], result["y"])
 
     if find_word(word="brightness", timeout=30, interval=1) is None:
         logger.info("Did not find the main menu. Did OCR click correctly?")
@@ -123,11 +107,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    click(result["x"], result["y"])
 
     if find_word(word="water", timeout=30, interval=1) is None:
         logger.info(
@@ -144,11 +124,11 @@ def run_benchmark():
             "Did not find the keyword 'water' in the menu. Did OCR navigate to the advanced menu correctly?"
         )
         sys.exit(1)
-    gui.moveTo(result["x"], result["y"])
+    move_mouse(result["x"], result["y"])
     time.sleep(1)
 
     # Scroll to the middle of the advanced menu
-    mouse_scroll_n_times(15, -1, 0.1)
+    scroll(-1, 15)
     if find_word(word="heat", timeout=30, interval=1) is None:
         logger.info(
             "Did not find the keyword 'heat' in the menu. Did OCR scroll down the advanced menu far enough?"
@@ -158,7 +138,7 @@ def run_benchmark():
     time.sleep(0.5)
 
     # Scroll to the bottom of the advanced menu
-    mouse_scroll_n_times(15, -1, 0.1)
+    scroll(-1, 15)
     if find_word(word="bodies", timeout=30, interval=1) is None:
         logger.info(
             "Did not find the keyword 'bodies' in the menu. Did OCR scroll down the advanced menu far enough?"
@@ -172,13 +152,9 @@ def run_benchmark():
         logger.info("Did not find the benchmark menu. Did the game skip the intros?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    click(result["x"], result["y"])
     time.sleep(2)
-    user.press("enter")
+    press("enter")
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
@@ -212,7 +188,6 @@ def run_benchmark():
 
     # Exit
     terminate_process(PROCESS_NAME)
-
 
     return test_start_time, test_end_time
 

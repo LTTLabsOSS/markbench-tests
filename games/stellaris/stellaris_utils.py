@@ -34,22 +34,22 @@ LOG_FILE = "game.log"
 benchmark_files = ["benchmark.ini", "pdx_settings.txt", "settings.txt"]
 
 
-def read_current_resolution():
+def read_current_resolution() -> tuple[int, int]:
     """Reads resolutions settings from local game file"""
     height_pattern = re.compile(r"		y=(\d+)")
     width_pattern = re.compile(r"		x=(\d+)")
     cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
-    height_value = 0
-    width_value = 0
+    height_value: int = 0
+    width_value: int = 0
     with open(cfg, encoding="utf-8") as file:
         lines = file.readlines()
         for line in lines:
             height_match = height_pattern.search(line)
             width_match = width_pattern.search(line)
             if height_match is not None:
-                height_value = height_match.group(1)
+                height_value = int(height_match.group(1))
             if width_match is not None:
-                width_value = width_match.group(1)
+                width_value = int(width_match.group(1))
     return (height_value, width_value)
 
 

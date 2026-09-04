@@ -74,12 +74,12 @@ def read_config() -> list[str] | None:
     return None
 
 
-def get_resolution():
+def get_resolution() -> tuple[int, int]:
     """Get current resolution from settings file"""
     height_pattern = re.compile(r"\"setting.defaultresheight\"		\"(\d+)\"")
     width_pattern = re.compile(r"\"setting.defaultres\"		\"(\d+)\"")
-    height = 0
-    width = 0
+    height: int = 0
+    width: int = 0
     lines = read_config()
 
     if lines is None:
@@ -90,9 +90,9 @@ def get_resolution():
         height_match = height_pattern.search(line)
         width_match = width_pattern.search(line)
         if height_match is not None:
-            height = height_match.group(1)
+            height = int(height_match.group(1))
         if width_match is not None:
-            width = width_match.group(1)
+            width = int(width_match.group(1))
         if height != 0 and width != 0:
             return (height, width)
     return (height, width)
