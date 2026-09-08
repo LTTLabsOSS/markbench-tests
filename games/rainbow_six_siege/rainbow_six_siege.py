@@ -55,6 +55,7 @@ def run_benchmark():
     # Checking for the main menu
     if find_word(word="conflict", interval=1, timeout=15):
         press("down, enter")
+        time.sleep(30)
 
     # Checking for the main menu
     if find_word(word="shop", interval=1, timeout=60) is None:
