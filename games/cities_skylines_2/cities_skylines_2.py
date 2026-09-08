@@ -48,13 +48,13 @@ def run_benchmark():
     copy_continuegame(config_files)
 
     exec_steam_game(STEAM_GAME_ID)
-    setup_start_time = int(time.time())
-    time.sleep(14)
+    time.sleep(15)
 
     if not find_word("paradox", interval=0.5, timeout=100):
         logger.info("Could not find the Paradox logo. Did the game launch?")
         sys.exit(1)
     press("escape*3")
+    time.sleep(15)
 
     if not find_word("new", interval=0.5, timeout=100):
         logger.info("Did not find the main menu. Did the game crash?")
@@ -78,15 +78,13 @@ def run_benchmark():
     # Loading the game
     click(result["x"], result["y"])
     press("enter")
+    time.sleep(10)
 
     if not find_word("grand", interval=0.5, timeout=100):
         logger.info(
             "Could not find the paused notification. Unable to mark start time!"
         )
         sys.exit(1)
-    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logger.info("Setup took %f seconds", elapsed_setup_time)
-    time.sleep(2)
     logger.info("Starting benchmark")
     press("3")
 
@@ -96,6 +94,7 @@ def run_benchmark():
     test_end_time = int(time.time())
     time.sleep(2)
     press("1")
+    time.sleep(10)
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
