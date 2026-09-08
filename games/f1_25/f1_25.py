@@ -81,6 +81,8 @@ def navigate_startup():
 
     press("space*3")
 
+    time.sleep(4)
+
     # Press enter to proceed to the main menu
     result = find_word("press", interval=2, timeout=80)
     if not result:
@@ -90,6 +92,7 @@ def navigate_startup():
     logger.info("Hit the title screen. Continuing")
     time.sleep(1)
     press("enter")
+    time.sleep(1)
 
     # cancel logging into ea services
     result = find_word("login", timeout=10)
@@ -97,10 +100,12 @@ def navigate_startup():
         time.sleep(1)
         logger.info("Cancelling logging in.")
         press("enter")
+        time.sleep(2)
 
     if find_word("chat", timeout=3) is not None:
         time.sleep(1)
         press("enter")
+        time.sleep(1)
     # acknowledge services error
     result = find_word("services", timeout=10)
     if result:
@@ -123,7 +128,6 @@ def run_benchmark():
     remove_files([str(path) for path in intro_videos])
     exec_steam_game(STEAM_GAME_ID)
 
-    setup_start_time = int(time.time())
     time.sleep(20)
 
     navigate_startup()
@@ -138,7 +142,7 @@ def run_benchmark():
     logger.info("Main screen detected.")
     time.sleep(1)
 
-    press("tab")
+    press("tab", pause=2)
     find_graphics()
 
     # Navigate to video settings
@@ -185,8 +189,6 @@ def run_benchmark():
 
     press("down*6, enter", pause=0.2)
 
-    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logger.info("Setup took %f seconds", elapsed_setup_time)
 
     result = find_word("lap", interval=0.5, timeout=90)
     if not result:
