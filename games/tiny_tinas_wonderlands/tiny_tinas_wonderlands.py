@@ -54,6 +54,7 @@ def run_benchmark():
 
     logger.info("Saw the options! we are good to go!")
     press("down*2, enter", pause=1)
+    time.sleep(4)
 
     visuals = find_word("visuals", interval=1, timeout=10)
     if visuals is None:
@@ -64,7 +65,6 @@ def run_benchmark():
     press("altleft")
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
-    time.sleep(1)
 
     press("down*18")
 
