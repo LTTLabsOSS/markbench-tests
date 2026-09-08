@@ -141,7 +141,6 @@ def run_benchmark(render_engine):
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png", vulkan=is_vulkan)
 
-    time.sleep(0.5)
     press("escape, down*5, enter")
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
