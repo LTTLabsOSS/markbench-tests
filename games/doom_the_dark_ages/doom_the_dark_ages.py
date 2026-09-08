@@ -82,8 +82,9 @@ def run_benchmark():
         mangohud_log_toggle()
 
     logger.info("Hit the title screen. Continuing")
+    time.sleep(2)
     press("space")
-
+    time.sleep(4)
     # Navigate menus and take screenshots using the artifact manager
     result = find_word("campaign", vulkan=True, interval=3, timeout=60)
     if not result:
@@ -110,7 +111,6 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video1.png", vulkan=True)
     scroll(-120, 5)
-    time.sleep(1)
 
     result = find_word("fsr", vulkan=True, interval=3, timeout=15)
     if not result:
@@ -119,7 +119,6 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png", vulkan=True)
     scroll(-120, 5)
-    time.sleep(1)
 
     result = find_word("tracing", vulkan=True, interval=3, timeout=15)
     if not result:
@@ -128,7 +127,6 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video3.png", vulkan=True)
     scroll(-120, 5)
-    time.sleep(1)
 
     result = find_word("decal", vulkan=True, interval=3, timeout=15)
     if not result:
@@ -137,7 +135,6 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video4.png", vulkan=True)
     scroll(-120, 5)
-    time.sleep(0.5)
 
     result = find_word("brightness", vulkan=True, interval=3, timeout=15)
     if not result:
