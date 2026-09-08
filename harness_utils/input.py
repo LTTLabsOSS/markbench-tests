@@ -100,7 +100,7 @@ class _WindowsInputBackend:
     def move_mouse(self, x: int, y: int) -> None:
         self._pydirectinput.moveTo(x=x, y=y)
 
-    def click(self, hold: float = 0.0) -> None:
+    def click_at_cursor(self, hold: float = 0.0) -> None:
         self._pydirectinput.mouseDown()
         time.sleep(hold)
         self._pydirectinput.mouseUp()
@@ -155,7 +155,7 @@ class _YdotoolInputBackend:
         time.sleep(0.1)
         self._run("mousemove", str(scaled_x), str(scaled_y))
 
-    def click(self, hold: float = 0.0) -> None:
+    def click_at_cursor(self, hold: float = 0.0) -> None:
         self._run("click", "0x40")
         time.sleep(hold)
         self._run("click", "0x80")
@@ -197,7 +197,7 @@ def click(
     if x is not None and y is not None:
         _backend.move_mouse(x, y)
     time.sleep(pre_click_delay)
-    _backend.click(hold)
+    _backend.click_at_cursor(hold)
     time.sleep(pre_click_delay)
 
 
