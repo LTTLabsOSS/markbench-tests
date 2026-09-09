@@ -36,7 +36,7 @@ _YDOTOOL_KEYS = {
     "3": 4,
     # Modifiers
     "altleft": 56,
-    "leftshift": 42,
+    "shiftleft": 42,
     # Direction and navigation
     "down": 108,
     "left": 105,
@@ -239,11 +239,11 @@ def mangohud_log_toggle() -> None:
     """Toggle MangoHud logging with Left Shift + F2 via ydotool."""
     logger.debug("input mangohud_log_toggle")
     time.sleep(1)
-    _backend.key_down("leftshift")
+    _backend.key_down("shiftleft")
     time.sleep(0.3)
     _backend.key_down("f2")
     time.sleep(0.3)
     _backend.key_up("f2")
     time.sleep(0.3)
-    _backend.key_up("leftshift")
+    _backend.key_up("shiftleft")
     time.sleep(1)
