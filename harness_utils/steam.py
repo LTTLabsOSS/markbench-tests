@@ -2,6 +2,7 @@
 """Utility functions related to using Steam for running games."""
 
 import logging
+import os
 import shutil
 from importlib import import_module
 from pathlib import Path
@@ -234,6 +235,30 @@ def exec_steam_game(game_id: int, steam_path=None, game_params=None) -> Popen:
     command = [steam_path, "-applaunch", str(game_id), *game_params]
     logger.debug("Launching Steam game command: %s", ", ".join(map(str, command)))
     return Popen(command)
+
+
+def exec_proton_game(
+    game_id: int, executable: str, *, extra_env: dict[str, str] | None = None
+) -> Popen:
+    """Launch a game executable on Linux using Steam-installed Proton Hotfix.
+
+    The executable is relative to the game's install directory. Extra environment
+    values override the inherited environment, except for required Steam identity
+    and compatibility paths. Steam launch options are not applied.
+    """
+    game_directory = get_app_install_location(game_id)
+    proton_script = get_steamapps_common_path() / "Proton Hotfix" / "proton"
+    env = os.environ.copy()
+    env.update(extra_env or {})
+    env.update(
+        STEAM_COMPAT_CLIENT_INSTALL_PATH=str(get_steam_folder_path()),
+        STEAM_COMPAT_DATA_PATH=str(get_proton_prefix(game_id).parent),
+        SteamAppId=str(game_id),
+        SteamGameId=str(game_id),
+    )
+    command = [proton_script, "run", game_directory / executable]
+    logger.debug("Launching Proton game command: %s", ", ".join(map(str, command)))
+    return Popen(command, cwd=game_directory, env=env)
 
 
 def get_build_id(game_id: int) -> str | None:

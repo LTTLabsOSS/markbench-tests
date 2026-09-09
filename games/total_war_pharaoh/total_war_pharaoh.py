@@ -1,4 +1,4 @@
-"""Total War: Warhammer III test script"""
+"""Total War: Pharaoh test script"""
 
 import logging
 import os
@@ -15,36 +15,37 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import click, move_mouse, press, scroll
+from harness_utils.input import click, mangohud_log_toggle, move_mouse, press, scroll
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
-from harness_utils.paths import harness_directories
+from harness_utils.paths import harness_directories, roaming_appdata
+from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
 from harness_utils.report import (
     format_resolution,
     seconds_to_milliseconds,
     write_report_json,
 )
-from harness_utils.steam import get_app_install_location, get_build_id
+from harness_utils.steam import exec_proton_game, get_app_install_location, get_build_id
 
 logger = logging.getLogger(__name__)
 
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "Pharaoh.exe"
 STEAM_GAME_ID = 1937780
-APPDATA = os.getenv("APPDATA")
-CONFIG_LOCATION = f"{APPDATA}\\The Creative Assembly\\Pharaoh\\scripts"
+APPDATA = roaming_appdata(STEAM_GAME_ID)
+CONFIG_LOCATION = APPDATA / "The Creative Assembly" / "Pharaoh" / "scripts"
 CONFIG_FILENAME = "preferences.script.txt"
+CONFIG_FULL_PATH = CONFIG_LOCATION / CONFIG_FILENAME
 
 
 def read_current_resolution() -> tuple[int, int]:
     """Reads resolutions settings from local game file"""
     height_pattern = re.compile(r"y_res (\d+);")
     width_pattern = re.compile(r"x_res (\d+);")
-    cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
     height_value: int = 0
     width_value: int = 0
-    with open(cfg, encoding="utf-8") as file:
+    with open(CONFIG_FULL_PATH, encoding="utf-8") as file:
         lines = file.readlines()
         for line in lines:
             height_match = height_pattern.search(line)
@@ -58,6 +59,10 @@ def read_current_resolution() -> tuple[int, int]:
 
 def start_game():
     """Starts the game process"""
+    if is_linux():
+        return exec_proton_game(
+            STEAM_GAME_ID, PROCESS_NAME, extra_env={"MANGOHUD": "1"}
+        )
     cmd_string = f'start /D "{get_app_install_location(STEAM_GAME_ID)}" {PROCESS_NAME}'
     logger.info(cmd_string)
     return os.system(cmd_string)
@@ -73,7 +78,6 @@ def skip_logo_screens() -> None:
 
 def run_benchmark():
     """Starts the benchmark"""
-    cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
     start_game()
     setup_start_time = int(time.time())
     time.sleep(5)
@@ -82,6 +86,9 @@ def run_benchmark():
     if not result:
         logger.info("Did not see warnings. Did the game start?")
         sys.exit(1)
+
+    if is_linux():
+        mangohud_log_toggle()
 
     skip_logo_screens()
     time.sleep(2)
@@ -180,7 +187,7 @@ def run_benchmark():
     time.sleep(5)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     time.sleep(0.5)
-    copy_artifact(Path(cfg), ARTIFACTS_DIRECTORY)
+    copy_artifact(CONFIG_FULL_PATH, ARTIFACTS_DIRECTORY)
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
@@ -194,25 +201,25 @@ def run_benchmark():
 
 def main():
     """entry point"""
-    start_time, endtime = run_benchmark()
-    height, width = read_current_resolution()
-    report = {
-        "resolution": format_resolution(width, height),
-        "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(endtime),
-        "version": get_build_id(STEAM_GAME_ID),
-    }
-
-    write_report_json(LOG_DIRECTORY, "report.json", report)
-    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
-
-
-if __name__ == "__main__":
     try:
         setup_logging(LOG_DIRECTORY)
-        main()
+        start_time, endtime = run_benchmark()
+        height, width = read_current_resolution()
+        report = {
+            "resolution": format_resolution(width, height),
+            "start_time": seconds_to_milliseconds(start_time),
+            "end_time": seconds_to_milliseconds(endtime),
+            "version": get_build_id(STEAM_GAME_ID),
+        }
+
+        write_report_json(LOG_DIRECTORY, "report.json", report)
+        create_artifacts_manifest(ARTIFACTS_DIRECTORY)
     except Exception:
         logger.error("Something went wrong running the benchmark!")
         logger.exception("Unhandled exception")
         terminate_process(PROCESS_NAME)
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
