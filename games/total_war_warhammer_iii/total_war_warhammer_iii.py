@@ -29,7 +29,6 @@ from harness_utils.report import (
 from harness_utils.steam import (
     exec_proton_game,
     exec_steam_game,
-    get_app_install_location,
     get_build_id,
 )
 
@@ -69,9 +68,8 @@ def start_game():
     if is_linux():
         return exec_proton_game(
             STEAM_GAME_ID,
-            get_app_install_location(STEAM_GAME_ID) / PROCESS_NAME,
-            game_params=["--launcher-skip"],
-            env={"MANGOHUD": "1"},
+            PROCESS_NAME,
+            extra_env={"MANGOHUD": "1"},
         )
     return exec_steam_game(STEAM_GAME_ID, game_params=["--launcher-skip"])
 
@@ -130,7 +128,6 @@ def run_benchmark(benchmark):
 
     click(result["x"], result["y"])
     if benchmark != "battle":
-
         result = find_word("mirrors", timeout=10, interval=1)
         if not result:
             logger.info("Did not find the Mirrors of Madness benchmark.")
