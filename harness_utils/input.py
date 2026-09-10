@@ -101,7 +101,10 @@ class _WindowsInputBackend:
         self._pydirectinput.moveTo(x=x, y=y)
 
     def click_at_cursor(self) -> None:
-        self._pydirectinput.click()
+        import pyautogui as gui
+
+        gui.FAILSAFE = False
+        gui.click()
 
     def scroll(self, scroll_amount: int) -> None:
         import pyautogui as gui
