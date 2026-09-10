@@ -1,8 +1,8 @@
 """Total War: Pharaoh test script"""
 
 import logging
-import os
 import re
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -61,9 +61,10 @@ def start_game():
     """Starts the game process"""
     if is_linux():
         return exec_proton_game(STEAM_GAME_ID, PROCESS_NAME)
-    cmd_string = f'start /D "{get_app_install_location(STEAM_GAME_ID)}" {PROCESS_NAME}'
-    logger.info(cmd_string)
-    return os.system(cmd_string)
+    game_path = get_app_install_location(STEAM_GAME_ID)
+    process_path = Path(game_path) / PROCESS_NAME
+    logger.info("Starting game: %s", process_path)
+    return subprocess.Popen([process_path], cwd=game_path)
 
 
 def skip_logo_screens() -> None:

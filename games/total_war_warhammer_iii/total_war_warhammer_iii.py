@@ -2,6 +2,7 @@
 
 import logging
 import re
+import subprocess
 import sys
 import time
 from argparse import ArgumentParser
@@ -28,7 +29,7 @@ from harness_utils.report import (
 )
 from harness_utils.steam import (
     exec_proton_game,
-    exec_steam_game,
+    get_app_install_location,
     get_build_id,
 )
 
@@ -64,10 +65,13 @@ def read_current_resolution() -> tuple[int, int]:
 
 
 def start_game():
-    """Start directly through Proton on Linux, or through Steam on Windows."""
+    """Starts the game process"""
     if is_linux():
         return exec_proton_game(STEAM_GAME_ID, PROCESS_NAME)
-    return exec_steam_game(STEAM_GAME_ID, game_params=["--launcher-skip"])
+    game_path = get_app_install_location(STEAM_GAME_ID)
+    process_path = Path(game_path) / PROCESS_NAME
+    logger.info("Starting game: %s", process_path)
+    return subprocess.Popen([process_path], cwd=game_path)
 
 
 def skip_logo_screens() -> None:
