@@ -21,8 +21,8 @@ def main() -> None:
     setup_logging(LOG_DIRECTORY)
     logger.info("Waiting 5 seconds before clicking the bottom-right corner")
     time.sleep(5)
-    logger.info("Clicking at 4K coordinates (3839, 2159)")
-    click(3839, 2159)
+    logger.info("Clicking at 4K coordinates (3838, 2158)")
+    click(3838, 2158)
     logger.info("Click complete")
 
 
