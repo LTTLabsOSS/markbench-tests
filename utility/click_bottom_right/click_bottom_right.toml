@@ -1,7 +1,0 @@
-friendly_name = "Click Bottom Right"
-py_script = "click_bottom_right.py"
-executable = "python"
-presentmon_enabled = false
-ocr = false
-save_run = false
-category = "utility"
