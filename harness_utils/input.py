@@ -190,7 +190,7 @@ def write(text: str) -> None:
 def click(
     x: int | None = None,
     y: int | None = None,
-    hold: float = 0.1,
+    hold: float = 0.2,
     pre_click_delay: float = 0.2,
 ) -> None:
     """Optionally move the pointer, then wait before and after clicking."""
