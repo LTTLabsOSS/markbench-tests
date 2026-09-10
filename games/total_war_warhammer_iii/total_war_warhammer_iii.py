@@ -88,6 +88,17 @@ def skip_logo_screens() -> None:
     press("escape*7")
 
 
+def _click_at(x: int, y: int) -> None:
+    if is_linux():
+        click(x, y)
+    else:
+        gui.moveTo(x, y)
+        time.sleep(0.2)
+        gui.mouseDown()
+        time.sleep(0.2)
+        gui.mouseUp()
+
+
 def run_benchmark(benchmark):
     """Starts the benchmark"""
     start_game()
@@ -112,14 +123,7 @@ def run_benchmark(benchmark):
         logger.info("Did not find the options menu. Did the game skip the intros?")
         sys.exit(1)
 
-    if is_linux():
-        click(result["x"], result["y"])
-    else:
-        gui.moveTo(result["x"], result["y"])
-        time.sleep(0.2)
-        gui.mouseDown()
-        time.sleep(0.2)
-        gui.mouseUp()
+    _click_at(result["x"], result["y"])
     time.sleep(2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "main.png")
@@ -129,14 +133,7 @@ def run_benchmark(benchmark):
         logger.info("Did not find the advanced menu. Did the game skip the intros?")
         sys.exit(1)
 
-    if is_linux():
-        click(result["x"], result["y"])
-    else:
-        gui.moveTo(result["x"], result["y"])
-        time.sleep(0.2)
-        gui.mouseDown()
-        time.sleep(0.2)
-        gui.mouseUp()
+    _click_at(result["x"], result["y"])
     time.sleep(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced.png")
@@ -146,27 +143,13 @@ def run_benchmark(benchmark):
         logger.info("Did not find the benchmark menu. Did the game skip the intros?")
         sys.exit(1)
 
-    if is_linux():
-        click(result["x"], result["y"])
-    else:
-        gui.moveTo(result["x"], result["y"])
-        time.sleep(0.2)
-        gui.mouseDown()
-        time.sleep(0.2)
-        gui.mouseUp()
+    _click_at(result["x"], result["y"])
     if benchmark != "battle":
         result = find_word("mirrors", timeout=10, interval=1)
         if not result:
             logger.info("Did not find the Mirrors of Madness benchmark.")
             sys.exit(1)
-        if is_linux():
-            click(result["x"], result["y"])
-        else:
-            gui.moveTo(result["x"], result["y"])
-            time.sleep(0.2)
-            gui.mouseDown()
-            time.sleep(0.2)
-            gui.mouseUp()
+        _click_at(result["x"], result["y"])
         time.sleep(2)
         press("enter")
     else:
