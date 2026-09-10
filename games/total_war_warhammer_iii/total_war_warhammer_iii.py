@@ -9,6 +9,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 import pyautogui as gui
+import pydirectinput as user
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -18,7 +19,6 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, roaming_appdata
@@ -47,6 +47,9 @@ CONFIG_FULL_PATH = (
     / "scripts"
     / "preferences.script.txt"
 )
+
+gui.FAILSAFE = False
+user.FAILSAFE = False
 
 
 def read_current_resolution() -> tuple[int, int]:
@@ -81,7 +84,9 @@ def skip_logo_screens() -> None:
     logger.info("Skipping logo screens")
 
     # Enter menu
-    press("escape*7")
+    for _ in range(7):
+        user.press("escape")
+        time.sleep(0.5)
 
 
 def run_benchmark(benchmark):
@@ -94,11 +99,6 @@ def run_benchmark(benchmark):
     if not result:
         logger.info("Did not see warnings. Did the game start?")
         sys.exit(1)
-
-    time.sleep(1)
-    if is_linux():
-        mangohud_log_toggle()
-    time.sleep(1)
 
     skip_logo_screens()
     time.sleep(2)
@@ -152,10 +152,10 @@ def run_benchmark(benchmark):
         time.sleep(0.2)
         gui.mouseUp()
         time.sleep(2)
-        press("enter")
+        user.press("enter")
     else:
         time.sleep(2)
-        press("enter")
+        user.press("enter")
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
