@@ -8,21 +8,25 @@ import time
 from argparse import ArgumentParser
 from pathlib import Path
 
-import pyautogui as gui
-import pydirectinput as user
-
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
+
+from harness_utils.platform import is_linux
+
+if is_linux():
+    from harness_utils.input import click
+else:
+    import pyautogui as gui
 
 from harness_utils.artifacts import (
     capture_and_save_screenshot,
     copy_artifact,
     create_artifacts_manifest,
 )
+from harness_utils.input import mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, roaming_appdata
-from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
 from harness_utils.report import (
     format_resolution,
@@ -47,9 +51,6 @@ CONFIG_FULL_PATH = (
     / "scripts"
     / "preferences.script.txt"
 )
-
-gui.FAILSAFE = False
-user.FAILSAFE = False
 
 
 def read_current_resolution() -> tuple[int, int]:
@@ -84,9 +85,7 @@ def skip_logo_screens() -> None:
     logger.info("Skipping logo screens")
 
     # Enter menu
-    for _ in range(7):
-        user.press("escape")
-        time.sleep(0.5)
+    press("escape*7")
 
 
 def run_benchmark(benchmark):
@@ -100,6 +99,11 @@ def run_benchmark(benchmark):
         logger.info("Did not see warnings. Did the game start?")
         sys.exit(1)
 
+    if is_linux():
+        time.sleep(1)
+        mangohud_log_toggle()
+        time.sleep(1)
+
     skip_logo_screens()
     time.sleep(2)
 
@@ -108,11 +112,14 @@ def run_benchmark(benchmark):
         logger.info("Did not find the options menu. Did the game skip the intros?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    if is_linux():
+        click(result["x"], result["y"])
+    else:
+        gui.moveTo(result["x"], result["y"])
+        time.sleep(0.2)
+        gui.mouseDown()
+        time.sleep(0.2)
+        gui.mouseUp()
     time.sleep(2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "main.png")
@@ -122,11 +129,14 @@ def run_benchmark(benchmark):
         logger.info("Did not find the advanced menu. Did the game skip the intros?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    if is_linux():
+        click(result["x"], result["y"])
+    else:
+        gui.moveTo(result["x"], result["y"])
+        time.sleep(0.2)
+        gui.mouseDown()
+        time.sleep(0.2)
+        gui.mouseUp()
     time.sleep(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced.png")
@@ -136,26 +146,32 @@ def run_benchmark(benchmark):
         logger.info("Did not find the benchmark menu. Did the game skip the intros?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-    if benchmark != "battle":
-        result = find_word("mirrors", timeout=10, interval=1)
-        if not result:
-            logger.info("Did not find the Mirrors of Madness benchmark.")
-            sys.exit(1)
+    if is_linux():
+        click(result["x"], result["y"])
+    else:
         gui.moveTo(result["x"], result["y"])
         time.sleep(0.2)
         gui.mouseDown()
         time.sleep(0.2)
         gui.mouseUp()
+    if benchmark != "battle":
+        result = find_word("mirrors", timeout=10, interval=1)
+        if not result:
+            logger.info("Did not find the Mirrors of Madness benchmark.")
+            sys.exit(1)
+        if is_linux():
+            click(result["x"], result["y"])
+        else:
+            gui.moveTo(result["x"], result["y"])
+            time.sleep(0.2)
+            gui.mouseDown()
+            time.sleep(0.2)
+            gui.mouseUp()
         time.sleep(2)
-        user.press("enter")
+        press("enter")
     else:
         time.sleep(2)
-        user.press("enter")
+        press("enter")
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
