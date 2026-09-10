@@ -82,11 +82,10 @@ def _scale_linux_click_coordinates(x: int, y: int) -> tuple[int, int]:
 
 class _WindowsInputBackend:
     def __init__(self) -> None:
-        import pyautogui as gui
-
+        self._pyautogui = importlib.import_module("pyautogui")
         self._pydirectinput = importlib.import_module("pydirectinput")
         vars(self._pydirectinput)["FAILSAFE"] = False
-        gui.FAILSAFE = False
+        vars(self._pyautogui)["FAILSAFE"] = False
 
     def press(self, key: str) -> None:
         self._pydirectinput.press(key)
@@ -104,16 +103,12 @@ class _WindowsInputBackend:
         self._pydirectinput.moveTo(x=x, y=y)
 
     def click_at_cursor(self, hold: float = 0.1) -> None:
-        import pyautogui as gui
-
-        gui.mouseDown()
+        self._pyautogui.mouseDown()
         time.sleep(hold)
-        gui.mouseUp()
+        self._pyautogui.mouseUp()
 
     def scroll(self, scroll_amount: int) -> None:
-        import pyautogui as gui
-
-        gui.vscroll(scroll_amount)
+        self._pyautogui.vscroll(scroll_amount)
 
 
 class _YdotoolInputBackend:
