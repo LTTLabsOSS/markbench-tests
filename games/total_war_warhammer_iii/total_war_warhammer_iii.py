@@ -2,6 +2,7 @@
 
 import logging
 import re
+import subprocess
 import sys
 import time
 from argparse import ArgumentParser
@@ -19,13 +20,18 @@ from harness_utils.input import click, mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, roaming_appdata
+from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
 from harness_utils.report import (
     format_resolution,
     seconds_to_milliseconds,
     write_report_json,
 )
-from harness_utils.steam import exec_steam_game, get_build_id
+from harness_utils.steam import (
+    exec_proton_game,
+    get_app_install_location,
+    get_build_id,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -59,8 +65,13 @@ def read_current_resolution() -> tuple[int, int]:
 
 
 def start_game():
-    """Start the game through Steam without the launcher."""
-    return exec_steam_game(STEAM_GAME_ID, game_params=["--launcher-skip"])
+    """Starts the game process"""
+    if is_linux():
+        return exec_proton_game(STEAM_GAME_ID, PROCESS_NAME)
+    game_path = get_app_install_location(STEAM_GAME_ID)
+    process_path = Path(game_path) / PROCESS_NAME
+    logger.info("Starting game: %s", process_path)
+    return subprocess.Popen([process_path, "--launcher-skip"], cwd=game_path)
 
 
 def skip_logo_screens() -> None:
@@ -71,7 +82,7 @@ def skip_logo_screens() -> None:
     press("escape*7")
 
 
-def run_benchmark():
+def run_benchmark(benchmark):
     """Starts the benchmark"""
     start_game()
     setup_start_time = int(time.time())
@@ -82,9 +93,10 @@ def run_benchmark():
         logger.info("Did not see warnings. Did the game start?")
         sys.exit(1)
 
-    time.sleep(1)
-    mangohud_log_toggle()
-    time.sleep(1)
+    if is_linux():
+        time.sleep(1)
+        mangohud_log_toggle()
+        time.sleep(1)
 
     skip_logo_screens()
     time.sleep(2)
@@ -115,7 +127,7 @@ def run_benchmark():
         sys.exit(1)
 
     click(result["x"], result["y"])
-    if args.benchmark != "battle":
+    if benchmark != "battle":
         result = find_word("mirrors", timeout=10, interval=1)
         if not result:
             logger.info("Did not find the Mirrors of Madness benchmark.")
@@ -137,7 +149,7 @@ def run_benchmark():
 
     test_start_time = int(time.time())
 
-    if args.benchmark != "battle":
+    if benchmark != "battle":
         time.sleep(65)  # Wait time for MOM benchmark
     else:
         time.sleep(100)  # Wait time for battle benchmark
@@ -167,33 +179,38 @@ def run_benchmark():
     return test_start_time, test_end_time
 
 
-setup_logging(LOG_DIRECTORY)
+def main():
+    setup_logging(LOG_DIRECTORY)
 
-parser = ArgumentParser()
-parser.add_argument(
-    "-s",
-    "--benchmark",
-    dest="benchmark",
-    help="Benchmark Scene",
-    metavar="benchmark",
-    required=True,
-)
-args, unknown = parser.parse_known_args()
+    parser = ArgumentParser()
+    parser.add_argument(
+        "-s",
+        "--benchmark",
+        dest="benchmark",
+        help="Benchmark Scene",
+        metavar="benchmark",
+        required=True,
+    )
+    args, _unknown = parser.parse_known_args()
 
-try:
-    start_time, endtime = run_benchmark()
-    height, width = read_current_resolution()
-    report = {
-        "resolution": format_resolution(width, height),
-        "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(endtime),
-        "version": get_build_id(STEAM_GAME_ID),
-    }
+    try:
+        start_time, endtime = run_benchmark(args.benchmark)
+        height, width = read_current_resolution()
+        report = {
+            "resolution": format_resolution(width, height),
+            "start_time": seconds_to_milliseconds(start_time),
+            "end_time": seconds_to_milliseconds(endtime),
+            "version": get_build_id(STEAM_GAME_ID),
+        }
 
-    write_report_json(LOG_DIRECTORY, "report.json", report)
-    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
-except Exception:
-    logger.error("Something went wrong running the benchmark!")
-    logger.exception("Unhandled exception")
-    terminate_process(PROCESS_NAME)
-    sys.exit(1)
+        write_report_json(LOG_DIRECTORY, "report.json", report)
+        create_artifacts_manifest(ARTIFACTS_DIRECTORY)
+    except Exception:
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception("Unhandled exception")
+        terminate_process(PROCESS_NAME)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
