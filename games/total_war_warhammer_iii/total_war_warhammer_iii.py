@@ -11,8 +11,6 @@ from pathlib import Path
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.platform import is_linux
-
 from harness_utils.artifacts import (
     capture_and_save_screenshot,
     copy_artifact,
@@ -22,6 +20,7 @@ from harness_utils.input import click, mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, roaming_appdata
+from harness_utils.platform import is_linux
 from harness_utils.process import terminate_process
 from harness_utils.report import (
     format_resolution,
@@ -192,7 +191,7 @@ def main():
         metavar="benchmark",
         required=True,
     )
-    args, unknown = parser.parse_known_args()
+    args, _unknown = parser.parse_known_args()
 
     try:
         start_time, endtime = run_benchmark(args.benchmark)
