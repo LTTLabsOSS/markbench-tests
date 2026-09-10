@@ -100,10 +100,8 @@ class _WindowsInputBackend:
     def move_mouse(self, x: int, y: int) -> None:
         self._pydirectinput.moveTo(x=x, y=y)
 
-    def click_at_cursor(self, hold: float = 0.0) -> None:
-        self._pydirectinput.mouseDown()
-        time.sleep(hold)
-        self._pydirectinput.mouseUp()
+    def click_at_cursor(self) -> None:
+        self._pydirectinput.click()
 
     def scroll(self, scroll_amount: int) -> None:
         import pyautogui as gui
@@ -155,9 +153,9 @@ class _YdotoolInputBackend:
         time.sleep(0.1)
         self._run("mousemove", str(scaled_x), str(scaled_y))
 
-    def click_at_cursor(self, hold: float = 0.0) -> None:
+    def click_at_cursor(self) -> None:
         self._run("click", "0x40")
-        time.sleep(hold)
+        time.sleep(0.2)
         self._run("click", "0x80")
 
     def scroll(self, scroll_amount: int) -> None:
@@ -190,14 +188,13 @@ def write(text: str) -> None:
 def click(
     x: int | None = None,
     y: int | None = None,
-    hold: float = 0.2,
     pre_click_delay: float = 0.2,
 ) -> None:
     """Optionally move the pointer, then wait before and after clicking."""
     if x is not None and y is not None:
         _backend.move_mouse(x, y)
     time.sleep(pre_click_delay)
-    _backend.click_at_cursor(hold)
+    _backend.click_at_cursor()
     time.sleep(pre_click_delay)
 
 
