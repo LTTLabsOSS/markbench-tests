@@ -6,8 +6,6 @@ import sys
 import time
 from pathlib import Path
 
-import pyautogui as gui
-import pydirectinput as user
 from forza_horizon_5_utils import read_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
@@ -17,7 +15,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import press_n_times
+from harness_utils.input import click, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -41,8 +39,6 @@ CONFIG_LOCATION = (
 )
 CONFIG_FILENAME = "UserConfigSelections"
 PROCESSES = ["ForzaHorizon5.exe", "RTSS.exe"]
-
-user.FAILSAFE = False
 
 
 def start_rtss():
@@ -71,8 +67,7 @@ def run_benchmark():
         sys.exit(1)
 
     logger.info("Accessibility found pressing X to continue.")
-    user.press("x")
-    time.sleep(2)
+    press("x")
 
     result = find_word("video", timeout=30)
     if not result:
@@ -80,20 +75,15 @@ def run_benchmark():
         sys.exit(1)
 
     logger.info("Video found, clicking and continuing.")
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    click(result["x"], result["y"])
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt.png")
     time.sleep(0.2)
-    press_n_times("down", 19, 0.1)
+    press("down*19")
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt2.png")
-    press_n_times("down", 5, 0.1)
+    press("down*5")
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt3.png")
     time.sleep(0.2)
-    user.press("escape")
-    time.sleep(1)
+    press("escape")
 
     result = find_word("graphics", timeout=30)
     if not result:
@@ -101,33 +91,22 @@ def run_benchmark():
         sys.exit(1)
 
     logger.info("Graphics found, clicking and continuing.")
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-    time.sleep(0.2)
+    click(result["x"], result["y"])
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt.png")
     time.sleep(0.2)
-    press_n_times("down", 16, 0.1)
+    press("down*16")
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt2.png")
     time.sleep(0.1)
-    user.press("down")
-    time.sleep(1)
+    press("down")
 
     result = find_word("benchmark", timeout=12)
     if not result:
         logger.info("Didn't find benchmark in settings.")
         sys.exit(1)
 
-    gui.mouseDown(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseUp()
+    click(result["x"], result["y"])
     time.sleep(1)
-    user.press("down")
-    time.sleep(0.2)
-    user.press("enter")
-    time.sleep(0.2)
+    press("down, enter")
 
     result = find_word("checkpoint", timeout=360)
     if not result:

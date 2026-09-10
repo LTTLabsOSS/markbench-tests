@@ -14,7 +14,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import press, user
+from harness_utils.input import press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, user_saved_games
@@ -35,8 +35,6 @@ logger = logging.getLogger(__name__)
 STEAM_GAME_ID = 1888930
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "tlou-i.exe"
-
-user.FAILSAFE = False
 
 
 def read_resolution_from_config(config_path: Path) -> tuple[int, int]:
@@ -258,7 +256,6 @@ def run_benchmark(steam_account_id: int):
     time.sleep(1)
 
     press("space")
-    time.sleep(1)
     navigate_main_menu(steam_account_id)
 
     # press load save

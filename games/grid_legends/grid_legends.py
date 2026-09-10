@@ -14,7 +14,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mangohud_log_toggle, press, user
+from harness_utils.input import click, mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, user_documents
@@ -38,8 +38,6 @@ CONFIG_PATH = (
 )
 CONFIG_FILENAME = "hardware_settings_config.xml"
 CONFIG_FULL_PATH = CONFIG_PATH / CONFIG_FILENAME
-
-user.FAILSAFE = False
 
 
 def get_resolution() -> tuple[int, int]:
@@ -75,13 +73,11 @@ def run_benchmark():
     if is_linux():
         mangohud_log_toggle()
     else:
-        user.move_mouse(0, 0)
-        user.click()
+        click(0, 0)
 
     logger.info("Game started. Entering main menu")
     time.sleep(4)
     press("enter")
-    time.sleep(2)
 
     # waiting about a minute for the main menu to appear
     if find_word(word="home", timeout=80, interval=1) is None:

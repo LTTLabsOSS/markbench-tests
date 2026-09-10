@@ -17,7 +17,7 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.controllers import LTTGamePad360
-from harness_utils.input import mangohud_log_toggle, user
+from harness_utils.input import mangohud_log_toggle, move_mouse
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import game_install_path, harness_directories
@@ -87,7 +87,7 @@ def run_benchmark():
         logger.info("did not find main menu")
         sys.exit(1)
     if is_linux():
-        user.move_mouse(benchmark_result["x"], benchmark_result["y"])
+        move_mouse(benchmark_result["x"], benchmark_result["y"])
     time.sleep(1)
     gamepad.press(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
     time.sleep(0.5)
@@ -206,7 +206,6 @@ def run_benchmark():
 
     # Exit
     terminate_process(PROCESS_NAME)
-
 
     return test_start_time, test_end_time
 

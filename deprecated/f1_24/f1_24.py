@@ -1,4 +1,4 @@
-"""F1 25 test script"""
+"""F1 24 test script"""
 
 import logging
 import re
@@ -6,7 +6,7 @@ import sys
 import time
 from pathlib import Path
 
-from f1_25_utils import get_resolution
+from f1_24_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -17,7 +17,7 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.file_cleanup import remove_files
-from harness_utils.input import press_n_times, user
+from harness_utils.input import click, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import game_install_path, harness_directories, user_documents
@@ -32,18 +32,17 @@ from harness_utils.steam import exec_steam_game, get_build_id
 logger = logging.getLogger(__name__)
 
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
-PROCESS_NAME = "F1_25.exe"
-STEAM_GAME_ID = 3059520
+PROCESS_NAME = "F1_24.exe"
+STEAM_GAME_ID = 2488620
 VIDEO_PATH = game_install_path(STEAM_GAME_ID) / "videos"
 
-F1_DOCUMENTS_PATH = user_documents(STEAM_GAME_ID) / "My Games" / "F1 25"
+F1_DOCUMENTS_PATH = user_documents(STEAM_GAME_ID) / "My Games" / "F1 24"
 CONFIG_PATH = F1_DOCUMENTS_PATH / "hardwaresettings"
 CONFIG_FILENAME = "hardware_settings_config.xml"
 CONFIG = CONFIG_PATH / CONFIG_FILENAME
 BENCHMARK_RESULTS_PATH = F1_DOCUMENTS_PATH / "benchmark"
 
 intro_videos = [VIDEO_PATH / "attract.bk2", VIDEO_PATH / "cm_f1_sting.bk2"]
-user.FAILSAFE = False
 
 
 def find_latest_result_file(base_path):
@@ -57,24 +56,20 @@ def find_latest_result_file(base_path):
     return max(result_files, key=lambda path: path.stat().st_mtime)
 
 
-def find_settings():
+def find_settings() -> None:
     """Look for and enter settings"""
-    if not find_word("settings", interval=3, timeout=15):
+    if not find_word("settings", interval=1, timeout=15):
         logger.info("Didn't find settings!")
         sys.exit(1)
-    user.press("enter")
-    time.sleep(1.5)
+    press("enter")
 
 
-def find_graphics():
+def find_graphics() -> None:
     """Look for and enter graphics settings"""
-    if not find_word("graphics", interval=3, timeout=15):
+    if not find_word("graphics", interval=1, timeout=15):
         logger.info("Didn't find graphics!")
         sys.exit(1)
-    user.press("right")
-    time.sleep(0.2)
-    user.press("enter")
-    time.sleep(1.5)
+    press("right, enter")
 
 
 def navigate_startup():
@@ -84,12 +79,7 @@ def navigate_startup():
         logger.info("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
-    user.press("space")
-    time.sleep(1)
-    user.press("space")
-    time.sleep(1)
-    user.press("space")
-    time.sleep(4)
+    press("space*3")
 
     # Press enter to proceed to the main menu
     result = find_word("press", interval=2, timeout=80)
@@ -98,40 +88,25 @@ def navigate_startup():
         sys.exit(1)
 
     logger.info("Hit the title screen. Continuing")
-    time.sleep(1)
-    user.press("enter")
-    time.sleep(1)
+    click()
+    press("enter")
 
     # cancel logging into ea services
-    result = find_word("login", timeout=10)
+    result = find_word("login", timeout=20)
     if result:
-        time.sleep(1)
+        time.sleep(3)
         logger.info("Cancelling logging in.")
-        user.press("enter")
-        time.sleep(2)
-
-    if find_word("chat", timeout=3) is not None:
-        time.sleep(1)
-        user.press("enter")
-        time.sleep(1)
-    # acknowledge services error
-    result = find_word("services", timeout=10)
-    if result:
-        time.sleep(1)
-        logger.info("Acknowledging services error")
-        user.press("enter")
-        time.sleep(2)
+        press("enter")
 
 
 def offline_menu():
-    result = find_word("network", timeout=10)
+    """Navigateout of the offline menu"""
+    result = find_word("services", timeout=20)
     if not result:
         logger.info("Didn't find the keyword 'network'")
         return
-    time.sleep(1)
-    user.press("down")
-    time.sleep(0.5)
-    user.press("enter")
+    time.sleep(5)
+    press("down, enter")
 
 
 def run_benchmark():
@@ -141,41 +116,38 @@ def run_benchmark():
 
     setup_start_time = int(time.time())
     time.sleep(20)
-
     navigate_startup()
+
     offline_menu()
 
     # Navigate menus and take screenshots using the artifact manager
-    result = find_word("theatre", interval=3, timeout=60)
+    result = find_word("theatre", interval=1, timeout=60)
     if not result:
         logger.info("Didn't land on the main menu!")
         sys.exit(1)
 
-    logger.info("Main screen detected.")
+    logger.info("Saw the options! we are good to go!")
     time.sleep(1)
 
-    user.press("tab")
-    time.sleep(2)
+    press("down*6, enter")
+    # find_settings()
     find_graphics()
 
     # Navigate to video settings
-    press_n_times("down", 3, 0.2)
-    user.press("enter")
-    time.sleep(0.2)
+    press("down*3, enter")
 
-    result = find_word("vsync", interval=3, timeout=60)
+    result = find_word("vsync", interval=1, timeout=60)
     if not result:
         logger.info(
             "Didn't find the keyword 'vsync'. Did the program navigate to the video mode menu correctly?"
         )
         sys.exit(1)
-    press_n_times("down", 18, 0.2)
+    press("down*18")
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
-    user.press("esc")
-    time.sleep(0.2)
+    press("escape")
 
-    result = find_word("steering", interval=3, timeout=60)
+    result = find_word("steering", interval=1, timeout=60)
     if not result:
         logger.info(
             "Didn't find the keyword 'steering'. Did the program exit the video mode menu correctly?"
@@ -184,30 +156,26 @@ def run_benchmark():
 
     # Navigate through graphics settings and take screenshots of all settings contained within
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
-    press_n_times("down", 29, 0.2)
+    press("down*29")
 
-    result = find_word("hair", interval=3, timeout=60)
+    result = find_word("chromatic", interval=1, timeout=60)
     if not result:
         logger.info(
-            "Didn't find the keyword 'hair'. Did we navigate the menu correctly?"
+            "Didn't find the keyword 'chromatic'. Did we navigate the menu correctly?"
         )
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
-    press_n_times("up", 28, 0.2)
-    user.press("enter")
-    time.sleep(0.2)
+    press("up*28, enter")
 
     # Navigate benchmark menu
-    if not find_word("weather", interval=3, timeout=15):
+    if not find_word("weather", interval=1, timeout=15):
         logger.info("Didn't find weather!")
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "benchmark.png")
 
-    press_n_times("down", 6, 0.2)
-    user.press("enter")
-    time.sleep(2)
+    press("down*6, enter")
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
@@ -233,7 +201,7 @@ def run_benchmark():
     else:
         logger.info("Could not find the loading screen. Could not mark end time!")
 
-    result = find_word("results", interval=3, timeout=90)
+    result = find_word("results", interval=1, timeout=90)
     if not result:
         logger.info(
             "Results screen was not found!"
@@ -256,7 +224,6 @@ def run_benchmark():
     logger.info("Benchmark took %f seconds", elapsed_test_time)
 
     terminate_process(PROCESS_NAME)
-
 
     return test_start_time, test_end_time
 

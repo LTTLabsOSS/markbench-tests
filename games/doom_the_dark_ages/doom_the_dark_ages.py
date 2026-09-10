@@ -19,9 +19,8 @@ from harness_utils.artifacts import (
 )
 from harness_utils.input import (
     mangohud_log_toggle,
-    mouse_scroll_n_times,
-    press_n_times,
-    user,
+    press,
+    scroll,
 )
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
@@ -47,8 +46,6 @@ BENCHMARK_RESULTS_PATH = (
     / "base"
     / "benchmark"
 )
-
-user.FAILSAFE = False
 
 
 def start_game():
@@ -86,9 +83,8 @@ def run_benchmark():
 
     logger.info("Hit the title screen. Continuing")
     time.sleep(2)
-    user.press("space")
+    press("space")
     time.sleep(4)
-
     # Navigate menus and take screenshots using the artifact manager
     result = find_word("campaign", vulkan=True, interval=3, timeout=60)
     if not result:
@@ -96,11 +92,8 @@ def run_benchmark():
         sys.exit(1)
 
     logger.info("Saw the main menu. Proceeding.")
-    time.sleep(1)
 
-    press_n_times("down", 4, 0.5)
-    user.press("enter")
-    time.sleep(1)
+    press("down*4, enter")
 
     result = find_word("daze", vulkan=True, interval=3, timeout=15)
     if not result:
@@ -108,8 +101,7 @@ def run_benchmark():
         sys.exit(1)
 
     logger.info("Saw the game settings. Proceeding.")
-    press_n_times("q", 2, 0.5)
-    time.sleep(1)
+    press("q*2")
 
     # Screenshotting the display settings
     result = find_word("display", vulkan=True, interval=3, timeout=15)
@@ -118,8 +110,7 @@ def run_benchmark():
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video1.png", vulkan=True)
-    mouse_scroll_n_times(5, -120, 0.5)
-    time.sleep(1)
+    scroll(-120, 5)
 
     result = find_word("fsr", vulkan=True, interval=3, timeout=15)
     if not result:
@@ -127,8 +118,7 @@ def run_benchmark():
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png", vulkan=True)
-    mouse_scroll_n_times(5, -120, 0.5)
-    time.sleep(1)
+    scroll(-120, 5)
 
     result = find_word("tracing", vulkan=True, interval=3, timeout=15)
     if not result:
@@ -136,19 +126,15 @@ def run_benchmark():
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video3.png", vulkan=True)
-    mouse_scroll_n_times(5, -120, 0.5)
-    time.sleep(1)
+    scroll(-120, 5)
 
     result = find_word("decal", vulkan=True, interval=3, timeout=15)
     if not result:
-        logger.info(
-            "Didn't find the decal quality setting. Did it navigate correctly?"
-        )
+        logger.info("Didn't find the decal quality setting. Did it navigate correctly?")
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video4.png", vulkan=True)
-    mouse_scroll_n_times(5, -120, 0.5)
-    time.sleep(0.5)
+    scroll(-120, 5)
 
     result = find_word("brightness", vulkan=True, interval=3, timeout=15)
     if not result:
@@ -156,8 +142,7 @@ def run_benchmark():
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video5.png", vulkan=True)
-    user.press("escape")
-    time.sleep(0.5)
+    press("escape")
 
     # Navigating to the benchmark
     result = find_word("campaign", vulkan=True, interval=3, timeout=20)
@@ -168,9 +153,7 @@ def run_benchmark():
     logger.info("Saw the main menu. Proceeding.")
     time.sleep(1)
 
-    user.press("up")
-    user.press("enter")
-    time.sleep(1)
+    press("up, enter")
 
     result = find_word("benchmarks", vulkan=True, interval=3, timeout=15)
     if not result:
@@ -180,9 +163,7 @@ def run_benchmark():
     logger.info("Saw the extras menu. Proceeding.")
     time.sleep(1)
 
-    user.press("up")
-    user.press("enter")
-    time.sleep(1)
+    press("up, enter")
 
     result = find_word("abyssal", vulkan=True, interval=3, timeout=15)
     if not result:
@@ -194,9 +175,7 @@ def run_benchmark():
     logger.info("See the benchmarks. Starting the Abyssal Forest benchmark level.")
     time.sleep(1)
 
-    press_n_times("down", 2, 0.5)
-    user.press("enter")
-    time.sleep(1)
+    press("down*2, enter")
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)

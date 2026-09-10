@@ -14,7 +14,7 @@ from harness_utils.artifacts import (
     capture_and_save_screenshot,
     create_artifacts_manifest,
 )
-from harness_utils.input import mangohud_log_toggle, press_n_times, user
+from harness_utils.input import click, mangohud_log_toggle, move_mouse, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, local_appdata
@@ -33,8 +33,6 @@ STEAM_GAME_ID = 2483190
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "ForzaHorizon6.exe"
 RTSS_PROCESS_NAME = "RTSS.exe"
-
-user.FAILSAFE = False
 
 
 def get_config_path() -> Path:
@@ -86,14 +84,13 @@ def run_benchmark():
         logger.info("Did not see 'start'. Game didn't start.")
         sys.exit(1)
 
-    user.move_mouse(0, 0)
-    user.click()
+    click(0, 0)
 
     if is_linux():
         mangohud_log_toggle()
 
     logger.info("At main menu. Pressing x for options.")
-    user.press("x")
+    press("x")
 
     # Wait for menu to load
     result = find_word("subtitles", timeout=10)
@@ -102,8 +99,7 @@ def run_benchmark():
         sys.exit(1)
 
     # Menu defaults to accessibility submenu, so we need to escape first.
-    user.press("escape")
-    time.sleep(1)
+    press("escape")
 
     result = find_word("video", timeout=30)
     if not result:
@@ -111,16 +107,13 @@ def run_benchmark():
         sys.exit(1)
 
     logger.info("Video found, selecting with keyboard.")
-    press_n_times("down", 6, 1)
-    time.sleep(1)
-    user.press("enter")
+    press("down*6, enter", pause=1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt.png")
     time.sleep(1)
 
-    press_n_times("down", 21, 1)
+    press("down*21", pause=1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt2.png")
-    user.press("escape")
-    time.sleep(1)
+    press("escape")
 
     result = find_word("graphics", timeout=30)
     if not result:
@@ -128,16 +121,12 @@ def run_benchmark():
         sys.exit(1)
 
     logger.info("Graphics found, selecting with keyboard.")
-    user.press("down")
-    time.sleep(1)
-    user.press("enter")
-    time.sleep(1)
+    press("down, enter")
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt.png")
-    press_n_times("down", 18, 1)
+    press("down*18", pause=1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt2.png")
     time.sleep(1)
-    user.press("down")
-    time.sleep(1)
+    press("down")
 
     result = find_word("benchmark", timeout=10)
     if not result:
@@ -145,7 +134,7 @@ def run_benchmark():
         sys.exit(1)
 
     logger.info("Benchmark found, selecting with keyboard.")
-    user.press("enter")
+    press("enter")
 
     result = find_word("yes", timeout=10)
     if not result:
@@ -153,9 +142,7 @@ def run_benchmark():
         sys.exit(1)
 
     logger.info("Confirmation prompt found, selecting yes with keyboard.")
-    user.press("down")
-    time.sleep(1)
-    user.press("enter")
+    press("down, enter")
 
     result = find_word("checkpoint", timeout=60)
     if not result:
@@ -180,7 +167,7 @@ def run_benchmark():
 
     if is_linux():
         mangohud_log_toggle()
-        user.move_mouse(0, 0)
+        move_mouse(0, 0)
 
     terminate_game_processes()
     return test_start_time, test_end_time

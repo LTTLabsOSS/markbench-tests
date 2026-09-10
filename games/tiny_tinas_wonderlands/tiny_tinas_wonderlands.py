@@ -65,7 +65,6 @@ def run_benchmark():
     press("altleft")
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
-    time.sleep(1)
 
     press("down*18")
 

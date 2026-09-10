@@ -6,7 +6,6 @@ import time
 from pathlib import Path
 
 import pyautogui as gui
-import pydirectinput as user
 from counter_strike_2_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
@@ -17,6 +16,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
+from harness_utils.input import click, move_mouse, press, scroll
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -50,8 +50,6 @@ CFG = Path(
     "cs2_video.txt",
 )
 
-user.FAILSAFE = False
-
 
 def start_game():
     """Launch the game with console enabled and FPS unlocked"""
@@ -64,12 +62,6 @@ def wait_for_word(word, timeout=30, interval=1, why: str = ""):
     if not result:
         raise RuntimeError(f"Did not find {word} to {why}")
     return result
-
-
-def console_command(command):
-    """Enter a console command"""
-    gui.write(command)
-    user.press("enter")
 
 
 def identify_settings():
@@ -113,11 +105,7 @@ def identify_settings():
         raise RuntimeError
 
     click_me = gui.center(location)
-    gui.moveTo(click_me.x, click_me.y)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-    time.sleep(0.2)
+    click(click_me.x, click_me.y)
 
 
 def navigate_settings():
@@ -127,11 +115,7 @@ def navigate_settings():
         word="video", timeout=10, interval=1, why="find the video menu button"
     )
 
-    gui.moveTo(result["x"], result["y"])
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-    time.sleep(0.2)
+    click(result["x"], result["y"])
 
     wait_for_word(word="brightness", why="find the video settings")
 
@@ -141,11 +125,7 @@ def navigate_settings():
         word="advanced", timeout=10, interval=1, why="find the advanced video menu"
     )
 
-    gui.moveTo(result["x"], result["y"])
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-    time.sleep(0.2)
+    click(result["x"], result["y"])
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_video_1.png")
 
@@ -156,9 +136,9 @@ def navigate_settings():
         why="identify we're in the advanced video menu",
     )
 
-    gui.moveTo(result["x"], result["y"])
+    move_mouse(result["x"], result["y"])
     time.sleep(1)
-    gui.scroll(-6000000)
+    scroll(-6000000)
     time.sleep(1)
 
     wait_for_word(word="particle", why="verify we scrolled correctly")
@@ -174,39 +154,23 @@ def execute_benchmark():
         word="play", timeout=10, interval=1, why="click the play tab"
     )
 
-    gui.moveTo(result["x"], result["y"])
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-    time.sleep(0.2)
+    click(result["x"], result["y"])
 
     result = wait_for_word(
         word="workshop", timeout=10, interval=1, why="click the workshop tab"
     )
 
-    gui.moveTo(result["x"], result["y"])
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-    time.sleep(0.2)
+    click(result["x"], result["y"])
 
     result = wait_for_word(
         word="fps", timeout=10, interval=1, why="click the benchmark icon"
     )
 
-    gui.moveTo(result["x"], result["y"])
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-    time.sleep(0.2)
+    click(result["x"], result["y"])
 
     result = wait_for_word(word="go", timeout=10, interval=1, why="start the benchmark")
 
-    gui.moveTo(result["x"], result["y"])
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-    time.sleep(0.2)
+    click(result["x"], result["y"])
 
 
 def run_benchmark():
@@ -255,7 +219,7 @@ def run_benchmark():
     )
 
     test_end_time = int(time.time())
-    user.press("`")
+    press("`")
     logger.info("The console opened. Marking end time.")
 
     # allow time for result screen to populate

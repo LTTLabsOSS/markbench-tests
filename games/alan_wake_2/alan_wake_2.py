@@ -6,7 +6,6 @@ import time
 from pathlib import Path
 from subprocess import Popen
 
-import pydirectinput as user
 from alan_wake_2_utils import (
     CONFIG_PATH,
     copy_save,
@@ -23,7 +22,7 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.epic_games import find_eg_game_version
-from harness_utils.input import press_n_times
+from harness_utils.input import press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -37,8 +36,6 @@ PROCESS_NAME = "alanwake2.exe"
 EXECUTABLE_PATH = find_epic_executable()
 GAME_ID = "c4763f236d08423eb47b4c3008779c84%3A93f2a8c3547846eda966cb3c152a026e%3Adc9d2e595d0e4650b35d659f90d41059?action=launch&silent=true"
 GAMEFOLDERNAME = "AlanWake2"
-
-user.FAILSAFE = False
 
 
 def get_run_game_id_command(game_id: int) -> str:
@@ -65,22 +62,22 @@ def run_benchmark():
         logger.error("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
-    user.press("enter")
+    press("enter")
 
     if find_word(word="warning", timeout=30, interval=1) is None:
         logger.error("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
-    user.press("enter")
+    press("enter")
 
     if find_word(word="continue", timeout=30, interval=1) is None:
         logger.error("Game didn't start in time. Check settings and try again.")
         sys.exit(1)
 
-    user.press("enter")
+    press("enter")
 
     if find_word(word="house", timeout=10, interval=0.5):
-        user.press("esc")
+        press("escape")
 
     # Navigating main menu:
     is_load_present = find_word("load", interval=1, timeout=5)
@@ -90,20 +87,19 @@ def run_benchmark():
         )
 
     logger.info("Navigating to options to get some screenshots")
-    press_n_times("down", 4, 0.2)
+    press("down*4", pause=0.2)
 
     if find_word(word="continue", interval=0.5, timeout=3) is None:
         logger.info("Continue option not listed, navigating accordingly.")
-        press_n_times("up", 2, 0.2)
+        press("up*2", pause=0.2)
 
-    user.press("enter")
-    time.sleep(0.2)
+    press("enter")
     if find_word(word="graphics", timeout=60, interval=0.5) is None:
         logger.error(
             "Graphics options not available. Did it navigate to the options correctly?"
         )
         sys.exit(1)
-    press_n_times("e", 2, 0.2)
+    press("e*2", pause=0.2)
     if find_word(word="quality", timeout=60, interval=0.5) is None:
         logger.error(
             "Did not see quality preset. Did it navigate to graphics correctly?"
@@ -111,26 +107,23 @@ def run_benchmark():
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
     time.sleep(0.2)
-    press_n_times("down", 19, 0.2)
+    press("down*19", pause=0.2)
     if find_word(word="terrain", timeout=60, interval=0.5) is None:
         logger.error(
             "Did not see Terrain Quality. Did it navigate to graphics correctly?"
         )
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
-    press_n_times("down", 10, 0.2)
+    press("down*10", pause=0.2)
     if find_word(word="transparency", timeout=60, interval=0.5) is None:
         logger.error("Did not see Transparency. Did it navigate to graphics correctly?")
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")
     time.sleep(0.2)
-    user.press("esc")
-    time.sleep(0.2)
+    press("escape")
 
     logger.info("Seen the main menu. Loading benchmark.")
-    press_n_times("up", 3, 0.2)
-    user.press("enter")
-    time.sleep(2)
+    press("up*3, enter", pause=0.2)
 
     # Loading the save
     if find_word(word="heart", timeout=60, interval=0.5) is None:
@@ -139,9 +132,7 @@ def run_benchmark():
         )
         sys.exit(1)
 
-    press_n_times("right", 3, 0.2)
-    user.press("enter")
-    time.sleep(0.2)
+    press("right*3, enter", pause=0.2)
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logger.info("Harness setup took %f seconds", elapsed_setup_time)

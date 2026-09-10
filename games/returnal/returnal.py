@@ -15,7 +15,7 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.file_cleanup import remove_files
-from harness_utils.input import mangohud_log_toggle, press, user
+from harness_utils.input import hold, mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, local_appdata
@@ -49,8 +49,6 @@ LOCAL_USER_SETTINGS = (
 VIDEO_PATH = (
     get_steamapps_common_path() / "Returnal" / "Returnal" / "Content" / "Movies"
 )
-
-user.FAILSAFE = False
 
 intro_videos = [
     VIDEO_PATH / "Logos_PC.mp4",
@@ -99,18 +97,14 @@ def check_vram_alert(attempts: int) -> bool:
 
 def escape_vram_alert():
     """Navigate VRAM alert"""
-    user.key_down("space")
-    time.sleep(4)
-    user.key_up("space")
+    hold("space", 4)
 
 
 def navigate_options_menu() -> None:
     """Simulate inputs to navigate to options menu"""
     logger.info("Navigating to options menu")
-    press("esc, enter, q")
-    user.key_down("tab")
-    time.sleep(5)
-    user.key_up("tab")
+    press("escape, enter, q")
+    hold("tab", 5)
 
 
 def run_benchmark() -> tuple[int, int]:
@@ -144,7 +138,7 @@ def run_benchmark() -> tuple[int, int]:
         mangohud_log_toggle()
         time.sleep(1)
     # Navigate to display menu
-    press("esc, enter, q*2", pause=1)
+    press("escape, enter, q*2", pause=1)
 
     # Verify that we have navigated to the video settings menu and take a screenshot
     if find_word(word="aspect", timeout=30, interval=1) is None:
@@ -188,9 +182,7 @@ def run_benchmark() -> tuple[int, int]:
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_3.png")
 
     # Launch the benchmark
-    user.key_down("tab")
-    time.sleep(5)
-    user.key_up("tab")
+    hold("tab", 5)
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)

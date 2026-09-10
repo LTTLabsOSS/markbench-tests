@@ -73,9 +73,6 @@ def check_anisotropy(max_attempts=10):
         # If not found, press the button once
         press("down")
 
-        # Short delay before rechecking
-        time.sleep(0.5)
-
     logger.info(
         "Max attempts reached for checking the camera. Did the game load the save?"
     )

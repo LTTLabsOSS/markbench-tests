@@ -84,7 +84,7 @@ def run_benchmark() -> tuple[int, int]:
     setup_start_time = int(time.time())
 
     time.sleep(10)
-    press("esc")
+    press("escape")
 
     if find_word(word="quit", timeout=30, interval=1) is None:
         logger.info("Could not find the main menu. Did the game load?")

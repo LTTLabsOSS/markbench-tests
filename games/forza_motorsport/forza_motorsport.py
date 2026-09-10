@@ -6,7 +6,6 @@ import sys
 import time
 from pathlib import Path
 
-import pydirectinput as user
 from forza_motorsport_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
@@ -17,7 +16,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import press_n_times
+from harness_utils.input import press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -39,8 +38,6 @@ LOCAL_USER_SETTINGS = (
     / "UserConfigSelections"
 )
 PROCESSES = ["forza_steamworks_release_final.exe", "RTSS.exe"]
-
-user.FAILSAFE = False
 
 
 def start_rtss():
@@ -67,8 +64,7 @@ def run_benchmark() -> tuple[int, int]:
         sys.exit(1)
 
     # Navigate to display menu
-    user.press("f")
-    time.sleep(1)
+    press("f")
 
     if find_word(word="contrast", timeout=30, interval=1) is None:
         logger.info(
@@ -76,12 +72,7 @@ def run_benchmark() -> tuple[int, int]:
         )
         sys.exit(1)
 
-    user.press("]")
-    time.sleep(0.5)
-    user.press("]")
-    time.sleep(0.5)
-    user.press("]")
-    time.sleep(0.5)
+    press("]*3")
 
     # Verify that we have navigated to the video settings menu and take a screenshot
     if find_word(word="resolution", timeout=30, interval=1) is None:
@@ -89,15 +80,14 @@ def run_benchmark() -> tuple[int, int]:
         sys.exit(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display.png")
-    user.press("]")
-    time.sleep(0.5)
+    press("]")
 
     if find_word(word="filtering", timeout=30, interval=1) is None:
         logger.info("Did not find the graphics settings menu. Did the menu get stuck?")
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics1.png")
 
-    press_n_times("down", 15, 0.5)
+    press("down*15")
 
     if find_word(word="particle", timeout=30, interval=1) is None:
         logger.info(
@@ -106,11 +96,7 @@ def run_benchmark() -> tuple[int, int]:
         sys.exit(1)
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics2.png")
 
-    press_n_times("down", 3, 0.5)
-    user.press("up")
-    time.sleep(0.5)
-    user.press("down")
-    time.sleep(0.5)
+    press("down*3, up, down")
 
     if find_word(word="flare", timeout=30, interval=1) is None:
         logger.info("Did not find the lens flare settings. Did the menu get stuck?")
@@ -118,9 +104,7 @@ def run_benchmark() -> tuple[int, int]:
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics3.png")
 
     # Navigate to graphics menu
-    user.press("[")
-    time.sleep(0.5)
-    user.press("enter")
+    press("[, enter")
 
     setup_end_time = int(time.time())
     elapsed_setup_time = round((setup_end_time - setup_start_time), 2)
@@ -155,7 +139,6 @@ def run_benchmark() -> tuple[int, int]:
 
     for proc_name in PROCESSES:
         terminate_process(proc_name)
-
 
     return test_start_time, test_end_time
 

@@ -7,8 +7,6 @@ import sys
 import time
 from pathlib import Path
 
-import pyautogui as gui
-import pydirectinput as user
 from far_cry_6_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
@@ -19,7 +17,7 @@ from harness_utils.artifacts import (
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mouse_scroll_n_times, press_n_times
+from harness_utils.input import click, press, scroll
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
@@ -39,9 +37,6 @@ username = os.getlogin()
 XML_FILE = rf"C:\Users\{username}\Documents\My Games\Far Cry 6\gamerprofile.xml"
 
 
-user.FAILSAFE = False
-
-
 def start_game():
     subprocess.run(f"start uplay://launch/{GAME_ID}/0", shell=True, check=True)
 
@@ -51,7 +46,7 @@ def skip_logo_screens() -> None:
     logger.info("Skipping logo screens")
 
     # skipping the logo screens
-    press_n_times("space", 10, 0.5)
+    press("space*10")
 
 
 def run_benchmark():
@@ -72,26 +67,19 @@ def run_benchmark():
         logger.info("Did not see the Far Cry 6 intro video. Did the game crash?")
         sys.exit(1)
 
-    user.press("space")
-    user.press("space")
-
-    time.sleep(2)
+    press("space*2")
 
     # navigating the menus to get to the video settings
     result = find_word("later", timeout=5, interval=1)
     if result:
-        user.press("escape")
+        press("escape")
 
     result = find_word("options", timeout=10, interval=1)
     if not result:
         logger.info("Did not find the main menu. Did the game skip the intros?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    click(result["x"], result["y"])
     time.sleep(2)
 
     result = find_word("video", timeout=10, interval=1)
@@ -99,11 +87,7 @@ def run_benchmark():
         logger.info("Did not find the options menu. Did OCR click incorrectly?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    click(result["x"], result["y"])
     time.sleep(2)
 
     # grabbing screenshots of all the video settings
@@ -118,7 +102,7 @@ def run_benchmark():
 
     time.sleep(2)
 
-    user.press("e")
+    press("e")
 
     result = find_word("filtering", timeout=10, interval=1)
     if not result:
@@ -131,7 +115,7 @@ def run_benchmark():
 
     time.sleep(2)
 
-    mouse_scroll_n_times(8, -800, 0.2)
+    scroll(-800, 8)
 
     result = find_word("shading", timeout=10, interval=1)
     if not result:
@@ -144,7 +128,7 @@ def run_benchmark():
 
     time.sleep(2)
 
-    press_n_times("e", 2, 0.2)
+    press("e*2")
 
     result = find_word("lock", timeout=10, interval=1)
     if not result:
@@ -157,7 +141,7 @@ def run_benchmark():
 
     # starting the benchmark
     time.sleep(2)
-    user.press("f5")
+    press("f5")
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
 
@@ -187,7 +171,6 @@ def run_benchmark():
     # Exit
     terminate_process(PROCESS_NAME)
     copy_artifact(XML_FILE, ARTIFACTS_DIRECTORY)
-
 
     return test_start_time, test_end_time
 
