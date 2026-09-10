@@ -82,8 +82,11 @@ def _scale_linux_click_coordinates(x: int, y: int) -> tuple[int, int]:
 
 class _WindowsInputBackend:
     def __init__(self) -> None:
+        import pyautogui as gui
+
         self._pydirectinput = importlib.import_module("pydirectinput")
         vars(self._pydirectinput)["FAILSAFE"] = False
+        gui.FAILSAFE = False
 
     def press(self, key: str) -> None:
         self._pydirectinput.press(key)
@@ -103,7 +106,6 @@ class _WindowsInputBackend:
     def click_at_cursor(self, hold: float = 0.1) -> None:
         import pyautogui as gui
 
-        gui.FAILSAFE = False
         gui.mouseDown()
         time.sleep(hold)
         gui.mouseUp()
