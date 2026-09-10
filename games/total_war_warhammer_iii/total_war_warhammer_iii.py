@@ -66,11 +66,7 @@ def read_current_resolution() -> tuple[int, int]:
 def start_game():
     """Start directly through Proton on Linux, or through Steam on Windows."""
     if is_linux():
-        return exec_proton_game(
-            STEAM_GAME_ID,
-            PROCESS_NAME,
-            extra_env={"MANGOHUD": "1"},
-        )
+        return exec_proton_game(STEAM_GAME_ID, PROCESS_NAME)
     return exec_steam_game(STEAM_GAME_ID, game_params=["--launcher-skip"])
 
 

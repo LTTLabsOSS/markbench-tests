@@ -237,19 +237,16 @@ def exec_steam_game(game_id: int, steam_path=None, game_params=None) -> Popen:
     return Popen(command)
 
 
-def exec_proton_game(
-    game_id: int, executable: str, *, extra_env: dict[str, str] | None = None
-) -> Popen:
+def exec_proton_game(game_id: int, executable: str) -> Popen:
     """Launch a game executable on Linux using Steam-installed Proton Hotfix.
 
-    The executable is relative to the game's install directory. Extra environment
-    values override the inherited environment, except for required Steam identity
-    and compatibility paths. Steam launch options are not applied.
+    The executable is relative to the game's install directory. Required Steam
+    identity and compatibility paths override the inherited environment.
+    Steam launch options are not applied.
     """
     game_directory = get_app_install_location(game_id)
     proton_script = get_steamapps_common_path() / "Proton Hotfix" / "proton"
     env = os.environ.copy()
-    env.update(extra_env or {})
     env.update(
         STEAM_COMPAT_CLIENT_INSTALL_PATH=str(get_steam_folder_path()),
         STEAM_COMPAT_DATA_PATH=str(get_proton_prefix(game_id).parent),

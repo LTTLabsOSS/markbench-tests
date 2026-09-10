@@ -60,9 +60,7 @@ def read_current_resolution() -> tuple[int, int]:
 def start_game():
     """Starts the game process"""
     if is_linux():
-        return exec_proton_game(
-            STEAM_GAME_ID, PROCESS_NAME, extra_env={"MANGOHUD": "1"}
-        )
+        return exec_proton_game(STEAM_GAME_ID, PROCESS_NAME)
     cmd_string = f'start /D "{get_app_install_location(STEAM_GAME_ID)}" {PROCESS_NAME}'
     logger.info(cmd_string)
     return os.system(cmd_string)
