@@ -2,7 +2,7 @@
 
 - Text: US-keyboard ASCII, Caps Lock off, no held modifiers.
 - Mouse: SetCursorPos for movement; mouse_event for buttons and wheel.
-- Thanks to PyDirectInput and PyAutoGUI for input-behavior references.
+- Thanks to PyAutoGUI for mouse-behavior references.
 """
 
 from __future__ import annotations
