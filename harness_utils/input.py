@@ -100,7 +100,7 @@ class _WindowsInputBackend:
         self._pydirectinput.keyUp(key)
 
     def move_mouse(self, x: int, y: int) -> None:
-        self._pydirectinput.moveTo(x=x, y=y)
+        self._pyautogui.moveTo(x=x, y=y)
 
     def click_at_cursor(self, hold: float = 0.2) -> None:
         self._pyautogui.mouseDown()
