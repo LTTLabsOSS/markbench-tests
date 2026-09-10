@@ -6,8 +6,9 @@ Changes are grouped by the date they are merged to the main branch of the reposi
 
 ## 2026-09-10
 
-- Use PyAutoGUI for Windows mouse movement, clicks, and scrolling while retaining PyDirectInput keyboard input and existing helper timing controls.
-- Remove the unused custom SendInput prototype so Windows input has a single library-backed implementation.
+- Route Windows input helpers through the native `windows_input.py` backend.
+- Use `SetCursorPos` for mouse movement and `mouse_event` for clicks and scrolling.
+- Preserve existing scan-code keyboard input and helper timing controls.
 
 ## 2025-05-13
 
