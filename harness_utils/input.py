@@ -82,8 +82,10 @@ def _scale_linux_click_coordinates(x: int, y: int) -> tuple[int, int]:
 
 class _WindowsInputBackend:
     def __init__(self) -> None:
+        self._pyautogui = importlib.import_module("pyautogui")
         self._pydirectinput = importlib.import_module("pydirectinput")
         vars(self._pydirectinput)["FAILSAFE"] = False
+        vars(self._pyautogui)["FAILSAFE"] = False
 
     def press(self, key: str) -> None:
         self._pydirectinput.press(key)
@@ -98,17 +100,15 @@ class _WindowsInputBackend:
         self._pydirectinput.keyUp(key)
 
     def move_mouse(self, x: int, y: int) -> None:
-        self._pydirectinput.moveTo(x=x, y=y)
+        self._pyautogui.moveTo(x=x, y=y)
 
-    def click_at_cursor(self, hold: float = 0.0) -> None:
-        self._pydirectinput.mouseDown()
+    def click_at_cursor(self, hold: float = 0.2) -> None:
+        self._pyautogui.mouseDown()
         time.sleep(hold)
-        self._pydirectinput.mouseUp()
+        self._pyautogui.mouseUp()
 
     def scroll(self, scroll_amount: int) -> None:
-        import pyautogui as gui
-
-        gui.vscroll(scroll_amount)
+        self._pyautogui.vscroll(scroll_amount)
 
 
 class _YdotoolInputBackend:
@@ -155,7 +155,7 @@ class _YdotoolInputBackend:
         time.sleep(0.1)
         self._run("mousemove", str(scaled_x), str(scaled_y))
 
-    def click_at_cursor(self, hold: float = 0.0) -> None:
+    def click_at_cursor(self, hold: float = 0.2) -> None:
         self._run("click", "0x40")
         time.sleep(hold)
         self._run("click", "0x80")
@@ -190,7 +190,7 @@ def write(text: str) -> None:
 def click(
     x: int | None = None,
     y: int | None = None,
-    hold: float = 0.0,
+    hold: float = 0.2,
     pre_click_delay: float = 0.2,
 ) -> None:
     """Optionally move the pointer, then wait before and after clicking."""
