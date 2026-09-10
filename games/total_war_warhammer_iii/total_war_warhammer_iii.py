@@ -13,17 +13,12 @@ sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.platform import is_linux
 
-if is_linux():
-    from harness_utils.input import click
-else:
-    import pyautogui as gui
-
 from harness_utils.artifacts import (
     capture_and_save_screenshot,
     copy_artifact,
     create_artifacts_manifest,
 )
-from harness_utils.input import mangohud_log_toggle, press
+from harness_utils.input import click, mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories, roaming_appdata
@@ -88,17 +83,6 @@ def skip_logo_screens() -> None:
     press("escape*7")
 
 
-def _click_at(x: int, y: int) -> None:
-    if is_linux():
-        click(x, y)
-    else:
-        gui.moveTo(x, y)
-        time.sleep(0.2)
-        gui.mouseDown()
-        time.sleep(0.2)
-        gui.mouseUp()
-
-
 def run_benchmark(benchmark):
     """Starts the benchmark"""
     start_game()
@@ -123,7 +107,7 @@ def run_benchmark(benchmark):
         logger.info("Did not find the options menu. Did the game skip the intros?")
         sys.exit(1)
 
-    _click_at(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "main.png")
@@ -133,7 +117,7 @@ def run_benchmark(benchmark):
         logger.info("Did not find the advanced menu. Did the game skip the intros?")
         sys.exit(1)
 
-    _click_at(result["x"], result["y"])
+    click(result["x"], result["y"])
     time.sleep(1)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced.png")
@@ -143,13 +127,13 @@ def run_benchmark(benchmark):
         logger.info("Did not find the benchmark menu. Did the game skip the intros?")
         sys.exit(1)
 
-    _click_at(result["x"], result["y"])
+    click(result["x"], result["y"])
     if benchmark != "battle":
         result = find_word("mirrors", timeout=10, interval=1)
         if not result:
             logger.info("Did not find the Mirrors of Madness benchmark.")
             sys.exit(1)
-        _click_at(result["x"], result["y"])
+        click(result["x"], result["y"])
         time.sleep(2)
         press("enter")
     else:
