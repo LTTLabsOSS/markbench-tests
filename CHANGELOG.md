@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 Changes are grouped by the date they are merged to the main branch of the repository and are ordered from newest to oldest. Dates use the ISO 8601 extended calendar date format, i.e. YYYY-MM-DD.
 
+## 2026-09-10
+
+- Use PyAutoGUI for Windows mouse movement, clicks, and scrolling while retaining PyDirectInput keyboard input and existing helper timing controls.
+- Remove the unused custom SendInput prototype so Windows input has a single library-backed implementation.
+
 ## 2025-05-13
 
 - Add Evolve Benchmark test harness

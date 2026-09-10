@@ -1,4 +1,8 @@
-"""Platform input adapter."""
+"""Platform input adapter.
+
+Windows uses PyDirectInput for the keyboard and PyAutoGUI for the mouse.
+Public helpers own the explicit timing delays; library pauses remain enabled.
+"""
 
 import importlib
 import logging
@@ -85,6 +89,7 @@ class _WindowsInputBackend:
         self._pyautogui = importlib.import_module("pyautogui")
         self._pydirectinput = importlib.import_module("pydirectinput")
         vars(self._pydirectinput)["FAILSAFE"] = False
+        # Game harnesses intentionally click screen corners, including (0, 0).
         vars(self._pyautogui)["FAILSAFE"] = False
 
     def press(self, key: str) -> None:
