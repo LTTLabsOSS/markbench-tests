@@ -2,6 +2,7 @@
 
 import logging
 import re
+import subprocess
 import sys
 import time
 from argparse import ArgumentParser
@@ -25,7 +26,7 @@ from harness_utils.report import (
     seconds_to_milliseconds,
     write_report_json,
 )
-from harness_utils.steam import exec_steam_game, get_build_id
+from harness_utils.steam import get_app_install_location, get_build_id
 
 logger = logging.getLogger(__name__)
 
@@ -61,8 +62,11 @@ def read_current_resolution() -> tuple[int, int]:
 
 
 def start_game():
-    """Start the game through Steam without the launcher."""
-    return exec_steam_game(STEAM_GAME_ID, game_params=["--launcher-skip"])
+    """Start the game executable directly without the launcher."""
+    game_path = get_app_install_location(STEAM_GAME_ID)
+    process_path = Path(game_path) / PROCESS_NAME
+    logger.info("Starting game: %s", process_path)
+    return subprocess.Popen([process_path], cwd=game_path)
 
 
 def skip_logo_screens() -> None:
