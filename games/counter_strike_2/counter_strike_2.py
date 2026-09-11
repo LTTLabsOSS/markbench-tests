@@ -5,7 +5,6 @@ import sys
 import time
 from pathlib import Path
 
-import pyautogui as gui
 from counter_strike_2_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
@@ -65,47 +64,13 @@ def wait_for_word(word, timeout=30, interval=1, why: str = ""):
 
 
 def identify_settings():
-    """Checks the resolution to click the settings cog"""
+    """Click the settings cog using the configured game resolution."""
     height, width = get_resolution()
-    location = None
-
-    match width:
-        case "1920":
-            location = gui.locateOnScreen(
-                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_1080.png",
-                minSearchTime=5,
-                confidence=0.6,
-            )
-        case "2560":
-            location = gui.locateOnScreen(
-                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_1440.png",
-                minSearchTime=5,
-                confidence=0.6,
-            )
-        case "3840":
-            location = gui.locateOnScreen(
-                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_2160.png",
-                minSearchTime=5,
-                confidence=0.6,
-            )
-        case _:
-            logger.error(
-                "Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?",
-                height,
-                width,
-            )
-            raise RuntimeError
-
-    if location is None:
-        logger.error(
-            "Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?",
-            height,
-            width,
+    if width <= 0 or height <= 0:
+        raise RuntimeError(
+            f"Cannot click settings with invalid resolution: {width}x{height}"
         )
-        raise RuntimeError
-
-    click_me = gui.center(location)
-    click(click_me.x, click_me.y)
+    click(round(width * 0.0625), round(height * 0.03))
 
 
 def navigate_settings():
