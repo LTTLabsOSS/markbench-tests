@@ -71,6 +71,7 @@ def run_benchmark():
             f"Cannot click settings with invalid resolution: {width}x{height}"
         )
 
+    # TODO: fix before full screen optimizations can be disabled
     click(round(width * 0.13), round(height * 0.03))
 
     time.sleep(5)
