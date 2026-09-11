@@ -145,7 +145,7 @@ def run_benchmark():
     time.sleep(20)  # wait for game to load into main menu
 
     wait_for_word(
-        word="play",
+        word="loadout",
         why="verify that the game has loaded to the main menu",
     )
 
