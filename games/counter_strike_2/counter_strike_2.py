@@ -71,13 +71,21 @@ def run_benchmark():
             f"Cannot click settings with invalid resolution: {width}x{height}"
         )
 
+    click(round(width * 0.13), round(height * 0.03))
+
+    time.sleep(5)
+
     click(round(width * 0.0625), round(height * 0.03))
+
+    time.sleep(2)
 
     result = find_word(word="video", timeout=10, interval=1)
     if not result:
         raise RuntimeError("Did not find video to find the video menu button")
 
     click(result["x"], result["y"])
+
+    time.sleep(2)
 
     if not find_word(word="brightness", timeout=30, interval=1):
         raise RuntimeError("Did not find brightness to find the video settings")
@@ -90,6 +98,8 @@ def run_benchmark():
 
     click(result["x"], result["y"])
 
+    time.sleep(2)
+
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_video_1.png")
 
     result = find_word(word="boost", timeout=10, interval=1)
@@ -100,7 +110,7 @@ def run_benchmark():
 
     move_mouse(result["x"], result["y"])
     time.sleep(1)
-    scroll(-6000000)
+    scroll(-600)
     time.sleep(1)
 
     if not find_word(word="particle", timeout=30, interval=1):

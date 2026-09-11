@@ -2,6 +2,7 @@
 
 - Text: US-keyboard ASCII, Caps Lock off, no held modifiers.
 - Mouse: SetCursorPos for movement; mouse_event for buttons and wheel.
+- DPI: requests system awareness; preserves any preconfigured process mode.
 - Thanks to PyAutoGUI for mouse-behavior references.
 """
 
@@ -19,6 +20,9 @@ DWORD = ctypes.c_uint32
 LONG = ctypes.c_int32
 UINT = ctypes.c_uint32
 ULONG_PTR = ctypes.c_uint64 if ctypes.sizeof(ctypes.c_void_p) == 8 else ctypes.c_uint32
+
+DPI_AWARENESS_CONTEXT_SYSTEM_AWARE = -2
+ERROR_ACCESS_DENIED = 5
 
 
 class KEYBDINPUT(ctypes.Structure):
@@ -251,10 +255,15 @@ class User32Transport:
         mouse_event = self._user32.mouse_event
         mouse_event.argtypes = (DWORD, DWORD, DWORD, DWORD, ULONG_PTR)
         mouse_event.restype = None
-        set_process_dpi_aware = self._user32.SetProcessDPIAware
-        set_process_dpi_aware.argtypes = ()
+        set_process_dpi_aware = self._user32.SetProcessDpiAwarenessContext
+        set_process_dpi_aware.argtypes = (ctypes.c_void_p,)
         set_process_dpi_aware.restype = ctypes.c_int
-        set_process_dpi_aware()
+        cast(Any, ctypes).set_last_error(0)
+        if not set_process_dpi_aware(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE):
+            error = self.get_last_error()
+            # Preserve DPI mode already set by a manifest or an earlier library.
+            if error != ERROR_ACCESS_DENIED:
+                raise OSError(error, "SetProcessDpiAwarenessContext failed")
 
     def send_input(self, packets: Sequence[INPUT], cb_size: int) -> int:
         array = (INPUT * len(packets))(*packets)
