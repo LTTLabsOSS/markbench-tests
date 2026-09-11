@@ -50,124 +50,103 @@ CFG = Path(
 )
 
 
-def start_game():
-    """Launch the game with console enabled and FPS unlocked"""
-    return exec_steam_game(STEAM_GAME_ID, game_params=["-console", "+fps_max 0"])
+def run_benchmark():
+    exec_steam_game(
+        STEAM_GAME_ID, game_params=["-console", "-fullscreen", "+fps_max 0"]
+    )
 
+    time.sleep(30)
 
-def wait_for_word(word, timeout=30, interval=1, why: str = ""):
-    """Function for wait for word"""
-    result = find_word(word, timeout=timeout, interval=interval)
-    if not result:
-        raise RuntimeError(f"Did not find {word} to {why}")
-    return result
+    if not find_word(word="loadout", timeout=30, interval=1):
+        raise RuntimeError(
+            "Did not find loadout to verify that the game has loaded to the main menu"
+        )
 
+    time.sleep(10)
 
-def identify_settings():
-    """Click the settings cog using the configured game resolution."""
     height, width = get_resolution()
+
     if width <= 0 or height <= 0:
         raise RuntimeError(
             f"Cannot click settings with invalid resolution: {width}x{height}"
         )
+
     click(round(width * 0.0625), round(height * 0.03))
 
-
-def navigate_settings():
-    """Navigates the settings menu and takes screenshots for traceability"""
-
-    result = wait_for_word(
-        word="video", timeout=10, interval=1, why="find the video menu button"
-    )
+    result = find_word(word="video", timeout=10, interval=1)
+    if not result:
+        raise RuntimeError("Did not find video to find the video menu button")
 
     click(result["x"], result["y"])
 
-    wait_for_word(word="brightness", why="find the video settings")
+    if not find_word(word="brightness", timeout=30, interval=1):
+        raise RuntimeError("Did not find brightness to find the video settings")
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
 
-    result = wait_for_word(
-        word="advanced", timeout=10, interval=1, why="find the advanced video menu"
-    )
+    result = find_word(word="advanced", timeout=10, interval=1)
+    if not result:
+        raise RuntimeError("Did not find advanced to find the advanced video menu")
 
     click(result["x"], result["y"])
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_video_1.png")
 
-    result = wait_for_word(
-        word="boost",
-        timeout=10,
-        interval=1,
-        why="identify we're in the advanced video menu",
-    )
+    result = find_word(word="boost", timeout=10, interval=1)
+    if not result:
+        raise RuntimeError(
+            "Did not find boost to identify we're in the advanced video menu"
+        )
 
     move_mouse(result["x"], result["y"])
     time.sleep(1)
     scroll(-6000000)
     time.sleep(1)
 
-    wait_for_word(word="particle", why="verify we scrolled correctly")
+    if not find_word(word="particle", timeout=30, interval=1):
+        raise RuntimeError("Did not find particle to verify we scrolled correctly")
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_video_2.png")
 
-
-def execute_benchmark():
-    """Starts the benchmark"""
     logger.info("Starting benchmark")
 
-    result = wait_for_word(
-        word="play", timeout=10, interval=1, why="click the play tab"
-    )
+    result = find_word(word="play", timeout=10, interval=1)
+    if not result:
+        raise RuntimeError("Did not find play to click the play tab")
 
     click(result["x"], result["y"])
 
-    result = wait_for_word(
-        word="workshop", timeout=10, interval=1, why="click the workshop tab"
-    )
+    result = find_word(word="workshop", timeout=10, interval=1)
+    if not result:
+        raise RuntimeError("Did not find workshop to click the workshop tab")
 
     click(result["x"], result["y"])
 
-    result = wait_for_word(
-        word="fps", timeout=10, interval=1, why="click the benchmark icon"
-    )
+    result = find_word(word="fps", timeout=10, interval=1)
+    if not result:
+        raise RuntimeError("Did not find fps to click the benchmark icon")
 
     click(result["x"], result["y"])
 
-    result = wait_for_word(word="go", timeout=10, interval=1, why="start the benchmark")
+    result = find_word(word="go", timeout=10, interval=1)
+    if not result:
+        raise RuntimeError("Did not find go to start the benchmark")
 
     click(result["x"], result["y"])
-
-
-def run_benchmark():
-    """Run cs2 benchmark"""
-    setup_start_time = int(time.time())
-    start_game()
-    time.sleep(20)  # wait for game to load into main menu
-
-    wait_for_word(
-        word="loadout",
-        why="verify that the game has loaded to the main menu",
-    )
-    time.sleep(10)
-    identify_settings()
-
-    navigate_settings()
-
-    execute_benchmark()
 
     time.sleep(3)
-    wait_for_word(word="benchmark", why="verify that the benchmark has started")
 
-    setup_end_time = int(time.time())
-    elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
-    logger.info("Harness setup took %f seconds", elapsed_setup_time)
+    if not find_word(word="benchmark", timeout=30, interval=1):
+        raise RuntimeError(
+            "Did not find benchmark to verify that the benchmark has started"
+        )
+
     time.sleep(1)
 
     # Default fallback start time
     test_start_time = int(time.time())
 
-    result = find_word(word="roll", timeout=30, interval=0.1)
-    if result is None:
+    if find_word(word="roll", timeout=30, interval=0.1) is None:
         logger.error("Didn't see 'lets roll'. Did the map load?")
     else:
         test_start_time = int(time.time())
@@ -178,22 +157,19 @@ def run_benchmark():
     # Default fallback end time
     test_end_time = int(time.time())
 
-    wait_for_word(
-        word="console",
-        why="verify the console has opened to show the results",
-    )
+    if not find_word(word="console", timeout=30, interval=1):
+        raise RuntimeError(
+            "Did not find console to verify the console has opened to show the results"
+        )
 
     test_end_time = int(time.time())
-    press("`")
-    logger.info("The console opened. Marking end time.")
 
-    # allow time for result screen to populate
+    press("`")
+
     time.sleep(13)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
     copy_artifact(CFG, ARTIFACTS_DIRECTORY)
-    logger.info("Run completed. Closing game.")
-    time.sleep(2)
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
     logger.info("Benchmark took %f seconds", elapsed_test_time)
@@ -203,28 +179,27 @@ def run_benchmark():
 
 
 def main():
-    """entry point to test script"""
-    start_time, end_time = run_benchmark()
-
-    height, width = get_resolution()
-    report = {
-        "resolution": format_resolution(width, height),
-        "start_time": seconds_to_milliseconds(start_time),
-        "end_time": seconds_to_milliseconds(end_time),
-        "version": get_build_id(STEAM_GAME_ID),
-    }
-
-    write_report_json(LOG_DIRECTORY, "report.json", report)
-    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
-
-
-if __name__ == "__main__":
     try:
         setup_logging(LOG_DIRECTORY)
-        main()
+        start_time, end_time = run_benchmark()
+
+        height, width = get_resolution()
+        report = {
+            "resolution": format_resolution(width, height),
+            "start_time": seconds_to_milliseconds(start_time),
+            "end_time": seconds_to_milliseconds(end_time),
+            "version": get_build_id(STEAM_GAME_ID),
+        }
+
+        write_report_json(LOG_DIRECTORY, "report.json", report)
+        create_artifacts_manifest(ARTIFACTS_DIRECTORY)
     except Exception:
         logger.error("something went wrong running the benchmark!")
         logger.exception("Unhandled exception")
         sys.exit(1)
     finally:
         terminate_process(PROCESS_NAME)
+
+
+if __name__ == "__main__":
+    main()
