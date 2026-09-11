@@ -148,7 +148,7 @@ def run_benchmark():
         word="loadout",
         why="verify that the game has loaded to the main menu",
     )
-
+    time.sleep(10)
     identify_settings()
 
     navigate_settings()
