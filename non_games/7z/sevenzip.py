@@ -2,6 +2,7 @@
 
 import json
 import logging
+import platform
 import re
 import subprocess
 import sys
@@ -23,10 +24,21 @@ SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 setup_logging(LOG_DIRECTORY)
 
+OS = platform.system()
+
 TEST_OPTIONS = {
-    "x86_64": "7za_64_26.00.exe",
-    "arm_64": "7za_arm_26.00.exe",
+    "Windows": {
+        "x86_64": "7za_64_26.00.exe",
+        "arm_64": "7za_arm_26.00.exe",
+    },
+    "Linux": {
+        "x86_64": "7zzs_64_26.00",
+        "arm_64": "7zzs_arm_26.00",
+    },
 }
+
+if OS not in TEST_OPTIONS:
+    raise RuntimeError(f"Unsupported operating system: {OS}")
 
 parser = ArgumentParser()
 parser.add_argument(
@@ -35,13 +47,13 @@ parser.add_argument(
     dest="architecture",
     help="Architecture type",
     required=True,
-    choices=TEST_OPTIONS.keys(),
+    choices=TEST_OPTIONS[OS].keys(),
 )
+
 args = parser.parse_args()
 
-EXECUTABLE = TEST_OPTIONS[args.architecture]
+EXECUTABLE = TEST_OPTIONS[OS][args.architecture]
 ABS_EXECUTABLE_PATH = SCRIPT_DIRECTORY / EXECUTABLE
-
 
 if not ABS_EXECUTABLE_PATH.is_file():
     logger.info("7-Zip executable not found, downloading from network drive")
