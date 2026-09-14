@@ -5,7 +5,6 @@ import sys
 import time
 from pathlib import Path
 
-import pyautogui as gui
 from dota_2_utils import (
     copy_config,
     copy_replay,
@@ -65,41 +64,15 @@ def harness_setup():
 def screenshot_settings():
     """Screenshots the settings for the game"""
     screen_height, screen_width = get_resolution()
-    location = None
-    click_multiple = 0
-    # We check the resolution so we know which screenshot to use for the locate on screen function
-    match screen_width:
-        case "1280":
-            location = gui.locateOnScreen(
-                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_720.png", confidence=0.9
-            )
-            click_multiple = 0.8
-        case "1920":
-            location = gui.locateOnScreen(
-                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_1080.png", confidence=0.9
-            )
-            click_multiple = 1
-        case "2560":
-            location = gui.locateOnScreen(
-                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_1440.png", confidence=0.9
-            )
-            click_multiple = 1.5
-        case "3840":
-            location = gui.locateOnScreen(
-                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_2160.png", confidence=0.9
-            )
-            click_multiple = 2
-        case _:
-            logger.error(
-                "Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?",
-                screen_height,
-                screen_width,
-            )
-            sys.exit(1)
+    screen_height = int(screen_height)
+    screen_width = int(screen_width)
+    if screen_width <= 0 or screen_height <= 0:
+        raise RuntimeError(
+            f"Cannot click settings with invalid resolution: {screen_width}x{screen_height}"
+        )
+    click(round(screen_width * 0.0405), round(screen_height * 0.0278))
 
     # navigating to the video config section
-    click_me = gui.center(location)
-    click(click_me.x, click_me.y)
 
     result = find_word(word="video", timeout=10, interval=1)
     if not result:
@@ -107,6 +80,18 @@ def screenshot_settings():
             "Did not find the video menu button. Did OCR enter settings correctly?"
         )
         sys.exit(1)
+
+    match screen_width:
+        case 1280:
+            click_multiple = 0.8
+        case 1920:
+            click_multiple = 1
+        case 2560:
+            click_multiple = 1.5
+        case 3840:
+            click_multiple = 2
+        case _:
+            click_multiple = screen_width / 1920
 
     click(
         result["x"] + int(50 * click_multiple), result["y"] + int(20 * click_multiple)
