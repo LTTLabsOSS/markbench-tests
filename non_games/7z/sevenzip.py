@@ -69,7 +69,7 @@ with Popen(
     list_of_strings = stdout_data.decode("utf-8").splitlines()
 
     SPEED_PATTERN = r"^Avr:\s*([0-9]*)\s.*\|\s*([0-9]*)\s.*$"
-    VERSION_PATTERN = r"7-Zip \(a\) (\d+\.\d+) \(([^)]+)\).*"
+    VERSION_PATTERN = r"7-Zip \([az]\) (\d+\.\d+) \(([^)]+)\).*"
 
     version = ""
     speed_c = ""
