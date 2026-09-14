@@ -138,6 +138,7 @@ class _YdotoolInputBackend:
 
     def press(self, key: str) -> None:
         self.key_down(key)
+        time.sleep(0.2)
         self.key_up(key)
 
     def write(self, text: str) -> None:
