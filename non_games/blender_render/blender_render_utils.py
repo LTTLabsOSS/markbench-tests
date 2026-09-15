@@ -2,7 +2,6 @@
 """Blender render test script"""
 
 import logging
-import os
 import platform
 import re
 import shutil

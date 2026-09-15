@@ -64,14 +64,20 @@ def main():
         benchmark,
     )
     end_time = time.time()
-    logger.info(
-        "Finished rendering %s in %.2f seconds", 
-        args.benchmark,
-        end_time - start_time,
-    )
 
     if score is None:
         raise ValueError("no duration was found in the log to use as the score")
+
+    logger.info(
+        "Finished Blender %s render in %.2f seconds", 
+        args.benchmark,
+        score,
+    )
+
+    logger.info(
+        "Total test time: %.2f seconds", 
+        end_time - start_time,
+    )
 
     report = {
         "test": "Blender Render",
