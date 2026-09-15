@@ -92,7 +92,6 @@ def get_primesieve_executable() -> Path:
 
     executable_path = (
         SCRIPT_DIRECTORY
-        / PRIMESIEVE_FOLDER_NAME
         / "primesieve.exe"
     )
 
@@ -105,14 +104,13 @@ def get_primesieve_executable() -> Path:
     return executable_path
 
 
-def primesieve_folder_exists() -> bool:
+def primesieve_exe_exists() -> bool:
     """Check if primesieve has been downloaded or not."""
     if platform.system() != "Windows":
         return False
 
     return (
         SCRIPT_DIRECTORY
-        / PRIMESIEVE_FOLDER_NAME
         / "primesieve.exe"
     ).is_file()
 

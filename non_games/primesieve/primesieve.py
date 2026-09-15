@@ -17,7 +17,7 @@ from primesieve_utils import (
     download_primesieve,
     get_primesieve_executable,
     get_primesieve_version,
-    primesieve_folder_exists,
+    primesieve_exe_exists,
 )
 
 from harness_utils.output_logging import setup_logging
@@ -31,7 +31,7 @@ setup_logging(LOG_DIRECTORY)
 
 
 if sys.platform == "win32":
-    if primesieve_folder_exists() is False:
+    if primesieve_exe_exists() is False:
         logger.info("Downloading primesieve")
         download_primesieve()
 
