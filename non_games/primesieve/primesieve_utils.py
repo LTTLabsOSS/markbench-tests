@@ -1,6 +1,6 @@
 """Collection of functions to assist in running of primesieve test script."""
 
-import os
+import ctypes
 import platform
 import re
 import subprocess
@@ -20,11 +20,50 @@ WINDOWS_ARCHIVE_NAMES = {
 }
 
 
+def get_windows_architecture() -> str:
+    """Determine the native Windows architecture."""
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+
+    is_wow64_process2 = kernel32.IsWow64Process2
+    is_wow64_process2.argtypes = [
+        ctypes.c_void_p,
+        ctypes.POINTER(ctypes.c_ushort),
+        ctypes.POINTER(ctypes.c_ushort),
+    ]
+    is_wow64_process2.restype = ctypes.c_bool
+
+    process_machine = ctypes.c_ushort()
+    native_machine = ctypes.c_ushort()
+
+    result = is_wow64_process2(
+        kernel32.GetCurrentProcess(),
+        ctypes.byref(process_machine),
+        ctypes.byref(native_machine),
+    )
+
+    if not result:
+        error_code = ctypes.get_last_error()
+        raise RuntimeError(
+            f"Unable to determine Windows architecture. "
+            f"Windows error: {error_code}"
+        )
+
+    # IMAGE_FILE_MACHINE_ARM64
+    if native_machine.value == 0xAA64:
+        return "ARM64"
+
+    # IMAGE_FILE_MACHINE_AMD64
+    if native_machine.value == 0x8664:
+        return "AMD64"
+
+    raise RuntimeError(
+        f"Unsupported native Windows architecture: "
+        f"0x{native_machine.value:04X}"
+    )
+
+
 if platform.system() == "Windows":
-    WINDOWS_ARCHITECTURE = (
-        os.environ.get("PROCESSOR_ARCHITEW6432")
-        or os.environ.get("PROCESSOR_ARCHITECTURE")
-    ).upper()
+    WINDOWS_ARCHITECTURE = get_windows_architecture()
 
     if WINDOWS_ARCHITECTURE not in WINDOWS_ARCHIVE_NAMES:
         raise RuntimeError(
@@ -78,10 +117,11 @@ def download_primesieve():
 
 
 def get_primesieve_version(executable_path: str) -> str:
-    """Get the actual PrimeSieve version from the executable."""
+    """Get the PrimeSieve version from the executable."""
     output = subprocess.check_output(
-        [executable_path, "--version"],
+        [executable_path, "-v"],
         text=True,
+        stderr=subprocess.STDOUT,
     )
 
     version_match = re.search(
@@ -92,7 +132,7 @@ def get_primesieve_version(executable_path: str) -> str:
 
     if version_match is None:
         raise RuntimeError(
-            f"Unable to determine PrimeSieve version from output: {output}"
+            f"Unable to determine PrimeSieve version from output:\n{output}"
         )
 
     return version_match.group(1)
