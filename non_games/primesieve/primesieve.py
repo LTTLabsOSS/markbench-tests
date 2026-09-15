@@ -13,9 +13,9 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from primesieve_utils import (
-    PRIMESIEVE_FOLDER_NAME,
     current_time_ms,
     download_primesieve,
+    get_primesieve_executable,
     get_primesieve_version,
     primesieve_folder_exists,
 )
@@ -35,10 +35,7 @@ if sys.platform == "win32":
         logger.info("Downloading primesieve")
         download_primesieve()
 
-    executable_name = "primesieve.exe"
-    ABS_EXECUTABLE_PATH = (
-        SCRIPT_DIRECTORY / PRIMESIEVE_FOLDER_NAME / executable_name
-    )
+    ABS_EXECUTABLE_PATH = get_primesieve_executable()
 else:
     ABS_EXECUTABLE_PATH = shutil.which("primesieve")
 

@@ -83,13 +83,37 @@ else:
     PRIMESIEVE_DOWNLOAD_URL = ""
 
 
+def get_primesieve_executable() -> Path:
+    """Get the path to the PrimeSieve executable."""
+    if platform.system() != "Windows":
+        raise RuntimeError(
+            "This function is only supported on Windows."
+        )
+
+    executable_path = (
+        SCRIPT_DIRECTORY
+        / PRIMESIEVE_FOLDER_NAME
+        / "primesieve.exe"
+    )
+
+    if not executable_path.is_file():
+        raise RuntimeError(
+            f"PrimeSieve executable was not found at: "
+            f"{executable_path}"
+        )
+
+    return executable_path
+
+
 def primesieve_folder_exists() -> bool:
     """Check if primesieve has been downloaded or not."""
     if platform.system() != "Windows":
         return False
 
     return (
-        SCRIPT_DIRECTORY / PRIMESIEVE_FOLDER_NAME / "primesieve.exe"
+        SCRIPT_DIRECTORY
+        / PRIMESIEVE_FOLDER_NAME
+        / "primesieve.exe"
     ).is_file()
 
 
