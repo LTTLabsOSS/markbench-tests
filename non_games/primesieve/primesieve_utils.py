@@ -10,102 +10,61 @@ from zipfile import ZipFile
 
 import requests
 
+PRIMESIEVE_VERSION = "12.15"
+
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 
-GITHUB_RELEASES_URL = (
-    "https://api.github.com/repos/kimwalisch/primesieve/releases/latest"
-)
+WINDOWS_ARCHIVE_NAMES = {
+    "AMD64": f"primesieve-{PRIMESIEVE_VERSION}-win-x64.zip",
+    "ARM64": f"primesieve-{PRIMESIEVE_VERSION}-win-arm64.zip",
+}
 
 
-def get_latest_windows_release():
-    """Get the latest PrimeSieve Windows release information."""
-    architecture = os.environ.get("PROCESSOR_ARCHITEW6432")
+if platform.system() == "Windows":
+    WINDOWS_ARCHITECTURE = (
+        os.environ.get("PROCESSOR_ARCHITEW6432")
+        or os.environ.get("PROCESSOR_ARCHITECTURE")
+    ).upper()
 
-    if architecture is None:
-        architecture = os.environ.get("PROCESSOR_ARCHITECTURE")
-
-    architecture = architecture.upper()
-
-    if architecture == "AMD64":
-        architecture_name = "x64"
-    elif architecture == "ARM64":
-        architecture_name = "arm64"
-    else:
+    if WINDOWS_ARCHITECTURE not in WINDOWS_ARCHIVE_NAMES:
         raise RuntimeError(
-            f"Unsupported Windows architecture: {architecture}"
+            f"Unsupported Windows architecture: {WINDOWS_ARCHITECTURE}"
         )
 
-    response = requests.get(
-        GITHUB_RELEASES_URL,
-        timeout=30,
-        headers={"Accept": "application/vnd.github+json"},
+    PRIMESIEVE_ARCHIVE_NAME = WINDOWS_ARCHIVE_NAMES[WINDOWS_ARCHITECTURE]
+    PRIMESIEVE_FOLDER_NAME = PRIMESIEVE_ARCHIVE_NAME.removesuffix(".zip")
+
+    PRIMESIEVE_DOWNLOAD_URL = (
+        f"https://github.com/kimwalisch/primesieve/releases/download/"
+        f"v{PRIMESIEVE_VERSION}/{PRIMESIEVE_ARCHIVE_NAME}"
     )
-    response.raise_for_status()
-
-    release = response.json()
-
-    version = release["tag_name"].lstrip("v")
-
-    expected_archive_name = (
-        f"primesieve-{version}-win-{architecture_name}.zip"
-    )
-
-    for asset in release["assets"]:
-        if asset["name"] == expected_archive_name:
-            return version, expected_archive_name
-
-    raise RuntimeError(
-        f"PrimeSieve Windows {architecture_name} archive was not found "
-        f"in the latest release ({version})."
-    )
-
-
-def get_primesieve_executable() -> Path:
-    """Get the path to the latest PrimeSieve Windows executable."""
-    if platform.system() != "Windows":
-        raise RuntimeError(
-            "This function is only supported on Windows."
-        )
-
-    _, archive_name = get_latest_windows_release()
-
-    folder_name = archive_name.removesuffix(".zip")
-
-    executable_path = (
-        SCRIPT_DIRECTORY / folder_name / "primesieve.exe"
-    )
-
-    return executable_path
+else:
+    PRIMESIEVE_FOLDER_NAME = ""
+    PRIMESIEVE_ARCHIVE_NAME = ""
+    PRIMESIEVE_DOWNLOAD_URL = ""
 
 
 def primesieve_folder_exists() -> bool:
-    """Check if the latest PrimeSieve Windows version is downloaded."""
+    """Check if primesieve has been downloaded or not."""
     if platform.system() != "Windows":
         return False
 
-    executable_path = get_primesieve_executable()
-
-    return executable_path.is_file()
+    return (
+        SCRIPT_DIRECTORY / PRIMESIEVE_FOLDER_NAME / "primesieve.exe"
+    ).is_file()
 
 
 def download_primesieve():
-    """Download and extract the latest PrimeSieve Windows release."""
+    """Download and extract primesieve on Windows."""
     if platform.system() != "Windows":
         raise RuntimeError(
             "PrimeSieve downloads are only supported on Windows."
         )
 
-    version, archive_name = get_latest_windows_release()
-
-    download_url = (
-        f"https://github.com/kimwalisch/primesieve/releases/download/"
-        f"v{version}/{archive_name}"
-    )
-
-    destination = SCRIPT_DIRECTORY / archive_name
+    destination = SCRIPT_DIRECTORY / PRIMESIEVE_ARCHIVE_NAME
 
     response = requests.get(
-        download_url,
+        PRIMESIEVE_DOWNLOAD_URL,
         allow_redirects=True,
         timeout=180,
     )
