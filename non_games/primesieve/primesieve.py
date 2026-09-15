@@ -13,6 +13,7 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from primesieve_utils import (
+    PRIMESIEVE_VERSION,
     current_time_ms,
     download_primesieve,
     get_primesieve_executable,
@@ -29,11 +30,16 @@ LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 
 setup_logging(LOG_DIRECTORY)
 
-
 if sys.platform == "win32":
     if primesieve_exe_exists() is False:
-        logger.info("Downloading primesieve")
+        logger.info(
+            f"PrimeSieve {PRIMESIEVE_VERSION} not found, downloading"
+        )
         download_primesieve()
+    else:
+        logger.info(
+            f"PrimeSieve {PRIMESIEVE_VERSION} already downloaded"
+        )
 
     ABS_EXECUTABLE_PATH = get_primesieve_executable()
 else:
@@ -45,11 +51,20 @@ else:
             "Install it using your Linux package manager."
         )
 
-
 command = str(ABS_EXECUTABLE_PATH)
 command = command.rstrip()
 
 version = get_primesieve_version(command)
+
+if version != PRIMESIEVE_VERSION:
+    raise RuntimeError(
+        f"PrimeSieve version {version} detected. "
+        f"Version {PRIMESIEVE_VERSION} is required."
+    )
+
+logger.info(
+    f"Starting PrimeSieve {version} benchmark"
+)
 
 scores = []
 
