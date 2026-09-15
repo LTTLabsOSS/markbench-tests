@@ -2,7 +2,7 @@
 """Blender render test script"""
 
 import logging
-import os
+import platform
 import re
 import shutil
 import subprocess
@@ -13,7 +13,6 @@ from pathlib import Path
 from zipfile import ZipFile
 
 import requests
-from win32api import HIWORD, LOWORD, GetFileVersionInfo
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +20,14 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+
+WINDOWS_NETWORK_DIR = Path(
+    r"\\labs.lmg.gg\labs\03_ProcessingFiles\Blender Render"
+)
+
+LINUX_NETWORK_DIR = Path(
+    "/mnt/labs.lmg.gg/labs/03_ProcessingFiles/Blender Render"
+)
 
 
 @dataclass
@@ -88,11 +95,31 @@ def download_scene(scene: BlenderScene) -> None:
         raise RuntimeError("error downloading scene") from ex
 
 
-def copy_scene_from_network_drive(file_name, destination):
-    """copy blend file from network drive"""
-    network_dir = Path("\\\\labs.lmg.gg\\labs\\03_ProcessingFiles\\Blender Render")
+def copy_scene_from_network_drive(
+    file_name: str,
+    destination: Path,
+) -> None:
+    """Copy Blender scene from network drive."""
+
+    operating_system = platform.system()
+
+    if operating_system == "Windows":
+        network_dir = WINDOWS_NETWORK_DIR
+    elif operating_system == "Linux":
+        network_dir = LINUX_NETWORK_DIR
+    else:
+        raise RuntimeError(
+            f"Unsupported operating system: {operating_system}"
+        )
+
     source_path = network_dir.joinpath(file_name)
-    logger.info("Copying %s from %s", file_name, source_path)
+
+    logger.info(
+        "Copying %s from %s",
+        file_name,
+        source_path,
+    )
+
     shutil.copyfile(source_path, destination)
 
 
@@ -113,46 +140,133 @@ def time_to_seconds(time_string):
 
 
 def run_blender_render(
-    executable_path: Path, log_directory: Path, device: str, benchmark: BlenderScene
-) -> str:
-    """Execute the blender render of barbershop, returns the duration as string"""
+    executable_path: Path,
+    log_directory: Path,
+    device: str,
+    benchmark: BlenderScene,
+) -> float:
+    """Execute the Blender render and return the render duration."""
     blend_log = log_directory.joinpath("blender.log")
     blend_path = SCRIPT_DIRECTORY.joinpath(benchmark.file_name)
-    cmd_line = f'"{executable_path!s}" -b -E CYCLES -y "{blend_path!s}" -f 1 -- --cycles-device {device} --cycles-print-stats'
+
+    command = [
+        str(executable_path),
+        "-b",
+        "-E",
+        "CYCLES",
+        "-y",
+        str(blend_path),
+        "-f",
+        "1",
+        "--",
+        "--cycles-device",
+        device,
+        "--cycles-print-stats",
+    ]
+
     with open(blend_log, "w", encoding="utf-8") as f_obj:
-        subprocess.run(cmd_line, stdout=f_obj, text=True, check=True)
+        subprocess.run(
+            command,
+            stdout=f_obj,
+            text=True,
+            check=True,
+        )
 
-    # example: Time: 02:59.57 (Saving: 00:00.16)
-    time_regex = r".*Time:\s+([\d:.]+)\s+\(Saving.*\)"
+    # Example:
+    # Time: 02:59.57 (Saving: 00:00.16)
+    time_regex = r"Time:\s+([\d:.]+)\s+\(Saving"
 
-    time = None
     with open(blend_log, "r", encoding="utf-8") as file:
         lines = file.readlines()
-        lines.reverse()
-        for line in lines:
-            match = re.match(time_regex, line.strip())
+
+    for line in reversed(lines):
+        match = re.search(time_regex, line)
+
+        if match:
+            return time_to_seconds(match.group(1))
+
+    raise RuntimeError(
+        f"Could not find render duration in Blender log: {blend_log}"
+    )
+
+
+def get_blender_version(executable_path: Path) -> str:
+    """Get the actual Blender version reported by the executable."""
+    result = subprocess.run(
+        [str(executable_path), "--version"],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+
+    match = re.search(
+        r"Blender\s+(\d+(?:\.\d+)+)",
+        result.stdout,
+    )
+
+    if not match:
+        raise RuntimeError(
+            f"Could not determine Blender version from {executable_path}"
+        )
+
+    return match.group(1)
+
+
+def find_blender() -> tuple[Path, str]:
+    """Find Blender and return its executable path and actual version."""
+    if sys.platform == "win32":
+        blender_dir = Path(r"C:\Program Files\Blender Foundation")
+
+        if not blender_dir.exists():
+            raise RuntimeError("Blender not detected")
+
+        version_pattern = re.compile(
+            r"^Blender\s+(\d+(?:\.\d+)*)$"
+        )
+
+        versions = []
+
+        for directory in blender_dir.iterdir():
+            if not directory.is_dir():
+                continue
+
+            match = version_pattern.match(directory.name)
+
             if match:
-                time = match.group(1)
-                break
-    return time_to_seconds(time)
+                versions.append(match.group(1))
 
+        if not versions:
+            raise RuntimeError("Blender not detected")
 
-def find_blender():
-    """Find installed blender and return path and version"""
-    blender_dir = Path("C:\\Program Files\\Blender Foundation\\")
-    versions = []
-    if not blender_dir.exists():
-        raise Exception("Blender not detected")
-    for directory in os.listdir(blender_dir):
-        # expecting subdir following pattern of Blender 3.6, Blender 3.5, etc.
-        versions.append(directory.replace("Blender", "").strip())
-    versions.sort(reverse=True)
-    latest_ver = versions[0]
-    executable_path = blender_dir.joinpath(f"Blender {latest_ver}", "blender.exe")
+        latest_version = max(
+            versions,
+            key=lambda version: tuple(
+                int(part) for part in version.split(".")
+            ),
+        )
+
+        executable_path = (
+            blender_dir
+            / f"Blender {latest_version}"
+            / "blender.exe"
+        )
+
+    else:
+        blender_executable = shutil.which("blender")
+
+        if blender_executable is None:
+            raise RuntimeError("Blender not detected")
+
+        executable_path = Path(blender_executable)
+
     if not executable_path.exists():
-        raise Exception("Blender not detected")
-    info = GetFileVersionInfo(str(executable_path), "\\")
-    version_ms = info["FileVersionMS"]
-    version_ls = info["FileVersionLS"]
-    version = f"{HIWORD(version_ms)}.{LOWORD(version_ms)}.{HIWORD(version_ls)}.{LOWORD(version_ls)}"
+        raise RuntimeError(
+            f"Blender executable not detected: {executable_path}"
+        )
+
+    version = get_blender_version(executable_path)
+
+    logger.info("Found Blender executable: %s", executable_path)
+    logger.info("Blender executable version: %s", version)
+
     return executable_path, version
