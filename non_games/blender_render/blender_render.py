@@ -31,7 +31,12 @@ def main():
     """entry point for test script"""
     parser = ArgumentParser()
     parser.add_argument(
-        "-d", "--device", dest="device", help="device", metavar="device", required=True
+        "-d", 
+        "--device", 
+        dest="device", 
+        help="device", 
+        metavar="device", 
+        required=True,
     )
     parser.add_argument(
         "--benchmark",
@@ -41,26 +46,38 @@ def main():
         required=True,
     )
     args = parser.parse_args()
-    if args.device not in VALID_DEVICES:
-        raise Exception(f"invalid device selection: {args.device}")
+    if args.device.upper() not in VALID_DEVICES:
+        raise ValueError(f"invalid device selection: {args.device}")
 
     logger.info("The selected scene is %s", args.benchmark)
     benchmark = BENCHMARK_CONFIG[args.benchmark]
+    device = args.device.upper()
     download_scene(benchmark)
     executable_path, version = find_blender()
 
     logger.info("Starting benchmark!")
     start_time = time.time()
     score = run_blender_render(
-        executable_path, LOG_DIRECTORY, args.device.upper(), benchmark
+        executable_path, 
+        LOG_DIRECTORY, 
+        device, 
+        benchmark,
     )
     end_time = time.time()
-    logger.info(
-        f"Finished rendering {args.benchmark} in %d seconds", (end_time - start_time)
-    )
 
     if score is None:
-        raise Exception("no duration was found in the log to use as the score")
+        raise ValueError("no duration was found in the log to use as the score")
+
+    logger.info(
+        "Finished Blender %s render in %.2f seconds", 
+        args.benchmark,
+        score,
+    )
+
+    logger.info(
+        "Total test time: %.2f seconds", 
+        end_time - start_time,
+    )
 
     report = {
         "test": "Blender Render",
@@ -68,7 +85,7 @@ def main():
         "score": score,
         "unit": "seconds",
         "version": version,
-        "device": args.device,
+        "device": device,
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
     }
