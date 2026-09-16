@@ -282,24 +282,33 @@ def copy_from_network_drive() -> bool:
 
     network_share = Path(PRIMESIEVE_NETWORK_SHARE)
 
+    logger.info(
+        f"Checking PrimeSieve network share: {network_share}"
+    )
+
     if not network_share.is_dir():
         logger.warning(
-            "PrimeSieve network drive is unavailable: "
+            f"PrimeSieve network share is not accessible: "
             f"{network_share}"
         )
         return False
 
     archive_source = network_share / PRIMESIEVE_ARCHIVE_NAME
-    archive_destination = (
-        SCRIPT_DIRECTORY / PRIMESIEVE_ARCHIVE_NAME
+
+    logger.info(
+        f"Checking for PrimeSieve archive: {archive_source}"
     )
 
     if not archive_source.is_file():
         logger.warning(
-            "PrimeSieve archive was not found on network drive: "
+            f"PrimeSieve archive was not found: "
             f"{archive_source}"
         )
         return False
+
+    archive_destination = (
+        SCRIPT_DIRECTORY / PRIMESIEVE_ARCHIVE_NAME
+    )
 
     logger.info(
         f"Copying PrimeSieve archive from network drive: "
@@ -311,18 +320,22 @@ def copy_from_network_drive() -> bool:
             archive_source,
             archive_destination,
         )
-
-        logger.info(
-            f"Extracting PrimeSieve archive: "
-            f"{archive_destination}"
+    except OSError as error:
+        logger.warning(
+            f"Failed to copy PrimeSieve archive: {error}"
         )
+        return False
 
+    logger.info(
+        f"Extracting PrimeSieve archive: "
+        f"{archive_destination}"
+    )
+
+    try:
         extract_primesieve(archive_destination)
-
     except (OSError, RuntimeError) as error:
         logger.warning(
-            f"Failed to install PrimeSieve from network drive: "
-            f"{error}"
+            f"Failed to extract PrimeSieve archive: {error}"
         )
         return False
 
