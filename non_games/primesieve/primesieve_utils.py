@@ -198,73 +198,44 @@ def extract_primesieve(archive_path: Path) -> None:
                 shutil.copyfileobj(source, target)
 
     elif archive_path.name.endswith(".tar.gz"):
-        # First layer: .tar.gz
-        with tarfile.open(archive_path, "r:gz") as gz_tar:
-            inner_tar_member = next(
+        with tarfile.open(archive_path, "r:gz") as tar_object:
+            executable_member = next(
                 (
                     member
-                    for member in gz_tar.getmembers()
+                    for member in tar_object.getmembers()
                     if member.isfile()
-                    and member.name.endswith(".tar")
+                    and Path(member.name).name == "primesieve"
                 ),
                 None,
             )
 
-            if inner_tar_member is None:
+            if executable_member is None:
                 raise RuntimeError(
-                    "No inner .tar archive was found in "
+                    "primesieve binary was not found in "
                     f"{archive_path}"
                 )
 
-            inner_tar_file = gz_tar.extractfile(inner_tar_member)
+            executable_file = tar_object.extractfile(
+                executable_member
+            )
 
-            if inner_tar_file is None:
+            if executable_file is None:
                 raise RuntimeError(
-                    f"Unable to extract inner tar from {archive_path}"
+                    "Unable to extract primesieve binary from "
+                    f"{archive_path}"
                 )
 
-            # Second layer: .tar
-            with tarfile.open(
-                fileobj=inner_tar_file,
-                mode="r:",
-            ) as inner_tar:
-                executable_member = next(
-                    (
-                        member
-                        for member in inner_tar.getmembers()
-                        if member.isfile()
-                        and Path(member.name).name == "primesieve"
-                    ),
-                    None,
-                )
+            destination = SCRIPT_DIRECTORY / "primesieve"
 
-                if executable_member is None:
-                    raise RuntimeError(
-                        "primesieve binary was not found in "
-                        f"{archive_path}"
-                    )
+            with (
+                executable_file as source,
+                destination.open("wb") as target,
+            ):
+                shutil.copyfileobj(source, target)
 
-                executable_file = inner_tar.extractfile(
-                    executable_member
-                )
-
-                if executable_file is None:
-                    raise RuntimeError(
-                        "Unable to extract primesieve binary from "
-                        f"{archive_path}"
-                    )
-
-                destination = SCRIPT_DIRECTORY / "primesieve"
-
-                with (
-                    executable_file as source,
-                    destination.open("wb") as target,
-                ):
-                    shutil.copyfileobj(source, target)
-
-                destination.chmod(
-                    destination.stat().st_mode | 0o111
-                )
+            destination.chmod(
+                destination.stat().st_mode | 0o111
+            )
 
     else:
         raise RuntimeError(
@@ -273,46 +244,31 @@ def extract_primesieve(archive_path: Path) -> None:
 
 def copy_from_network_drive() -> bool:
     """
-    Copy and extract the appropriate PrimeSieve archive from the
-    network drive.
+    Copy the appropriate PrimeSieve archive from the network drive.
 
-    Returns True if PrimeSieve was installed successfully,
+    Returns True if the archive was copied successfully,
     otherwise False.
     """
-
     network_share = Path(PRIMESIEVE_NETWORK_SHARE)
-
-    logger.info(
-        f"Checking PrimeSieve network share: {network_share}"
-    )
 
     if not network_share.is_dir():
         logger.warning(
-            f"PrimeSieve network share is not accessible: "
+            "PrimeSieve network drive is unavailable: "
             f"{network_share}"
         )
         return False
 
     archive_source = network_share / PRIMESIEVE_ARCHIVE_NAME
 
-    logger.info(
-        f"Checking for PrimeSieve archive: {archive_source}"
-    )
-
     if not archive_source.is_file():
         logger.warning(
-            f"PrimeSieve archive was not found: "
+            "PrimeSieve archive was not found on network drive: "
             f"{archive_source}"
         )
         return False
 
     archive_destination = (
         SCRIPT_DIRECTORY / PRIMESIEVE_ARCHIVE_NAME
-    )
-
-    logger.info(
-        f"Copying PrimeSieve archive from network drive: "
-        f"{archive_source}"
     )
 
     try:
@@ -322,20 +278,8 @@ def copy_from_network_drive() -> bool:
         )
     except OSError as error:
         logger.warning(
-            f"Failed to copy PrimeSieve archive: {error}"
-        )
-        return False
-
-    logger.info(
-        f"Extracting PrimeSieve archive: "
-        f"{archive_destination}"
-    )
-
-    try:
-        extract_primesieve(archive_destination)
-    except (OSError, RuntimeError) as error:
-        logger.warning(
-            f"Failed to extract PrimeSieve archive: {error}"
+            f"Failed to copy PrimeSieve archive from network drive: "
+            f"{error}"
         )
         return False
 
@@ -386,6 +330,7 @@ def download_primesieve() -> None:
 
 def ensure_primesieve() -> Path:
     """Ensure the correct PrimeSieve executable is available."""
+
     if primesieve_exe_exists():
         logger.info(
             "PrimeSieve binary is already in script directory."
@@ -393,9 +338,20 @@ def ensure_primesieve() -> Path:
         return get_primesieve_executable()
 
     if copy_from_network_drive():
+        archive_path = (
+            SCRIPT_DIRECTORY / PRIMESIEVE_ARCHIVE_NAME
+        )
+
+        logger.info(
+            f"Extracting PrimeSieve archive: {archive_path}"
+        )
+
+        extract_primesieve(archive_path)
+
         logger.info(
             "PrimeSieve installed from network drive."
         )
+
         return get_primesieve_executable()
 
     if platform.system() == "Linux":
@@ -411,7 +367,7 @@ def ensure_primesieve() -> Path:
         )
 
     logger.info(
-        "PrimeSieve was not found on the network drive. "
+        "PrimeSieve could not be installed from the network drive. "
         "Downloading from GitHub."
     )
 
