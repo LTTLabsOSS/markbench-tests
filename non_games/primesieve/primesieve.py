@@ -3,7 +3,6 @@
 import json
 import logging
 import re
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -12,16 +11,13 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 
 sys.path.insert(1, PARENT_DIRECTORY)
 
+from harness_utils.output_logging import setup_logging
 from primesieve_utils import (
     PRIMESIEVE_VERSION,
     current_time_ms,
-    download_primesieve,
-    get_primesieve_executable,
+    ensure_primesieve,
     get_primesieve_version,
-    primesieve_exe_exists,
 )
-
-from harness_utils.output_logging import setup_logging
 
 logger = logging.getLogger(__name__)
 
@@ -30,41 +26,20 @@ LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 
 setup_logging(LOG_DIRECTORY)
 
-if sys.platform == "win32":
-    if primesieve_exe_exists() is False:
-        logger.info(
-            f"PrimeSieve {PRIMESIEVE_VERSION} not found, downloading"
-        )
-        download_primesieve()
-    else:
-        logger.info(
-            f"PrimeSieve {PRIMESIEVE_VERSION} already downloaded"
-        )
-
-    ABS_EXECUTABLE_PATH = get_primesieve_executable()
-else:
-    ABS_EXECUTABLE_PATH = shutil.which("primesieve")
-
-    if ABS_EXECUTABLE_PATH is None:
-        raise RuntimeError(
-            "Primesieve was not detected. "
-            "Install it using your Linux package manager."
-        )
-
-command = str(ABS_EXECUTABLE_PATH)
-command = command.rstrip()
+executable_path = ensure_primesieve()
+command = str(executable_path).rstrip()
 
 version = get_primesieve_version(command)
 
 if version != PRIMESIEVE_VERSION:
     raise RuntimeError(
-        f"PrimeSieve version {version} detected. "
-        f"Version {PRIMESIEVE_VERSION} is required."
+    f"PrimeSieve version {version} detected. "
+    f"Version {PRIMESIEVE_VERSION} is required."
     )
 
 logger.info(
     f"Starting PrimeSieve {version} benchmark"
-)
+    )
 
 scores = []
 

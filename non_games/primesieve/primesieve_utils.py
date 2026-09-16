@@ -1,22 +1,40 @@
-"""Collection of functions to assist in running of primesieve test script."""
+"""Utility functions to assist in running of primesieve test script."""
 
 import ctypes
+import logging
 import platform
 import re
+import shutil
 import subprocess
+import tarfile
 import time
 from pathlib import Path
+from urllib.error import URLError
+from urllib.request import urlopen
 from zipfile import ZipFile
 
-import requests
+logger = logging.getLogger(__name__)
 
 PRIMESIEVE_VERSION = "12.15"
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 
+WINDOWS_NETWORK_SHARE = (
+    r"\\labs.lmg.gg\labs\01_Installers_Utilities\primesieve"
+)
+
+LINUX_NETWORK_SHARE = (
+    "/mnt/labs.lmg.gg/labs/01_Installers_Utilities/primesieve"
+)
+
 WINDOWS_ARCHIVE_NAMES = {
     "AMD64": f"primesieve-{PRIMESIEVE_VERSION}-win-x64.zip",
     "ARM64": f"primesieve-{PRIMESIEVE_VERSION}-win-arm64.zip",
+}
+
+LINUX_ARCHIVE_NAMES = {
+    "x86_64": f"primesieve-{PRIMESIEVE_VERSION}-linux-x64.tar.gz",
+    "aarch64": f"primesieve-{PRIMESIEVE_VERSION}-linux-arm64.tar.gz",
 }
 
 
@@ -48,11 +66,9 @@ def get_windows_architecture() -> str:
             f"Windows error: {error_code}"
         )
 
-    # IMAGE_FILE_MACHINE_ARM64
     if native_machine.value == 0xAA64:
         return "ARM64"
 
-    # IMAGE_FILE_MACHINE_AMD64
     if native_machine.value == 0x8664:
         return "AMD64"
 
@@ -62,38 +78,76 @@ def get_windows_architecture() -> str:
     )
 
 
+def get_linux_architecture() -> str:
+    """Determine the native Linux architecture."""
+    machine = platform.machine().lower()
+
+    if machine in ("x86_64", "amd64"):
+        return "x86_64"
+
+    if machine in ("aarch64", "arm64"):
+        return "aarch64"
+
+    raise RuntimeError(
+        f"Unsupported Linux architecture: {machine}"
+    )
+
+
 if platform.system() == "Windows":
     WINDOWS_ARCHITECTURE = get_windows_architecture()
 
     if WINDOWS_ARCHITECTURE not in WINDOWS_ARCHIVE_NAMES:
         raise RuntimeError(
-            f"Unsupported Windows architecture: {WINDOWS_ARCHITECTURE}"
+            f"Unsupported Windows architecture: "
+            f"{WINDOWS_ARCHITECTURE}"
         )
 
-    PRIMESIEVE_ARCHIVE_NAME = WINDOWS_ARCHIVE_NAMES[WINDOWS_ARCHITECTURE]
-    PRIMESIEVE_FOLDER_NAME = PRIMESIEVE_ARCHIVE_NAME.removesuffix(".zip")
+    PRIMESIEVE_ARCHIVE_NAME = (
+        WINDOWS_ARCHIVE_NAMES[WINDOWS_ARCHITECTURE]
+    )
+
+    PRIMESIEVE_NETWORK_SHARE = WINDOWS_NETWORK_SHARE
 
     PRIMESIEVE_DOWNLOAD_URL = (
         f"https://github.com/kimwalisch/primesieve/releases/download/"
         f"v{PRIMESIEVE_VERSION}/{PRIMESIEVE_ARCHIVE_NAME}"
     )
+
+elif platform.system() == "Linux":
+    LINUX_ARCHITECTURE = get_linux_architecture()
+
+    if LINUX_ARCHITECTURE not in LINUX_ARCHIVE_NAMES:
+        raise RuntimeError(
+            f"Unsupported Linux architecture: "
+            f"{LINUX_ARCHITECTURE}"
+        )
+
+    PRIMESIEVE_ARCHIVE_NAME = (
+        LINUX_ARCHIVE_NAMES[LINUX_ARCHITECTURE]
+    )
+
+    PRIMESIEVE_NETWORK_SHARE = LINUX_NETWORK_SHARE
+
+    # Linux uses the internally built static binaries from the
+    # network drive. There is no GitHub download fallback.
+    PRIMESIEVE_DOWNLOAD_URL = ""
+
 else:
-    PRIMESIEVE_FOLDER_NAME = ""
     PRIMESIEVE_ARCHIVE_NAME = ""
+    PRIMESIEVE_NETWORK_SHARE = ""
     PRIMESIEVE_DOWNLOAD_URL = ""
 
 
 def get_primesieve_executable() -> Path:
-    """Get the path to the PrimeSieve executable."""
-    if platform.system() != "Windows":
+    """Get the path to the local PrimeSieve executable."""
+    if platform.system() == "Windows":
+        executable_path = SCRIPT_DIRECTORY / "primesieve.exe"
+    elif platform.system() == "Linux":
+        executable_path = SCRIPT_DIRECTORY / "primesieve"
+    else:
         raise RuntimeError(
-            "This function is only supported on Windows."
+            f"Unsupported operating system: {platform.system()}"
         )
-
-    executable_path = (
-        SCRIPT_DIRECTORY
-        / "primesieve.exe"
-    )
 
     if not executable_path.is_file():
         raise RuntimeError(
@@ -105,37 +159,252 @@ def get_primesieve_executable() -> Path:
 
 
 def primesieve_exe_exists() -> bool:
-    """Check if primesieve has been downloaded or not."""
-    if platform.system() != "Windows":
+    """Check if PrimeSieve has already been installed locally."""
+    if platform.system() == "Windows":
+        executable_path = SCRIPT_DIRECTORY / "primesieve.exe"
+    elif platform.system() == "Linux":
+        executable_path = SCRIPT_DIRECTORY / "primesieve"
+    else:
         return False
 
-    return (
-        SCRIPT_DIRECTORY
-        / "primesieve.exe"
-    ).is_file()
+    return executable_path.is_file()
 
 
-def download_primesieve():
-    """Download and extract primesieve on Windows."""
-    if platform.system() != "Windows":
+def extract_primesieve(archive_path: Path) -> None:
+    """Extract the PrimeSieve executable into the script directory."""
+
+    if archive_path.suffix == ".zip":
+        with ZipFile(archive_path, "r") as zip_object:
+            executable = next(
+                (
+                    name
+                    for name in zip_object.namelist()
+                    if Path(name).name == "primesieve.exe"
+                ),
+                None,
+            )
+
+            if executable is None:
+                raise RuntimeError(
+                    "primesieve.exe was not found in the PrimeSieve archive."
+                )
+
+            destination = SCRIPT_DIRECTORY / "primesieve.exe"
+
+            with (
+                zip_object.open(executable) as source,
+                destination.open("wb") as target,
+            ):
+                shutil.copyfileobj(source, target)
+
+    elif archive_path.name.endswith(".tar.gz"):
+        # First layer: .tar.gz
+        with tarfile.open(archive_path, "r:gz") as gz_tar:
+            inner_tar_member = next(
+                (
+                    member
+                    for member in gz_tar.getmembers()
+                    if member.isfile()
+                    and member.name.endswith(".tar")
+                ),
+                None,
+            )
+
+            if inner_tar_member is None:
+                raise RuntimeError(
+                    "No inner .tar archive was found in "
+                    f"{archive_path}"
+                )
+
+            inner_tar_file = gz_tar.extractfile(inner_tar_member)
+
+            if inner_tar_file is None:
+                raise RuntimeError(
+                    f"Unable to extract inner tar from {archive_path}"
+                )
+
+            # Second layer: .tar
+            with tarfile.open(
+                fileobj=inner_tar_file,
+                mode="r:",
+            ) as inner_tar:
+                executable_member = next(
+                    (
+                        member
+                        for member in inner_tar.getmembers()
+                        if member.isfile()
+                        and Path(member.name).name == "primesieve"
+                    ),
+                    None,
+                )
+
+                if executable_member is None:
+                    raise RuntimeError(
+                        "primesieve binary was not found in "
+                        f"{archive_path}"
+                    )
+
+                executable_file = inner_tar.extractfile(
+                    executable_member
+                )
+
+                if executable_file is None:
+                    raise RuntimeError(
+                        "Unable to extract primesieve binary from "
+                        f"{archive_path}"
+                    )
+
+                destination = SCRIPT_DIRECTORY / "primesieve"
+
+                with (
+                    executable_file as source,
+                    destination.open("wb") as target,
+                ):
+                    shutil.copyfileobj(source, target)
+
+                destination.chmod(
+                    destination.stat().st_mode | 0o111
+                )
+
+    else:
         raise RuntimeError(
-            "PrimeSieve downloads are only supported on Windows."
+            f"Unsupported PrimeSieve archive format: {archive_path}"
         )
 
-    destination = SCRIPT_DIRECTORY / PRIMESIEVE_ARCHIVE_NAME
+def copy_from_network_drive() -> bool:
+    """
+    Copy and extract the appropriate PrimeSieve archive from the
+    network drive.
 
-    response = requests.get(
-        PRIMESIEVE_DOWNLOAD_URL,
-        allow_redirects=True,
-        timeout=180,
+    Returns True if PrimeSieve was installed successfully,
+    otherwise False.
+    """
+
+    network_share = Path(PRIMESIEVE_NETWORK_SHARE)
+
+    if not network_share.is_dir():
+        logger.warning(
+            "PrimeSieve network drive is unavailable: "
+            f"{network_share}"
+        )
+        return False
+
+    archive_source = network_share / PRIMESIEVE_ARCHIVE_NAME
+    archive_destination = (
+        SCRIPT_DIRECTORY / PRIMESIEVE_ARCHIVE_NAME
     )
-    response.raise_for_status()
 
-    with destination.open("wb") as file:
-        file.write(response.content)
+    if not archive_source.is_file():
+        logger.warning(
+            "PrimeSieve archive was not found on network drive: "
+            f"{archive_source}"
+        )
+        return False
 
-    with ZipFile(destination, "r") as zip_object:
-        zip_object.extractall(path=SCRIPT_DIRECTORY)
+    logger.info(
+        f"Copying PrimeSieve archive from network drive: "
+        f"{archive_source}"
+    )
+
+    try:
+        shutil.copyfile(
+            archive_source,
+            archive_destination,
+        )
+
+        logger.info(
+            f"Extracting PrimeSieve archive: "
+            f"{archive_destination}"
+        )
+
+        extract_primesieve(archive_destination)
+
+    except (OSError, RuntimeError) as error:
+        logger.warning(
+            f"Failed to install PrimeSieve from network drive: "
+            f"{error}"
+        )
+        return False
+
+    return True
+
+
+def download_primesieve() -> None:
+    """Download PrimeSieve from GitHub."""
+
+    if platform.system() != "Windows":
+        raise RuntimeError(
+            "GitHub download fallback is only supported on Windows."
+        )
+
+    archive_destination = (
+        SCRIPT_DIRECTORY / PRIMESIEVE_ARCHIVE_NAME
+    )
+
+    logger.info(
+        f"Downloading PrimeSieve from {PRIMESIEVE_DOWNLOAD_URL}"
+    )
+
+    response = None
+
+    try:
+        response = urlopen(
+            PRIMESIEVE_DOWNLOAD_URL,
+            timeout=180,
+        )
+
+        with archive_destination.open("wb") as archive_file:
+            shutil.copyfileobj(
+                response,
+                archive_file,
+            )
+
+    except (URLError, TimeoutError, OSError) as error:
+        raise RuntimeError(
+            f"Failed to download PrimeSieve: {error}"
+        ) from error
+
+    finally:
+        if response is not None:
+            response.close()
+
+    extract_primesieve(archive_destination)
+
+
+def ensure_primesieve() -> Path:
+    """Ensure the correct PrimeSieve executable is available."""
+    if primesieve_exe_exists():
+        logger.info(
+            "PrimeSieve binary is already in script directory."
+        )
+        return get_primesieve_executable()
+
+    if copy_from_network_drive():
+        logger.info(
+            "PrimeSieve installed from network drive."
+        )
+        return get_primesieve_executable()
+
+    if platform.system() == "Linux":
+        raise RuntimeError(
+            "PrimeSieve could not be installed on Linux.\n\n"
+            f"Expected network drive: {LINUX_NETWORK_SHARE}\n"
+            f"Expected archive: {PRIMESIEVE_ARCHIVE_NAME}\n\n"
+            "The PrimeSieve network drive may not be mounted, "
+            "or the required PrimeSieve archive may be missing.\n"
+            "Mount the L drive and make sure the correct archive "
+            "is available, then run the harness again.\n\n"
+            f"The benchmark requires PrimeSieve {PRIMESIEVE_VERSION}."
+        )
+
+    logger.info(
+        "PrimeSieve was not found on the network drive. "
+        "Downloading from GitHub."
+    )
+
+    download_primesieve()
+
+    return get_primesieve_executable()
 
 
 def get_primesieve_version(executable_path: str) -> str:
@@ -154,7 +423,8 @@ def get_primesieve_version(executable_path: str) -> str:
 
     if version_match is None:
         raise RuntimeError(
-            f"Unable to determine PrimeSieve version from output:\n{output}"
+            f"Unable to determine PrimeSieve version from output:\n"
+            f"{output}"
         )
 
     return version_match.group(1)
