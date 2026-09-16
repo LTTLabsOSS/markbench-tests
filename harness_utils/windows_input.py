@@ -12,7 +12,7 @@ import ctypes
 import math
 import os
 import time
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 from typing import Any, Protocol, cast
 
 WORD = ctypes.c_uint16
@@ -268,10 +268,10 @@ class User32Transport:
     def send_input(self, packets: Sequence[INPUT], cb_size: int) -> int:
         array = (INPUT * len(packets))(*packets)
         cast(Any, ctypes).set_last_error(0)
-        return int(self._user32.SendInput(len(packets), array, cb_size))
+        return self._user32.SendInput(len(packets), array, cb_size)
 
     def get_last_error(self) -> int:
-        return int(cast(Any, ctypes).get_last_error())
+        return cast(Any, ctypes).get_last_error()
 
     def set_cursor_pos(self, x: int, y: int) -> None:
         if not self._user32.SetCursorPos(x, y):
@@ -288,14 +288,12 @@ class WindowsInput:
         self,
         transport: InputTransport | None = None,
         *,
-        delay: float = 0.1,
-        sleeper: Callable[[float], None] = time.sleep,
+        delay: float = 0.2,
     ) -> None:
         if not math.isfinite(delay) or delay < 0:
             raise ValueError("delay must be finite and non-negative")
         self._transport = User32Transport() if transport is None else transport
         self.delay = delay
-        self._sleep = sleeper
 
     def _send(self, packets: Sequence[INPUT]) -> None:
         requested = len(packets)
@@ -315,8 +313,6 @@ class WindowsInput:
 
     @staticmethod
     def _normalize_key(key: str) -> str:
-        if not isinstance(key, str):
-            raise TypeError("key must be a string")
         normalized = key.lower()
         normalized = _KEY_ALIASES.get(normalized, normalized)
         if normalized not in _NAMED_SCANS:
@@ -343,7 +339,7 @@ class WindowsInput:
         except OSError:
             self._cleanup(cleanup)
             raise
-        self._sleep(self.delay)
+        time.sleep(self.delay)
 
     def key_up(self, key: str) -> None:
         normalized = self._normalize_key(key)
@@ -353,7 +349,7 @@ class WindowsInput:
         except OSError:
             self._cleanup(packets)
             raise
-        self._sleep(self.delay)
+        time.sleep(self.delay)
 
     def press(self, key: str) -> None:
         normalized = self._normalize_key(key)
@@ -361,7 +357,7 @@ class WindowsInput:
         packets = self._key_down_packets(normalized)
         try:
             self._send(packets)
-            self._sleep(self.delay)
+            time.sleep(self.delay)
             self._send(up_packets)
         except BaseException as error:
             try:
@@ -369,12 +365,9 @@ class WindowsInput:
             except BaseException:
                 raise error from None
             raise
-        self._sleep(self.delay)  # key-up pause
-        self._sleep(self.delay)  # outer press pause
+        time.sleep(self.delay)
 
     def write(self, text: str) -> None:
-        if not isinstance(text, str):
-            raise TypeError("text must be a string")
         unsupported = sorted(set(text) - SUPPORTED_TEXT_CHARACTERS)
         if unsupported:
             raise ValueError(f"Unsupported text characters: {unsupported!r}")
@@ -395,7 +388,7 @@ class WindowsInput:
                 packets = [_keyboard_input(scan)]
             try:
                 self._send(packets)
-                self._sleep(self.delay)
+                time.sleep(self.delay)
                 self._send(release_packets)
             except BaseException as error:
                 try:
@@ -403,35 +396,33 @@ class WindowsInput:
                 except BaseException:
                     raise error from None
                 raise
-            self._sleep(self.delay)  # key-up pause
-        self._sleep(self.delay)  # outer write pause, including empty text
+            time.sleep(self.delay)  # key-up pause
+        time.sleep(self.delay)  # outer write pause, including empty text
 
     def move_mouse(self, x: int, y: int) -> None:
         self._transport.set_cursor_pos(x, y)
-        self._sleep(self.delay)
+        time.sleep(self.delay)
 
     def mouse_down(self) -> None:
         self._transport.mouse_event(MOUSEEVENTF_LEFTDOWN)
-        self._sleep(self.delay)
+        time.sleep(self.delay)
 
     def mouse_up(self) -> None:
         self._transport.mouse_event(MOUSEEVENTF_LEFTUP)
-        self._sleep(self.delay)
+        time.sleep(self.delay)
 
     def click(self, hold: float = 0.0) -> None:
         if not math.isfinite(hold) or hold < 0:
             raise ValueError("hold must be finite and non-negative")
         self._transport.mouse_event(MOUSEEVENTF_LEFTDOWN)
         try:
-            self._sleep(hold)
+            time.sleep(hold)
         finally:
             self._transport.mouse_event(MOUSEEVENTF_LEFTUP)
-        self._sleep(self.delay)
+        time.sleep(self.delay)
 
     def scroll(self, amount: int) -> None:
-        if not isinstance(amount, int):
-            raise TypeError("wheel amount must be an integer")
         if not -(1 << 31) <= amount < (1 << 31):
             raise ValueError("wheel amount must fit in a signed 32-bit integer")
         self._transport.mouse_event(MOUSEEVENTF_WHEEL, ctypes.c_uint32(amount).value)
-        self._sleep(self.delay)
+        time.sleep(self.delay)
