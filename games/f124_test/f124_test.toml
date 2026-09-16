@@ -1,0 +1,6 @@
+friendly_name = "F1 24 Launch Test"
+py_script = "f124_test.py"
+executable = "F1_24.exe"
+presentmon_enabled = false
+category = "game"
+ocr = true
