@@ -118,7 +118,7 @@ def run_benchmark():
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
     time.sleep(1)
-    scroll(-1200, 1)
+    scroll(-100, 12)
     time.sleep(0.5)
 
     result = find_word("times", timeout=30, interval=1)
