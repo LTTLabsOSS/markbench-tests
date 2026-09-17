@@ -7,7 +7,6 @@ import sys
 import time
 from pathlib import Path
 
-import pyautogui as gui
 from marvel_rivals_utils import find_latest_benchmarkcsv, read_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
@@ -56,13 +55,13 @@ def run_benchmark():
     setup_start_time = int(time.time())
     start_game()
 
-    # wait for launcher to launch then click the launch button to launch the launcher into the game that we were launching
+    # Wait for the launcher, then click Launch.
     time.sleep(20)
-    location = gui.locateOnScreen(
-        f"{SCRIPT_DIRECTORY}\\screenshots\\launch_button.png", confidence=0.7
-    )  # luckily this seems to be a set resolution for the button
-    click_me = gui.center(location)
-    click(click_me.x, click_me.y)
+    result = find_word("launch", timeout=30, interval=1)
+    if not result:
+        logger.info("Did not find the launch button. Did the launcher open?")
+        sys.exit(1)
+    click(result["x"], result["y"])
 
     time.sleep(60)  # wait for game to load into main menu
 
