@@ -207,11 +207,21 @@ def run_vmaf(ffmpeg_exe_path, architecture):
         / f"{VMAF_VERSION}.json"
     )
 
+    if not vmaf_model_path.is_file():
+        raise FileNotFoundError(
+            f"VMAF model not found: {vmaf_model_path}"
+        )
+
+    vmaf_filter_model_path = (
+        "../vmaf/"
+        f"{VMAF_VERSION}.json"
+    )
+
     filter_complex = (
-        f"libvmaf="
-        f"model=path={vmaf_model_path}"
-        f":n_threads=10"
-        f":log_path=vmafout.txt"
+        "libvmaf="
+        f"model=path={vmaf_filter_model_path}"
+        ":n_threads=10"
+        ":log_path=vmafout.txt"
     )
 
     argument_list = [
