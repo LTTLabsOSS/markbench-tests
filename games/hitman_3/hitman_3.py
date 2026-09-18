@@ -81,9 +81,9 @@ def run_benchmark():
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Options2.png")
     time.sleep(2)
 
-    location = find_word("benchmark", timeout=20, interval=1)
+    location = find_word("start", timeout=20, interval=1)
     if not location:
-        logger.info("Did not find the benchmark button. Did the options menu open?")
+        logger.info("Did not find the start button. Did the options menu open?")
         raise RuntimeError("Benchmark failed.")
     click(location["x"], location["y"])
 

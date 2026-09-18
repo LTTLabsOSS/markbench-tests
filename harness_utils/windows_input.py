@@ -1,9 +1,8 @@
-"""Windows input using scan-code SendInput and PyAutoGUI-style mouse calls.
+"""Windows input using scan-code SendInput and native mouse calls.
 
 - Text: US-keyboard ASCII, Caps Lock off, no held modifiers.
 - Mouse: SetCursorPos for movement; mouse_event for buttons and wheel.
 - DPI: requests system awareness; preserves any preconfigured process mode.
-- Thanks to PyAutoGUI for mouse-behavior references.
 """
 
 from __future__ import annotations
