@@ -10,3 +10,16 @@ name = "api"
 type = "select"
 tooltip = "Select which Graphics API to use"
 values = ["vulkan", "opengl", "direct3d12", "direct3d11"]
+
+[[args]]
+name = "resolution"
+type = "select"
+tooltip = "Select which resolution to use"
+values = ["2160", "1440", "1080", "900", "720"]
+
+[[args]]
+name = "asteroids"
+type = "select"
+tooltip = "Select how many asteroids to use"
+values = ["4mil", "2mil", "1mil", "200k", "100k", "50k"]
+default = "200k"

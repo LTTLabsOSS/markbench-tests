@@ -72,7 +72,8 @@ report = {
     "end_time": end_time,
     "score": avg_score,
     "unit": "seconds",
-    "test": "Primesieve 1e12",
+    "test": "Primesieve",
+    "test_parameter": "1e12"
 }
 
 with open(
