@@ -8,7 +8,6 @@ import winreg
 from pathlib import Path
 
 import psutil
-import pyautogui as gui
 from hitman_3_utils import (
     get_benchmark_name,
     get_resolution,
@@ -69,11 +68,11 @@ def run_benchmark():
     exec_steam_launch_option(STEAM_GAME_ID, launch_option_index=1)
 
     time.sleep(20)
-    location = gui.locateOnScreen(
-        f"{SCRIPT_DIRECTORY}\\screenshots\\options.png", confidence=0.7
-    )  # luckily this seems to be a set resolution for the button
-    click_me = gui.center(location)
-    click(click_me.x, click_me.y)
+    location = find_word("options", timeout=20, interval=1)
+    if not location:
+        logger.info("Did not find the options button. Did the launcher open?")
+        raise RuntimeError("Benchmark failed.")
+    click(location["x"], location["y"])
     time.sleep(2)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Options1.png")
@@ -82,11 +81,11 @@ def run_benchmark():
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Options2.png")
     time.sleep(2)
 
-    location = gui.locateOnScreen(
-        f"{SCRIPT_DIRECTORY}\\screenshots\\start_benchmark.png", confidence=0.7
-    )  # luckily this seems to be a set resolution for the button
-    click_me = gui.center(location)
-    click(click_me.x, click_me.y)
+    location = find_word("benchmark", timeout=20, interval=1)
+    if not location:
+        logger.info("Did not find the benchmark button. Did the options menu open?")
+        raise RuntimeError("Benchmark failed.")
+    click(location["x"], location["y"])
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
     logger.info("Setup took %f seconds", elapsed_setup_time)
