@@ -222,6 +222,17 @@ def exec_steam_run_command(game_id: int, steam_path=None) -> Popen:
     return Popen([steam_path, steam_run_arg])
 
 
+def exec_steam_launch_option(
+    game_id: int, launch_option_index: int, steam_path=None
+) -> Popen:
+    """Run a Steam launch option by its zero-based index for the current platform."""
+    steam_launch_arg = f"steam://launch/{game_id}/none/{launch_option_index}"
+    if steam_path is None:
+        steam_path = get_steam_exe_path()
+    logger.debug("Launching Steam launch option: %s %s", steam_path, steam_launch_arg)
+    return Popen([steam_path, steam_launch_arg])
+
+
 def exec_steam_game(game_id: int, steam_path=None, game_params=None) -> Popen:
     """Runs a game by providing steam executable with an array of parameters.
     The `steam_path` argument can be used to specify a specific path to the Steam executable

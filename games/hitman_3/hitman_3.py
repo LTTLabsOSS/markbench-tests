@@ -28,7 +28,7 @@ from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
 from harness_utils.report import seconds_to_milliseconds, write_report_json
-from harness_utils.steam import exec_steam_run_command, get_build_id
+from harness_utils.steam import exec_steam_launch_option, get_build_id
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ def run_benchmark():
     process_registry_file(hive, SUBKEY, str(INPUT_FILE), str(CONFIG_FILE))
     copy_artifact(CONFIG_FILE, ARTIFACTS_DIRECTORY)
     selected_benchmark_name, benchmark_time = benchmark_check()
-    exec_steam_run_command(STEAM_GAME_ID)
+    exec_steam_launch_option(STEAM_GAME_ID, launch_option_index=1)
 
     time.sleep(20)
     location = gui.locateOnScreen(
