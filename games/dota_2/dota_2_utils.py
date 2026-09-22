@@ -1,10 +1,13 @@
 """Dota 2 test script utils"""
 
+import bz2
 import logging
 import re
 import shutil
 import sys
 from pathlib import Path
+from urllib.error import URLError
+from urllib.request import urlopen
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -20,9 +23,32 @@ logger = logging.getLogger(__name__)
 STEAM_GAME_ID = 570
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 STEAM_USER_ID = get_active_steam_account_id()
-DEFAULT_INSTALL_PATH = Path(
-    r"C:\Program Files (x86)\Steam\steamapps\common\dota 2 beta"
+
+REPLAY_FILENAME = "8821954344_416769358.dem"
+REPLAY_ARCHIVE_FILENAME = f"{REPLAY_FILENAME}.bz2"
+REPLAY_PATH = SCRIPT_DIRECTORY / REPLAY_FILENAME
+ARCHIVE_PATH = SCRIPT_DIRECTORY / REPLAY_ARCHIVE_FILENAME
+
+DOWNLOAD_URL = (
+    "http://replay272.valve.net/570/"
+    f"{REPLAY_ARCHIVE_FILENAME}"
 )
+
+if sys.platform == "win32":
+    DEFAULT_INSTALL_PATH = Path(
+    r"C:\Program Files (x86)\Steam\steamapps\common\dota 2 beta"
+)   
+    NETWORK_REPLAY_DIRECTORY = Path(
+        r"\\labs.lmg.gg\labs\03\_ProcessingFiles\Dota2"
+    )
+else:
+    DEFAULT_INSTALL_PATH = Path(
+    "~/.steam/steam/steamapps/common/dota 2 beta"
+    ).expanduser()
+    NETWORK_REPLAY_DIRECTORY = Path(
+        "/mnt/labs.lmg.gg/labs/03_ProcessingFiles/Dota2"
+    )
+
 
 
 def get_install_path():
@@ -35,8 +61,9 @@ def get_install_path():
 
 def copy_replay_from_network_drive():
     """Copies replay file from network drive to harness folder"""
-    src_path = Path(r"\\labs.lmg.gg\labs\03_ProcessingFiles\Dota2\benchmark.dem")
-    dest_path = SCRIPT_DIRECTORY / "benchmark.dem"
+    src_path = NETWORK_REPLAY_DIRECTORY / REPLAY_FILENAME
+
+    dest_path = REPLAY_PATH
     try:
         logger.info("Copying the replay from the network drive to the harness folder.")
         shutil.copyfile(src_path, dest_path)
@@ -47,48 +74,87 @@ def copy_replay_from_network_drive():
 
 def verify_replay() -> None:
     """Ensure the replay exists in SCRIPT_DIRECTORY."""
-    src_path = SCRIPT_DIRECTORY / "benchmark.dem"
+    src_path = REPLAY_PATH
 
     if src_path.exists():
         logger.info("The replay exists in the harness folder. Copying the files.")
         return
 
     logger.info("The replay file doesn't exist in the harness folder.")
-    copy_replay_from_network_drive()
+
+    try:
+        copy_replay_from_network_drive()
+        logger.info("Replay copied successfully from network drive.")
+        return
+    except OSError as err:
+        logger.warning(
+            "Could not copy from the network drive. %s",
+            err,
+        )
+
+    logger.info("Falling back to downloading replay from the internet.")
+    download_replay()
+
+
+def download_replay() -> None:
+    """Download and extract the replay from Valve's website."""
+    logger.info("Downloading the replay from %s", DOWNLOAD_URL)
+
+    try:
+        with urlopen(DOWNLOAD_URL, timeout=180) as response, ARCHIVE_PATH.open(
+            "wb"
+        ) as archive_file:
+            shutil.copyfileobj(response, archive_file)
+
+        logger.info("Extracting replay to %s", REPLAY_PATH)
+
+        with bz2.open(ARCHIVE_PATH, "rb") as compressed_file, REPLAY_PATH.open(
+            "wb"
+        ) as replay_file:
+            shutil.copyfileobj(compressed_file, replay_file)
+
+        ARCHIVE_PATH.unlink()
+
+    except (URLError, TimeoutError, OSError, EOFError) as error:
+        raise RuntimeError(
+            f"Failed to download or extract the replay: {error}"
+        ) from error
+
+    if not REPLAY_PATH.exists():
+        raise RuntimeError(
+            f"Replay extraction completed but {REPLAY_PATH} does not exist."
+        )
 
 
 def copy_replay() -> None:
-    """Copyihg the replay"""
-    replay_path = Path(get_install_path(), "game\\dota\\replays")
-    replay_path.mkdir(parents=True, exist_ok=True)
-
-    src_path = SCRIPT_DIRECTORY / "benchmark.dem"
-    dest_path = replay_path / "benchmark.dem"
+    """Copy the replay"""
+    replay_game_path = Path(get_install_path(), "game", "dota", "replays")
+    replay_game_path.mkdir(parents=True, exist_ok=True)
+    dest_path = replay_game_path / REPLAY_FILENAME
 
     # Try copying the benchmark to the correct area.
     try:
-        logger.info("Copying: %s -> %s", src_path, dest_path)
-        shutil.copy(src_path, dest_path)
-        return
+        logger.info("Copying: %s -> %s", REPLAY_PATH, dest_path)
+        shutil.copyfile(REPLAY_PATH, dest_path)
     except OSError as err:
-        logger.error("Could not copy copy the replay file: %s", err)
+        logger.error("Could not copy the replay file: %s", err)
         raise
 
 
 def copy_config() -> None:
     """Copy benchmark config to dota 2 folder"""
     try:
-        config_path = Path(get_install_path(), "game\\dota\\cfg")
+        config_path = Path(get_install_path(), "game", "dota", "cfg")
         config_path.mkdir(parents=True, exist_ok=True)
 
-        files_to_copy = ["benchmark_run.cfg", "benchmark_load.cfg"]
+        files_to_copy = ["2026_benchmark_run.cfg", "benchmark_load.cfg"]
 
         for filename in files_to_copy:
             src_path = SCRIPT_DIRECTORY / filename
             dest_path = config_path / filename
 
             logger.info("Copying: %s -> %s", src_path, dest_path)
-            shutil.copy(src_path, dest_path)
+            shutil.copyfile(src_path, dest_path)
     except OSError as err:
         logger.error("Could not copy config files: %s", err)
         raise
