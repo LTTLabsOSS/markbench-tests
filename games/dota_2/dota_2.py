@@ -178,24 +178,24 @@ def run_benchmark():
     # Default fallback start time
     test_start_time = int(time.time())
 
-    result = find_word(word="2560", timeout=30, interval=0.1)
+    result = find_word(word="roshan", timeout=30, interval=0.1)
     if result is None:
-        logger.error("Unable to find Leshrac's HP. Using default start time value.")
+        logger.error("Didn't see Roshan's name. Using default start time value.")
     else:
         test_start_time = int(time.time())
-        logger.info("Found Leshrac's HP! Marking the start time accordingly.")
+        logger.info("Found Roshan's name! Marking the start time accordingly.")
 
-    time.sleep(73)  # sleep duration during gameplay
+    time.sleep(95)  # sleep duration during gameplay
 
     # Default fallback end time
     test_end_time = int(time.time())
 
-    result = find_word(word="1195", timeout=30, interval=0.1)
+    result = find_word(word="3783", timeout=30, interval=0.1)
     if result is None:
-        logger.error("Unable to find gold count of 1195. Using default end time value.")
+        logger.error("Unable to find gold count of 3783. Using default end time value.")
     else:
         test_end_time = int(time.time())
-        logger.info("Found the gold. Marking end time.")
+        logger.info("Found Slardar's gold. Marking end time.")
 
     time.sleep(2)
 
