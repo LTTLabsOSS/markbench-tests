@@ -39,7 +39,7 @@ if sys.platform == "win32":
     r"C:\Program Files (x86)\Steam\steamapps\common\dota 2 beta"
 )   
     NETWORK_REPLAY_DIRECTORY = Path(
-        r"\\labs.lmg.gg\labs\03\_ProcessingFiles\Dota2"
+        r"\\labs.lmg.gg\labs\03_ProcessingFiles\Dota2"
     )
 else:
     DEFAULT_INSTALL_PATH = Path(
