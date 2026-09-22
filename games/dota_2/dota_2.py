@@ -178,7 +178,7 @@ def run_benchmark():
     # Default fallback start time
     test_start_time = int(time.time())
 
-    result = find_word(word="roshan", timeout=30, interval=0.1)
+    result = find_word(word="roshan", timeout=90, interval=0.1)
     if result is None:
         logger.error("Didn't see Roshan's name. Using default start time value.")
     else:
