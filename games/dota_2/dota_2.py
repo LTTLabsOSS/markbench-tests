@@ -51,7 +51,7 @@ def start_game():
 
 def console_command(command):
     """Enter a console command"""
-    write(command)
+    gui.write(command)
     press("enter")
 
 
