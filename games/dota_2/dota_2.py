@@ -30,7 +30,10 @@ from harness_utils.report import (
     seconds_to_milliseconds,
     write_report_json,
 )
-from harness_utils.steam import exec_steam_game
+from harness_utils.steam import (
+    exec_steam_game,
+    get_build_id,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -220,6 +223,7 @@ try:
         "resolution": format_resolution(int(res_width), int(res_height)),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
+        "version": get_build_id(STEAM_GAME_ID),
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
