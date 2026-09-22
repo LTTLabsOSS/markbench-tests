@@ -148,7 +148,7 @@ def load_the_benchmark():
         sys.exit(1)
     console_command("sv_cheats true")
     time.sleep(1)
-    console_command("exec_async benchmark_run")
+    console_command("exec_async 2026_benchmark_run")
     press("\\")
 
 
