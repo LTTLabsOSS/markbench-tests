@@ -2,8 +2,6 @@
 
 import ctypes
 import logging
-import subprocess
-import time
 
 import psutil
 

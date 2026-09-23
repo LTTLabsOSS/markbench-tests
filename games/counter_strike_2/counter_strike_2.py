@@ -70,7 +70,7 @@ def run_benchmark():
         raise RuntimeError(
             f"Cannot click settings with invalid resolution: {width}x{height}"
         )
-    bring_process_front(PROCESS_NAME)
+    # bring_process_front(PROCESS_NAME)
 
     time.sleep(10)
 
