@@ -81,7 +81,7 @@ def run_benchmark():
 
     time.sleep(2)
 
-    result = find_word(word="video", timeout=10, interval=1)
+    result = find_word(word="video", timeout=10, interval=1, vulkan=True)
     if not result:
         raise RuntimeError("Did not find video to find the video menu button")
 
@@ -89,12 +89,12 @@ def run_benchmark():
 
     time.sleep(2)
 
-    if not find_word(word="brightness", timeout=30, interval=1):
+    if not find_word(word="brightness", timeout=30, interval=1, vulkan=True):
         raise RuntimeError("Did not find brightness to find the video settings")
 
-    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png", vulkan=True)
 
-    result = find_word(word="advanced", timeout=10, interval=1)
+    result = find_word(word="advanced", timeout=10, interval=1, vulkan=True)
     if not result:
         raise RuntimeError("Did not find advanced to find the advanced video menu")
 
@@ -102,9 +102,11 @@ def run_benchmark():
 
     time.sleep(2)
 
-    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_video_1.png")
+    capture_and_save_screenshot(
+        ARTIFACTS_DIRECTORY / "advanced_video_1.png", vulkan=True
+    )
 
-    result = find_word(word="boost", timeout=10, interval=1)
+    result = find_word(word="boost", timeout=10, interval=1, vulkan=True)
     if not result:
         raise RuntimeError(
             "Did not find boost to identify we're in the advanced video menu"
@@ -115,32 +117,34 @@ def run_benchmark():
     scroll(-600)
     time.sleep(1)
 
-    if not find_word(word="particle", timeout=30, interval=1):
+    if not find_word(word="particle", timeout=30, interval=1, vulkan=True):
         raise RuntimeError("Did not find particle to verify we scrolled correctly")
 
-    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced_video_2.png")
+    capture_and_save_screenshot(
+        ARTIFACTS_DIRECTORY / "advanced_video_2.png", vulkan=True
+    )
 
     logger.info("Starting benchmark")
 
-    result = find_word(word="play", timeout=10, interval=1)
+    result = find_word(word="play", timeout=10, interval=1, vulkan=True)
     if not result:
         raise RuntimeError("Did not find play to click the play tab")
 
     click(result["x"], result["y"])
 
-    result = find_word(word="workshop", timeout=10, interval=1)
+    result = find_word(word="workshop", timeout=10, interval=1, vulkan=True)
     if not result:
         raise RuntimeError("Did not find workshop to click the workshop tab")
 
     click(result["x"], result["y"])
 
-    result = find_word(word="fps", timeout=10, interval=1)
+    result = find_word(word="fps", timeout=10, interval=1, vulkan=True)
     if not result:
         raise RuntimeError("Did not find fps to click the benchmark icon")
 
     click(result["x"], result["y"])
 
-    result = find_word(word="go", timeout=10, interval=1)
+    result = find_word(word="go", timeout=10, interval=1, vulkan=True)
     if not result:
         raise RuntimeError("Did not find go to start the benchmark")
 
@@ -148,7 +152,7 @@ def run_benchmark():
 
     time.sleep(3)
 
-    if not find_word(word="benchmark", timeout=30, interval=1):
+    if not find_word(word="benchmark", timeout=30, interval=1, vulkan=True):
         raise RuntimeError(
             "Did not find benchmark to verify that the benchmark has started"
         )
@@ -158,7 +162,7 @@ def run_benchmark():
     # Default fallback start time
     test_start_time = int(time.time())
 
-    if find_word(word="roll", timeout=30, interval=0.1) is None:
+    if find_word(word="roll", timeout=30, interval=0.1, vulkan=True) is None:
         logger.error("Didn't see 'lets roll'. Did the map load?")
     else:
         test_start_time = int(time.time())
@@ -169,7 +173,7 @@ def run_benchmark():
     # Default fallback end time
     test_end_time = int(time.time())
 
-    if not find_word(word="console", timeout=30, interval=1):
+    if not find_word(word="console", timeout=30, interval=1, vulkan=True):
         raise RuntimeError(
             "Did not find console to verify the console has opened to show the results"
         )
@@ -180,7 +184,7 @@ def run_benchmark():
 
     time.sleep(13)
 
-    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png", vulkan=True)
     copy_artifact(CFG, ARTIFACTS_DIRECTORY)
 
     elapsed_test_time = round((test_end_time - test_start_time), 2)
