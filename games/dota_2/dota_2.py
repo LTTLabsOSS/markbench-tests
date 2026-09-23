@@ -81,21 +81,8 @@ def screenshot_settings():
         )
         sys.exit(1)
 
-    match screen_width:
-        case 1280:
-            click_multiple = 0.8
-        case 1920:
-            click_multiple = 1
-        case 2560:
-            click_multiple = 1.5
-        case 3840:
-            click_multiple = 2
-        case _:
-            click_multiple = screen_width / 1920
+    click(result["x"], result["y"])
 
-    click(
-        result["x"] + int(50 * click_multiple), result["y"] + int(20 * click_multiple)
-    )
     if find_word(word="resolution", timeout=30, interval=1) is None:
         logger.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
