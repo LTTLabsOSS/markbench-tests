@@ -3,8 +3,8 @@
 import ctypes
 import logging
 import re
-import winreg
 import sys
+import winreg
 from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
@@ -25,8 +25,9 @@ DEFAULT_INSTALL_PATH = Path(
     r"C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive"
 )
 
+
 def disable_fullscreen_optimizations():
-    """ blah blah blah"""
+    """blah blah blah"""
     logger.info("disabling fso")
     install_path = get_install_path()
     cs2_exe_path = str(install_path / "game" / "bin" / "win64" / "cs2.exe")
@@ -35,6 +36,7 @@ def disable_fullscreen_optimizations():
     with winreg.CreateKey(winreg.HKEY_CURRENT_USER, KEY) as key:
         winreg.SetValueEx(key, cs2_exe_path, 0, winreg.REG_SZ, VALUE)
     logger.info("it worked?")
+
 
 def apply_runtime_dpi_awareness():
     """
