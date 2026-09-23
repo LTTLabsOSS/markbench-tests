@@ -1,0 +1,6 @@
+friendly_name = "Procyon Office Productivity"
+py_script = "procyon_office.py"
+executable = "ProcyonCmd.exe"
+presentmon_enabled = false
+category = "non_game"
+ocr = false

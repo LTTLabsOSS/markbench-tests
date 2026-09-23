@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<benchmark>
+  <test_info>
+    <benchmark_tests>
+      <benchmark_test name="OfficeProductivityBenchmarkDefault" test_run_type="EXPLICIT" version="1.0"/>
+    </benchmark_tests>
+  </test_info>
+  <application_info>
+    <selected_workloads>
+      <selected_workload name="OfficeProductivityStartupDefault"/>
+      <selected_workload name="OfficeProductivityExcel1Default"/>
+      <selected_workload name="OfficeProductivityWordDefault"/>
+      <selected_workload name="OfficeProductivityExcel2Default"/>
+      <selected_workload name="OfficeProductivityPowerPointDefault"/>
+      <selected_workload name="OfficeProductivityOutlookDefault"/>
+      <selected_workload name="OfficeProductivityEndDefault"/>
+    </selected_workloads>
+  </application_info>
+</benchmark>
