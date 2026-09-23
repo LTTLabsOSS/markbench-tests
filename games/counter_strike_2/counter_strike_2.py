@@ -19,7 +19,7 @@ from harness_utils.input import click, move_mouse, press, scroll
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
-from harness_utils.process import terminate_process
+from harness_utils.process import bring_process_front, terminate_process
 from harness_utils.report import (
     format_resolution,
     seconds_to_milliseconds,
@@ -51,7 +51,7 @@ CFG = Path(
 
 
 def run_benchmark():
-    disable_fullscreen_optimizations()
+    # disable_fullscreen_optimizations()
     exec_steam_game(
         STEAM_GAME_ID, game_params=["-console", "-fullscreen", "+fps_max 0"]
     )
@@ -62,8 +62,7 @@ def run_benchmark():
         raise RuntimeError(
             "Did not find loadout to verify that the game has loaded to the main menu"
         )
-
-    time.sleep(10)
+    time.sleep(5)
 
     height, width = get_resolution()
 
@@ -71,8 +70,10 @@ def run_benchmark():
         raise RuntimeError(
             f"Cannot click settings with invalid resolution: {width}x{height}"
         )
+    bring_process_front(PROCESS_NAME)
 
-    # TODO: fix before full screen optimizations can be disabled
+    time.sleep(10)
+
     click(round(width * 0.13), round(height * 0.03))
 
     time.sleep(5)

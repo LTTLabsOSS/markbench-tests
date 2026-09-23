@@ -1,6 +1,7 @@
 """Functions related to managing processes"""
 
 import logging
+import subprocess
 
 import psutil
 
@@ -44,3 +45,17 @@ def is_process_running(process_name):
         if process_name_current.lower() == process_name.lower():
             return process
     return None
+
+
+def bring_process_front(process_name):
+    """bring the process to foreground"""
+    target_process = is_process_running(process_name)
+    subprocess.run(
+        [
+            "powershell.exe",
+            "-NoProfile",
+            "-Command",
+            f"(New-Object -ComObject WScript.Shell).AppActivate({target_process.pid})",
+        ],
+        check=False,
+    )
