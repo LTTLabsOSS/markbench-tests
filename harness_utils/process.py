@@ -106,7 +106,7 @@ def bring_process_front(process_name):
     # If we can't find an exact match, we'll fall back to the first visible one we found
     target_hwnd = hwnds_with_titles[0][0]
     for hwnd, title in hwnds_with_titles:
-        print(f"Debug: Found window with title: '{title}'")
+        logger.info(f"Debug: Found window with title: '{title}'")
         if "Counter-Strike" in title:
             target_hwnd = hwnd
             break
