@@ -1,7 +1,9 @@
 """Functions related to managing processes"""
 
+import ctypes
 import logging
 import subprocess
+import time
 
 import psutil
 
@@ -47,15 +49,58 @@ def is_process_running(process_name):
     return None
 
 
+# def bring_process_front(process_name):
+#     """bring the process to foreground"""
+#     target_process = is_process_running(process_name)
+#     subprocess.run(
+#         [
+#             "powershell.exe",
+#             "-NoProfile",
+#             "-Command",
+#             f"(New-Object -ComObject WScript.Shell).AppActivate({target_process.pid})",
+#         ],
+#         check=False,
+#     )
+
+
 def bring_process_front(process_name):
-    """bring the process to foreground"""
+    """Find the process by name, map its PID to an HWND, and foreground it."""
     target_process = is_process_running(process_name)
-    subprocess.run(
-        [
-            "powershell.exe",
-            "-NoProfile",
-            "-Command",
-            f"(New-Object -ComObject WScript.Shell).AppActivate({target_process.pid})",
-        ],
-        check=False,
-    )
+
+    if not target_process:
+        return False
+
+    # Map the process PID to its window handles
+    hwnds = get_hwnds_for_pid(target_process.pid)
+
+    if not hwnds:
+        return False
+
+    # Bring the first valid window associated with the PID to the front
+    main_hwnd = hwnds[0]
+    return bool(ctypes.windll.user32.SetForegroundWindow(main_hwnd))
+
+
+def get_hwnds_for_pid(pid):
+    """Find all visible window handles (HWNDs) associated with a PID."""
+    hwnds = []
+
+    def callback(hwnd, _):
+        # Only look at visible windows
+        if ctypes.windll.user32.IsWindowVisible(hwnd):
+            current_pid = ctypes.c_ulong()
+            ctypes.windll.user32.GetWindowThreadProcessId(
+                hwnd, ctypes.byref(current_pid)
+            )
+
+            if current_pid.value == pid:
+                # Filter out background/invisible overlays by ensuring the window has a title length
+                if ctypes.windll.user32.GetWindowTextLengthW(hwnd) > 0:
+                    hwnds.append(hwnd)
+        return True
+
+    # Define and call the C callback
+    EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_int, ctypes.c_int)
+    ctypes.windll.user32.EnumWindows(EnumWindowsProc(callback), 0)
+
+    return hwnds
