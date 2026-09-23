@@ -39,54 +39,17 @@ def terminate_process(process_name: str) -> None:
 
     logger.debug("Process termination complete")
 
-
 def is_process_running(process_name):
-    """check if given process is running"""
     for process in psutil.process_iter(["pid", "name"]):
         process_name_current = process.info.get("name") or ""
         if process_name_current.lower() == process_name.lower():
             return process
     return None
 
-
-# def bring_process_front(process_name):
-#     """bring the process to foreground"""
-#     target_process = is_process_running(process_name)
-#     subprocess.run(
-#         [
-#             "powershell.exe",
-#             "-NoProfile",
-#             "-Command",
-#             f"(New-Object -ComObject WScript.Shell).AppActivate({target_process.pid})",
-#         ],
-#         check=False,
-#     )
-
-
-def bring_process_front(process_name):
-    """Find the process by name, map its PID to an HWND, and foreground it."""
-    target_process = is_process_running(process_name)
-
-    if not target_process:
-        return False
-
-    # Map the process PID to its window handles
-    hwnds = get_hwnds_for_pid(target_process.pid)
-
-    if not hwnds:
-        return False
-
-    # Bring the first valid window associated with the PID to the front
-    main_hwnd = hwnds[0]
-    return bool(ctypes.windll.user32.SetForegroundWindow(main_hwnd))
-
-
 def get_hwnds_for_pid(pid):
-    """Find all visible window handles (HWNDs) associated with a PID."""
     hwnds = []
 
     def callback(hwnd, _):
-        # Only look at visible windows
         if ctypes.windll.user32.IsWindowVisible(hwnd):
             current_pid = ctypes.c_ulong()
             ctypes.windll.user32.GetWindowThreadProcessId(
@@ -94,13 +57,58 @@ def get_hwnds_for_pid(pid):
             )
 
             if current_pid.value == pid:
-                # Filter out background/invisible overlays by ensuring the window has a title length
-                if ctypes.windll.user32.GetWindowTextLengthW(hwnd) > 0:
-                    hwnds.append(hwnd)
+                length = ctypes.windll.user32.GetWindowTextLengthW(hwnd)
+                if length > 0:
+                    # Get the window title for debugging
+                    buff = ctypes.create_unicode_buffer(length + 1)
+                    ctypes.windll.user32.GetWindowTextW(hwnd, buff, length + 1)
+                    title = buff.value
+
+                    hwnds.append((hwnd, title))
         return True
 
-    # Define and call the C callback
     EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_int, ctypes.c_int)
     ctypes.windll.user32.EnumWindows(EnumWindowsProc(callback), 0)
 
     return hwnds
+
+
+def force_foreground(hwnd):
+    """Bypass Windows foreground lock by simulating an ALT key press, then restore and foreground."""
+    # 1. Restore the window in case it is minimized
+    ctypes.windll.user32.ShowWindow(hwnd, SW_RESTORE)
+
+    # 2. Simulate ALT key down to bypass foreground lock
+    ctypes.windll.user32.keybd_event(VK_MENU, 0, 0, 0)
+
+    # 3. Set the foreground window
+    result = ctypes.windll.user32.SetForegroundWindow(hwnd)
+
+    # 4. Simulate ALT key up
+    ctypes.windll.user32.keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, 0)
+
+    return bool(result)
+
+
+def bring_process_front(process_name):
+    target_process = is_process_running(process_name)
+
+    if not target_process:
+        return False
+
+    # Get a list of tuples containing (hwnd, title)
+    hwnds_with_titles = get_hwnds_for_pid(target_process.pid)
+
+    if not hwnds_with_titles:
+        return False
+
+    # Try to find the window that actually has the Counter-Strike 2 title to avoid invisible dummy windows
+    # If we can't find an exact match, we'll fall back to the first visible one we found
+    target_hwnd = hwnds_with_titles[0][0]
+    for hwnd, title in hwnds_with_titles:
+        print(f"Debug: Found window with title: '{title}'")
+        if "Counter-Strike" in title:
+            target_hwnd = hwnd
+            break
+
+    return force_foreground(target_hwnd)
