@@ -58,7 +58,7 @@ def run_benchmark():
 
     time.sleep(30)
 
-    if not find_word(word="loadout", timeout=30, interval=1):
+    if not find_word(word="loadout", timeout=30, interval=1, vulkan=True):
         raise RuntimeError(
             "Did not find loadout to verify that the game has loaded to the main menu"
         )
