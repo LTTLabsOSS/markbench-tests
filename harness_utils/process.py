@@ -72,7 +72,10 @@ def get_hwnds_for_pid(pid):
 
     return hwnds
 
-
+# Windows API Constants
+SW_RESTORE = 9
+VK_MENU = 0x12
+KEYEVENTF_KEYUP = 0x0002
 def force_foreground(hwnd):
     """Bypass Windows foreground lock by simulating an ALT key press, then restore and foreground."""
     # 1. Restore the window in case it is minimized
