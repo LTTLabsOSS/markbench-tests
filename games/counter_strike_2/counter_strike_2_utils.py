@@ -4,7 +4,6 @@ import ctypes
 import logging
 import re
 import sys
-import winreg
 from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
