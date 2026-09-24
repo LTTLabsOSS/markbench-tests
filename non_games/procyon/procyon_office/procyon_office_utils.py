@@ -83,8 +83,7 @@ def find_test_version() -> str | None:
 
     exe_path = (
         chops_path
-        / "officeproductivity-start-test"
-        / "x64"
+        / "officeproductivity-starter-test"
         / "OfficeProductivity-Starter.exe"
     )
 
