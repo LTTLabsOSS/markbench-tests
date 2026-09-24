@@ -114,6 +114,16 @@ try:
             logger.error("Could not find %s score!", score_name)
             sys.exit(1)
 
+        try:
+            score = int(score)
+        except ValueError:
+            logger.error("Invalid %s score: %r", score_name, score)
+            sys.exit(1)
+
+        if score <= 0:
+            logger.error("%s score was 0! Failing benchmark.", score_name)
+            sys.exit(1)
+
         logger.info("%s score was %s", score_name, score)
 
         report = {
