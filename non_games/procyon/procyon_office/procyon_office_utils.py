@@ -74,21 +74,23 @@ def find_test_version() -> str | None:
         return None
 
 
-def find_procyon_versions(output: str) -> tuple[str | None, str | None]:
-    """Gets the Procyon Client and Product versions from Procyon output."""
+def find_procyon_versions(log_path: Path) -> tuple[str | None, str | None]:
+    """Gets the Procyon Client and Product versions from the Procyon log."""
+    if not log_path.exists():
+        return None, None
+
+    log = log_path.read_text(encoding="utf-8")
+
     match = re.search(
         r"Procyon Command Line Client version:\s*"
         r"(\d+\.\d+\.\d+)\s+\d+,\s*"
         r"Product version:\s*"
         r"(\d+\.\d+\.\d+)\s+\d+",
-        output,
+        log,
         re.IGNORECASE,
     )
 
     if match is None:
         return None, None
 
-    client_version = f"{match.group(1)}"
-    product_version = f"{match.group(2)}"
-
-    return client_version, product_version
+    return match.group(1), match.group(2)

@@ -37,7 +37,7 @@ CONFIG = CONFIG_DIR / "office_productivity.def"
 
 RESULTS_FILENAME = "result.xml"
 RESULTS_XML_PATH = ARTIFACTS_DIRECTORY / RESULTS_FILENAME
-PROCYON_OUTPUT_PATH = ARTIFACTS_DIRECTORY / "procyon_output.txt"
+PROCYON_LOG_PATH = ARTIFACTS_DIRECTORY / "procyon_log.txt"
 
 BENCHMARK_SCORES = {
     "Overall": r"<OfficeProductivityScore>(\d+)",
@@ -54,6 +54,7 @@ def create_procyon_command():
         str(ABS_EXECUTABLE_PATH),
         f"--definition={CONFIG}",
         f"--export={RESULTS_XML_PATH}",
+        f"--log={PROCYON_LOG_PATH}",
     ]
 
 
@@ -66,12 +67,10 @@ def run_benchmark(command_to_run):
         universal_newlines=True,
     ) as proc:
         logger.info("Procyon Office Productivity benchmark has started.")
-
-        stdout, _ = proc.communicate()
+        proc.communicate()
         
-        return proc, stdout
+        return proc
 
-pr = None
 
 try:
     setup_logging(LOG_DIRECTORY)
@@ -82,19 +81,14 @@ try:
     logger.info(cmd)
 
     start_time = time.time()
-    pr, procyon_output = run_benchmark(cmd)
-
-    PROCYON_OUTPUT_PATH.write_text(
-            procyon_output,
-            encoding="utf-8",
-    )
+    pr = run_benchmark(cmd)
 
     if pr.returncode > 0:
         logger.error("Procyon exited with return code %d", pr.returncode)
         sys.exit(pr.returncode)
 
     procyon_client_version, procyon_product_version = find_procyon_versions(
-        procyon_output
+        PROCYON_LOG_PATH
     )
 
     if procyon_product_version is None:
