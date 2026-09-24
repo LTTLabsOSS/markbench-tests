@@ -35,47 +35,6 @@ def get_install_path() -> str:
     return value
 
 
-def find_procyon_version() -> str | None:
-    """Gets the version of ProcyonCmd.exe."""
-
-    install_path = get_install_path()
-
-    if not install_path:
-        logger.info("Installation path not found.")
-        return None
-
-    exe_path = Path(install_path) / "ProcyonCmd.exe"
-
-    if not exe_path.exists():
-        logger.info("Executable not found at %s", exe_path)
-        return None
-
-    try:
-        info = win32api.GetFileVersionInfo(str(exe_path), "\\")
-
-        ms = info.get("FileVersionMS")
-        ls = info.get("FileVersionLS")
-
-        if ms is None or ls is None:
-            logger.info("No FileVersionMS or FileVersionLS found.")
-            return None
-
-        major = ms >> 16
-        minor = ms & 0xFFFF
-        build = ls >> 16
-        revision = ls & 0xFFFF
-
-        return f"{major}.{minor}.{build}.{revision}"
-
-    except Exception as e:
-        logger.info(
-            "Error retrieving version info from %s: %s",
-            exe_path,
-            e,
-        )
-        return None
-
-
 def find_test_version() -> str | None:
     """Gets the version of the Office Productivity benchmark executable."""
 
@@ -113,3 +72,23 @@ def find_test_version() -> str | None:
             e,
         )
         return None
+
+
+def find_procyon_versions(output: str) -> tuple[str | None, str | None]:
+    """Gets the Procyon Client and Product versions from Procyon output."""
+    match = re.search(
+        r"Procyon Command Line Client version:\s*"
+        r"(\d+\.\d+\.\d+)\s+\d+,\s*"
+        r"Product version:\s*"
+        r"(\d+\.\d+\.\d+)\s+\d+",
+        output,
+        re.IGNORECASE,
+    )
+
+    if match is None:
+        return None, None
+
+    client_version = f"{match.group(1)}"
+    product_version = f"{match.group(2)}"
+
+    return client_version, product_version

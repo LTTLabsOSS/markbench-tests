@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 
 from procyon_office_utils import (
-    find_procyon_version,
+    find_procyon_versions,
     find_test_version,
     get_install_path,
     regex_find_score_in_xml,
@@ -19,7 +19,6 @@ sys.path.insert(1, PARENT_DIRECTORY)
 from harness_utils.artifacts import create_artifacts_manifest
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import harness_directories
-from harness_utils.process import terminate_process
 from harness_utils.report import seconds_to_milliseconds, write_report_json
 
 logger = logging.getLogger(__name__)
@@ -38,6 +37,7 @@ CONFIG = CONFIG_DIR / "office_productivity.def"
 
 RESULTS_FILENAME = "result.xml"
 RESULTS_XML_PATH = ARTIFACTS_DIRECTORY / RESULTS_FILENAME
+PROCYON_OUTPUT_PATH = ARTIFACTS_DIRECTORY / "procyon_output.txt"
 
 BENCHMARK_SCORES = {
     "Overall": r"<OfficeProductivityScore>(\d+)",
@@ -46,26 +46,6 @@ BENCHMARK_SCORES = {
     "Powerpoint": r"<OfficeProductivityPowerpointOverallScore>(\d+)",
     "Outlook": r"<OfficeProductivityOutlookOverallScore>(\d+)",
 }
-
-
-def terminate_procyon_processes():
-    """Terminate Procyon and Office processes."""
-    for process_name in [
-        "ProcyonCmd.exe",
-        "Procyon.exe",
-        "WINWORD.EXE",
-        "EXCEL.EXE",
-        "POWERPNT.EXE",
-        "OUTLOOK.EXE",
-    ]:
-        try:
-            terminate_process(process_name)
-        except Exception as e:
-            logger.info(
-                "Process '%s' could not be terminated (may not exist): %s",
-                process_name,
-                e,
-            )
 
 
 def create_procyon_command():
@@ -87,24 +67,44 @@ def run_benchmark(command_to_run):
     ) as proc:
         logger.info("Procyon Office Productivity benchmark has started.")
 
-        _, _ = proc.communicate()
-        return proc
+        stdout, _ = proc.communicate()
+        
+        return proc, stdout
 
 pr = None
 
 try:
     setup_logging(LOG_DIRECTORY)
 
+    test_version = find_test_version()
     cmd = create_procyon_command()
     logger.info("Starting benchmark!")
     logger.info(cmd)
 
     start_time = time.time()
-    pr = run_benchmark(cmd)
+    pr, procyon_output = run_benchmark(cmd)
+
+    PROCYON_OUTPUT_PATH.write_text(
+            procyon_output,
+            encoding="utf-8",
+    )
 
     if pr.returncode > 0:
         logger.error("Procyon exited with return code %d", pr.returncode)
         sys.exit(pr.returncode)
+
+    procyon_client_version, procyon_product_version = find_procyon_versions(
+        procyon_output
+    )
+
+    if procyon_product_version is None:
+        logger.warning("Could not determine Procyon Product Version.")
+
+    if procyon_client_version is None:
+        logger.warning("Could not determine Procyon Client Version.")
+
+    logger.info("Procyon Client Version: %s", procyon_client_version)
+    logger.info("Procyon Product Version: %s", procyon_product_version)
 
     end_time = time.time()
     elapsed_test_time = round(end_time - start_time, 2)
@@ -127,8 +127,9 @@ try:
             "end_time": seconds_to_milliseconds(end_time),
             "test": "Procyon Office Benchmark",
             "test_parameter": score_name,
-            "test_version": find_test_version(),
-            "procyon_version": find_procyon_version(),
+            "test_version": test_version,
+            "procyon_client_version": procyon_client_version,
+            "procyon_product_version": procyon_product_version,
             "unit": "score",
             "score": score,
         }
@@ -142,6 +143,3 @@ except BaseException:
     logger.error("Something went wrong running the benchmark!")
     logger.exception("Unhandled exception")
     sys.exit(1)
-
-finally:
-    terminate_procyon_processes()
