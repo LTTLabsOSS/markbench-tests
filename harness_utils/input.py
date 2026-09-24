@@ -1,6 +1,9 @@
-"""Platform input adapter."""
+"""Platform input adapter.
 
-import importlib
+Windows uses the native WindowsInput backend.
+Public helpers retain their explicit timing delays and backend pauses.
+"""
+
 import logging
 import math
 import shutil
@@ -36,7 +39,7 @@ _YDOTOOL_KEYS = {
     "3": 4,
     # Modifiers
     "altleft": 56,
-    "leftshift": 42,
+    "shiftleft": 42,
     # Direction and navigation
     "down": 108,
     "left": 105,
@@ -82,33 +85,32 @@ def _scale_linux_click_coordinates(x: int, y: int) -> tuple[int, int]:
 
 class _WindowsInputBackend:
     def __init__(self) -> None:
-        self._pyautogui = importlib.import_module("pyautogui")
-        self._pydirectinput = importlib.import_module("pydirectinput")
-        vars(self._pydirectinput)["FAILSAFE"] = False
-        vars(self._pyautogui)["FAILSAFE"] = False
+        from harness_utils.windows_input import WindowsInput
+
+        self._windows_input = WindowsInput()
 
     def press(self, key: str) -> None:
-        self._pydirectinput.press(key)
+        self._windows_input.press(key)
 
     def write(self, text: str) -> None:
-        self._pydirectinput.write(text)
+        self._windows_input.write(text)
 
     def key_down(self, key: str) -> None:
-        self._pydirectinput.keyDown(key)
+        self._windows_input.key_down(key)
 
     def key_up(self, key: str) -> None:
-        self._pydirectinput.keyUp(key)
+        self._windows_input.key_up(key)
 
     def move_mouse(self, x: int, y: int) -> None:
-        self._pyautogui.moveTo(x=x, y=y)
+        self._windows_input.move_mouse(x, y)
 
     def click_at_cursor(self, hold: float = 0.2) -> None:
-        self._pyautogui.mouseDown()
+        self._windows_input.mouse_down()
         time.sleep(hold)
-        self._pyautogui.mouseUp()
+        self._windows_input.mouse_up()
 
     def scroll(self, scroll_amount: int) -> None:
-        self._pyautogui.vscroll(scroll_amount)
+        self._windows_input.scroll(scroll_amount)
 
 
 class _YdotoolInputBackend:
@@ -240,11 +242,11 @@ def mangohud_log_toggle() -> None:
     """Toggle MangoHud logging with Left Shift + F2 via ydotool."""
     logger.debug("input mangohud_log_toggle")
     time.sleep(1)
-    _backend.key_down("leftshift")
+    _backend.key_down("shiftleft")
     time.sleep(0.3)
     _backend.key_down("f2")
     time.sleep(0.3)
     _backend.key_up("f2")
     time.sleep(0.3)
-    _backend.key_up("leftshift")
+    _backend.key_up("shiftleft")
     time.sleep(1)
