@@ -26,18 +26,6 @@ DEFAULT_INSTALL_PATH = Path(
 )
 
 
-def disable_fullscreen_optimizations():
-    """blah blah blah"""
-    logger.info("disabling fso")
-    install_path = get_install_path()
-    cs2_exe_path = str(install_path / "game" / "bin" / "win64" / "cs2.exe")
-    KEY = r"Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"
-    VALUE = "~ DISABLEDXMAXIMIZEDWINDOWEDMODE"
-    with winreg.CreateKey(winreg.HKEY_CURRENT_USER, KEY) as key:
-        winreg.SetValueEx(key, cs2_exe_path, 0, winreg.REG_SZ, VALUE)
-    logger.info("it worked?")
-
-
 def apply_runtime_dpi_awareness():
     """
     Applies DPI awareness to this process and any child processes (CS2).

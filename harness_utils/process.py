@@ -74,6 +74,7 @@ def get_hwnds_for_pid(pid):
 SW_RESTORE = 9
 VK_MENU = 0x12
 KEYEVENTF_KEYUP = 0x0002
+
 def force_foreground(hwnd):
     """Bypass Windows foreground lock by simulating an ALT key press, then restore and foreground."""
     # 1. Restore the window in case it is minimized
@@ -91,25 +92,24 @@ def force_foreground(hwnd):
     return bool(result)
 
 
-def bring_process_front(process_name):
+def bring_process_front(process_name, window_name):
     target_process = is_process_running(process_name)
 
     if not target_process:
-        return False
+        return None
 
-    # Get a list of tuples containing (hwnd, title)
     hwnds_with_titles = get_hwnds_for_pid(target_process.pid)
 
     if not hwnds_with_titles:
-        return False
+        return None
 
-    # Try to find the window that actually has the Counter-Strike 2 title to avoid invisible dummy windows
-    # If we can't find an exact match, we'll fall back to the first visible one we found
-    target_hwnd = hwnds_with_titles[0][0]
+    target_hwnd = None
     for hwnd, title in hwnds_with_titles:
         logger.info(f"Debug: Found window with title: '{title}'")
-        if "Counter-Strike" in title:
+        if window_name in title:
             target_hwnd = hwnd
             break
+    if target_hwnd == None:
+        return None
 
     return force_foreground(target_hwnd)

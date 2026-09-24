@@ -5,7 +5,7 @@ import sys
 import time
 from pathlib import Path
 
-from counter_strike_2_utils import disable_fullscreen_optimizations, get_resolution
+from counter_strike_2_utils import get_resolution
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
@@ -51,7 +51,6 @@ CFG = Path(
 
 
 def run_benchmark():
-    # disable_fullscreen_optimizations()
     exec_steam_game(
         STEAM_GAME_ID, game_params=["-console", "-fullscreen", "+fps_max 0"]
     )
@@ -70,7 +69,7 @@ def run_benchmark():
         raise RuntimeError(
             f"Cannot click settings with invalid resolution: {width}x{height}"
         )
-    # bring_process_front(PROCESS_NAME)
+    bring_process_front(PROCESS_NAME, "Counter-Strike")
 
     time.sleep(10)
 
