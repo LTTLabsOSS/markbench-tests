@@ -45,44 +45,26 @@ def get_install_path() -> str:
     return value
 
 
-def find_procyon_version() -> str:
-    """Gets the version of an executable located in the install path."""
-    install_path = get_install_path()
+def find_procyon_versions(log_path: Path) -> tuple[str | None, str | None]:
+    """Gets the Procyon Client and Product versions from the Procyon log."""
+    if not log_path.exists():
+        return None, None
 
-    if not install_path:
-        logger.info("Installation path not found.")
-        return ""
+    log = log_path.read_text(encoding="utf-8")
 
-    exe_path = os.path.join(install_path, "ProcyonCmd.exe")
+    match = re.search(
+        r"Procyon Command Line Client version:\s*"
+        r"(\d+\.\d+\.\d+)\s+\d+,\s*"
+        r"Product version:\s*"
+        r"(\d+\.\d+\.\d+)\s+\d+",
+        log,
+        re.IGNORECASE,
+    )
 
-    if not os.path.exists(exe_path):
-        logger.info("Executable not found at %s", exe_path)
-        return ""
+    if match is None:
+        return None, None
 
-    try:
-        # Get all file version info
-        info = win32api.GetFileVersionInfo(exe_path, "\\")
-
-        # Extract FileVersionMS and FileVersionLS
-        ms = info.get("FileVersionMS")
-        ls = info.get("FileVersionLS")
-
-        if ms is None or ls is None:
-            logger.info("No FileVersionMS or FileVersionLS found.")
-            return ""
-
-        # Convert to human-readable version: major.minor.build.revision
-        major = ms >> 16
-        minor = ms & 0xFFFF
-        build = ls >> 16
-        revision = ls & 0xFFFF
-
-        version = f"{major}.{minor}.{build}.{revision}"
-        return version
-
-    except Exception as e:
-        logger.info("Error retrieving version info from %s: %s", exe_path, e)
-        return ""  # Return empty string if version info retrieval fails
+    return match.group(1), match.group(2)
 
 
 def find_test_version() -> str:

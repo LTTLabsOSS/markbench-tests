@@ -9,7 +9,7 @@ from pathlib import Path
 
 import psutil
 from procyon_ai_utils import (
-    find_procyon_version,
+    find_procyon_versions,
     find_score_in_xml,
     find_test_version,
     get_install_path,
@@ -129,6 +129,8 @@ BENCHMARK_CONFIG = {
 
 RESULTS_FILENAME = "result.xml"
 RESULTS_XML_PATH = ARTIFACTS_DIRECTORY / RESULTS_FILENAME
+PROCYON_LOG_PATH = ARTIFACTS_DIRECTORY / "procyon_log.txt"
+
 
 
 def get_arguments():
@@ -150,15 +152,15 @@ def create_procyon_command(test_option, process_name, device_id):
     command = ""
 
     if device_id == "CPU":
-        command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}"'
+        command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}" --log="{PROCYON_LOG_PATH}"'
     else:
         match process_name:
             case "WinML.exe":
-                command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}" --select-winml-device {device_id}'
+                command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}" --log="{PROCYON_LOG_PATH}" --select-winml-device {device_id}'
             case "OpenVino.exe":
-                command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}" --select-openvino-device {device_id}'
+                command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}" --log="{PROCYON_LOG_PATH}" --select-openvino-device {device_id}'
             case "TensorRT.exe":
-                command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}" --select-cuda-device {device_id}'
+                command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}" --log="{PROCYON_LOG_PATH}" --select-cuda-device {device_id}'
     command = command.rstrip()
     return command
 
@@ -196,6 +198,7 @@ try:
     option = BENCHMARK_CONFIG[args.engine]["config"]
     proc_name = BENCHMARK_CONFIG[args.engine]["process_name"]
     dev_id = BENCHMARK_CONFIG[args.engine]["device_id"]
+    test_version = find_test_version()
     cmd = create_procyon_command(option, proc_name, dev_id)
     logger.info("Starting benchmark!")
     logger.info(cmd)
@@ -205,6 +208,20 @@ try:
     if pr.returncode > 0:
         logger.error("Procyon exited with return code %d", pr.returncode)
         sys.exit(pr.returncode)
+
+    procyon_client_version, procyon_product_version = find_procyon_versions(
+        PROCYON_LOG_PATH
+    )
+
+    if procyon_product_version is None:
+        logger.warning("Could not determine Procyon Product Version.")
+
+    if procyon_client_version is None:
+        logger.warning("Could not determine Procyon Client Version.")
+
+    logger.info("Procyon Client Version: %s", procyon_client_version)
+    logger.info("Procyon Product Version: %s", procyon_product_version)
+
 
     score = find_score_in_xml()
     if score is None:
@@ -222,9 +239,10 @@ try:
         "test": "Procyon AI CV",
         "test_parameter": BENCHMARK_CONFIG[args.engine]["test_name"],
         "api": BENCHMARK_CONFIG[args.engine]["api"],
-        "test_version": find_test_version(),
+        "test_version": test_version,
         "device_name": BENCHMARK_CONFIG[args.engine]["device_name"],
-        "procyon_version": find_procyon_version(),
+        "procyon_client_version": procyon_client_version,
+        "procyon_product_version": procyon_product_version,
         "unit": "score",
         "score": score,
     }

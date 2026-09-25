@@ -10,7 +10,7 @@ from pathlib import Path
 
 import psutil
 from ulprocai_text_gen_utils import (
-    find_procyon_version,
+    find_procyon_versions,
     find_test_version,
     get_install_path,
     is_process_running,
@@ -111,6 +111,7 @@ BENCHMARK_CONFIG = {
 
 RESULTS_FILENAME = "result.xml"
 RESULTS_XML_PATH = ARTIFACTS_DIRECTORY / RESULTS_FILENAME
+PROCYON_LOG_PATH = ARTIFACTS_DIRECTORY / "procyon_log.txt"
 
 
 def get_arguments():
@@ -128,10 +129,13 @@ def get_arguments():
 
 
 def create_procyon_command(test_option):
-    """create command string"""
-    command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}"'
-    command = command.rstrip()
-    return command
+    """Create Procyon command."""
+    return [
+        str(ABS_EXECUTABLE_PATH),
+        f"--definition={test_option}",
+        f"--export={RESULTS_XML_PATH}",
+        f"--log={PROCYON_LOG_PATH}",
+    ]
 
 
 def run_benchmark(process_name, command_to_run):
@@ -161,6 +165,7 @@ try:
     setup_logging(LOG_DIRECTORY)
     args = get_arguments()
     option = BENCHMARK_CONFIG[args.engine]["config"]
+    test_version = find_test_version()
     cmd = create_procyon_command(option)
     logger.info("Starting benchmark!")
     logger.info(cmd)
@@ -170,6 +175,19 @@ try:
     if pr.returncode > 0:
         logger.error("Procyon exited with return code %d", pr.returncode)
         sys.exit(pr.returncode)
+
+    procyon_client_version, procyon_product_version = find_procyon_versions(
+        PROCYON_LOG_PATH
+    )
+
+    if procyon_product_version is None:
+        logger.warning("Could not determine Procyon Product Version.")
+
+    if procyon_client_version is None:
+        logger.warning("Could not determine Procyon Client Version.")
+
+    logger.info("Procyon Client Version: %s", procyon_client_version)
+    logger.info("Procyon Product Version: %s", procyon_product_version)
 
     end_time = time.time()
     elapsed_test_time = round(end_time - start_time, 2)
@@ -225,8 +243,9 @@ try:
                     "test": "Procyon AI Text Generation",
                     "test_parameter": test_type[1]["test_name"],
                     "api": test_type[1]["api"],
-                    "test_version": find_test_version(),
-                    "procyon_version": find_procyon_version(),
+                    "test_version": test_version,
+                    "procyon_client_version": procyon_client_version,
+                    "procyon_product_version": procyon_product_version,
                     "unit": "score",
                     "score": score,
                 }

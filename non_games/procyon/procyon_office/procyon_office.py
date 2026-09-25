@@ -143,7 +143,7 @@ try:
     write_report_json(LOG_DIRECTORY, "report.json", session_report)
     create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 
-except BaseException:
+except Exception:
     logger.error("Something went wrong running the benchmark!")
     logger.exception("Unhandled exception")
     sys.exit(1)
