@@ -54,21 +54,36 @@ def create_procyon_command():
         str(ABS_EXECUTABLE_PATH),
         f"--definition={CONFIG}",
         f"--export={RESULTS_XML_PATH}",
-        f"--log={PROCYON_LOG_PATH}",
     ]
 
 
 def run_benchmark(command_to_run):
-    """Run the benchmark."""
-    with subprocess.Popen(
-        command_to_run,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        universal_newlines=True,
-    ) as proc:
+    """Run the benchmark and capture Procyon console output."""
+    with (
+        open(
+            PROCYON_LOG_PATH,
+            "w",
+            encoding="utf-8",
+            errors="replace",
+        ) as console_log,
+        subprocess.Popen(
+            command_to_run,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        ) as proc,
+    ):
         logger.info("Procyon Office Productivity benchmark has started.")
-        proc.communicate()
-        
+
+        for line in proc.stdout:
+            line = line.rstrip("\r\n")
+            console_log.write(line + "\n")
+            console_log.flush()
+            logger.info("Procyon: %s", line)
+
+        proc.wait()
+
         return proc
 
 
