@@ -134,18 +134,26 @@ def create_procyon_command(test_option):
         str(ABS_EXECUTABLE_PATH),
         f"--definition={test_option}",
         f"--export={RESULTS_XML_PATH}",
-        f"--log={PROCYON_LOG_PATH}",
     ]
 
 
 def run_benchmark(process_name, command_to_run):
     """run the benchmark"""
-    with subprocess.Popen(
-        command_to_run,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        universal_newlines=True,
-    ) as proc:
+    with (
+        open(
+            PROCYON_LOG_PATH,
+            "w",
+            encoding="utf-8",
+            errors="replace",
+        ) as console_log,
+        subprocess.Popen(
+            command_to_run,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        ) as proc,
+    ):
         logger.info("Procyon AI Text Generation benchmark has started.")
         while True:
             now = time.time()
@@ -157,7 +165,14 @@ def run_benchmark(process_name, command_to_run):
                 process.nice(psutil.HIGH_PRIORITY_CLASS)
                 break
             time.sleep(0.2)
-        _, _ = proc.communicate()  # blocks until 3dmark exits
+
+        for line in proc.stdout:
+                line = line.rstrip("\r\n")
+                console_log.write(line + "\n")
+                console_log.flush()
+                logger.info("Procyon: %s", line)
+        
+        proc.wait()
         return proc
 
 

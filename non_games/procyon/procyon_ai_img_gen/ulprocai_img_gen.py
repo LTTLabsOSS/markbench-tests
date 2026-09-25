@@ -179,15 +179,15 @@ def get_arguments():
 
 def create_procyon_command(test_option, process_name, device_id):
     """create command string"""
-    command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}" --log="{PROCYON_LOG_PATH}"'
+    command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}"'
 
     match process_name:
         case "ort-directml.exe":
-            command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}" --log="{PROCYON_LOG_PATH}" --select-winml-device {device_id}'
+            command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}" --select-winml-device {device_id}'
         case "openvino.exe":
-            command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}" --log="{PROCYON_LOG_PATH}" --select-openvino-device {device_id}'
+            command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}" --select-openvino-device {device_id}'
         case "tensorrt.exe":
-            command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}" --log="{PROCYON_LOG_PATH}" --select-cuda-device {device_id}'
+            command = f'"{ABS_EXECUTABLE_PATH}" --definition={test_option} --export="{RESULTS_XML_PATH}"" --select-cuda-device {device_id}'
     command = command.rstrip()
 
     return command
@@ -195,12 +195,21 @@ def create_procyon_command(test_option, process_name, device_id):
 
 def run_benchmark(process_name, command_to_run):
     """run the benchmark"""
-    with subprocess.Popen(
-        command_to_run,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        universal_newlines=True,
-    ) as proc:
+    with (
+        open(
+            PROCYON_LOG_PATH,
+            "w",
+            encoding="utf-8",
+            errors="replace",
+        ) as console_log,
+        subprocess.Popen(
+            command_to_run,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        ) as proc,
+    ):
         logger.info("Procyon AI Image Generation benchmark has started.")
         while True:
             now = time.time()
@@ -212,7 +221,14 @@ def run_benchmark(process_name, command_to_run):
                 process.nice(psutil.HIGH_PRIORITY_CLASS)
                 break
             time.sleep(0.2)
-        _, _ = proc.communicate()  # blocks until 3dmark exits
+
+        for line in proc.stdout:
+                line = line.rstrip("\r\n")
+                console_log.write(line + "\n")
+                console_log.flush()
+                logger.info("Procyon: %s", line)
+                
+        proc.wait()
         return proc
 
 
