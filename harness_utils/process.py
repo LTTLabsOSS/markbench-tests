@@ -1,5 +1,6 @@
 """Functions related to managing processes"""
 
+import ctypes
 import logging
 
 import psutil
@@ -36,11 +37,79 @@ def terminate_process(process_name: str) -> None:
 
     logger.debug("Process termination complete")
 
-
 def is_process_running(process_name):
-    """check if given process is running"""
     for process in psutil.process_iter(["pid", "name"]):
         process_name_current = process.info.get("name") or ""
         if process_name_current.lower() == process_name.lower():
             return process
     return None
+
+def get_hwnds_for_pid(pid):
+    hwnds = []
+
+    def callback(hwnd, _):
+        if ctypes.windll.user32.IsWindowVisible(hwnd):
+            current_pid = ctypes.c_ulong()
+            ctypes.windll.user32.GetWindowThreadProcessId(
+                hwnd, ctypes.byref(current_pid)
+            )
+
+            if current_pid.value == pid:
+                length = ctypes.windll.user32.GetWindowTextLengthW(hwnd)
+                if length > 0:
+                    # Get the window title for debugging
+                    buff = ctypes.create_unicode_buffer(length + 1)
+                    ctypes.windll.user32.GetWindowTextW(hwnd, buff, length + 1)
+                    title = buff.value
+
+                    hwnds.append((hwnd, title))
+        return True
+
+    EnumWindowsProc = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_int, ctypes.c_int)
+    ctypes.windll.user32.EnumWindows(EnumWindowsProc(callback), 0)
+
+    return hwnds
+
+# Windows API Constants
+SW_RESTORE = 9
+VK_MENU = 0x12
+KEYEVENTF_KEYUP = 0x0002
+
+def force_foreground(hwnd):
+    """Bypass Windows foreground lock by simulating an ALT key press, then restore and foreground."""
+    # 1. Restore the window in case it is minimized
+    ctypes.windll.user32.ShowWindow(hwnd, SW_RESTORE)
+
+    # 2. Simulate ALT key down to bypass foreground lock
+    ctypes.windll.user32.keybd_event(VK_MENU, 0, 0, 0)
+
+    # 3. Set the foreground window
+    result = ctypes.windll.user32.SetForegroundWindow(hwnd)
+
+    # 4. Simulate ALT key up
+    ctypes.windll.user32.keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, 0)
+
+    return bool(result)
+
+
+def bring_process_front(process_name, window_name):
+    target_process = is_process_running(process_name)
+
+    if not target_process:
+        return None
+
+    hwnds_with_titles = get_hwnds_for_pid(target_process.pid)
+
+    if not hwnds_with_titles:
+        return None
+
+    target_hwnd = None
+    for hwnd, title in hwnds_with_titles:
+        logger.info(f"Debug: Found window with title: '{title}'")
+        if window_name in title:
+            target_hwnd = hwnd
+            break
+    if target_hwnd == None:
+        return None
+
+    return force_foreground(target_hwnd)
