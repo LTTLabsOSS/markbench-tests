@@ -4,6 +4,7 @@ import csv
 import os
 import re
 from pathlib import Path
+import json
 
 import win32api
 
@@ -28,7 +29,7 @@ def trim_to_major_minor(version: str | None) -> str | None:
 
 def get_latest_benchmark_by_version(benchmark_name: str):
     """Get the latest benchmark version, prioritizing beta if it's newer."""
-    valid_names = ["photoshop", "premierepro", "aftereffects", "lightroom", "resolve"]
+    valid_names = ["photoshop", "premierepro", "aftereffects", "lightroom", "resolve", "unreal"]
     if benchmark_name not in valid_names:
         raise ValueError("Invalid benchmark name")
 
@@ -46,16 +47,18 @@ def get_latest_benchmark_by_version(benchmark_name: str):
     if not benchmark_files:
         raise ValueError("No valid benchmark versions found.")
 
-    version_pattern = re.compile(r"-(\d+)\.(\d+)\.(\d+)(-beta)?\.json$")
+    version_pattern = re.compile(r"-(\d+)\.(\d+)\.(\d+)(-beta)?(-dev)?\.json$")
 
     def extract_version(filename):
-        """Extracts numeric version and beta flag from filename."""
+        """Extracts numeric version and beta or dev flag from filename."""
         match = version_pattern.search(filename)
         if match:
-            major, minor, patch, beta_flag = match.groups()
+            major, minor, patch, beta_flag, dev_flag = match.groups()
             version = f"{major}.{minor}.{patch}"
             if beta_flag:
                 version += "-beta"
+            if dev_flag:
+                version += "-dev"
             return version
         return None  # Ignore files that don't match
 
@@ -79,9 +82,9 @@ def get_latest_benchmark_by_version(benchmark_name: str):
     return versions[0]
 
 
-def find_score_in_log(log_path):
-    """Return a single PugetBench overall score, preferring Standard > Extended > Basic."""
-    scores = {}
+def find_score_in_log(log_path, preset):
+    """Return a single PugetBench overall score for the specified preset."""
+    target_label = f"Overall Score ({preset})"
 
     with open(log_path, newline="", encoding="utf-8") as f:
         reader = csv.reader(f)
@@ -92,42 +95,14 @@ def find_score_in_log(log_path):
 
             label = row[0].strip()
 
-            # Only process rows that begin with "Overall Score"
-            if not label.startswith("Overall Score"):
+            if label != target_label:
                 continue
 
             # Find the first numeric field
             for field in row:
                 cleaned = field.replace(",", "").strip()
                 if cleaned.isdigit():
-                    scores[label] = int(cleaned)
-                    break
-
-    # Priority order — return the first one found
-    priority = [
-        "Overall Score (Standard)",
-        "Overall Score (Extended)",
-        "Overall Score (Basic)",
-    ]
-
-    for key in priority:
-        if key in scores:
-            return scores[key]
-
-    return None
-
-
-def find_pugetbench_csv(folder_path: str | Path) -> Path | None:
-    """Return the first `pugetbench*.csv` file found in the given folder."""
-    folder = Path(folder_path)
-    if not folder.is_dir():
-        raise ValueError(f"Invalid folder path: {folder_path}")
-
-    for file_path in sorted(folder.iterdir()):
-        if file_path.is_file() and re.fullmatch(
-            r"pugetbench.*\.csv", file_path.name, re.IGNORECASE
-        ):
-            return file_path
+                    return int(cleaned)
 
     return None
 
@@ -324,3 +299,68 @@ def get_pugetbench_version() -> str:
     except Exception as e:
         print(e)
     return None
+
+def get_unreal_version() -> tuple[str | None, str | None]:
+    """Get the installed Unreal Engine version string."""
+
+    manifest_dir = r"C:\ProgramData\Epic\EpicGamesLauncher\Data\Manifests"
+
+    if not os.path.isdir(manifest_dir):
+        print("Epic Games Launcher manifest directory not found.")
+        return None, None
+
+    # Look through Epic Launcher manifests for Unreal Engine installations.
+    for filename in os.listdir(manifest_dir):
+        if not filename.endswith(".item"):
+            continue
+
+        manifest_path = os.path.join(manifest_dir, filename)
+
+        try:
+            with open(manifest_path, "r", encoding="utf-8") as f:
+                manifest = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            continue
+
+        # Unreal Engine manifests have an AppName such as UE_5.6
+        app_name = manifest.get("AppName", "")
+
+        if not app_name.startswith("UE_"):
+            continue
+
+        install_location = manifest.get("InstallLocation")
+
+        if not install_location:
+            continue
+
+        # Normalize the path in case the manifest uses forward slashes.
+        install_location = os.path.normpath(install_location)
+
+        build_version_path = os.path.join(
+            install_location,
+            "Engine",
+            "Build",
+            "Build.version",
+        )
+
+        if not os.path.isfile(build_version_path):
+            continue
+
+        try:
+            with open(build_version_path, "r", encoding="utf-8") as f:
+                version = json.load(f)
+
+            major = version["MajorVersion"]
+            minor = version["MinorVersion"]
+            patch = version["PatchVersion"]
+
+            full_version = f"{major}.{minor}.{patch}"
+            major_minor = f"{major}.{minor}"
+
+            return full_version, major_minor
+
+        except (OSError, json.JSONDecodeError, KeyError) as e:
+            print(f"Error reading Unreal version from {build_version_path}: {e}")
+
+    print("Unreal Engine installation not found.")
+    return None, None
