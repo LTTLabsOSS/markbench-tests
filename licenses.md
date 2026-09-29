@@ -23,7 +23,7 @@ Links to licenses and repositories of dependencies used throughout MarkBench tes
 ## Python
 | Project                                                             | License                                                                                                   |
 | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| [PyAutoGUI](https://github.com/asweigart/pyautogui)                 | [BSD 3-Clause "New" or "Revised" License](https://github.com/asweigart/pyautogui/blob/master/LICENSE.txt) |
+| [PyGetWindow](https://github.com/asweigart/pygetwindow)             | [BSD 3-Clause "New" or "Revised" License](https://github.com/asweigart/pygetwindow/blob/master/LICENSE.txt) |
 | [PyDirectInput](https://github.com/learncodebygaming/pydirectinput) | [MIT License](https://github.com/learncodebygaming/pydirectinput/blob/master/LICENSE.txt)                 |
 | [opencv-python](https://github.com/opencv/opencv-python)            | [MIT License](https://github.com/opencv/opencv-python/blob/4.x/LICENSE.txt)                               |
 | [psutil](https://github.com/giampaolo/psutil)                       | [BSD 3-Clause "New" or "Revised" License](https://github.com/giampaolo/psutil/blob/master/LICENSE)        |
