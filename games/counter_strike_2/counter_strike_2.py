@@ -73,6 +73,7 @@ def run_benchmark():
 
     time.sleep(10)
 
+    # Click to bring the game to the foreground.
     click(round(width * 0.13), round(height * 0.03))
 
     time.sleep(5)
