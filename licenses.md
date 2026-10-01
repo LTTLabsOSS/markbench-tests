@@ -8,10 +8,11 @@ Links to licenses and repositories of dependencies used throughout MarkBench tes
 | --------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------ |
 | 7-zip Compression & Decompression | [7-zip](https://www.7-zip.org/)                      | [GNU LGPL*](https://www.7-zip.org/license.txt)               |
 | Blender Benchmark                 | [Blender Benchmark](https://opendata.blender.org/)   | [GNU GPL](https://www.blender.org/about/license/)            |
-| FLAC Audio Encode                 | [FLAC](https://xiph.org/flac/index.html)             | [BSD](https://xiph.org/flac/license.html)                    |
 | y-cruncher                        | [y-cruncher](http://www.numberworld.org/y-cruncher/) | [Unique](http://www.numberworld.org/y-cruncher/license.html) |
 | primesieve                        | [primesieve](https://github.com/kimwalisch/primesieve?tab=BSD-2-Clause-1-ov-file#readme) | [BSD-2](https://github.com/kimwalisch/primesieve?tab=BSD-2-Clause-1-ov-file#readme) |
-| C-ray | [c-ray](https://github.com/jtsiomb/c-ray) | [GPL-3.0](https://github.com/jtsiomb/c-ray?tab=GPL-3.0-1-ov-file#readme)
+| xz                                | [XZ Utils](https://tukaani.org/xz/)                  | [0BSD](https://github.com/tukaani-project/xz/blob/master/COPYING) |
+| FFmpeg CPU                        | [FFmpeg](https://www.gyan.dev/ffmpeg/builds/)        | [GNU GPL](https://ffmpeg.org/legal.html)                     |
+| Godot Compile                     | [Godot Engine](https://github.com/godotengine/godot) | [MIT](https://github.com/godotengine/godot/blob/master/LICENSE.txt) |
 
 ## Required files
 
@@ -19,13 +20,19 @@ Links to licenses and repositories of dependencies used throughout MarkBench tes
 | --------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------- |
 | DOTA 2                            | [D-OPTIMIZER](https://github.com/AveYo/D-OPTIMIZER)  | [MIT](https://github.com/AveYo/D-OPTIMIZER/blob/archive/LICENSE) |
 | Cities Skylines 2                 | [Not Paradox Launcher](https://github.com/shusaura85/notparadoxlauncher)  | [MIT](https://github.com/shusaura85/notparadoxlauncher/blob/master/LICENSE) |
+| FFmpeg CPU                        | [Big Buck Bunny](https://peach.blender.org/about/)   | [CC BY 3.0](https://peach.blender.org/about/)                    |
 
 ## Python
 | Project                                                             | License                                                                                                   |
 | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | [PyGetWindow](https://github.com/asweigart/pygetwindow)             | [BSD 3-Clause "New" or "Revised" License](https://github.com/asweigart/pygetwindow/blob/master/LICENSE.txt) |
-| [PyDirectInput](https://github.com/learncodebygaming/pydirectinput) | [MIT License](https://github.com/learncodebygaming/pydirectinput/blob/master/LICENSE.txt)                 |
-| [opencv-python](https://github.com/opencv/opencv-python)            | [MIT License](https://github.com/opencv/opencv-python/blob/4.x/LICENSE.txt)                               |
+| [opencv-python-headless](https://github.com/opencv/opencv-python)   | [MIT License](https://github.com/opencv/opencv-python/blob/4.x/LICENSE.txt)                               |
 | [psutil](https://github.com/giampaolo/psutil)                       | [BSD 3-Clause "New" or "Revised" License](https://github.com/giampaolo/psutil/blob/master/LICENSE)        |
 | [mss](https://github.com/BoboTiG/python-mss)                        | [MIT License](https://github.com/BoboTiG/python-mss/blob/main/LICENSE.txt)                                |
 | [requests](https://github.com/psf/requests)                         | [Apache License 2.0](https://github.com/psf/requests/blob/main/LICENSE)                                   |
+| [NumPy](https://github.com/numpy/numpy)                             | [BSD 3-Clause "New" or "Revised" License](https://github.com/numpy/numpy/blob/main/LICENSE.txt)           |
+| [PyYAML](https://github.com/yaml/pyyaml)                            | [MIT License](https://github.com/yaml/pyyaml/blob/main/LICENSE)                                           |
+| [vdf](https://github.com/ValvePython/vdf)                           | [MIT License](https://github.com/ValvePython/vdf/blob/master/LICENSE)                                     |
+| [vgamepad](https://github.com/yannbouteiller/vgamepad)              | [MIT License](https://github.com/yannbouteiller/vgamepad/blob/main/LICENSE)                               |
+| [DXcam](https://github.com/ra1nty/DXcam)                            | [MIT License](https://github.com/ra1nty/DXcam/blob/main/LICENSE)                                          |
+| [pywin32](https://github.com/mhammond/pywin32)                      | [PSF-2.0 and BSD 3-Clause](https://github.com/mhammond/pywin32/blob/main/win32/License.txt)               |
