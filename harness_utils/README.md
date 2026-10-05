@@ -74,3 +74,7 @@ Functions related to setting up and using RTSS configs.
 `steam.py`
 
 Functions related to using Steam for running games
+
+- `exec_steam_launch_option(game_id, launch_option_index, steam_path=None)` runs a zero-based launch option for the current platform.
+- Uses `steam://launch/<game_id>/none/<launch_option_index>` to keep Steam from overriding the index with the default option.
+- HITMAN uses index `1` to open **Configure PC Options**.
