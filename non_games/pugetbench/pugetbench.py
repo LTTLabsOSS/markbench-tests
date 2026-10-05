@@ -296,8 +296,7 @@ def main():
 
     except RuntimeError as e:
         msg = str(e)
-        logger.error("Something went wrong running the benchmark!")
-        logger.exception(e)
+        logger.exception("Benchmark runtime error")
 
         # Terminate the process only for "real" failures
         if "timed out" in msg or "Benchmark failed" in msg:
@@ -305,9 +304,7 @@ def main():
 
         sys.exit(1)
     except Exception as e:
-        # Non-runtime exceptions, e.g., coding errors, still exit
-        logger.error("Unexpected error!")
-        logger.exception(e)
+        logger.exception("Unexpected error!")
         sys.exit(1)
 
 

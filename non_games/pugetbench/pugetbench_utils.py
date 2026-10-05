@@ -1,10 +1,10 @@
 """utils file for pugetbench harness"""
 
 import csv
+import json
 import os
 import re
 from pathlib import Path
-import json
 
 import win32api
 
