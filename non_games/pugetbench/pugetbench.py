@@ -303,7 +303,7 @@ def main():
             safe_terminate([EXECUTABLE_NAME, APP_CONFIG[args.app]["app_name"]])
 
         sys.exit(1)
-    except Exception as e:
+    except Exception:
         logger.exception("Unexpected error!")
         sys.exit(1)
 
