@@ -5,7 +5,7 @@ requires-python = "==3.11.*"
 dependencies = [
   "dxcam>=0.0.5; sys_platform == 'win32'",
   "mss>=10.1.0",
-  "opencv-python>=4.13.0.92",
+  "opencv-python-headless>=4.13.0.92",
   "psutil>=7.2.2",
   "pygetwindow>=0.0.9; sys_platform == 'win32'",
   "pyyaml>=6.0.3",

@@ -9,32 +9,18 @@
 # Harness output
 **/run/
 benchmark-launcher-cli-3.1.0-windows.zip
-flac-1.4.3-win/
-flac-1.4.3-win.zip
 primesieve-12.3*
-y-cruncher v0.8.2.9522/
-y-cruncher v0.8.2.9522.zip
-y-cruncher v0.8.6.9545/
-y-cruncher.v0.8.6.9545b.zip
+y-cruncher*/
+y-cruncher*.zip
 basegame_no_intro_videos.archive
 *.blend
 0001.png
-*.msi
-c-ray-fast*
-sphfract.scn
-output.ppm
-tq_dlss_explained_1080*
-xz_5.6.2_x86*
 *.y4m
 *.exe
 !/games/cities_skylines_2/launcher/*.exe
 *.mp4
-godot-4.2.1-stable/
-godot-4.2.1-stable.zip
-godot-4.3-stable/
-godot-4.3-stable.zip
-godot-4.4.1-stable/
-godot-4.4.1-stable.zip
+godot-*/
+godot-*.zip
 mingw64/
 
 # python
@@ -45,6 +31,7 @@ __pycache__/
 .pi-subagents/
 
 ffmpeg-8.0.1-full_build/
+ffmpeg-8.0.1-full_static-win-arm64/
 *.log
 *.txt
 !/games/stellaris/settings/pdx_settings.txt
