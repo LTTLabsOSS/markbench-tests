@@ -17,6 +17,7 @@ from pugetbench_utils import (
     get_photoshop_version,
     get_premierepro_version,
     get_pugetbench_version,
+    get_unreal_version,
     trim_to_major_minor,
 )
 
@@ -70,6 +71,12 @@ APP_CONFIG = {
         "app_name": "Resolve.exe",
         "suffix": "-studio",
     },
+    "unreal": {
+            "label": "Unreal Engine",
+            "version_func": get_unreal_version,
+            "app_name": "UnrealEditor.exe",
+            "suffix": None,
+        },
 }
 
 
@@ -112,7 +119,7 @@ def read_output(stream, log_func, error_func, error_in_output):
         sys.stdout.flush()
 
 
-def run_benchmark(application: str, app_version: str, benchmark_version: str):
+def run_benchmark(application: str, app_version: str, benchmark_version: str, preset: str):
     """Commands to initiate benchmark"""
     start_time = time.time()
     executable_path = Path(
@@ -131,7 +138,7 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         "--benchmark_version",
         benchmark_version,
         "--preset",
-        "Standard",
+        preset,
         "--app_version",
         app_version,
         "--app",
@@ -151,7 +158,7 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
     with Popen(command, stdout=PIPE, stderr=STDOUT, text=True, bufsize=1) as process:
         stdout_thread = threading.Thread(
             target=read_output,
-            args=(process.stdout, logging.info, logging.error, error_in_output),
+            args=(process.stdout, logger.info, logger.error, error_in_output),
         )
         stdout_thread.start()
 
@@ -201,9 +208,9 @@ def get_app_version_info(app: str, version_arg: str):
     return full_version, trimmed_version, config["label"]
 
 
-def execute_benchmark(app: str, app_version: str, benchmark_version: str):
+def execute_benchmark(app: str, app_version: str, benchmark_version: str, preset: str):
     """Executes the benchmark and then captures the log file."""
-    start_time, end_time = run_benchmark(app, app_version, benchmark_version)
+    start_time, end_time = run_benchmark(app, app_version, benchmark_version, preset)
 
     if not LOG_FILE_PATH.exists():
         raise RuntimeError(f"Expected CSV log not found: {LOG_FILE_PATH}")
@@ -215,9 +222,9 @@ def execute_benchmark(app: str, app_version: str, benchmark_version: str):
                 f"Benchmark did not complete correctly; expected 'Overall Score' not found in {LOG_FILE_PATH}"
             )
 
-    score = find_score_in_log(LOG_FILE_PATH)
+    score = find_score_in_log(LOG_FILE_PATH, preset)
     if score is None:
-        raise RuntimeError(f"No valid score found in log: {LOG_FILE_PATH}")
+        raise RuntimeError(f"No valid score for '{preset}' found in log: {LOG_FILE_PATH}")
 
     return start_time, end_time, score
 
@@ -244,7 +251,21 @@ def main():
         help="PugetBench Benchmark version to use",
         required=False,
     )
+    parser.add_argument(
+        "--preset",
+        choices=["Standard","Extended"],
+        dest="preset",
+        help="Application name to test",
+        required=True,
+    )
     args = parser.parse_args()
+
+    if args.app == "photoshop" and args.preset == "Extended":
+        logger.error(
+            "Invalid preset: Photoshop only supports the Standard preset. "
+            "Please change the preset from Extended and run it again."
+        )
+        sys.exit(1)
 
     full_version, trimmed_version, test_label = get_app_version_info(
         args.app, args.app_version
@@ -255,14 +276,14 @@ def main():
 
     try:
         start_time, end_time, score = execute_benchmark(
-            args.app, trimmed_version, args.benchmark_version
+            args.app, trimmed_version, args.benchmark_version, args.preset
         )
 
         report = {
             "start_time": seconds_to_milliseconds(start_time),
             "end_time": seconds_to_milliseconds(end_time),
             "test": "PugetBench",
-            "test_parameter": test_label,
+            "test_parameter": f"{test_label} {args.preset} Preset",
             "app_version": full_version,
             "benchmark_version": args.benchmark_version,
             "pugetbench_version": get_pugetbench_version(),
@@ -275,8 +296,7 @@ def main():
 
     except RuntimeError as e:
         msg = str(e)
-        logger.error("Something went wrong running the benchmark!")
-        logger.exception("Unhandled exception")
+        logger.exception("Benchmark runtime error")
 
         # Terminate the process only for "real" failures
         if "timed out" in msg or "Benchmark failed" in msg:
@@ -284,9 +304,7 @@ def main():
 
         sys.exit(1)
     except Exception:
-        # Non-runtime exceptions, e.g., coding errors, still exit
-        logger.error("Unexpected error!")
-        logger.exception("Unhandled exception")
+        logger.exception("Unexpected error!")
         sys.exit(1)
 
 
