@@ -6,11 +6,6 @@ category = "non_game"
 ocr = false
 
 [[args]]
-name = "app_version"
-type = "input"
-tooltip = "Version of the selected test"
-
-[[args]]
 name = "app"
 type = "select"
 tooltip = "Select which test to run"
