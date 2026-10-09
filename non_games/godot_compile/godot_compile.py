@@ -8,10 +8,11 @@ from pathlib import Path
 
 from godot_compile_utils import (
     GODOT_VERSION,
-    LLVM_MINGW_HOSTS,
+    LLVM_MINGW_TRIPLES,
     convert_duration_string_to_seconds,
     copy_godot_source_from_network_drive,
     create_conda_environment,
+    detect_host_architecture,
     get_compiler_version,
     install_llvm_mingw,
     install_miniconda,
@@ -36,9 +37,10 @@ parser.add_argument(
     "-a",
     "--architecture",
     dest="architecture",
-    help="Architecture type",
+    help="Target architecture to build Godot for, cross-compiling if it "
+    "differs from this machine's architecture",
     required=True,
-    choices=LLVM_MINGW_HOSTS.keys(),
+    choices=LLVM_MINGW_TRIPLES.keys(),
 )
 args = parser.parse_args()
 
@@ -46,10 +48,14 @@ args = parser.parse_args()
 def main():
     """test script entry point"""
     setup_logging(LOG_DIRECTORY)
-    output = install_llvm_mingw(args.architecture)
+    host = detect_host_architecture()
+    target = args.architecture
+    logger.info("host architecture: %s, target architecture: %s", host, target)
+
+    output = install_llvm_mingw(host)
     logger.info(output)
 
-    compiler = get_compiler_version(args.architecture)
+    compiler = get_compiler_version(host, target)
     logger.info("compiler: %s", compiler)
 
     output = install_miniconda()
@@ -66,7 +72,7 @@ def main():
 
     build_options = [
         "platform=windows",
-        f"arch={args.architecture}",
+        f"arch={target}",
         "use_mingw=yes",
         "use_llvm=yes",
         # the d3d12 driver needs an sdk downloaded at build time, so leave it out
@@ -101,12 +107,13 @@ def main():
     report = {
         "start_time": start_time,
         "version": GODOT_VERSION,
-        "architecture": args.architecture,
+        "host_architecture": host,
         "compiler": compiler,
         "end_time": end_time,
         "score": score,
         "unit": "seconds",
         "test": f"Godot {GODOT_VERSION.removesuffix('-stable')} Compile",
+        "test_parameter": target,
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)

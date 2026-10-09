@@ -1,10 +1,12 @@
 """godot compile utility functions"""
 
+import ctypes
 import logging
 import os
 import shutil
 import subprocess
 import time
+from ctypes import wintypes
 from datetime import timedelta
 from pathlib import Path
 from zipfile import ZipFile
@@ -23,12 +25,18 @@ LLVM_MINGW_RELEASE = "20261006"
 LLVM_MINGW_NETWORK_DIRECTORY = Path(
     "\\\\labs.lmg.gg\\labs\\01_Installers_Utilities\\llvm-mingw\\"
 )
-# llvm-mingw host architecture for each godot architecture
+# llvm-mingw zip suffix for each host architecture. each zip runs on that
+# host and can build for every target architecture
 LLVM_MINGW_HOSTS = {
     "x86_64": "x86_64",
     "arm64": "aarch64",
 }
-# target triple godot uses to look up mingw tools for each godot architecture
+# IsWow64Process2 native machine values
+IMAGE_FILE_MACHINES = {
+    0x8664: "x86_64",
+    0xAA64: "arm64",
+}
+# target triple godot uses to look up mingw tools for each target architecture
 LLVM_MINGW_TRIPLES = {
     "x86_64": "x86_64-w64-mingw32",
     "arm64": "aarch64-w64-mingw32",
@@ -54,6 +62,10 @@ def get_conda_subprocess_env() -> dict[str, str]:
         "CONDA_DEFAULT_ENV",
         "CONDA_PROMPT_MODIFIER",
         "__PYVENV_LAUNCHER__",
+        # godot reads these to guess the build arch and errors out when
+        # cross-compiling from an msys2/git bash or vs developer shell
+        "MSYSTEM",
+        "VCTOOLSINSTALLDIR",
     ]:
         env.pop(key, None)
     return env
@@ -80,24 +92,53 @@ def run_subprocess(command: list[str], cwd: Path | None = None) -> str:
     return completed.stdout
 
 
-def get_llvm_mingw_name(architecture: str) -> str:
-    """returns the llvm-mingw release name for the given architecture"""
-    return f"llvm-mingw-{LLVM_MINGW_RELEASE}-ucrt-{LLVM_MINGW_HOSTS[architecture]}"
+def detect_host_architecture() -> str:
+    """
+    returns the native cpu architecture of this machine. uses IsWow64Process2
+    because an x86_64 python running under emulation on arm64 reports x86_64
+    from platform.machine()
+    """
+    process_machine = ctypes.c_ushort()
+    native_machine = ctypes.c_ushort()
+    kernel32 = ctypes.windll.kernel32
+    # declare types so the 64-bit process handle isn't truncated to an int
+    kernel32.GetCurrentProcess.restype = wintypes.HANDLE
+    kernel32.IsWow64Process2.argtypes = [
+        wintypes.HANDLE,
+        ctypes.POINTER(ctypes.c_ushort),
+        ctypes.POINTER(ctypes.c_ushort),
+    ]
+    kernel32.IsWow64Process2.restype = wintypes.BOOL
+    if not kernel32.IsWow64Process2(
+        kernel32.GetCurrentProcess(),
+        ctypes.byref(process_machine),
+        ctypes.byref(native_machine),
+    ):
+        raise Exception("IsWow64Process2 failed, could not detect host architecture")
+    host = IMAGE_FILE_MACHINES.get(native_machine.value)
+    if host is None:
+        raise Exception(f"unsupported host architecture: {native_machine.value:#x}")
+    return host
 
 
-def get_llvm_mingw_folder(architecture: str) -> Path:
-    """returns the local llvm-mingw folder for the given architecture"""
-    return SCRIPT_DIRECTORY.joinpath(get_llvm_mingw_name(architecture))
+def get_llvm_mingw_name(host: str) -> str:
+    """returns the llvm-mingw release name for the given host architecture"""
+    return f"llvm-mingw-{LLVM_MINGW_RELEASE}-ucrt-{LLVM_MINGW_HOSTS[host]}"
 
 
-def install_llvm_mingw(architecture: str) -> str:
-    """copies llvm-mingw from the network drive and adds to path"""
-    folder = get_llvm_mingw_folder(architecture)
+def get_llvm_mingw_folder(host: str) -> Path:
+    """returns the local llvm-mingw folder for the given host architecture"""
+    return SCRIPT_DIRECTORY.joinpath(get_llvm_mingw_name(host))
+
+
+def install_llvm_mingw(host: str) -> str:
+    """copies llvm-mingw for the host from the network drive and adds to path"""
+    folder = get_llvm_mingw_folder(host)
     clang_path = folder.joinpath("bin", "clang.exe")
     logger.info("checking for existing llvm-mingw at %s", clang_path)
     message = "existing llvm-mingw installation detected"
     if not clang_path.is_file():
-        zip_name = f"{get_llvm_mingw_name(architecture)}.zip"
+        zip_name = f"{get_llvm_mingw_name(host)}.zip"
         source = LLVM_MINGW_NETWORK_DIRECTORY.joinpath(zip_name)
         destination = SCRIPT_DIRECTORY.joinpath(zip_name)
 
@@ -135,15 +176,16 @@ def install_llvm_mingw(architecture: str) -> str:
     return message
 
 
-def get_compiler_version(architecture: str) -> str:
+def get_compiler_version(host: str, target: str) -> str:
     """
     returns the first line of the clang version output, after checking that
-    the clang godot will find on PATH is the bundled llvm-mingw one. if godot
-    can't find clang it silently falls back to any gcc on PATH, so fail early.
+    the clang godot will find on PATH for the target is the bundled llvm-mingw
+    one. if godot can't find clang it silently falls back to any gcc on PATH,
+    so fail early.
     """
-    clang_name = f"{LLVM_MINGW_TRIPLES[architecture]}-clang"
+    clang_name = f"{LLVM_MINGW_TRIPLES[target]}-clang"
     found = shutil.which(clang_name, path=get_conda_subprocess_env().get("PATH"))
-    expected_bin = get_llvm_mingw_folder(architecture).joinpath("bin")
+    expected_bin = get_llvm_mingw_folder(host).joinpath("bin")
     if found is None or Path(found).resolve().parent != expected_bin.resolve():
         raise Exception(
             f"{clang_name} on PATH is {found}, expected it in {expected_bin}"

@@ -8,5 +8,5 @@ ocr = false
 [[args]]
 name = "architecture"
 type = "select"
-tooltip = "Select architecture to run"
+tooltip = "Target architecture to build Godot for (cross-compiles if it differs from this machine)"
 values = ["x86_64", "arm64"]

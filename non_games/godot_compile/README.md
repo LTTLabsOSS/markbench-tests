@@ -2,7 +2,9 @@
 
 Compile test which measures the duration to compile Godot 4.7.2 from source (editor target, `d3d12=no`).
 
-The build uses [llvm-mingw](https://github.com/mstorsjo/llvm-mingw) 20261006 (Clang, LLVM 23.1.3) on both x86_64 and arm64, so both architectures are compiled with the same compiler version. The arm64 build is a native Windows on ARM build.
+The build uses [llvm-mingw](https://github.com/mstorsjo/llvm-mingw) 20261006 (Clang, LLVM 23.1.3) on both x86_64 and arm64, so both architectures are compiled with the same compiler version.
+
+The harness detects the machine's CPU (the host) and uses the matching llvm-mingw toolchain. `--architecture` picks the target Godot is built for, so any machine can build either target: native when it matches the host, cross-compiled otherwise. Run the harness once per target to get an x86_64 and an arm64 score on each machine.
 
 The Godot and llvm-mingw versions are pinned together. Newer compilers can fail on an older Godot's bundled third-party code (Godot 4.4.1 does not build with LLVM 23), so update both together and test a full build first.
 
@@ -11,16 +13,17 @@ The Godot and llvm-mingw versions are pinned together. Newer compilers can fail 
 - Python 3.10+
 - On the network drive (see `godot_compile_utils.py`):
   - `godot-4.7.2-stable.zip`, containing a top-level `godot-4.7.2-stable` folder
-  - llvm-mingw `ucrt-x86_64` and `ucrt-aarch64` zips for the pinned release
+  - llvm-mingw `ucrt-x86_64` and `ucrt-aarch64` zips for the pinned release (x86 machines use the first, ARM machines the second)
 
 ## Options
 
-- `--architecture`: `x86_64` or `arm64`
+- `--architecture`: target architecture to build, `x86_64` or `arm64`
 
 ## Output
 
 report.json
 - `score`: duration of compile in seconds
+- `test_parameter`: target architecture (`x86_64` or `arm64`)
 - `version`: version of Godot compiled
-- `architecture`: architecture Godot was compiled for
+- `host_architecture`: architecture of the machine running the build
 - `compiler`: version string of the llvm-mingw clang used for the build
