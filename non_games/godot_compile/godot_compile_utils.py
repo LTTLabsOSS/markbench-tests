@@ -10,8 +10,17 @@ from zipfile import ZipFile
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 MINICONDA_INSTALLER = "Miniconda3-24.5.0-0-Windows-x86_64.exe"
-MINGW_ZIP = "x86_64-13.2.0-release-posix-seh-msvcrt-rt_v11-rev1.zip"
-MINGW_FOLDER = SCRIPT_DIRECTORY.joinpath("mingw64")
+# TODO: upload both zips from https://github.com/mstorsjo/llvm-mingw/releases
+# to LLVM_MINGW_NETWORK_DIRECTORY and confirm the release tag below
+LLVM_MINGW_RELEASE = "20261006"
+LLVM_MINGW_NETWORK_DIRECTORY = Path(
+    "\\\\labs.lmg.gg\\labs\\01_Installers_Utilities\\llvm-mingw\\"
+)
+# llvm-mingw host architecture for each godot architecture
+LLVM_MINGW_HOSTS = {
+    "x86_64": "x86_64",
+    "arm64": "aarch64",
+}
 MINICONDA_EXECUTABLE_PATH = Path("C:\\ProgramData\\miniconda3\\_conda.exe")
 CONDA_ENV_NAME = "godotbuild"
 GODOT_DIR = "godot-4.4.1-stable"
@@ -59,27 +68,43 @@ def run_subprocess(command: list[str], cwd: Path | None = None) -> str:
     return completed.stdout
 
 
-def install_mingw() -> str:
-    """copies mingw from the network drive and adds to path"""
+def get_llvm_mingw_name(architecture: str) -> str:
+    """returns the llvm-mingw release name for the given architecture"""
+    return f"llvm-mingw-{LLVM_MINGW_RELEASE}-ucrt-{LLVM_MINGW_HOSTS[architecture]}"
+
+
+def get_llvm_mingw_folder(architecture: str) -> Path:
+    """returns the local llvm-mingw folder for the given architecture"""
+    return SCRIPT_DIRECTORY.joinpath(get_llvm_mingw_name(architecture))
+
+
+def install_llvm_mingw(architecture: str) -> str:
+    """copies llvm-mingw from the network drive and adds to path"""
+    folder = get_llvm_mingw_folder(architecture)
+    message = "existing llvm-mingw installation detected"
+    if not folder.is_dir():
+        zip_name = f"{get_llvm_mingw_name(architecture)}.zip"
+        destination = SCRIPT_DIRECTORY.joinpath(zip_name)
+        shutil.copyfile(LLVM_MINGW_NETWORK_DIRECTORY.joinpath(zip_name), destination)
+        with ZipFile(destination, "r") as zip_object:
+            zip_object.extractall(path=SCRIPT_DIRECTORY)
+        message = "installed llvm-mingw from network drive"
     original_path = os.environ.get("PATH", "")
-    if MINGW_FOLDER.is_dir():
-        if str(MINGW_FOLDER) not in original_path:
-            os.environ["PATH"] = (
-                str(MINGW_FOLDER.joinpath("bin")) + os.pathsep + original_path
-            )
-        return "existing mingw installation detected"
-    source = Path("\\\\labs.lmg.gg\\labs\\01_Installers_Utilities\\MinGW\\").joinpath(
-        MINGW_ZIP
-    )
-    destination = SCRIPT_DIRECTORY.joinpath(MINGW_ZIP)
-    shutil.copyfile(source, destination)
-    with ZipFile(destination, "r") as zip_object:
-        zip_object.extractall(path=SCRIPT_DIRECTORY)
-    if str(MINGW_FOLDER) not in original_path:
-        os.environ["PATH"] = (
-            str(MINGW_FOLDER.joinpath("bin")) + os.pathsep + original_path
+    if str(folder) not in original_path:
+        os.environ["PATH"] = str(folder.joinpath("bin")) + os.pathsep + original_path
+    return message
+
+
+def get_compiler_version(architecture: str) -> str:
+    """returns the first line of the llvm-mingw clang version output"""
+    clang_path = get_llvm_mingw_folder(architecture).joinpath("bin", "clang.exe")
+    try:
+        output = subprocess.check_output(
+            [str(clang_path), "--version"], stderr=subprocess.STDOUT, text=True
         )
-    return "installed mingw from network drive"
+    except Exception as err:
+        raise Exception(f"could not get compiler version from {clang_path}") from err
+    return output.splitlines()[0].strip()
 
 
 def copy_miniconda_from_network_drive():

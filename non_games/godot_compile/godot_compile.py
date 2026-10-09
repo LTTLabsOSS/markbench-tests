@@ -3,13 +3,17 @@
 import logging
 import re
 import sys
+from argparse import ArgumentParser
 from pathlib import Path
 
 from godot_compile_utils import (
+    LLVM_MINGW_HOSTS,
     convert_duration_string_to_seconds,
     copy_godot_source_from_network_drive,
     create_conda_environment,
-    install_mingw,
+    get_compiler_version,
+    get_llvm_mingw_folder,
+    install_llvm_mingw,
     install_miniconda,
     run_conda_command,
 )
@@ -27,12 +31,26 @@ logger = logging.getLogger(__name__)
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 
+parser = ArgumentParser()
+parser.add_argument(
+    "-a",
+    "--architecture",
+    dest="architecture",
+    help="Architecture type",
+    required=True,
+    choices=LLVM_MINGW_HOSTS.keys(),
+)
+args = parser.parse_args()
+
 
 def main():
     """test script entry point"""
     setup_logging(LOG_DIRECTORY)
-    output = install_mingw()
+    output = install_llvm_mingw(args.architecture)
     logger.info(output)
+
+    compiler = get_compiler_version(args.architecture)
+    logger.info("compiler: %s", compiler)
 
     output = install_miniconda()
     logger.info(output)
@@ -46,15 +64,19 @@ def main():
     output = run_conda_command(["-m", "pip", "install", "scons"])
     logger.info(output)
 
-    output = run_conda_command(
-        ["-m", "SCons", "--clean", "--no-cache", "platform=windows", "arch=x86_64"]
-    )
+    build_options = [
+        "platform=windows",
+        f"arch={args.architecture}",
+        "use_mingw=yes",
+        "use_llvm=yes",
+        f"mingw_prefix={get_llvm_mingw_folder(args.architecture)}",
+    ]
+
+    output = run_conda_command(["-m", "SCons", "--clean", "--no-cache"] + build_options)
     logger.info(output)
 
     start_time = current_time_ms()
-    output = run_conda_command(
-        ["-m", "SCons", "--no-cache", "platform=windows", "arch=x86_64"]
-    )
+    output = run_conda_command(["-m", "SCons", "--no-cache"] + build_options)
     logger.info(output)
     end_time = current_time_ms()
 
@@ -75,6 +97,8 @@ def main():
     report = {
         "start_time": start_time,
         "version": "4.4.1-stable",
+        "architecture": args.architecture,
+        "compiler": compiler,
         "end_time": end_time,
         "score": score,
         "unit": "seconds",

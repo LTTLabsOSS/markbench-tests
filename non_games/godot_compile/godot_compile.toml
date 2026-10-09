@@ -4,3 +4,9 @@ executable = "HandBrakeCLI.exe"
 presentmon_enabled = false
 category = "non_game"
 ocr = false
+
+[[args]]
+name = "architecture"
+type = "select"
+tooltip = "Select architecture to run"
+values = ["x86_64", "arm64"]

@@ -36,6 +36,8 @@ godot-4.3-stable.zip
 godot-4.4.1-stable/
 godot-4.4.1-stable.zip
 mingw64/
+llvm-mingw-*/
+llvm-mingw-*.zip
 
 # python
 __pycache__/
