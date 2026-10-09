@@ -1,5 +1,6 @@
 """godot compile utility functions"""
 
+import logging
 import os
 import shutil
 import subprocess
@@ -7,6 +8,8 @@ import time
 from datetime import timedelta
 from pathlib import Path
 from zipfile import ZipFile
+
+logger = logging.getLogger(__name__)
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 MINICONDA_INSTALLER = "Miniconda3-24.5.0-0-Windows-x86_64.exe"
@@ -81,16 +84,44 @@ def get_llvm_mingw_folder(architecture: str) -> Path:
 def install_llvm_mingw(architecture: str) -> str:
     """copies llvm-mingw from the network drive and adds to path"""
     folder = get_llvm_mingw_folder(architecture)
+    clang_path = folder.joinpath("bin", "clang.exe")
+    logger.info("checking for existing llvm-mingw at %s", clang_path)
     message = "existing llvm-mingw installation detected"
-    if not folder.is_dir():
+    if not clang_path.is_file():
         zip_name = f"{get_llvm_mingw_name(architecture)}.zip"
+        source = LLVM_MINGW_NETWORK_DIRECTORY.joinpath(zip_name)
         destination = SCRIPT_DIRECTORY.joinpath(zip_name)
-        shutil.copyfile(LLVM_MINGW_NETWORK_DIRECTORY.joinpath(zip_name), destination)
+
+        logger.info("checking network drive for %s", source)
+        if not source.is_file():
+            raise Exception(f"llvm-mingw zip not found on network drive: {source}")
+        size_mb = source.stat().st_size / (1024 * 1024)
+
+        logger.info("copying %.1f MB to %s", size_mb, destination)
+        step_start = time.time()
+        shutil.copyfile(source, destination)
+        logger.info("copy finished in %.1f seconds", time.time() - step_start)
+
+        logger.info("extracting %s to %s", zip_name, SCRIPT_DIRECTORY)
+        step_start = time.time()
         with ZipFile(destination, "r") as zip_object:
-            zip_object.extractall(path=SCRIPT_DIRECTORY)
+            members = zip_object.infolist()
+            for index, member in enumerate(members, start=1):
+                zip_object.extract(member, path=SCRIPT_DIRECTORY)
+                if index % 2000 == 0:
+                    logger.info("extracted %d of %d files", index, len(members))
+        logger.info(
+            "extracted %d files in %.1f seconds",
+            len(members),
+            time.time() - step_start,
+        )
+
+        if not clang_path.is_file():
+            raise Exception(f"clang.exe not found after extraction: {clang_path}")
         message = "installed llvm-mingw from network drive"
     original_path = os.environ.get("PATH", "")
     if str(folder) not in original_path:
+        logger.info("adding %s to PATH", folder.joinpath("bin"))
         os.environ["PATH"] = str(folder.joinpath("bin")) + os.pathsep + original_path
     return message
 
