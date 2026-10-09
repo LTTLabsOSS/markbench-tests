@@ -13,8 +13,12 @@ logger = logging.getLogger(__name__)
 
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 MINICONDA_INSTALLER = "Miniconda3-24.5.0-0-Windows-x86_64.exe"
-# TODO: upload both zips from https://github.com/mstorsjo/llvm-mingw/releases
-# to LLVM_MINGW_NETWORK_DIRECTORY and confirm the release tag below
+# godot and llvm-mingw versions are pinned together: newer compilers can fail
+# on an older godot's bundled third-party code (godot 4.4.1 fails on LLVM 23).
+# change both together and test a full build before updating either.
+GODOT_VERSION = "4.7.2-stable"
+# llvm-mingw 20261006 = LLVM 23.1.3
+# zips: https://github.com/mstorsjo/llvm-mingw/releases/tag/20261006
 LLVM_MINGW_RELEASE = "20261006"
 LLVM_MINGW_NETWORK_DIRECTORY = Path(
     "\\\\labs.lmg.gg\\labs\\01_Installers_Utilities\\llvm-mingw\\"
@@ -24,9 +28,14 @@ LLVM_MINGW_HOSTS = {
     "x86_64": "x86_64",
     "arm64": "aarch64",
 }
+# target triple godot uses to look up mingw tools for each godot architecture
+LLVM_MINGW_TRIPLES = {
+    "x86_64": "x86_64-w64-mingw32",
+    "arm64": "aarch64-w64-mingw32",
+}
 MINICONDA_EXECUTABLE_PATH = Path("C:\\ProgramData\\miniconda3\\_conda.exe")
 CONDA_ENV_NAME = "godotbuild"
-GODOT_DIR = "godot-4.4.1-stable"
+GODOT_DIR = f"godot-{GODOT_VERSION}"
 CONDA_ENV_DIRECTORY = Path.home().joinpath(".conda", "envs", CONDA_ENV_NAME)
 CONDA_ENV_PYTHON = CONDA_ENV_DIRECTORY.joinpath("python.exe")
 
@@ -127,8 +136,19 @@ def install_llvm_mingw(architecture: str) -> str:
 
 
 def get_compiler_version(architecture: str) -> str:
-    """returns the first line of the llvm-mingw clang version output"""
-    clang_path = get_llvm_mingw_folder(architecture).joinpath("bin", "clang.exe")
+    """
+    returns the first line of the clang version output, after checking that
+    the clang godot will find on PATH is the bundled llvm-mingw one. if godot
+    can't find clang it silently falls back to any gcc on PATH, so fail early.
+    """
+    clang_name = f"{LLVM_MINGW_TRIPLES[architecture]}-clang"
+    found = shutil.which(clang_name, path=get_conda_subprocess_env().get("PATH"))
+    expected_bin = get_llvm_mingw_folder(architecture).joinpath("bin")
+    if found is None or Path(found).resolve().parent != expected_bin.resolve():
+        raise Exception(
+            f"{clang_name} on PATH is {found}, expected it in {expected_bin}"
+        )
+    clang_path = Path(found)
     try:
         output = subprocess.check_output(
             [str(clang_path), "--version"], stderr=subprocess.STDOUT, text=True

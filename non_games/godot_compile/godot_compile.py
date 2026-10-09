@@ -7,12 +7,12 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 from godot_compile_utils import (
+    GODOT_VERSION,
     LLVM_MINGW_HOSTS,
     convert_duration_string_to_seconds,
     copy_godot_source_from_network_drive,
     create_conda_environment,
     get_compiler_version,
-    get_llvm_mingw_folder,
     install_llvm_mingw,
     install_miniconda,
     run_conda_command,
@@ -69,7 +69,11 @@ def main():
         f"arch={args.architecture}",
         "use_mingw=yes",
         "use_llvm=yes",
-        f"mingw_prefix={get_llvm_mingw_folder(args.architecture)}",
+        # the d3d12 driver needs an sdk downloaded at build time, so leave it out
+        "d3d12=no",
+        # no mingw_prefix: godot splits the tool path with shlex, which strips
+        # windows backslashes, so the toolchain is found via PATH instead
+        # (install_llvm_mingw puts its bin folder first)
     ]
 
     output = run_conda_command(["-m", "SCons", "--clean", "--no-cache"] + build_options)
@@ -96,13 +100,13 @@ def main():
 
     report = {
         "start_time": start_time,
-        "version": "4.4.1-stable",
+        "version": GODOT_VERSION,
         "architecture": args.architecture,
         "compiler": compiler,
         "end_time": end_time,
         "score": score,
         "unit": "seconds",
-        "test": "Godot 4.4.1 Compile",
+        "test": f"Godot {GODOT_VERSION.removesuffix('-stable')} Compile",
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
