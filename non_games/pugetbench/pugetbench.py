@@ -18,7 +18,6 @@ from pugetbench_utils import (
     get_premierepro_version,
     get_pugetbench_version,
     get_unreal_version,
-    trim_to_major_minor,
 )
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
@@ -187,19 +186,15 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str, pr
         return start_time, end_time
 
 
-def get_app_version_info(app: str, version_arg: str):
+def get_app_version_info(app: str):
     """Return (full_version, trimmed_version, label) for the app."""
     config = APP_CONFIG[app]
-    full_version = version_arg
-    trimmed_version = trim_to_major_minor(version_arg) if version_arg else None
-
-    if not full_version:
-        full_version, trimmed_version = config["version_func"]()
-        if not full_version or not trimmed_version:
-            logger.error(
-                "Could not determine %s version. Is it installed?", config["label"]
-            )
-            sys.exit(1)
+    full_version, trimmed_version = config["version_func"]()
+    if not full_version or not trimmed_version:
+        logger.error(
+            "Could not determine %s version. Is it installed?", config["label"]
+        )
+        sys.exit(1)
 
     if config["suffix"]:
         full_version += config["suffix"]
@@ -240,12 +235,6 @@ def main():
         required=True,
     )
     parser.add_argument(
-        "--app_version",
-        dest="app_version",
-        help="Application version to test",
-        required=False,
-    )
-    parser.add_argument(
         "--benchmark_version",
         dest="benchmark_version",
         help="PugetBench Benchmark version to use",
@@ -267,9 +256,7 @@ def main():
         )
         sys.exit(1)
 
-    full_version, trimmed_version, test_label = get_app_version_info(
-        args.app, args.app_version
-    )
+    full_version, trimmed_version, test_label = get_app_version_info(args.app)
 
     if args.benchmark_version is None or args.benchmark_version == "":
         args.benchmark_version = get_latest_benchmark_by_version(args.app)
