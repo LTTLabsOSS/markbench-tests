@@ -84,7 +84,7 @@ def safe_terminate(process_names: list[str]):
     for pname in process_names:
         try:
             terminate_process(pname)
-        except Exception as e: # noqa: BLE001
+        except Exception as e:
             logger.info(
                 "Process '%s' could not be terminated (may not exist): %s", pname, e
             )
