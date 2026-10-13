@@ -253,6 +253,9 @@ def get_lightroom_version() -> tuple[str, str]:
                 )
                 full_version = win32api.GetFileVersionInfo(exe_path, str_info_path)
 
+                # Remove parenthetical build metadata, e.g. "(202608131348-cab7eed5)"
+                full_version = re.sub(r"\s*\([^)]*\)", "", full_version).strip()
+
                 # Trim to major.minor
                 major_minor = trim_to_major_minor(full_version)
 

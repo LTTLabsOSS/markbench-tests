@@ -11,7 +11,6 @@ This is a test harness to run the test suite [PugetBench for Creators](https://w
 - Unreal Engine 5.8 or newer
 
 ## Options
-- `app_version` : Allows you to specify an app version if multiple versions installed on the system (blank will auto discover)
 - `--app` : Specifies which test to run [premierepro,photoshop,aftereffects,lightroom,resolve,unreal]
 - `benchmark_version` : Allows you to specify the benchmark version you wish to run (blank will default to latest and prioritize betas)
 - `benchmark_type` : Allows you to specify either standard or extended tests for a given benchmark
