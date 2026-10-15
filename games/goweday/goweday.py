@@ -1,6 +1,7 @@
 """Gears of War E-Day test script"""
 
 import logging
+import os
 import re
 import sys
 import time
@@ -15,7 +16,7 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.file_cleanup import remove_files
-from harness_utils.input import mangohud_log_toggle, press
+from harness_utils.input import mangohud_log_toggle, press, hold
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import game_install_path, harness_directories, local_appdata
@@ -31,12 +32,11 @@ from harness_utils.steam import exec_steam_game, get_active_steam_account_id, ge
 logger = logging.getLogger(__name__)
 
 STEAM_GAME_ID = 3010850
-STEAM_ID = get_active_steam_account_id()
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
-PROCESS_NAME = "GoWEDay.exe"
-VIDEO_PATH = game_install_path(STEAM_GAME_ID) / "content" / "FairlightConcept" / "Content" / "Movies"
+PROCESS_NAME = "GoWEDay-Steam.exe"
+VIDEO_PATH = game_install_path(STEAM_GAME_ID) / "FairlightConcept" / "Content" / "Movies"
 
-CONFIG_PATH = local_appdata(STEAM_GAME_ID) / "Microsoft" / "Gears of War E-Day" / "Steam" / STEAM_ID / "Saved" / "config" / "Windows"
+CONFIG_PATH = local_appdata(STEAM_GAME_ID) / "Microsoft" / "Gears of War E-Day" / "Steam" / "6BE41AB5" / "Saved" / "config" / "Windows"
 CONFIG_FILENAME = "GameUserSettings.ini"
 CONFIG = CONFIG_PATH / CONFIG_FILENAME
 
@@ -69,7 +69,7 @@ def get_resolution():
 def navigate_to_settings():
     """navigate from main menu to settings menu"""
     logger.info("Navigating main menu")
-    press("enter")
+    hold("x",4)
     result = find_word("campaign", timeout=10)
     if not result:
         logger.info(
@@ -149,7 +149,7 @@ def run_benchmark():
     setup_start_time = int(time.time())
     exec_steam_game(STEAM_GAME_ID)
 
-    time.sleep(100)
+    time.sleep(30)
 
     result = find_word("start", interval=3, timeout=60)
     if not result:

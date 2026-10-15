@@ -1,11 +1,11 @@
-# Assassins Creed Black Flag Resynced
+# Gears of War: E-Day
 
 Navigates menus to the in-game benchmark then runs it.
 
 ## Prerequisites
 
 - Python 3.10+
-- Assassins Creed Black Flag Resynced installed
+- Gears of War: E-Day installed through Steam
 - OCR service
 
 ## Options
