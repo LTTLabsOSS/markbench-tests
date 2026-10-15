@@ -1,0 +1,7 @@
+friendly_name = "Gears of War E-Day"
+py_script = "goweday.py"
+executable = "GoWEDay.exe"
+presentmon_enabled = true
+presentmon_ignore_exit = true
+category = "game"
+ocr = true
