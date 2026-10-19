@@ -9,12 +9,11 @@ from pathlib import Path
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
-from harness_utils.paths import game_install_path
+from harness_utils.paths import game_install_path, harness_directories
 
 logger = logging.getLogger(__name__)
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-RUN_DIR = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 STEAM_GAME_ID = 3017860
 RES_REGEX = re.compile(r"\s*(\d+)\s*[x×]\s*(\d+)")
 
@@ -23,11 +22,11 @@ def get_resolution() -> tuple[int, int]:
     """Gets resolution width and height from local xml file created by game."""
     try:
         bench_file = max(
-            RUN_DIR.glob("benchmark-*.json"), key=lambda p: p.stat().st_mtime
+            ARTIFACTS_DIRECTORY.glob("benchmark-*.json"), key=lambda p: p.stat().st_mtime
         )
     except ValueError as exc:
         # No files matched, propagate as a clearer FileNotFoundError
-        raise FileNotFoundError(f"No benchmark-*.json files in {RUN_DIR}") from exc
+        raise FileNotFoundError(f"No benchmark-*.json files in {ARTIFACTS_DIRECTORY}") from exc
 
     if not bench_file.is_file():
         raise FileNotFoundError("Benchmark file not found.")
