@@ -148,7 +148,7 @@ def run_benchmark():
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logger.info("Harness setup took %f seconds", elapsed_setup_time)
-    time.sleep(23)
+    time.sleep(21)
 
     # Default fallback start time
     test_start_time = int(time.time())
