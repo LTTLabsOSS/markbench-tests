@@ -29,7 +29,10 @@ from harness_utils.report import (
     seconds_to_milliseconds,
     write_report_json,
 )
-from harness_utils.steam import exec_steam_game
+from harness_utils.steam import (
+    exec_steam_game,
+    get_build_id,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +123,7 @@ def load_the_benchmark():
         sys.exit(1)
     console_command("sv_cheats true")
     time.sleep(1)
-    console_command("exec_async benchmark_run")
+    console_command("exec_async 2026_benchmark_run")
     press("\\")
 
 
@@ -150,24 +153,24 @@ def run_benchmark():
     # Default fallback start time
     test_start_time = int(time.time())
 
-    result = find_word(word="2560", timeout=30, interval=0.1)
+    result = find_word(word="roshan", timeout=90, interval=0.1)
     if result is None:
-        logger.error("Unable to find Leshrac's HP. Using default start time value.")
+        logger.error("Didn't see Roshan's name. Using default start time value.")
     else:
         test_start_time = int(time.time())
-        logger.info("Found Leshrac's HP! Marking the start time accordingly.")
+        logger.info("Found Roshan's name! Marking the start time accordingly.")
 
-    time.sleep(73)  # sleep duration during gameplay
+    time.sleep(95)  # sleep duration during gameplay
 
     # Default fallback end time
     test_end_time = int(time.time())
 
-    result = find_word(word="1195", timeout=30, interval=0.1)
+    result = find_word(word="85", timeout=30, interval=0.1)
     if result is None:
-        logger.error("Unable to find gold count of 1195. Using default end time value.")
+        logger.error("Unable to find Lifestealer's death clock. Using default end time value.")
     else:
         test_end_time = int(time.time())
-        logger.info("Found the gold. Marking end time.")
+        logger.info("Found Lifestealer's death clock. Marking end time.")
 
     time.sleep(2)
 
@@ -192,6 +195,7 @@ try:
         "resolution": format_resolution(int(res_width), int(res_height)),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
+        "version": get_build_id(STEAM_GAME_ID),
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
