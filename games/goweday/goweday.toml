@@ -1,6 +1,6 @@
 friendly_name = "Gears of War E-Day"
 py_script = "goweday.py"
-executable = "GoWEDayGoWEDay-Steam.exe"
+executable = "GoWEDay-Steam.exe"
 presentmon_enabled = true
 presentmon_ignore_exit = true
 category = "game"
