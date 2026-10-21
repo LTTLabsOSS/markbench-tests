@@ -1,4 +1,4 @@
-friendly_name = "DOTA 2"
+friendly_name = "DOTA 2 2026"
 py_script = "dota_2.py"
 executable = "dota2.exe"
 presentmon_enabled = true
