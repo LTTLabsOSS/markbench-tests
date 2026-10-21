@@ -27,7 +27,7 @@ from harness_utils.report import (
     seconds_to_milliseconds,
     write_report_json,
 )
-from harness_utils.steam import exec_steam_game, get_active_steam_account_id, get_build_id
+from harness_utils.steam import exec_steam_game, get_build_id
 
 logger = logging.getLogger(__name__)
 
@@ -156,8 +156,8 @@ def run_benchmark():
         logger.info("Did not see start screen. Did the game launch?")
         sys.exit(1)
 
-    # if is_linux():
-    #     mangohud_log_toggle()
+    if is_linux():
+        mangohud_log_toggle()
 
     navigate_settings()
 
@@ -188,8 +188,8 @@ def run_benchmark():
     logger.info("Benchmark took %f seconds", elapsed_test_time)
     time.sleep(3)
     copy_artifact(CONFIG, ARTIFACTS_DIRECTORY)
-    # if is_linux():
-    #     mangohud_log_toggle()
+    if is_linux():
+        mangohud_log_toggle()
     terminate_process(PROCESS_NAME)
     return test_start_time, test_end_time
 
