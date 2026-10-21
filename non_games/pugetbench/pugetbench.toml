@@ -6,17 +6,18 @@ category = "non_game"
 ocr = false
 
 [[args]]
-name = "app_version"
-type = "input"
-tooltip = "Version of the selected test"
-
-[[args]]
 name = "app"
 type = "select"
 tooltip = "Select which test to run"
-values = ["premierepro", "photoshop", "aftereffects", "lightroom", "resolve"]
+values = ["premierepro", "photoshop", "aftereffects", "lightroom", "resolve", "unreal"]
 
 [[args]]
 name = "benchmark_version"
 type = "input"
 tooltip = "Version of benchmark to run"
+
+[[args]]
+name = "preset"
+type = "select"
+tooltip = "Select which benchmark preset to run"
+values = ["Standard", "Extended"]
