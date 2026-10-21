@@ -148,7 +148,7 @@ def run_benchmark():
     setup_end_time = int(time.time())
     elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
     logger.info("Harness setup took %f seconds", elapsed_setup_time)
-    time.sleep(21)
+    time.sleep(23)
 
     # Default fallback start time
     test_start_time = int(time.time())
@@ -165,12 +165,12 @@ def run_benchmark():
     # Default fallback end time
     test_end_time = int(time.time())
 
-    result = find_word(word="3783", timeout=30, interval=0.1)
+    result = find_word(word="85", timeout=30, interval=0.1)
     if result is None:
-        logger.error("Unable to find gold count of 3783. Using default end time value.")
+        logger.error("Unable to find Lifestealer's death clock. Using default end time value.")
     else:
         test_end_time = int(time.time())
-        logger.info("Found Slardar's gold. Marking end time.")
+        logger.info("Found Lifestealer's death clock. Marking end time.")
 
     time.sleep(2)
 
