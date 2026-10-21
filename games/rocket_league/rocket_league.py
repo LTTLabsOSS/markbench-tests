@@ -210,14 +210,14 @@ def run_benchmark():
     gamepad.press(button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS)
     time.sleep(0.4)
 
-    if find_word(word="audio", timeout=10, interval=1) is None:
+    if find_word(word="gameplay", timeout=10, interval=1) is None:
         logger.info("Couldn't find the audio tab. Did the settings menu open?")
         sys.exit(1)
 
     time.sleep(1)
     logger.info("Navigating to the Video tab.")
     gamepad.press_n_times(
-        button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT, n=5, pause=0.8
+        button=vg.DS4_BUTTONS.DS4_BUTTON_SHOULDER_RIGHT, n=6, pause=0.8
     )
     time.sleep(1)
 
