@@ -124,7 +124,7 @@ def run_benchmark():
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video_2.png")
 
     # Navigating to the graphics settings and capturing the images
-    press("escape, down, enter")
+    press("escape, down, enter", pause=0.5)
     result = find_word("benchmark", timeout=30)
     if not result:
         logger.info("Did not see the benchmark option. Did OCR navigate wrong?")
@@ -152,7 +152,7 @@ def run_benchmark():
     if not result:
         logger.info("Didn't find confirmation prompt to start the benchmark.")
         sys.exit(1)
-    press("down, enter")
+    press("down, enter", pause=0.5)
 
     result = find_word("checkpoint", timeout=60)
     if not result:
