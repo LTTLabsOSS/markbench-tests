@@ -81,7 +81,7 @@ def run_benchmark():
     logger.info("Waiting for start prompt...")
     result = find_word("start", timeout=30)
     if not result:
-        logger.info("Did not see 'start'. Game didn't start.")
+        logger.info("Did not see 'start'. Did the game crash or not launch?")
         sys.exit(1)
 
     click(0, 0)
@@ -92,61 +92,70 @@ def run_benchmark():
     logger.info("At main menu. Pressing x for options.")
     press("x")
 
-    # Wait for menu to load
+    # Check if it dropped into accessibility rather than main settings
     result = find_word("subtitles", timeout=10)
-    if not result:
-        logger.info("Did not see 'subtitles'. Menu did not open?")
-        sys.exit(1)
+    if result:
+        logger.info("X loaded into the accessibility options. Navigating accordingly.")
+        press("escape, up")
 
-    # Menu defaults to accessibility submenu, so we need to escape first.
-    press("escape")
-
+    # Start capturing video settings
     result = find_word("video", timeout=30)
     if not result:
-        logger.info("Did not see 'video'. Game didn't load to the settings menu.")
+        logger.info("Did not see the video options. Did OCR navigate wrong?")
         sys.exit(1)
 
-    logger.info("Video found, selecting with keyboard.")
-    press("down*6, enter", pause=1)
-    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt.png")
+    logger.info("Capturing settings screenshots.")
+    press("down*7, enter", pause=0.5)
+
+    result = find_word("hdr", timeout=30)
+    if not result:
+        logger.info("Did not see the HDR settings. Did OCR navigate wrong?")
+        sys.exit(1)
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video_1.png")
     time.sleep(1)
 
-    press("down*21", pause=1)
-    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "Video_pt2.png")
-    press("escape")
+    press("down*21", pause=0.5)
 
-    result = find_word("graphics", timeout=30)
+    result = find_word("scaling", timeout=30)
     if not result:
-        logger.info("Game didn't load to the settings menu.")
+        logger.info("Did not see the resolution scaling options. Did OCR navigate wrong?")
         sys.exit(1)
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video_2.png")
 
-    logger.info("Graphics found, selecting with keyboard.")
-    press("down, enter")
-    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt.png")
-    press("down*18", pause=1)
-    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_pt2.png")
+    # Navigating to the graphics settings and capturing the images
+    press("escape, down, enter")
+    result = find_word("benchmark", timeout=30)
+    if not result:
+        logger.info("Did not see the benchmark option. Did OCR navigate wrong?")
+        sys.exit(1)
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
+    press("up")
+
+    result = find_word("motion", timeout=30)
+    if not result:
+        logger.info("Did not see the motion blur setting. Did OCR navigate wrong?")
+        sys.exit(1)
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
     time.sleep(1)
     press("down")
 
     result = find_word("benchmark", timeout=10)
     if not result:
-        logger.info("Didn't find benchmark in settings.")
+        logger.info("Did not see the benchmark option. Did OCR navigate wrong?")
         sys.exit(1)
 
-    logger.info("Benchmark found, selecting with keyboard.")
+    logger.info("Starting the benchmark.")
     press("enter")
 
     result = find_word("yes", timeout=10)
     if not result:
-        logger.info("Didn't find confirmation prompt.")
+        logger.info("Didn't find confirmation prompt to start the benchmark.")
         sys.exit(1)
-
-    logger.info("Confirmation prompt found, selecting yes with keyboard.")
     press("down, enter")
 
     result = find_word("checkpoint", timeout=60)
     if not result:
-        logger.info("Benchmark didn't start.")
+        logger.info("Benchmark didn't start in time. Did the game crash?")
         sys.exit(1)
 
     elapsed_setup_time = round((int(time.time()) - setup_start_time), 2)
@@ -158,7 +167,7 @@ def run_benchmark():
 
     result = find_word("results", timeout=30)
     if not result:
-        logger.info("Results screen was not found!")
+        logger.info("Results screen was not found! Did the game crash?")
         sys.exit(1)
 
     test_end_time = int(time.time())
