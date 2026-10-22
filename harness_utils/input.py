@@ -36,6 +36,7 @@ _YDOTOOL_KEYS = {
     "z": 44,
     # Numbers
     "1": 2,
+    "2": 3,
     "3": 4,
     # Modifiers
     "altleft": 56,
