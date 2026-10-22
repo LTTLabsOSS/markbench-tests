@@ -5,7 +5,6 @@ import sys
 import time
 from pathlib import Path
 
-import pyautogui as gui
 from dota_2_utils import (
     copy_config,
     copy_replay,
@@ -30,7 +29,10 @@ from harness_utils.report import (
     seconds_to_milliseconds,
     write_report_json,
 )
-from harness_utils.steam import exec_steam_game
+from harness_utils.steam import (
+    exec_steam_game,
+    get_build_id,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -65,41 +67,15 @@ def harness_setup():
 def screenshot_settings():
     """Screenshots the settings for the game"""
     screen_height, screen_width = get_resolution()
-    location = None
-    click_multiple = 0
-    # We check the resolution so we know which screenshot to use for the locate on screen function
-    match screen_width:
-        case "1280":
-            location = gui.locateOnScreen(
-                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_720.png", confidence=0.9
-            )
-            click_multiple = 0.8
-        case "1920":
-            location = gui.locateOnScreen(
-                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_1080.png", confidence=0.9
-            )
-            click_multiple = 1
-        case "2560":
-            location = gui.locateOnScreen(
-                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_1440.png", confidence=0.9
-            )
-            click_multiple = 1.5
-        case "3840":
-            location = gui.locateOnScreen(
-                f"{SCRIPT_DIRECTORY}\\screenshots\\settings_2160.png", confidence=0.9
-            )
-            click_multiple = 2
-        case _:
-            logger.error(
-                "Could not find the settings cog. The game resolution is currently %s, %s. Are you using a standard resolution?",
-                screen_height,
-                screen_width,
-            )
-            sys.exit(1)
+    screen_height = int(screen_height)
+    screen_width = int(screen_width)
+    if screen_width <= 0 or screen_height <= 0:
+        raise RuntimeError(
+            f"Cannot click settings with invalid resolution: {screen_width}x{screen_height}"
+        )
+    click(round(screen_width * 0.0405), round(screen_height * 0.0278))
 
     # navigating to the video config section
-    click_me = gui.center(location)
-    click(click_me.x, click_me.y)
 
     result = find_word(word="video", timeout=10, interval=1)
     if not result:
@@ -108,9 +84,8 @@ def screenshot_settings():
         )
         sys.exit(1)
 
-    click(
-        result["x"] + int(50 * click_multiple), result["y"] + int(20 * click_multiple)
-    )
+    click(result["x"], result["y"])
+
     if find_word(word="resolution", timeout=30, interval=1) is None:
         logger.info("Did not find the video settings menu. Did the menu get stuck?")
         sys.exit(1)
@@ -148,7 +123,7 @@ def load_the_benchmark():
         sys.exit(1)
     console_command("sv_cheats true")
     time.sleep(1)
-    console_command("exec_async benchmark_run")
+    console_command("exec_async 2026_benchmark_run")
     press("\\")
 
 
@@ -178,24 +153,24 @@ def run_benchmark():
     # Default fallback start time
     test_start_time = int(time.time())
 
-    result = find_word(word="2560", timeout=30, interval=0.1)
+    result = find_word(word="roshan", timeout=90, interval=0.1)
     if result is None:
-        logger.error("Unable to find Leshrac's HP. Using default start time value.")
+        logger.error("Didn't see Roshan's name. Using default start time value.")
     else:
         test_start_time = int(time.time())
-        logger.info("Found Leshrac's HP! Marking the start time accordingly.")
+        logger.info("Found Roshan's name! Marking the start time accordingly.")
 
-    time.sleep(73)  # sleep duration during gameplay
+    time.sleep(95)  # sleep duration during gameplay
 
     # Default fallback end time
     test_end_time = int(time.time())
 
-    result = find_word(word="1195", timeout=30, interval=0.1)
+    result = find_word(word="85", timeout=30, interval=0.1)
     if result is None:
-        logger.error("Unable to find gold count of 1195. Using default end time value.")
+        logger.error("Unable to find Lifestealer's death clock. Using default end time value.")
     else:
         test_end_time = int(time.time())
-        logger.info("Found the gold. Marking end time.")
+        logger.info("Found Lifestealer's death clock. Marking end time.")
 
     time.sleep(2)
 
@@ -220,6 +195,7 @@ try:
         "resolution": format_resolution(int(res_width), int(res_height)),
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
+        "version": get_build_id(STEAM_GAME_ID),
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)

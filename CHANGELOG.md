@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 Changes are grouped by the date they are merged to the main branch of the repository and are ordered from newest to oldest. Dates use the ISO 8601 extended calendar date format, i.e. YYYY-MM-DD.
 
+## 2026-09-10
+
+- Route Windows input helpers through the native `windows_input.py` backend.
+- Use `SetCursorPos` for mouse movement and `mouse_event` for clicks and scrolling.
+- Preserve existing scan-code keyboard input and helper timing controls.
+
 ## 2025-05-13
 
 - Add Evolve Benchmark test harness
