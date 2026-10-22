@@ -4,105 +4,155 @@ import re
 import subprocess
 
 
-def get_winml_devices(procyon_path):
+def parse_device_list(output, device_header):
+    """Parse device name/ID pairs from a Procyon device list."""
+    devices = {}
+    parsing_devices = False
+
+    for line in output.splitlines():
+        line = line.strip()
+
+        # Remove Procyon timestamp from the beginning of the line.
+        line = re.sub(
+            r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} ",
+            "",
+            line,
+        )
+
+        if line.startswith(device_header):
+            parsing_devices = True
+            continue
+
+        if not parsing_devices:
+            continue
+
+        if line == "Command line actions complete, exiting":
+            break
+
+        if not line or "," not in line:
+            continue
+
+        device_name, device_id = line.rsplit(",", 1)
+
+        device_name = device_name.strip()
+        device_id = device_id.strip()
+
+        if device_name and device_id:
+            devices[device_id] = device_name
+
+    return devices
+
+def get_directml_devices(procyon_path):
     """
-    Function which uses the ProcyonCmd.exe to list all available winml devices on the system. Returns a dictionary of device names and IDs
+    Function which uses the ProcyonCmd.exe to list all available DirectML
+    devices on the system.
+
+    Returns a dictionary of device IDs and names.
     """
 
-    # run the command line utility for procyon in order to list available winml devices
-    winml_devices = subprocess.run(
-        [f"{procyon_path}", "--list-winml-devices"],
-        shell=True,
+    directml_devices = subprocess.run(
+        [f"{procyon_path}", "--list-directml-devices"],
         capture_output=True,
         text=True,
         check=True,
     ).stdout
 
-    winml_devices_split = winml_devices.split("\n")
-    winml_devices_parsed = [
-        device[9::]
-        for device in winml_devices_split
-        if re.search(r"(amd|nvidia|intel)", device.lower())
-    ]
-    unique_winml_devices = list(dict.fromkeys(winml_devices_parsed))
-    winml_dict = {
-        device_split.split(", ")[0]: device_split.split(", ")[1]
-        for device_split in unique_winml_devices
-    }
+    return parse_device_list(
+        directml_devices,
+        "DirectML devices (name, id):",
+    )
 
-    return winml_dict
+
+def get_winml_devices(procyon_path):
+    """
+    Function which uses the ProcyonCmd.exe to list all available WinML
+    devices on the system.
+
+    Returns a dictionary of device IDs and names.
+    """
+
+    winml_devices = subprocess.run(
+        [f"{procyon_path}", "--list-winml-devices"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+
+    return parse_device_list(
+        winml_devices,
+        "Graphics adapters (name, device_id):",
+    )
 
 
 def get_openvino_devices(procyon_path):
     """
-    Function which uses the ProcyonCmd.exe to list all available openvino devices on the system. Returns a dictionary of device type and name
+    Function which uses the ProcyonCmd.exe to list all available OpenVINO
+    devices on the system.
+
+    Returns a dictionary of device IDs/types and names.
     """
 
     openvino_devices = subprocess.run(
         [f"{procyon_path}", "--list-openvino-devices"],
-        shell=True,
         capture_output=True,
         text=True,
         check=True,
     ).stdout
 
-    openvino_devices_split = openvino_devices.split("\n")
-    openvino_devices_parsed = [
-        device[9::]
-        for device in openvino_devices_split
-        if re.search(r"(amd|nvidia|intel)", device.lower())
-    ]
-    unique_openvino_devices = list(dict.fromkeys(openvino_devices_parsed))
-    openvino_dict = {
-        device_split.split(", ")[1]: device_split.split(", ")[0]
-        for device_split in unique_openvino_devices
-    }
+    return parse_device_list(
+        openvino_devices,
+        "OpenVINO devices (name, type):",
+    )
 
-    return openvino_dict
+
+def get_cuda_devices(procyon_path):
+    """
+    Function which uses the ProcyonCmd.exe to list all available CUDA
+    devices on the system.
+
+    Returns a dictionary of device IDs and names.
+    """
+
+    cuda_devices = subprocess.run(
+        [f"{procyon_path}", "--list-cuda-devices"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+
+    return parse_device_list(
+        cuda_devices,
+        "CUDA devices (name, id):",
+    )
 
 
 def get_openvino_gpu(openvino_devices, gpu_id):
     """
-    function which checks the openvino_devices dictionary for GPU entries.
-    If only one gpu is detected, there should not be a GPU.0 and GPU.1 entry
-    so we just return the first detected gpu regardless of requested ID
+    Function which checks the openvino_devices dictionary for GPU entries.
+
+    If only one GPU is detected, there should not be a GPU.0 and GPU.1
+    entry, so return the first detected GPU regardless of requested ID.
     """
 
     gpu = openvino_devices.get("GPU", None)
 
     if gpu is None:
-        gpu = openvino_devices.get(gpu_id, "No Openvino GPU Detected")
+        gpu = openvino_devices.get(gpu_id, "No OpenVINO GPU Detected")
 
     return gpu
 
 
-def get_cuda_devices(procyon_path):
-    """
-    Function which uses the ProcyonCmd.exe to list all available openvino devices on the system. Returns a dictionary of device type and name
-    """
+if __name__ == "__main__":
+    procyon_path = r"C:\Program Files\UL\Procyon\ProcyonCmd.exe"
 
-    cuda_devices = subprocess.run(
-        [f"{procyon_path}", "--list-cuda-devices"],
-        shell=True,
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout
+    print("DirectML:")
+    print(get_directml_devices(procyon_path))
 
-    cuda_devices_split = cuda_devices.split("\n")
-    cuda_devices_parsed = [
-        device[9::]
-        for device in cuda_devices_split
-        if re.search(r"(nvidia)", device.lower())
-    ]
-    unique_cuda_devices = list(dict.fromkeys(cuda_devices_parsed))
+    print("\nWinML:")
+    print(get_winml_devices(procyon_path))
 
-    if len(unique_cuda_devices) > 0:
-        cuda_dict = {
-            device_split.split(", ")[1]: device_split.split(", ")[0]
-            for device_split in unique_cuda_devices
-        }
-    else:
-        cuda_dict = {}
+    print("\nOpenVINO:")
+    print(get_openvino_devices(procyon_path))
 
-    return cuda_dict
+    print("\nCUDA:")
+    print(get_cuda_devices(procyon_path))

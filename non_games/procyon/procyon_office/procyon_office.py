@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 
 from procyon_office_utils import (
+    check_procyon_run_status,
     find_procyon_versions,
     find_test_version,
     get_install_path,
@@ -80,7 +81,6 @@ def run_benchmark(command_to_run):
             line = line.rstrip("\r\n")
             console_log.write(line + "\n")
             console_log.flush()
-            logger.info("Procyon: %s", line)
 
         proc.wait()
 
@@ -101,6 +101,10 @@ try:
     if pr.returncode > 0:
         logger.error("Procyon exited with return code %d", pr.returncode)
         sys.exit(pr.returncode)
+
+    if not check_procyon_run_status(PROCYON_LOG_PATH):
+        logger.error("Procyon reported that the run ended with an error.")
+        sys.exit(1)
 
     procyon_client_version, procyon_product_version = find_procyon_versions(
         PROCYON_LOG_PATH

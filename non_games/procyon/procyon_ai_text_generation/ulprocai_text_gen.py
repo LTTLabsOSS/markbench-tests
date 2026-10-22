@@ -10,6 +10,7 @@ from pathlib import Path
 
 import psutil
 from ulprocai_text_gen_utils import (
+    check_procyon_run_status,
     find_procyon_versions,
     find_test_version,
     get_install_path,
@@ -40,7 +41,7 @@ BENCHMARK_CONFIG = {
     "All_Models_ONNX": {
         "config": f'"{CONFIG_DIR}\\ai_textgeneration_all.def"',
         "process_name": "Handler.exe",
-        "result_regex": r"<AIImageGenerationOverallScore>(\d+)",
+        "result_regex": None,
         "test_name": "all_models",
         "api": "onnx",
     },
@@ -75,7 +76,7 @@ BENCHMARK_CONFIG = {
     "All_Models_OPENVINO": {
         "config": f'"{CONFIG_DIR}\\ai_textgeneration_all_openvino.def"',
         "process_name": "Handler.exe",
-        "result_regex": r"<AIImageGenerationOverallScore>(\d+)",
+        "result_regex": None,
         "test_name": "all_models",
         "api": "openvino",
     },
@@ -133,11 +134,11 @@ def create_procyon_command(test_option):
     return [
         str(ABS_EXECUTABLE_PATH),
         f"--definition={test_option}",
-        f"--export={RESULTS_XML_PATH}",
+        f'--export="{RESULTS_XML_PATH}"',
     ]
 
 
-def run_benchmark(process_name, command_to_run):
+def run_benchmark(process_name, command_to_run, start_time):
     """run the benchmark"""
     with (
         open(
@@ -167,11 +168,10 @@ def run_benchmark(process_name, command_to_run):
             time.sleep(0.2)
 
         for line in proc.stdout:
-                line = line.rstrip("\r\n")
-                console_log.write(line + "\n")
-                console_log.flush()
-                logger.info("Procyon: %s", line)
-        
+            line = line.rstrip("\r\n")
+            console_log.write(line + "\n")
+            console_log.flush()
+
         proc.wait()
         return proc
 
@@ -179,17 +179,22 @@ def run_benchmark(process_name, command_to_run):
 try:
     setup_logging(LOG_DIRECTORY)
     args = get_arguments()
-    option = BENCHMARK_CONFIG[args.engine]["config"]
+    test_config = BENCHMARK_CONFIG[args.engine]
+    option = test_config["config"]
     test_version = find_test_version()
     cmd = create_procyon_command(option)
     logger.info("Starting benchmark!")
     logger.info(cmd)
     start_time = time.time()
-    pr = run_benchmark(BENCHMARK_CONFIG[args.engine]["process_name"], cmd)
+    pr = run_benchmark(test_config["process_name"], cmd, start_time)
 
     if pr.returncode > 0:
         logger.error("Procyon exited with return code %d", pr.returncode)
         sys.exit(pr.returncode)
+
+    if not check_procyon_run_status(PROCYON_LOG_PATH):
+        logger.error("Procyon reported that the run ended with an error.")
+        sys.exit(1)
 
     procyon_client_version, procyon_product_version = find_procyon_versions(
         PROCYON_LOG_PATH
@@ -207,8 +212,8 @@ try:
     end_time = time.time()
     elapsed_test_time = round(end_time - start_time, 2)
 
-    if args.engine != "All_Models_OPENVINO" and args.engine != "All_Models_ONNX":
-        results_regex = BENCHMARK_CONFIG[args.engine]["result_regex"]
+    if args.engine not in ("All_Models_OPENVINO", "All_Models_ONNX"):
+        results_regex = test_config["result_regex"]
         score = regex_find_score_in_xml(results_regex)
 
         if score is None:
@@ -216,12 +221,16 @@ try:
             sys.exit(1)
 
         report = {
-            "test": "Procyon AI Text Generation",
-            "test_parameter": BENCHMARK_CONFIG[args.engine]["test_name"],
-            "unit": "score",
-            "score": score,
             "start_time": seconds_to_milliseconds(start_time),
             "end_time": seconds_to_milliseconds(end_time),
+            "test": "Procyon AI Text Generation",
+            "test_parameter": test_config["test_name"],
+            "api": test_config["api"],
+            "test_version": test_version,
+            "procyon_client_version": procyon_client_version,
+            "procyon_product_version": procyon_product_version,
+            "unit": "score",
+            "score": score,
         }
 
         logger.info("Benchmark took %.2f seconds", elapsed_test_time)
@@ -233,20 +242,17 @@ try:
 
         logger.info("Benchmark took %.2f seconds", elapsed_test_time)
 
-        for test_type in BENCHMARK_CONFIG.items():
-            if (
-                test_type[0] == "All_Models_ONNX"
-                or test_type[0] == "All_Models_OPENVINO"
-            ):
+        for test_name, model_config in BENCHMARK_CONFIG.items():
+            if test_name in ("All_Models_ONNX", "All_Models_OPENVINO"):
                 continue
 
-            if ("ONNX" in args.engine and "ONNX" in test_type[0]) or (
-                "OPENVINO" in args.engine and "OPENVINO" in test_type[0]
+            if ("ONNX" in args.engine and "ONNX" in test_name) or (
+                "OPENVINO" in args.engine and "OPENVINO" in test_name
             ):
-                results_regex = test_type[1]["result_regex"]
+                results_regex = model_config["result_regex"]
                 score = regex_find_score_in_xml(results_regex)
 
-                logger.info("%s score was %s", test_type[0], score)
+                logger.info("%s score was %s", test_name, score)
 
                 if score is None:
                     logger.error("Could not find overall score!")
@@ -256,8 +262,8 @@ try:
                     "start_time": seconds_to_milliseconds(start_time),
                     "end_time": seconds_to_milliseconds(end_time),
                     "test": "Procyon AI Text Generation",
-                    "test_parameter": test_type[1]["test_name"],
-                    "api": test_type[1]["api"],
+                    "test_parameter": model_config["test_name"],
+                    "api": model_config["api"],
                     "test_version": test_version,
                     "procyon_client_version": procyon_client_version,
                     "procyon_product_version": procyon_product_version,

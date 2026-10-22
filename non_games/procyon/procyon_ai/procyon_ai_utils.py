@@ -26,10 +26,10 @@ def is_process_running(process_name):
 
 
 def find_score_in_xml():
-    """Reads score from local game log"""
+    """Reads a score from the Procyon result XML."""
     score_pattern = re.compile(r"<AIOverallScore>(\d+)")
     cfg = ARTIFACTS_DIRECTORY / "result.xml"
-    score_value = 0
+    score_value = None
     with open(cfg, encoding="utf-8") as file:
         lines = file.readlines()
         for line in lines:
@@ -96,19 +96,19 @@ def find_test_version() -> str:
         sys.exit(1)
 
     engine_config = {
-        "AMD_CPU": ("aibenchmark-winml-test", "WinML.exe"),
-        "AMD_GPU0": ("aibenchmark-winml-test", "WinML.exe"),
-        "AMD_GPU1": ("aibenchmark-winml-test", "WinML.exe"),
-        "Intel_CPU": ("aibenchmark-openvino-test", "OpenVino.exe"),
-        "Intel_GPU0": ("aibenchmark-openvino-test", "OpenVino.exe"),
-        "Intel_GPU1": ("aibenchmark-openvino-test", "OpenVino.exe"),
-        "Intel_NPU": ("aibenchmark-openvino-test", "OpenVino.exe"),
-        "NVIDIA_GPU": ("aibenchmark-tensorrt-test", "TensorRT.exe"),
-        "Qualcomm_HTP": ("aibenchmark-snpe-test", "SNPE.exe"),
+        "AMD_CPU": (r"aibenchmark-winml-test\x64", "WinML.exe"),
+        "AMD_GPU0": (r"aibenchmark-winml-test\x64", "WinML.exe"),
+        "AMD_GPU1": ("aibenchmark-winml-test\x64", "WinML.exe"),
+        "Intel_CPU": (r"aibenchmark-openvino-test\x64", "OpenVino.exe"),
+        "Intel_GPU0": (r"aibenchmark-openvino-test\x64", "OpenVino.exe"),
+        "Intel_GPU1": (r"aibenchmark-openvino-test\x64", "OpenVino.exe"),
+        "Intel_NPU": (r"aibenchmark-openvino-test\x64", "OpenVino.exe"),
+        "NVIDIA_GPU": (r"aibenchmark-tensorrt-test\x64", "TensorRT.exe"),
+        "Qualcomm_HTP": (r"aibenchmark-snpe-test\arm64", "SNPE.exe"),
     }
     folder, exe = engine_config[args.engine]
 
-    chops_path = f"C:\\ProgramData\\UL\\Procyon\\chops\\dlc\\{folder}\\x64"
+    chops_path = rf"C:\ProgramData\UL\Procyon\chops\dlc\{folder}"
 
     if not chops_path:
         logger.info("Installation path not found.")
@@ -129,3 +129,8 @@ def find_test_version() -> str:
     except Exception as e:
         logger.info("Error retrieving version info from %s: %s", exe_path, e)
         return None  # Return None if version info retrieval fails
+
+def check_procyon_run_status(log_path):
+    """Fail if Procyon reports that the run ended with an error."""
+    log = log_path.read_text(encoding="utf-8")
+    return "The status of the run was Error" not in log
