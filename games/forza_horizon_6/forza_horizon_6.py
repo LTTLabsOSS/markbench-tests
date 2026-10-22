@@ -96,7 +96,7 @@ def run_benchmark():
     result = find_word("subtitles", timeout=10)
     if result:
         logger.info("X loaded into the accessibility options. Navigating accordingly.")
-        press("escape, up")
+        press("escape, up", pause=0.5)
 
     # Start capturing video settings
     result = find_word("video", timeout=30)
