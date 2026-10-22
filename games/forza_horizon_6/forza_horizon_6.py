@@ -154,7 +154,7 @@ def run_benchmark():
         sys.exit(1)
     press("down, enter", pause=0.5)
 
-    result = find_word("checkpoint", timeout=180)
+    result = find_word("laps", timeout=180)
     if not result:
         logger.info("Benchmark didn't start in time. Did the game crash?")
         sys.exit(1)
