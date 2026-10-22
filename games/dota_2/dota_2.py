@@ -1,0 +1,207 @@
+"""Dota 2 test script"""
+
+import logging
+import sys
+import time
+from pathlib import Path
+
+from dota_2_utils import (
+    copy_config,
+    copy_replay,
+    get_resolution,
+    verify_replay,
+)
+
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
+
+from harness_utils.artifacts import (
+    capture_and_save_screenshot,
+    create_artifacts_manifest,
+)
+from harness_utils.input import click, press, write
+from harness_utils.ocr_service import find_word
+from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
+from harness_utils.process import terminate_process
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
+from harness_utils.steam import (
+    exec_steam_game,
+    get_build_id,
+)
+
+logger = logging.getLogger(__name__)
+
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
+PROCESS_NAME = "dota2.exe"
+STEAM_GAME_ID = 570
+
+
+setup_logging(LOG_DIRECTORY)
+
+
+def start_game():
+    """Launch the game with console enabled and FPS unlocked"""
+    return exec_steam_game(
+        STEAM_GAME_ID, game_params=["-console", "+fps_max 0", "-novid"]
+    )
+
+
+def console_command(command):
+    """Enter a console command"""
+    write(command)
+    press("enter")
+
+
+def harness_setup():
+    """Copies the replay and config files to the appropriate spots"""
+    verify_replay()
+    copy_replay()
+    copy_config()
+
+
+def screenshot_settings():
+    """Screenshots the settings for the game"""
+    screen_height, screen_width = get_resolution()
+    screen_height = int(screen_height)
+    screen_width = int(screen_width)
+    if screen_width <= 0 or screen_height <= 0:
+        raise RuntimeError(
+            f"Cannot click settings with invalid resolution: {screen_width}x{screen_height}"
+        )
+    click(round(screen_width * 0.0405), round(screen_height * 0.0278))
+
+    # navigating to the video config section
+
+    result = find_word(word="video", timeout=10, interval=1)
+    if not result:
+        logger.info(
+            "Did not find the video menu button. Did OCR enter settings correctly?"
+        )
+        sys.exit(1)
+
+    click(result["x"], result["y"])
+
+    if find_word(word="resolution", timeout=30, interval=1) is None:
+        logger.info("Did not find the video settings menu. Did the menu get stuck?")
+        sys.exit(1)
+
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video1.png")
+
+    press("down")
+
+    if find_word(word="api", timeout=30, interval=1) is None:
+        logger.info("Did not find the video settings menu. Did the menu get stuck?")
+        sys.exit(1)
+
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video2.png")
+
+    press("down")
+
+    if find_word(word="direct", timeout=30, interval=1) is None:
+        logger.info("Did not find the video settings menu. Did the menu get stuck?")
+        sys.exit(1)
+
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video3.png")
+
+
+def load_the_benchmark():
+    """Loads the replay and runs the benchmark"""
+    press("escape")
+    logger.info("Starting benchmark")
+    press("\\")
+    console_command("sv_cheats true")
+    time.sleep(1)
+    console_command("exec_async benchmark_load")
+    time.sleep(5)
+    if find_word(word="directed", timeout=30, interval=1) is None:
+        logger.info("Did not find the directed camera. Did the replay load?")
+        sys.exit(1)
+    console_command("sv_cheats true")
+    time.sleep(1)
+    console_command("exec_async 2026_benchmark_run")
+    press("\\")
+
+
+def run_benchmark():
+    """Run dota2 benchmark"""
+    harness_setup()
+    setup_start_time = int(time.time())
+    start_game()
+    time.sleep(10)  # wait for game to load into main menu
+
+    # waiting about a minute for the main menu to appear
+    if find_word(word="heroes", timeout=80, interval=1) is None:
+        logger.error("Game didn't start in time. Check settings and try again.")
+        sys.exit(1)
+
+    time.sleep(15)  # wait for main menu
+    screenshot_settings()
+
+    # starting the benchmark
+    load_the_benchmark()
+
+    setup_end_time = int(time.time())
+    elapsed_setup_time = round(setup_end_time - setup_start_time, 2)
+    logger.info("Harness setup took %f seconds", elapsed_setup_time)
+    time.sleep(23)
+
+    # Default fallback start time
+    test_start_time = int(time.time())
+
+    result = find_word(word="roshan", timeout=90, interval=0.1)
+    if result is None:
+        logger.error("Didn't see Roshan's name. Using default start time value.")
+    else:
+        test_start_time = int(time.time())
+        logger.info("Found Roshan's name! Marking the start time accordingly.")
+
+    time.sleep(95)  # sleep duration during gameplay
+
+    # Default fallback end time
+    test_end_time = int(time.time())
+
+    result = find_word(word="85", timeout=30, interval=0.1)
+    if result is None:
+        logger.error("Unable to find Lifestealer's death clock. Using default end time value.")
+    else:
+        test_end_time = int(time.time())
+        logger.info("Found Lifestealer's death clock. Marking end time.")
+
+    time.sleep(2)
+
+    if find_word(word="heroes", timeout=25, interval=1) is None:
+        logger.error("Main menu after running benchmark not found, exiting")
+        sys.exit(1)
+
+    time.sleep(4)
+    logger.info("Run completed. Closing game.")
+
+    elapsed_test_time = round((test_end_time - test_start_time), 2)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
+    terminate_process(PROCESS_NAME)
+
+    return test_start_time, test_end_time
+
+
+try:
+    start_time, end_time = run_benchmark()
+    res_height, res_width = get_resolution()
+    report = {
+        "resolution": format_resolution(int(res_width), int(res_height)),
+        "start_time": seconds_to_milliseconds(start_time),
+        "end_time": seconds_to_milliseconds(end_time),
+        "version": get_build_id(STEAM_GAME_ID),
+    }
+
+    write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
+except Exception:
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception("Unhandled exception")
+    terminate_process(PROCESS_NAME)
+    sys.exit(1)

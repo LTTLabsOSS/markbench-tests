@@ -15,11 +15,13 @@ from blender_render_utils import (
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
-from harness_utils.report import seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
+from harness_utils.report import seconds_to_milliseconds, write_report_json
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+logger = logging.getLogger(__name__)
+
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 
 
 VALID_DEVICES = ["CPU", "CUDA", "OPTIX", "HIP", "ONEAPI", "METAL"]
@@ -29,7 +31,12 @@ def main():
     """entry point for test script"""
     parser = ArgumentParser()
     parser.add_argument(
-        "-d", "--device", dest="device", help="device", metavar="device", required=True
+        "-d", 
+        "--device", 
+        dest="device", 
+        help="device", 
+        metavar="device", 
+        required=True,
     )
     parser.add_argument(
         "--benchmark",
@@ -39,26 +46,38 @@ def main():
         required=True,
     )
     args = parser.parse_args()
-    if args.device not in VALID_DEVICES:
-        raise Exception(f"invalid device selection: {args.device}")
+    if args.device.upper() not in VALID_DEVICES:
+        raise ValueError(f"invalid device selection: {args.device}")
 
-    logging.info("The selected scene is %s", args.benchmark)
+    logger.info("The selected scene is %s", args.benchmark)
     benchmark = BENCHMARK_CONFIG[args.benchmark]
+    device = args.device.upper()
     download_scene(benchmark)
     executable_path, version = find_blender()
 
-    logging.info("Starting benchmark!")
+    logger.info("Starting benchmark!")
     start_time = time.time()
     score = run_blender_render(
-        executable_path, LOG_DIRECTORY, args.device.upper(), benchmark
+        executable_path, 
+        LOG_DIRECTORY, 
+        device, 
+        benchmark,
     )
     end_time = time.time()
-    logging.info(
-        f"Finished rendering {args.benchmark} in %d seconds", (end_time - start_time)
-    )
 
     if score is None:
-        raise Exception("no duration was found in the log to use as the score")
+        raise ValueError("no duration was found in the log to use as the score")
+
+    logger.info(
+        "Finished Blender %s render in %.2f seconds", 
+        args.benchmark,
+        score,
+    )
+
+    logger.info(
+        "Total test time: %.2f seconds", 
+        end_time - start_time,
+    )
 
     report = {
         "test": "Blender Render",
@@ -66,7 +85,7 @@ def main():
         "score": score,
         "unit": "seconds",
         "version": version,
-        "device": args.device,
+        "device": device,
         "start_time": seconds_to_milliseconds(start_time),
         "end_time": seconds_to_milliseconds(end_time),
     }
@@ -78,7 +97,7 @@ if __name__ == "__main__":
     try:
         setup_logging(LOG_DIRECTORY)
         main()
-    except Exception as ex:
-        logging.error("something went wrong running the benchmark!")
-        logging.exception(ex)
+    except Exception:
+        logger.error("something went wrong running the benchmark!")
+        logger.exception("Unhandled exception")
         sys.exit(1)

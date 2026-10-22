@@ -23,6 +23,7 @@ def setup_logging(log_directory: str | Path) -> None:
         datefmt=DEFAULT_DATE_FORMAT,
         level=logging.DEBUG,
     )
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
     console = logging.StreamHandler()
     formatter = logging.Formatter(
         DEFAULT_LOGGING_FORMAT,

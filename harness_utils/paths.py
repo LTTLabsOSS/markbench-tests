@@ -11,6 +11,18 @@ LINUX_NETWORK_DRIVE_ROOT = Path("/mnt/labs.lmg.gg/labs")
 PROTON_USERNAME = "steamuser"
 
 
+def harness_directories(
+    script_file: str | os.PathLike,
+) -> tuple[Path, Path, Path]:
+    """Ensure run and artifact directories exist, then return all harness paths."""
+    script_directory = Path(script_file).resolve().parent
+    log_directory = script_directory / "run"
+    log_directory.mkdir(parents=True, exist_ok=True)
+    artifacts_directory = log_directory / "artifacts"
+    artifacts_directory.mkdir(parents=True, exist_ok=True)
+    return script_directory, log_directory, artifacts_directory
+
+
 def _proton_user_dir(app_id: int | None) -> Path:
     """Return the Proton Windows user directory for a Steam app."""
     if app_id is None:
@@ -28,6 +40,18 @@ def local_appdata(app_id: int | None = None) -> Path:
     if is_linux():
         return _proton_user_dir(app_id) / "AppData" / "Local"
     raise RuntimeError("Local AppData lookup is only supported on Windows and Linux")
+
+
+def roaming_appdata(app_id: int | None = None) -> Path:
+    """Return the native or Proton Roaming AppData path."""
+    if is_windows():
+        path = os.getenv("APPDATA")
+        if not path:
+            raise RuntimeError("Missing environment variable: APPDATA")
+        return Path(path)
+    if is_linux():
+        return _proton_user_dir(app_id) / "AppData" / "Roaming"
+    raise RuntimeError("Roaming AppData lookup is only supported on Windows and Linux")
 
 
 def user_documents(app_id: int | None = None) -> Path:

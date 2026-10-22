@@ -12,6 +12,9 @@ PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
 from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
+
+logger = logging.getLogger(__name__)
 
 avail_presets = ["low", "medium", "high", "extreme", "4k_optimized", "8k_optimized"]
 
@@ -35,8 +38,7 @@ args = parser.parse_args()
 if args.preset not in avail_presets:
     raise ValueError(f"Error, unknown preset: {args.preset}")
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 setup_logging(LOG_DIRECTORY)
 
 cmd = f"{INSTALL_DIR}\\{EXECUTABLE}"
@@ -45,15 +47,15 @@ argstr = (
 )
 argstr += f" -log_txt {LOG_DIRECTORY}\\log.txt"
 
-logging.info(cmd)
-logging.info(argstr)
+logger.info(cmd)
+logger.info(argstr)
 argies = argstr.split(" ")
 cmd = cmd.rstrip()
 with Popen([cmd, *argies]) as process:
     EXIT_CODE = process.wait()
 
 if EXIT_CODE > 0:
-    logging.error("Test failed!")
+    logger.error("Test failed!")
     sys.exit(EXIT_CODE)
 
 SCORE = ""

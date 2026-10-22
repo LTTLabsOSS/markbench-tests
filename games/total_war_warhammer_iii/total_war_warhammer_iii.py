@@ -1,0 +1,216 @@
+"""Total War: Warhammer III test script"""
+
+import logging
+import re
+import subprocess
+import sys
+import time
+from argparse import ArgumentParser
+from pathlib import Path
+
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
+
+from harness_utils.artifacts import (
+    capture_and_save_screenshot,
+    copy_artifact,
+    create_artifacts_manifest,
+)
+from harness_utils.input import click, mangohud_log_toggle, press
+from harness_utils.ocr_service import find_word
+from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories, roaming_appdata
+from harness_utils.platform import is_linux
+from harness_utils.process import terminate_process
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
+from harness_utils.steam import (
+    exec_proton_game,
+    get_app_install_location,
+    get_build_id,
+)
+
+logger = logging.getLogger(__name__)
+
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
+PROCESS_NAME = "Warhammer3.exe"
+STEAM_GAME_ID = 1142710
+CONFIG_FULL_PATH = (
+    roaming_appdata(STEAM_GAME_ID)
+    / "The Creative Assembly"
+    / "Warhammer3"
+    / "scripts"
+    / "preferences.script.txt"
+)
+
+
+def read_current_resolution() -> tuple[int, int]:
+    """Read the configured game resolution."""
+    height_pattern = re.compile(r"y_res (\d+);")
+    width_pattern = re.compile(r"x_res (\d+);")
+    height_value = 0
+    width_value = 0
+    with open(CONFIG_FULL_PATH, encoding="utf-8") as file:
+        for line in file:
+            height_match = height_pattern.search(line)
+            width_match = width_pattern.search(line)
+            if height_match is not None:
+                height_value = int(height_match.group(1))
+            if width_match is not None:
+                width_value = int(width_match.group(1))
+    return height_value, width_value
+
+
+def start_game():
+    """Starts the game process"""
+    if is_linux():
+        return exec_proton_game(STEAM_GAME_ID, PROCESS_NAME)
+    game_path = get_app_install_location(STEAM_GAME_ID)
+    process_path = Path(game_path) / PROCESS_NAME
+    logger.info("Starting game: %s", process_path)
+    return subprocess.Popen([process_path, "--launcher-skip"], cwd=game_path)
+
+
+def skip_logo_screens() -> None:
+    """Simulate input to skip logo screens"""
+    logger.info("Skipping logo screens")
+
+    # Enter menu
+    press("escape*7")
+
+
+def run_benchmark(benchmark):
+    """Starts the benchmark"""
+    start_game()
+    setup_start_time = int(time.time())
+    time.sleep(5)
+
+    result = find_word("warning", timeout=50, interval=5)
+    if not result:
+        logger.info("Did not see warnings. Did the game start?")
+        sys.exit(1)
+
+    if is_linux():
+        time.sleep(1)
+        mangohud_log_toggle()
+        time.sleep(1)
+
+    skip_logo_screens()
+    time.sleep(2)
+
+    result = find_word("options", timeout=10, interval=1)
+    if not result:
+        logger.info("Did not find the options menu. Did the game skip the intros?")
+        sys.exit(1)
+
+    click(result["x"], result["y"])
+    time.sleep(2)
+
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "main.png")
+
+    result = find_word("ad", timeout=10, interval=1)
+    if not result:
+        logger.info("Did not find the advanced menu. Did the game skip the intros?")
+        sys.exit(1)
+
+    click(result["x"], result["y"])
+    time.sleep(1)
+
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "advanced.png")
+
+    result = find_word("bench", timeout=10, interval=1)
+    if not result:
+        logger.info("Did not find the benchmark menu. Did the game skip the intros?")
+        sys.exit(1)
+
+    click(result["x"], result["y"])
+    if benchmark != "battle":
+        result = find_word("mirrors", timeout=10, interval=1)
+        if not result:
+            logger.info("Did not find the Mirrors of Madness benchmark.")
+            sys.exit(1)
+        click(result["x"], result["y"])
+        time.sleep(2)
+        press("enter")
+    else:
+        time.sleep(2)
+        press("enter")
+
+    elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
+    logger.info("Setup took %f seconds", elapsed_setup_time)
+
+    result = find_word("fps", interval=0.5, timeout=100)
+    if not result:
+        logger.info("Could not find FPS. Unable to mark start time!")
+        sys.exit(1)
+
+    test_start_time = int(time.time())
+
+    if benchmark != "battle":
+        time.sleep(65)  # Wait time for MOM benchmark
+    else:
+        time.sleep(100)  # Wait time for battle benchmark
+
+    result = find_word("summary", interval=0.2, timeout=250)
+    if not result:
+        logger.info(
+            "Results screen was not found! Did harness not wait long enough? Or test was too long?"
+        )
+        sys.exit(1)
+
+    test_end_time = int(time.time()) - 1
+
+    # Wait 5 seconds for benchmark info
+    time.sleep(5)
+
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    copy_artifact(CONFIG_FULL_PATH, ARTIFACTS_DIRECTORY)
+
+    # End the run
+    elapsed_test_time = round(test_end_time - test_start_time, 2)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
+
+    # Exit
+    terminate_process(PROCESS_NAME)
+
+    return test_start_time, test_end_time
+
+
+def main():
+    setup_logging(LOG_DIRECTORY)
+
+    parser = ArgumentParser()
+    parser.add_argument(
+        "-s",
+        "--benchmark",
+        dest="benchmark",
+        help="Benchmark Scene",
+        metavar="benchmark",
+        required=True,
+    )
+    args, _unknown = parser.parse_known_args()
+
+    try:
+        start_time, endtime = run_benchmark(args.benchmark)
+        height, width = read_current_resolution()
+        report = {
+            "resolution": format_resolution(width, height),
+            "start_time": seconds_to_milliseconds(start_time),
+            "end_time": seconds_to_milliseconds(endtime),
+            "version": get_build_id(STEAM_GAME_ID),
+        }
+
+        write_report_json(LOG_DIRECTORY, "report.json", report)
+        create_artifacts_manifest(ARTIFACTS_DIRECTORY)
+    except Exception:
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception("Unhandled exception")
+        terminate_process(PROCESS_NAME)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

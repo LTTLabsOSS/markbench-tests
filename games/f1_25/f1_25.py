@@ -1,0 +1,259 @@
+"""F1 25 test script"""
+
+import logging
+import re
+import sys
+import time
+from pathlib import Path
+
+from f1_25_utils import get_resolution
+
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
+
+from harness_utils.artifacts import (
+    capture_and_save_screenshot,
+    copy_artifact,
+    create_artifacts_manifest,
+)
+from harness_utils.file_cleanup import remove_files
+from harness_utils.input import press
+from harness_utils.ocr_service import find_word
+from harness_utils.output_logging import setup_logging
+from harness_utils.paths import game_install_path, harness_directories, user_documents
+from harness_utils.process import terminate_process
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
+from harness_utils.steam import exec_steam_game, get_build_id
+
+logger = logging.getLogger(__name__)
+
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
+PROCESS_NAME = "F1_25.exe"
+STEAM_GAME_ID = 3059520
+VIDEO_PATH = game_install_path(STEAM_GAME_ID) / "videos"
+
+F1_DOCUMENTS_PATH = user_documents(STEAM_GAME_ID) / "My Games" / "F1 25"
+CONFIG_PATH = F1_DOCUMENTS_PATH / "hardwaresettings"
+CONFIG_FILENAME = "hardware_settings_config.xml"
+CONFIG = CONFIG_PATH / CONFIG_FILENAME
+BENCHMARK_RESULTS_PATH = F1_DOCUMENTS_PATH / "benchmark"
+
+intro_videos = [VIDEO_PATH / "attract.bk2", VIDEO_PATH / "cm_f1_sting.bk2"]
+
+
+def find_latest_result_file(base_path):
+    """Look for files in the benchmark results path that match the pattern in the regular expression"""
+    pattern = r"benchmark_.*\.xml"
+    result_files = [
+        path
+        for path in Path(base_path).iterdir()
+        if path.is_file() and re.search(pattern, path.name, re.IGNORECASE)
+    ]
+    return max(result_files, key=lambda path: path.stat().st_mtime)
+
+
+def find_settings():
+    """Look for and enter settings"""
+    if not find_word("settings", interval=3, timeout=15):
+        logger.info("Didn't find settings!")
+        sys.exit(1)
+    press("enter")
+
+
+def find_graphics():
+    """Look for and enter graphics settings"""
+    if not find_word("graphics", interval=3, timeout=15):
+        logger.info("Didn't find graphics!")
+        sys.exit(1)
+    press("right, enter")
+
+
+def navigate_startup():
+    """press space through the warnings and navigate startup menus"""
+    result = find_word("product", timeout=80)
+    if not result:
+        logger.info("Game didn't start in time. Check settings and try again.")
+        sys.exit(1)
+
+    press("space*3")
+
+    time.sleep(4)
+
+    # Press enter to proceed to the main menu
+    result = find_word("press", interval=2, timeout=80)
+    if not result:
+        logger.info("Game didn't start in time. Check settings and try again.")
+        sys.exit(1)
+
+    logger.info("Hit the title screen. Continuing")
+    time.sleep(1)
+    press("enter")
+    time.sleep(1)
+
+    # cancel logging into ea services
+    result = find_word("login", timeout=10)
+    if result:
+        time.sleep(1)
+        logger.info("Cancelling logging in.")
+        press("enter")
+        time.sleep(2)
+
+    if find_word("chat", timeout=3) is not None:
+        time.sleep(1)
+        press("enter")
+        time.sleep(1)
+    # acknowledge services error
+    result = find_word("services", timeout=10)
+    if result:
+        time.sleep(1)
+        logger.info("Acknowledging services error")
+        press("enter")
+
+
+def offline_menu():
+    result = find_word("network", timeout=10)
+    if not result:
+        logger.info("Didn't find the keyword 'network'")
+        return
+    time.sleep(1)
+    press("down, enter")
+
+
+def run_benchmark():
+    """Runs the actual benchmark."""
+    remove_files([str(path) for path in intro_videos])
+    exec_steam_game(STEAM_GAME_ID)
+
+    time.sleep(20)
+
+    navigate_startup()
+    offline_menu()
+
+    # Navigate menus and take screenshots using the artifact manager
+    result = find_word("theatre", interval=3, timeout=60)
+    if not result:
+        logger.info("Didn't land on the main menu!")
+        sys.exit(1)
+
+    logger.info("Main screen detected.")
+    time.sleep(1)
+
+    press("tab", pause=2)
+    find_graphics()
+
+    # Navigate to video settings
+    press("down*3, enter", pause=0.2)
+
+    result = find_word("vsync", interval=3, timeout=60)
+    if not result:
+        logger.info(
+            "Didn't find the keyword 'vsync'. Did the program navigate to the video mode menu correctly?"
+        )
+        sys.exit(1)
+    press("down*18", pause=0.2)
+
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "video.png")
+    press("escape")
+
+    result = find_word("steering", interval=3, timeout=60)
+    if not result:
+        logger.info(
+            "Didn't find the keyword 'steering'. Did the program exit the video mode menu correctly?"
+        )
+        sys.exit(1)
+
+    # Navigate through graphics settings and take screenshots of all settings contained within
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_1.png")
+    press("down*29", pause=0.2)
+
+    result = find_word("hair", interval=3, timeout=60)
+    if not result:
+        logger.info(
+            "Didn't find the keyword 'hair'. Did we navigate the menu correctly?"
+        )
+        sys.exit(1)
+
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "graphics_2.png")
+    press("up*28, enter", pause=0.2)
+
+    # Navigate benchmark menu
+    if not find_word("weather", interval=3, timeout=15):
+        logger.info("Didn't find weather!")
+        sys.exit(1)
+
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "benchmark.png")
+
+    press("down*6, enter", pause=0.2)
+
+
+    result = find_word("lap", interval=0.5, timeout=90)
+    if not result:
+        logger.info("Benchmark didn't start.")
+        sys.exit(1)
+
+    logger.info("Benchmark started. Waiting for benchmark to complete.")
+    test_start_time = int(time.time()) + 8
+
+    # sleep for 3 laps
+    time.sleep(310)
+
+    test_end_time = None
+
+    result = find_word("loading", interval=0.5, timeout=90)
+    if result:
+        logger.info("Found the loading screen. Marking the out time.")
+        test_end_time = int(time.time()) - 2
+        time.sleep(2)
+    else:
+        logger.info("Could not find the loading screen. Could not mark end time!")
+
+    result = find_word("results", interval=3, timeout=90)
+    if not result:
+        logger.info(
+            "Results screen was not found!"
+            + "Did harness not wait long enough? Or test was too long?"
+        )
+        sys.exit(1)
+    logger.info("Results screen was found! Finishing benchmark.")
+    results_file = find_latest_result_file(BENCHMARK_RESULTS_PATH)
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+    copy_artifact(CONFIG, ARTIFACTS_DIRECTORY)
+    copy_artifact(results_file, ARTIFACTS_DIRECTORY)
+
+    if test_end_time is None:
+        logger.info(
+            "Loading screen end time not found. Using results screen fallback time."
+        )
+        test_end_time = int(time.time())
+
+    elapsed_test_time = round(test_end_time - test_start_time, 2)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
+
+    terminate_process(PROCESS_NAME)
+
+    return test_start_time, test_end_time
+
+
+setup_logging(LOG_DIRECTORY)
+
+try:
+    start_time, end_time = run_benchmark()
+    width, height = get_resolution()
+    report = {
+        "resolution": format_resolution(width, height),
+        "start_time": seconds_to_milliseconds(start_time),
+        "end_time": seconds_to_milliseconds(end_time),
+        "version": get_build_id(STEAM_GAME_ID),
+    }
+
+    write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
+except Exception:
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception("Unhandled exception")
+    terminate_process(PROCESS_NAME)
+    sys.exit(1)

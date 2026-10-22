@@ -6,8 +6,6 @@ import sys
 import time
 from pathlib import Path
 
-import pyautogui as gui
-import pydirectinput as user
 from stellaris_utils import (
     copy_benchmarkfiles,
     copy_benchmarksave,
@@ -18,32 +16,34 @@ from stellaris_utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import (
+    capture_and_save_screenshot,
+    create_artifacts_manifest,
+)
+from harness_utils.input import click, move_mouse, press, write
 from harness_utils.ocr_service import find_word
-from harness_utils.report import format_resolution, seconds_to_milliseconds, write_report_json
 from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
 from harness_utils.process import terminate_process
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
 from harness_utils.steam import get_app_install_location
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+logger = logging.getLogger(__name__)
+
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 PROCESS_NAME = "stellaris.exe"
 STEAM_GAME_ID = 281990
-
-user.FAILSAFE = False
 
 
 def start_game():
     """Starts the game process"""
     cmd_string = f'start /D "{get_app_install_location(STEAM_GAME_ID)}" {PROCESS_NAME}'
-    logging.info(cmd_string)
+    logger.info(cmd_string)
     return os.system(cmd_string)
-
-
-def console_command(command):
-    """Enter a console command"""
-    gui.write(command)
-    user.press("enter")
 
 
 def run_benchmark():
@@ -53,100 +53,79 @@ def run_benchmark():
     start_game()
     setup_start_time = int(time.time())
     time.sleep(5)
-    am = ArtifactManager(LOG_DIRECTORY)
 
     patchnotes = find_word("close", interval=0.5, timeout=100)
     if patchnotes:
-        gui.moveTo(patchnotes["x"], patchnotes["y"])
-        time.sleep(0.2)
-        gui.mouseDown()
-        time.sleep(0.2)
-        gui.mouseUp()
-        time.sleep(0.2)
+        click(patchnotes["x"], patchnotes["y"])
 
     result = find_word("credits", interval=0.5, timeout=100)
     if not result:
-        logging.info(
+        logger.info(
             "Could not find the paused notification. Unable to mark start time!"
         )
         sys.exit(1)
 
     result = find_word("settings", timeout=10, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the settings button. Is there something wrong on the screen?"
         )
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-    time.sleep(0.5)
-    am.take_screenshot("settings.png", ArtifactType.CONFIG_IMAGE, "settings")
+    click(result["x"], result["y"])
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "settings.png")
 
     time.sleep(0.2)
-    user.press("esc")
+    press("escape")
 
     result = find_word("load", timeout=10, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the load save menu. Is there something wrong on the screen?"
         )
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
+    click(result["x"], result["y"])
     time.sleep(2)
 
     result = find_word("latest", timeout=10, interval=1)
     if not result:
-        logging.info(
+        logger.info(
             "Did not find the load latest save button. Did OCR click correctly?"
         )
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
-    time.sleep(0.2)
-    gui.mouseDown()
-    time.sleep(0.2)
-    gui.mouseUp()
-    time.sleep(0.5)
+    click(result["x"], result["y"])
 
     result = find_word("paused", interval=0.5, timeout=100)
     if not result:
-        logging.info(
+        logger.info(
             "Could not find the paused notification. Unable to mark start time!"
         )
         sys.exit(1)
 
     result = find_word("overview", timeout=10, interval=1)
     if not result:
-        logging.info("Did not find the overview in the corner. Did the game load?")
+        logger.info("Did not find the overview in the corner. Did the game load?")
         sys.exit(1)
 
-    gui.moveTo(result["x"], result["y"])
+    move_mouse(result["x"], result["y"])
 
     time.sleep(2)
-    logging.info("Starting benchmark")
-    user.press("`")
-    time.sleep(0.5)
-    console_command("run benchmark.ini")
-    time.sleep(1)
+    logger.info("Starting benchmark")
+    press("`")
+    write("run benchmark.ini")
+    press("enter")
 
     elapsed_setup_time = round(int(time.time()) - setup_start_time, 2)
-    logging.info("Setup took %f seconds", elapsed_setup_time)
+    logger.info("Setup took %f seconds", elapsed_setup_time)
 
     test_start_time = int(time.time())
     time.sleep(30)
 
     result = find_word("finished", interval=0.2, timeout=250)
     if not result:
-        logging.info(
+        logger.info(
             "Results screen was not found! Did harness not wait long enough? Or test was too long?"
         )
         sys.exit(1)
@@ -158,13 +137,12 @@ def run_benchmark():
 
     # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
-    logging.info("Benchmark took %f seconds", elapsed_test_time)
+    logger.info("Benchmark took %f seconds", elapsed_test_time)
 
     # Exit
     score = find_score_in_log()
-    logging.info("The one year passed in %s seconds", score)
+    logger.info("The one year passed in %s seconds", score)
     terminate_process(PROCESS_NAME)
-    am.create_manifest()
 
     return test_start_time, test_end_time, score
 
@@ -183,14 +161,15 @@ def main():
     }
 
     write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 
 
 if __name__ == "__main__":
     try:
         setup_logging(LOG_DIRECTORY)
         main()
-    except Exception as ex:
-        logging.error("Something went wrong running the benchmark!")
-        logging.exception(ex)
+    except Exception:
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception("Unhandled exception")
         terminate_process(PROCESS_NAME)
         sys.exit(1)

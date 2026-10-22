@@ -9,7 +9,6 @@ from pathlib import Path
 from subprocess import PIPE, STDOUT, Popen, TimeoutExpired
 
 from pugetbench_utils import (
-    find_pugetbench_csv,
     find_score_in_log,
     get_aftereffects_version,
     get_davinci_version,
@@ -18,22 +17,24 @@ from pugetbench_utils import (
     get_photoshop_version,
     get_premierepro_version,
     get_pugetbench_version,
-    trim_to_major_minor,
+    get_unreal_version,
 )
 
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
-from harness_utils.artifacts import ArtifactManager, ArtifactType
-from harness_utils.report import seconds_to_milliseconds, write_report_json
+from harness_utils.artifacts import create_artifacts_manifest
 from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
 from harness_utils.process import terminate_process
+from harness_utils.report import seconds_to_milliseconds, write_report_json
 
-SCRIPT_DIRECTORY = Path(__file__).resolve().parent
-LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
+logger = logging.getLogger(__name__)
+
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 timestamp = time.strftime(
     "%Y-%m-%d_%H-%M-%S", time.localtime()
 )  # e.g., 20260304_153245
-LOG_FILE_PATH = LOG_DIRECTORY / f"pugetbench_{timestamp}.csv"
+LOG_FILE_PATH = ARTIFACTS_DIRECTORY / f"pugetbench_{timestamp}.csv"
 setup_logging(LOG_DIRECTORY)
 
 EXECUTABLE_NAME = "PugetBench for Creators.exe"
@@ -69,6 +70,12 @@ APP_CONFIG = {
         "app_name": "Resolve.exe",
         "suffix": "-studio",
     },
+    "unreal": {
+            "label": "Unreal Engine",
+            "version_func": get_unreal_version,
+            "app_name": "UnrealEditor.exe",
+            "suffix": None,
+        },
 }
 
 
@@ -78,7 +85,7 @@ def safe_terminate(process_names: list[str]):
         try:
             terminate_process(pname)
         except Exception as e:
-            logging.info(
+            logger.info(
                 "Process '%s' could not be terminated (may not exist): %s", pname, e
             )
 
@@ -111,14 +118,14 @@ def read_output(stream, log_func, error_func, error_in_output):
         sys.stdout.flush()
 
 
-def run_benchmark(application: str, app_version: str, benchmark_version: str):
+def run_benchmark(application: str, app_version: str, benchmark_version: str, preset: str):
     """Commands to initiate benchmark"""
     start_time = time.time()
     executable_path = Path(
         f"C:\\Program Files\\PugetBench for Creators\\{EXECUTABLE_NAME}"
     )
     if not executable_path.exists():
-        logging.error("PugetBench executable not found at %s", executable_path)
+        logger.error("PugetBench executable not found at %s", executable_path)
         sys.exit(1)
 
     command = [
@@ -130,7 +137,7 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         "--benchmark_version",
         benchmark_version,
         "--preset",
-        "Standard",
+        preset,
         "--app_version",
         app_version,
         "--app",
@@ -141,16 +148,16 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         str(LOG_FILE_PATH),
     ]
 
-    logging.info("Running benchmark command: %s", command)
+    logger.info("Running benchmark command: %s", command)
 
-    logging.info(command)
+    logger.info(command)
 
     error_in_output = {"exception": None}  # Shared state for error reporting
 
     with Popen(command, stdout=PIPE, stderr=STDOUT, text=True, bufsize=1) as process:
         stdout_thread = threading.Thread(
             target=read_output,
-            args=(process.stdout, logging.info, logging.error, error_in_output),
+            args=(process.stdout, logger.info, logger.error, error_in_output),
         )
         stdout_thread.start()
 
@@ -179,19 +186,15 @@ def run_benchmark(application: str, app_version: str, benchmark_version: str):
         return start_time, end_time
 
 
-def get_app_version_info(app: str, version_arg: str):
+def get_app_version_info(app: str):
     """Return (full_version, trimmed_version, label) for the app."""
     config = APP_CONFIG[app]
-    full_version = version_arg
-    trimmed_version = trim_to_major_minor(version_arg) if version_arg else None
-
-    if not full_version:
-        full_version, trimmed_version = config["version_func"]()
-        if not full_version or not trimmed_version:
-            logging.error(
-                "Could not determine %s version. Is it installed?", config["label"]
-            )
-            sys.exit(1)
+    full_version, trimmed_version = config["version_func"]()
+    if not full_version or not trimmed_version:
+        logger.error(
+            "Could not determine %s version. Is it installed?", config["label"]
+        )
+        sys.exit(1)
 
     if config["suffix"]:
         full_version += config["suffix"]
@@ -200,9 +203,9 @@ def get_app_version_info(app: str, version_arg: str):
     return full_version, trimmed_version, config["label"]
 
 
-def execute_benchmark(app: str, app_version: str, benchmark_version: str):
+def execute_benchmark(app: str, app_version: str, benchmark_version: str, preset: str):
     """Executes the benchmark and then captures the log file."""
-    start_time, end_time = run_benchmark(app, app_version, benchmark_version)
+    start_time, end_time = run_benchmark(app, app_version, benchmark_version, preset)
 
     if not LOG_FILE_PATH.exists():
         raise RuntimeError(f"Expected CSV log not found: {LOG_FILE_PATH}")
@@ -214,9 +217,9 @@ def execute_benchmark(app: str, app_version: str, benchmark_version: str):
                 f"Benchmark did not complete correctly; expected 'Overall Score' not found in {LOG_FILE_PATH}"
             )
 
-    score = find_score_in_log(LOG_FILE_PATH)
+    score = find_score_in_log(LOG_FILE_PATH, preset)
     if score is None:
-        raise RuntimeError(f"No valid score found in log: {LOG_FILE_PATH}")
+        raise RuntimeError(f"No valid score for '{preset}' found in log: {LOG_FILE_PATH}")
 
     return start_time, end_time, score
 
@@ -232,37 +235,42 @@ def main():
         required=True,
     )
     parser.add_argument(
-        "--app_version",
-        dest="app_version",
-        help="Application version to test",
-        required=False,
-    )
-    parser.add_argument(
         "--benchmark_version",
         dest="benchmark_version",
         help="PugetBench Benchmark version to use",
         required=False,
     )
+    parser.add_argument(
+        "--preset",
+        choices=["Standard","Extended"],
+        dest="preset",
+        help="Application name to test",
+        required=True,
+    )
     args = parser.parse_args()
 
-    full_version, trimmed_version, test_label = get_app_version_info(
-        args.app, args.app_version
-    )
+    if args.app == "photoshop" and args.preset == "Extended":
+        logger.error(
+            "Invalid preset: Photoshop only supports the Standard preset. "
+            "Please change the preset from Extended and run it again."
+        )
+        sys.exit(1)
+
+    full_version, trimmed_version, test_label = get_app_version_info(args.app)
 
     if args.benchmark_version is None or args.benchmark_version == "":
         args.benchmark_version = get_latest_benchmark_by_version(args.app)
 
-    am = ArtifactManager(LOG_DIRECTORY)
     try:
         start_time, end_time, score = execute_benchmark(
-            args.app, trimmed_version, args.benchmark_version
+            args.app, trimmed_version, args.benchmark_version, args.preset
         )
 
         report = {
             "start_time": seconds_to_milliseconds(start_time),
             "end_time": seconds_to_milliseconds(end_time),
             "test": "PugetBench",
-            "test_parameter": test_label,
+            "test_parameter": f"{test_label} {args.preset} Preset",
             "app_version": full_version,
             "benchmark_version": args.benchmark_version,
             "pugetbench_version": get_pugetbench_version(),
@@ -270,27 +278,20 @@ def main():
             "score": score,
         }
 
-        csv_path = find_pugetbench_csv(LOG_DIRECTORY)
-        if csv_path is not None:
-            am.copy_file(csv_path, ArtifactType.RESULTS_TEXT)
-            am.create_manifest()
-
         write_report_json(LOG_DIRECTORY, "report.json", report)
+        create_artifacts_manifest(ARTIFACTS_DIRECTORY)
 
     except RuntimeError as e:
         msg = str(e)
-        logging.error("Something went wrong running the benchmark!")
-        logging.exception(e)
+        logger.exception("Benchmark runtime error")
 
         # Terminate the process only for "real" failures
         if "timed out" in msg or "Benchmark failed" in msg:
             safe_terminate([EXECUTABLE_NAME, APP_CONFIG[args.app]["app_name"]])
 
         sys.exit(1)
-    except Exception as e:
-        # Non-runtime exceptions, e.g., coding errors, still exit
-        logging.error("Unexpected error!")
-        logging.exception(e)
+    except Exception:
+        logger.exception("Unexpected error!")
         sys.exit(1)
 
 

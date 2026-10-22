@@ -1,0 +1,237 @@
+import getpass
+import logging
+import re
+import sys
+import time
+from pathlib import Path
+
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
+
+from harness_utils.artifacts import (
+    capture_and_save_screenshot,
+    create_artifacts_manifest,
+)
+from harness_utils.input import click, press
+from harness_utils.ocr_service import find_word
+from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
+from harness_utils.process import terminate_process
+from harness_utils.report import (
+    format_resolution,
+    seconds_to_milliseconds,
+    write_report_json,
+)
+from harness_utils.steam import exec_steam_game, get_build_id
+
+logger = logging.getLogger(__name__)
+
+USERNAME = getpass.getuser()
+STEAM_GAME_ID = 3159330
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
+PROCESS_NAME = "ACShadows.exe"
+
+CONFIG_LOCATION = f"C:\\Users\\{USERNAME}\\Documents\\Assassin's Creed Shadows"
+CONFIG_FILENAME = "ACShadows.ini"
+
+
+def read_current_resolution():
+    """Reads resolutions settings from local game file"""
+    height_pattern = re.compile(r"FullscreenWidth=(\d+)")
+    width_pattern = re.compile(r"FullscreenHeight=(\d+)")
+    cfg = f"{CONFIG_LOCATION}\\{CONFIG_FILENAME}"
+    height_value = 0
+    width_value = 0
+    with open(cfg, encoding="utf-8") as file:
+        lines = file.readlines()
+        for line in lines:
+            height_match = height_pattern.search(line)
+            width_match = width_pattern.search(line)
+            if height_match is not None:
+                height_value = height_match.group(1)
+            if width_match is not None:
+                width_value = width_match.group(1)
+    return (height_value, width_value)
+
+
+def delete_videos():
+    """deletes intro videos"""
+    base_dir = Path(
+        r"C:\Program Files (x86)\Steam\steamapps\common\Assassin's Creed Shadows"
+    )
+    videos_dir = base_dir / "videos"
+    videos_en_dir = videos_dir / "en"
+
+    # List of video files to delete
+    videos_to_delete = [
+        videos_dir / "ANVIL_Logo.webm",
+        videos_dir / "INTEL_Logo.webm",
+        videos_dir / "HUB_Bootflow_FranchiseIntro.webm",
+        videos_dir / "HUB_Bootflow_AbstergoIntro.webm",
+        videos_dir / "UbisoftLogo.webm",
+        videos_en_dir / "Epilepsy.webm",
+        videos_en_dir / "warning_disclaimer.webm",
+        videos_en_dir / "WarningSaving.webm",
+    ]
+
+    for file_path in videos_to_delete:
+        if file_path.exists():
+            try:
+                file_path.unlink()
+                logger.info("Deleted: %s", file_path)
+            except Exception as e:
+                logger.error("Error deleting %s: %s", file_path, e)
+
+
+def move_benchmark_file():
+    """moves html benchmark results to log folder"""
+    src_dir = Path(
+        f"C:\\Users\\{USERNAME}\\Documents\\Assassin's Creed Shadows\\benchmark_reports"
+    )
+
+    for src_path in src_dir.iterdir():
+        dest_path = ARTIFACTS_DIRECTORY / src_path.name
+
+        if src_path.is_file():
+            try:
+                src_path.rename(dest_path)
+                logger.info("Benchmark HTML moved")
+            except Exception as e:
+                logger.error("Failed to move %s: %s", src_path, e)
+        else:
+            logger.error("Benchmark HTML not found.")
+
+
+def start_game():
+    """Starts the game process"""
+    exec_steam_game(STEAM_GAME_ID)
+    logger.info("Launching Game from Steam")
+
+
+def navi_settings():
+    """navigates and takes pictures of settings"""
+    press("space")
+
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display1.png")
+
+    press("down*13")
+
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display2.png")
+
+    press("down*4")
+
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "display3.png")
+
+    press("c")
+
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability1.png")
+
+    press("down*10")
+
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability2.png")
+
+    press("down*6")
+
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability3.png")
+
+    press("down*5")
+
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "scalability4.png")
+
+    press("escape")
+
+
+def run_benchmark():
+    """runs the benchmark"""
+    delete_videos()
+    start_game()
+    setup_start_time = int(time.time())
+    time.sleep(15)
+
+    if find_word(word="hardware", timeout=30, interval=1) is None:
+        logger.info("did not find hardware")
+    else:
+        click()
+        press("space")
+
+    if find_word(word="animus", timeout=130, interval=1) is None:
+        logger.info("did not find main menu")
+        sys.exit(1)
+
+    press("f1")
+
+    if find_word("system", timeout=30, interval=1) is None:
+        logger.error("Couldn't find 'System' button")
+        sys.exit(1)
+
+    press("down, space")
+
+    if find_word("benchmark", timeout=30, interval=1) is None:
+        logger.error("couldn't find 'benchmark' on screen before settings")
+        sys.exit(1)
+
+    navi_settings()
+
+    if find_word("benchmark", timeout=30, interval=1) is None:
+        logger.error("couldn't find 'benchmark' on screen after settings")
+        sys.exit(1)
+
+    press("down, space")
+
+    setup_end_time = int(time.time())
+    elapsed_setup_time = setup_end_time - setup_start_time
+    logger.info("Setup took %d seconds", elapsed_setup_time)
+
+    if find_word(word="benchmark", timeout=50, interval=1) is None:
+        logger.info("did not find benchmark")
+        sys.exit(1)
+
+    test_start_time = int(time.time())
+
+    time.sleep(100)
+
+    if find_word("results", timeout=60, interval=1) is None:
+        logger.error("did not find results screen")
+        sys.exit(1)
+
+    test_end_time = int(time.time()) - 2
+
+    elapsed_test_time = test_end_time - test_start_time
+    logger.info("Benchmark took %d seconds", elapsed_test_time)
+
+    capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png")
+
+    press("x, escape")
+
+    move_benchmark_file()
+
+    time.sleep(5)
+
+    terminate_process(PROCESS_NAME)
+
+    return test_start_time, test_end_time
+
+
+def main():
+    """entry point"""
+    start_time, endtime = run_benchmark()
+    height, width = read_current_resolution()
+    report = {
+        "resolution": format_resolution(width, height),
+        "start_time": seconds_to_milliseconds(start_time),
+        "end_time": seconds_to_milliseconds(endtime),
+        "version": get_build_id(STEAM_GAME_ID),
+    }
+    write_report_json(LOG_DIRECTORY, "report.json", report)
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
+
+
+if __name__ == "__main__":
+    try:
+        setup_logging(LOG_DIRECTORY)
+        main()
+    except Exception:
+        logger.error("Something went wrong running the benchmark!")
+        logger.exception("Unhandled exception")
+        terminate_process(PROCESS_NAME)
+        sys.exit(1)

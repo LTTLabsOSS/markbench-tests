@@ -1,6 +1,8 @@
+# ruff: noqa: TRY004
 """Utility functions related to using Steam for running games."""
 
 import logging
+import os
 import shutil
 from importlib import import_module
 from pathlib import Path
@@ -78,34 +80,47 @@ def _get_active_steam_account_id_from_login_users() -> int:
     if not isinstance(users, dict):
         raise RuntimeError(f"Steam login users file missing users: {login_users_path}")
 
-    for steamid64, user in users.items():
-        if isinstance(user, dict) and _get_vdf_value(user, "MostRecent") == "1":
-            try:
-                account_id = int(steamid64) - STEAMID64_ACCOUNT_ID_OFFSET
-            except ValueError as err:
-                raise RuntimeError(f"Invalid SteamID64: {steamid64}") from err
-            if account_id < 0:
-                raise RuntimeError(f"Invalid SteamID64: {steamid64}")
-            logger.debug(
-                "Resolved Steam active account ID=%s steamid64=%s",
-                account_id,
-                steamid64,
-            )
-            return account_id
+    if not users:
+        raise RuntimeError(f"No Steam users found in: {login_users_path}")
 
-    raise RuntimeError(f"No most recent Steam user found in: {login_users_path}")
+    if len(users) == 1:
+        steamid64 = next(iter(users))
+    else:
+        try:
+            steamid64 = max(
+                users,
+                key=lambda user_id: int(
+                    str(_get_vdf_value(users[user_id], "Timestamp"))
+                ),
+            )
+        except (TypeError, ValueError) as err:
+            raise RuntimeError(
+                f"Could not read Steam user Timestamp in: {login_users_path}"
+            ) from err
+
+    try:
+        account_id = int(steamid64) - STEAMID64_ACCOUNT_ID_OFFSET
+    except ValueError as err:
+        raise RuntimeError(f"Invalid SteamID64: {steamid64}") from err
+    logger.debug(
+        "Resolved Steam active account ID=%s steamid64=%s", account_id, steamid64
+    )
+    return account_id
 
 
 def get_active_steam_account_id() -> int:
-    """Returns the most recent Steam user's Steam3 account ID.
+    """Returns a Steam3 account ID for user-specific files.
 
-    Steam stores users as SteamID64 values in loginusers.vdf, while userdata folders
-    use the Steam3 account ID value. Falls back to Steam's ActiveUser registry value
-    if loginusers.vdf cannot be read.
+    Uses the sole login user or the user with the latest login Timestamp.
+    Windows falls back to Steam's ActiveUser registry value if VDF lookup fails.
     """
-    logger.debug("Resolving most recent Steam account ID")
+    logger.debug("Resolving Steam account ID")
+    if is_linux():
+        return _get_active_steam_account_id_from_login_users()
     if not is_windows():
-        raise RuntimeError("Steam active user lookup requires Windows")
+        raise RuntimeError(
+            "Steam active user lookup is only supported on Windows and Linux"
+        )
 
     try:
         return _get_active_steam_account_id_from_login_users()
@@ -207,6 +222,17 @@ def exec_steam_run_command(game_id: int, steam_path=None) -> Popen:
     return Popen([steam_path, steam_run_arg])
 
 
+def exec_steam_launch_option(
+    game_id: int, launch_option_index: int, steam_path=None
+) -> Popen:
+    """Run a Steam launch option by its zero-based index for the current platform."""
+    steam_launch_arg = f"steam://launch/{game_id}/none/{launch_option_index}"
+    if steam_path is None:
+        steam_path = get_steam_exe_path()
+    logger.debug("Launching Steam launch option: %s %s", steam_path, steam_launch_arg)
+    return Popen([steam_path, steam_launch_arg])
+
+
 def exec_steam_game(game_id: int, steam_path=None, game_params=None) -> Popen:
     """Runs a game by providing steam executable with an array of parameters.
     The `steam_path` argument can be used to specify a specific path to the Steam executable
@@ -220,6 +246,27 @@ def exec_steam_game(game_id: int, steam_path=None, game_params=None) -> Popen:
     command = [steam_path, "-applaunch", str(game_id), *game_params]
     logger.debug("Launching Steam game command: %s", ", ".join(map(str, command)))
     return Popen(command)
+
+
+def exec_proton_game(game_id: int, executable: str) -> Popen:
+    """Launch a game executable on Linux using Steam-installed Proton Hotfix.
+
+    The executable is relative to the game's install directory. Required Steam
+    identity and compatibility paths override the inherited environment.
+    Steam launch options are not applied.
+    """
+    game_directory = get_app_install_location(game_id)
+    proton_script = get_steamapps_common_path() / "Proton Hotfix" / "proton"
+    env = os.environ.copy()
+    env.update(
+        STEAM_COMPAT_CLIENT_INSTALL_PATH=str(get_steam_folder_path()),
+        STEAM_COMPAT_DATA_PATH=str(get_proton_prefix(game_id).parent),
+        SteamAppId=str(game_id),
+        SteamGameId=str(game_id),
+    )
+    command = [proton_script, "run", game_directory / executable]
+    logger.debug("Launching Proton game command: %s", ", ".join(map(str, command)))
+    return Popen(command, cwd=game_directory, env=env)
 
 
 def get_build_id(game_id: int) -> str | None:

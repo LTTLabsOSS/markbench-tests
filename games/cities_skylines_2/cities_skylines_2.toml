@@ -1,5 +1,5 @@
 friendly_name = "Cities Skylines II"
-py_script = "citiesskylines2.py"
+py_script = "cities_skylines_2.py"
 executable = "Cities2.exe"
 presentmon_enabled = true
 presentmon_ignore_exit = true

@@ -19,12 +19,14 @@ from primesieve_utils import (
 
 from harness_utils.output_logging import setup_logging
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 setup_logging(LOG_DIRECTORY)
 
 if primesieve_folder_exists() is False:
-    logging.info("Downloading primesieve")
+    logger.info("Downloading primesieve")
     download_primesieve()
 
 ABS_EXECUTABLE_PATH = SCRIPT_DIRECTORY / PRIMESIEVE_FOLDER_NAME / "primesieve.exe"

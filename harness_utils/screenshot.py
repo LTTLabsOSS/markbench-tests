@@ -1,7 +1,6 @@
 """Screenshot capture helpers."""
 
 import io
-import logging
 import subprocess
 import tempfile
 from pathlib import Path
@@ -12,11 +11,8 @@ import numpy as np
 
 from harness_utils.platform import is_linux, is_windows
 
-logger = logging.getLogger(__name__)
-
 
 def _run_spectacle(output_path: Path):
-    logger.debug("KDE Spectacle screenshot output=%s", output_path)
     subprocess.run(
         [
             "spectacle",
@@ -33,7 +29,6 @@ def _run_spectacle(output_path: Path):
 
 
 def _run_spectacle_png_bytes() -> bytes:
-    logger.debug("KDE Spectacle screenshot to PNG bytes")
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_file:
         output_path = Path(temp_file.name)
     output_path.unlink(missing_ok=True)
@@ -57,7 +52,6 @@ def _decode_image_bytes(image_bytes: bytes) -> np.ndarray:
 
 
 def _capture_dxcam_array() -> np.ndarray | None:
-    logger.debug("Windows screenshot with dxcam")
     import dxcam
 
     camera = dxcam.create(output_idx=0, output_color="BGR")
@@ -69,7 +63,6 @@ def _capture_dxcam_array() -> np.ndarray | None:
 
 
 def _take_dxcam_file(output_path: Path) -> None:
-    logger.debug("Windows screenshot with dxcam output=%s", output_path)
     screenshot = _capture_dxcam_array()
     if screenshot is None:
         raise RuntimeError("Failed to capture screenshot with dxcam")
@@ -78,20 +71,17 @@ def _take_dxcam_file(output_path: Path) -> None:
 
 
 def _capture_mss_array() -> np.ndarray:
-    logger.debug("Screenshot with mss")
     with mss.mss() as sct:
         return np.array(sct.grab(sct.monitors[1]))
 
 
 def take_mss_file(output_path: Path) -> None:
-    logger.debug("Screenshot with mss output=%s", output_path)
     with mss.mss() as sct:
         sct.shot(output=str(output_path))
 
 
 def capture_screenshot_file(output_path: Path):
     """Capture a screenshot to a file."""
-    logger.debug("Capturing screenshot file output=%s", output_path)
     if is_windows():
         _take_dxcam_file(output_path)
     else:

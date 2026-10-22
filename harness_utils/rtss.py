@@ -6,6 +6,8 @@ import shutil
 from pathlib import Path
 from subprocess import Popen
 
+logger = logging.getLogger(__name__)
+
 DEFAULT_BASE_PATH = os.path.join(
     os.environ["ProgramFiles(x86)"], "RivaTuner Statistics Server"
 )
@@ -27,18 +29,18 @@ def copy_rtss_profile(
     # Validate/create path to directory where we will copy profile to
     try:
         Path(rtss_profiles_directory).mkdir(parents=True, exist_ok=True)
-    except FileExistsError as err:
-        logging.error(
+    except FileExistsError:
+        logger.error(
             "Could not create rtss profiles directory"
             + " - likely due to non-directory file existing at path."
         )
-        raise err
+        raise
 
     # Copy the profile over
     destination_file = os.path.join(
         rtss_profiles_directory, os.path.basename(profile_path)
     )
-    logging.info("Copying: %s -> %s", profile_path, destination_file)
+    logger.info("Copying: %s -> %s", profile_path, destination_file)
     shutil.copy(profile_path, destination_file)
 
 
@@ -47,5 +49,5 @@ def start_rtss_process(executable_path: str = DEFAULT_EXECUTABLE_PATH) -> any:
     if not os.path.isfile(executable_path):
         raise OSError("RTSS is not installed!")
 
-    logging.info(executable_path)
+    logger.info(executable_path)
     return Popen(executable_path)

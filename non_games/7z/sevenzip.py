@@ -2,6 +2,7 @@
 
 import json
 import logging
+import platform
 import re
 import subprocess
 import sys
@@ -17,14 +18,27 @@ from sevenzip_utils import copy_from_network_drive
 
 from harness_utils.output_logging import setup_logging
 
+logger = logging.getLogger(__name__)
+
 SCRIPT_DIRECTORY = Path(__file__).resolve().parent
 LOG_DIRECTORY = SCRIPT_DIRECTORY / "run"
 setup_logging(LOG_DIRECTORY)
 
+OS = platform.system()
+
 TEST_OPTIONS = {
-    "x86_64": "7za_64_26.00.exe",
-    "arm_64": "7za_arm_26.00.exe",
+    "Windows": {
+        "x86_64": "7za_64_26.00.exe",
+        "arm_64": "7za_arm_26.00.exe",
+    },
+    "Linux": {
+        "x86_64": "7zzs_64_26.00",
+        "arm_64": "7zzs_arm_26.00",
+    },
 }
+
+if OS not in TEST_OPTIONS:
+    raise RuntimeError(f"Unsupported operating system: {OS}")
 
 parser = ArgumentParser()
 parser.add_argument(
@@ -33,21 +47,21 @@ parser.add_argument(
     dest="architecture",
     help="Architecture type",
     required=True,
-    choices=TEST_OPTIONS.keys(),
+    choices=TEST_OPTIONS[OS].keys(),
 )
+
 args = parser.parse_args()
 
-EXECUTABLE = TEST_OPTIONS[args.architecture]
+EXECUTABLE = TEST_OPTIONS[OS][args.architecture]
 ABS_EXECUTABLE_PATH = SCRIPT_DIRECTORY / EXECUTABLE
 
-
 if not ABS_EXECUTABLE_PATH.is_file():
-    logging.info("7-Zip executable not found, downloading from network drive")
+    logger.info("7-Zip executable not found, downloading from network drive")
     copy_from_network_drive(EXECUTABLE)
 
 command = [str(ABS_EXECUTABLE_PATH), "b", "3"]
 t1 = time.time()
-logging.info("Starting 7-Zip benchmark! This may take a minute or so...")
+logger.info("Starting 7-Zip benchmark! This may take a minute or so...")
 with Popen(
     command, cwd=SCRIPT_DIRECTORY, stdout=subprocess.PIPE
 ) as process:
@@ -55,7 +69,7 @@ with Popen(
     list_of_strings = stdout_data.decode("utf-8").splitlines()
 
     SPEED_PATTERN = r"^Avr:\s*([0-9]*)\s.*\|\s*([0-9]*)\s.*$"
-    VERSION_PATTERN = r"7-Zip \(a\) (\d+\.\d+) \(([^)]+)\).*"
+    VERSION_PATTERN = r"7-Zip \([az]\) (\d+\.\d+) \(([^)]+)\).*"
 
     version = ""
     speed_c = ""
@@ -65,7 +79,7 @@ with Popen(
     for line in list_of_strings:
         if line.isspace():
             continue
-        logging.info(line.strip())
+        logger.info(line.strip())
         if "7-Zip" in line:
             match = re.match(VERSION_PATTERN, line)
             if match:
@@ -75,7 +89,7 @@ with Popen(
             speed_d = re.match(SPEED_PATTERN, line).group(2)
 
     t2 = time.time()
-    logging.info("Benchmark took %s seconds", round((t2 - t1), 3))
+    logger.info("Benchmark took %s seconds", round((t2 - t1), 3))
     result = [
         {
             "test": "7-Zip Compression",

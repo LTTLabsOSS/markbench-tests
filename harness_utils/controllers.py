@@ -12,7 +12,7 @@ class LTTGamePad360(vg.VX360Gamepad):
     implemented in our harnesses.
     """
 
-    def single_press(self, button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN, pause=0.1):
+    def press(self, button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN, pause=0.1):
         """
         Custom function to perform a single press of a specified gamepad button
 
@@ -49,7 +49,7 @@ class LTTGamePad360(vg.VX360Gamepad):
         Sometimes we need to press a certain gamepad button multiple times in a row, this loop does that for you
         """
         for _ in range(n):
-            self.single_press(button)
+            self.press(button)
             time.sleep(pause)
 
 
@@ -62,8 +62,8 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
     implemented in our harnesses.
     """
 
-    def single_button_press(
-        self, button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS, fastpause=0.05
+    def press(
+        self, button=vg.DS4_BUTTONS.DS4_BUTTON_CROSS, pause=0.1
     ):
         """
         Custom function to perform a single press of a specified gamepad digital button
@@ -89,19 +89,19 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
 
         self.press_button(button=button)
         self.update()
-        time.sleep(fastpause)
+        time.sleep(pause)
         self.release_button(button=button)
         self.update()
 
-    def button_press_n_times(self, button: vg.DS4_BUTTONS, n: int, pause: float):
+    def press_n_times(self, button: vg.DS4_BUTTONS, n: int, pause: float):
         """
         Sometimes we need to press a certain gamepad button multiple times in a row, this loop does that for you
         """
         for _ in range(n):
-            self.single_button_press(button)
+            self.press(button)
             time.sleep(pause)
 
-    def single_dpad_press(
+    def dpad_press(
         self, direction=vg.DS4_DPAD_DIRECTIONS.DS4_BUTTON_DPAD_SOUTH, pause=0.1
     ):
         """
@@ -136,5 +136,5 @@ class LTTGamePadDS4(vg.VDS4Gamepad):
         Sometimes we need to press a certain dpad direction multiple times in a row, this loop does that for you
         """
         for _ in range(n):
-            self.single_dpad_press(direction)
+            self.dpad_press(direction)
             time.sleep(pause)

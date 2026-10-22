@@ -1,6 +1,9 @@
-"""Platform input adapter."""
+"""Platform input adapter.
 
-import importlib
+Windows uses the native WindowsInput backend.
+Public helpers retain their explicit timing delays and backend pauses.
+"""
+
 import logging
 import math
 import shutil
@@ -18,20 +21,47 @@ LINUX_CLICK_TARGET_WIDTH = 1920
 LINUX_CLICK_TARGET_HEIGHT = 1080
 
 _YDOTOOL_KEYS = {
+    # Letters
+    "a": 30,
+    "b": 48,
+    "c": 46,
+    "d": 32,
+    "e": 18,
+    "f": 33,
+    "q": 16,
+    "r": 19,
+    "s": 31,
+    "w": 17,
+    "x": 45,
+    "z": 44,
+    # Numbers
+    "1": 2,
+    "3": 4,
+    # Modifiers
+    "altleft": 56,
+    "shiftleft": 42,
+    # Direction and navigation
+    "down": 108,
     "left": 105,
-    "leftshift": 42,
+    "pagedown": 109,
     "right": 106,
     "up": 103,
-    "down": 108,
+    # Control keys
+    "backspace": 14,
     "enter": 28,
-    "esc": 1,
     "escape": 1,
-    "f2": 60,
     "space": 57,
-    "b": 48,
-    "q": 16,
-    "x": 45,
-    "3": 4,
+    "tab": 15,
+    # Function keys
+    "f1": 59,
+    "f2": 60,
+    "f3": 61,
+    "f5": 63,
+    # Symbols
+    "`": 41,
+    "\\": 43,
+    "[": 26,
+    "]": 27,
 }
 
 
@@ -54,36 +84,33 @@ def _scale_linux_click_coordinates(x: int, y: int) -> tuple[int, int]:
 
 
 class _WindowsInputBackend:
-    def __init__(self, controller: "InputController") -> None:
-        self._pydirectinput = importlib.import_module("pydirectinput")
-        setattr(self._pydirectinput, "FAILSAFE", controller.FAILSAFE)
+    def __init__(self) -> None:
+        from harness_utils.windows_input import WindowsInput
+
+        self._windows_input = WindowsInput()
 
     def press(self, key: str) -> None:
-        self._pydirectinput.press(key)
+        self._windows_input.press(key)
+
+    def write(self, text: str) -> None:
+        self._windows_input.write(text)
 
     def key_down(self, key: str) -> None:
-        self._pydirectinput.keyDown(key)
+        self._windows_input.key_down(key)
 
     def key_up(self, key: str) -> None:
-        self._pydirectinput.keyUp(key)
-
-    def hotkey(self, *keys: str) -> None:
-        self._pydirectinput.hotkey(*keys)
+        self._windows_input.key_up(key)
 
     def move_mouse(self, x: int, y: int) -> None:
-        self._pydirectinput.moveTo(x=x, y=y)
+        self._windows_input.move_mouse(x, y)
 
-    def click(self, x: int | None = None, y: int | None = None) -> None:
-        if x is not None and y is not None:
-            self.move_mouse(x, y)
-            self._pydirectinput.click()
-            return
-        self._pydirectinput.click(x=x, y=y)
+    def click_at_cursor(self, hold: float = 0.2) -> None:
+        self._windows_input.mouse_down()
+        time.sleep(hold)
+        self._windows_input.mouse_up()
 
     def scroll(self, scroll_amount: int) -> None:
-        import pyautogui as gui
-
-        gui.vscroll(scroll_amount)
+        self._windows_input.scroll(scroll_amount)
 
 
 class _YdotoolInputBackend:
@@ -104,27 +131,20 @@ class _YdotoolInputBackend:
             ) from exc
 
     def _run(self, *args: str) -> None:
-        logger.debug("ydotool args=%s", args)
-        try:
-            subprocess.run(
-                [self._ydotool, *args],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-        except subprocess.CalledProcessError as exc:
-            logger.debug(
-                "ydotool failed args=%s stdout=%s stderr=%s",
-                args,
-                exc.stdout,
-                exc.stderr,
-                exc_info=True,
-            )
-            raise
+        subprocess.run(
+            [self._ydotool, *args],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
 
     def press(self, key: str) -> None:
         self.key_down(key)
+        time.sleep(0.2)
         self.key_up(key)
+
+    def write(self, text: str) -> None:
+        self._run("type", text)
 
     def key_down(self, key: str) -> None:
         self._run("key", f"{self._keycode(key)}:1")
@@ -132,22 +152,16 @@ class _YdotoolInputBackend:
     def key_up(self, key: str) -> None:
         self._run("key", f"{self._keycode(key)}:0")
 
-    def hotkey(self, *keys: str) -> None:
-        for key in keys:
-            self.key_down(key)
-        for key in reversed(keys):
-            self.key_up(key)
-
     def move_mouse(self, x: int, y: int) -> None:
         scaled_x, scaled_y = _scale_linux_click_coordinates(x, y)
         self._run("mousemove", "--absolute", "0", "0")
         time.sleep(0.1)
         self._run("mousemove", str(scaled_x), str(scaled_y))
 
-    def click(self, x: int | None = None, y: int | None = None) -> None:
-        if x is not None and y is not None:
-            self.move_mouse(x, y)
-        self._run("click", "0xC0")
+    def click_at_cursor(self, hold: float = 0.2) -> None:
+        self._run("click", "0x40")
+        time.sleep(hold)
+        self._run("click", "0x80")
 
     def scroll(self, scroll_amount: int) -> None:
         """Scroll using existing Windows-style wheel delta units."""
@@ -157,124 +171,82 @@ class _YdotoolInputBackend:
         self._run("mousemove", "--wheel", "-x", "0", "-y", str(wheel_ticks))
 
 
-class InputController:
-    """Keyboard and mouse input controller with Windows and Linux backends."""
-
-    FAILSAFE: bool
-
-    def __init__(self) -> None:
-        self.FAILSAFE = False
-        self._backend = self._create_backend()
-        logger.debug("Initialized InputController FAILSAFE=%s", self.FAILSAFE)
-
-    def _create_backend(self):
-        if is_windows():
-            return _WindowsInputBackend(self)
-        if is_linux():
-            return _YdotoolInputBackend()
-        raise RuntimeError("Input is only supported on Windows and Linux")
-
-    def press(self, key: str) -> None:
-        """Press and release a key."""
-        logger.debug("input press key=%s", key)
-        self._backend.press(key)
-
-    def key_down(self, key: str) -> None:
-        """Press and hold a key."""
-        logger.debug("input key_down key=%s", key)
-        self._backend.key_down(key)
-
-    def key_up(self, key: str) -> None:
-        """Release a key."""
-        logger.debug("input key_up key=%s", key)
-        self._backend.key_up(key)
-
-    def hotkey(self, *keys: str) -> None:
-        """Press a key chord."""
-        logger.debug("input hotkey keys=%s", keys)
-        self._backend.hotkey(*keys)
-
-    def move_mouse(self, x: int, y: int) -> None:
-        """Move the mouse pointer without clicking."""
-        logger.debug("input move_mouse x=%s y=%s", x, y)
-        self._backend.move_mouse(x, y)
-
-    def click(self, x: int | None = None, y: int | None = None) -> None:
-        """Click the primary mouse button."""
-        logger.debug("input click x=%s y=%s", x, y)
-        self._backend.click(x=x, y=y)
-
-    def scroll(self, scroll_amount: int) -> None:
-        """Scroll the mouse wheel."""
-        logger.debug("input scroll scroll_amount=%s", scroll_amount)
-        self._backend.scroll(scroll_amount)
+_backend: _WindowsInputBackend | _YdotoolInputBackend
+if is_windows():
+    _backend = _WindowsInputBackend()
+elif is_linux():
+    _backend = _YdotoolInputBackend()
+else:
+    raise RuntimeError("Input is only supported on Windows and Linux")
 
 
-user = InputController()
+def move_mouse(x: int, y: int) -> None:
+    """Move the mouse pointer without clicking."""
+    _backend.move_mouse(x, y)
 
 
-def press(sequence: str, pause: float = 0.3) -> None:
+def write(text: str) -> None:
+    """Type text."""
+    _backend.write(text)
+
+
+def click(
+    x: int | None = None,
+    y: int | None = None,
+    hold: float = 0.2,
+    pre_click_delay: float = 0.2,
+) -> None:
+    """Optionally move the pointer, then wait before and after clicking."""
+    if x is not None and y is not None:
+        _backend.move_mouse(x, y)
+    time.sleep(pre_click_delay)
+    _backend.click_at_cursor(hold)
+    time.sleep(pre_click_delay)
+
+
+def hold(key: str, duration: float) -> None:
+    """Hold one key for the requested duration."""
+    _backend.key_down(key)
+    time.sleep(duration)
+    _backend.key_up(key)
+
+
+def press(sequence: str, pause: float = 0.5) -> None:
     """Press keys described by a comma-separated sequence like ``up*2, down*3``."""
-    steps = [step.strip() for step in sequence.split(",")]
+    logger.debug("input press sequence=%s", sequence)
 
-    for step in steps:
-        if not step:
-            continue
-
+    for step in sequence.split(","):
         key, separator, count_text = step.partition("*")
         key = key.strip()
         if not key:
-            continue
+            raise ValueError(f"Invalid press step: {step!r}")
 
-        count = 1
-        if separator:
-            count_text = count_text.strip()
-            if not count_text:
-                logger.warning(
-                    "Skipping press step with missing repeat count: %r", step
-                )
-                continue
-            try:
-                count = int(count_text)
-            except ValueError:
-                logger.warning(
-                    "Skipping press step with invalid repeat count: %r", step
-                )
-                continue
-            if count < 1:
-                logger.warning(
-                    "Skipping press step with non-positive repeat count: %r", step
-                )
-                continue
+        count = int(count_text.strip()) if separator else 1
+        if count < 1:
+            raise ValueError(f"Invalid press count: {step!r}")
 
-        for press_index in range(count):
-            user.press(key)
-            if press_index + 1 < count:
-                time.sleep(pause)
+        for _ in range(count):
+            _backend.press(key)
+            time.sleep(pause)
 
 
-def press_n_times(key: str, n: int, pause: float = 0.5) -> None:
-    """Press the same key multiple times."""
-    for _ in range(n):
-        user.press(key)
-        time.sleep(pause)
-
-
-def mouse_scroll_n_times(n: int, scroll_amount: int, pause: float) -> None:
-    """Scroll the mouse wheel multiple times."""
-    for _ in range(n):
-        user.scroll(scroll_amount)
+def scroll(scroll_amount: int, count: int = 1, pause: float = 0.5) -> None:
+    """Scroll the mouse wheel one or more times."""
+    logger.debug("input scroll scroll_amount=%s count=%s", scroll_amount, count)
+    for _ in range(count):
+        _backend.scroll(scroll_amount)
         time.sleep(pause)
 
 
 def mangohud_log_toggle() -> None:
     """Toggle MangoHud logging with Left Shift + F2 via ydotool."""
+    logger.debug("input mangohud_log_toggle")
     time.sleep(1)
-    user.key_down("leftshift")
+    _backend.key_down("shiftleft")
     time.sleep(0.3)
-    user.key_down("f2")
+    _backend.key_down("f2")
     time.sleep(0.3)
-    user.key_up("f2")
+    _backend.key_up("f2")
     time.sleep(0.3)
-    user.key_up("leftshift")
+    _backend.key_up("shiftleft")
     time.sleep(1)

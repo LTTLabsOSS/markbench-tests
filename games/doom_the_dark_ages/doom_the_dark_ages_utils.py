@@ -1,0 +1,63 @@
+"""Utility functions supporting Doom: The Dark Ages test script."""
+
+import json
+import logging
+import re
+import shutil
+import sys
+from pathlib import Path
+
+PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
+sys.path.insert(1, PARENT_DIRECTORY)
+from harness_utils.paths import game_install_path, harness_directories
+
+logger = logging.getLogger(__name__)
+
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
+STEAM_GAME_ID = 3017860
+RES_REGEX = re.compile(r"\s*(\d+)\s*[x×]\s*(\d+)")
+
+
+def get_resolution() -> tuple[int, int]:
+    """Gets resolution width and height from local xml file created by game."""
+    try:
+        bench_file = max(
+            ARTIFACTS_DIRECTORY.glob("benchmark-*.json"), key=lambda p: p.stat().st_mtime
+        )
+    except ValueError as exc:
+        # No files matched, propagate as a clearer FileNotFoundError
+        raise FileNotFoundError(f"No benchmark-*.json files in {ARTIFACTS_DIRECTORY}") from exc
+
+    if not bench_file.is_file():
+        raise FileNotFoundError("Benchmark file not found.")
+
+    with bench_file.open(encoding="utf-8") as f:
+        data = json.load(f)
+
+    res_string = data.get("resolution", "")
+    m = RES_REGEX.search(res_string)
+    if not m:
+        raise ValueError(
+            f"Cannot parse 'resolution' in {bench_file.name}: {res_string!r}"
+        )
+
+    width, height = map(int, m.groups())
+    return width, height
+
+
+def copy_launcher_config() -> None:
+    """Copy launcher config to doom launcher config folder"""
+    try:
+        launcherconfig_path = (
+            game_install_path(STEAM_GAME_ID) / "launcherData" / "base" / "configs"
+        )
+        launcherconfig_path.mkdir(parents=True, exist_ok=True)
+
+        src_path = SCRIPT_DIRECTORY / "launcher.cfg"
+        dest_path = launcherconfig_path / "launcher.cfg"
+
+        logger.info("Copying: %s -> %s", src_path, dest_path)
+        shutil.copy(src_path, dest_path)
+    except OSError:
+        logger.error("Could not copy config file.")
+        raise
