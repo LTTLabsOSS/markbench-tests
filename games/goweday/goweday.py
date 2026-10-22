@@ -16,7 +16,7 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.file_cleanup import remove_files
-from harness_utils.input import hold, mangohud_log_toggle, press
+from harness_utils.input import hold, mangohud_log_toggle, move_mouse, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import game_install_path, harness_directories, local_appdata
@@ -85,6 +85,7 @@ def navigate_to_settings():
             "Did not see the main menu. Did OCR navigate to the settings menu correctly?"
         )
         sys.exit(1)
+    move_mouse(0, 0)
     press("2, enter")
     result = find_word("controls", timeout=10)
     if not result:
