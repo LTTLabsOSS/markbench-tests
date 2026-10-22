@@ -16,7 +16,7 @@ from harness_utils.artifacts import (
     create_artifacts_manifest,
 )
 from harness_utils.file_cleanup import remove_files
-from harness_utils.input import mangohud_log_toggle, press, hold
+from harness_utils.input import hold, mangohud_log_toggle, press
 from harness_utils.ocr_service import find_word
 from harness_utils.output_logging import setup_logging
 from harness_utils.paths import game_install_path, harness_directories, local_appdata
@@ -36,7 +36,16 @@ SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__fil
 PROCESS_NAME = "GoWEDay-Steam.exe"
 VIDEO_PATH = game_install_path(STEAM_GAME_ID) / "FairlightConcept" / "Content" / "Movies"
 
-CONFIG_PATH = local_appdata(STEAM_GAME_ID) / "Microsoft" / "Gears of War E-Day" / "Steam" / "6BE41AB5" / "Saved" / "config" / "Windows"
+CONFIG_PATH = (
+    local_appdata(STEAM_GAME_ID)
+    / "Microsoft"
+    / "Gears of War E-Day"
+    / "Steam"
+    / "6BE41AB5"
+    / "Saved"
+    / "Config"
+    / "Windows"
+)
 CONFIG_FILENAME = "GameUserSettings.ini"
 CONFIG = CONFIG_PATH / CONFIG_FILENAME
 
