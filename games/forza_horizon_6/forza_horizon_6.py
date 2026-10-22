@@ -97,6 +97,7 @@ def run_benchmark():
     if result:
         logger.info("X loaded into the accessibility options. Navigating accordingly.")
         press("escape, up", pause=0.5)
+        time.sleep(1)
 
     # Start capturing video settings
     result = find_word("video", timeout=30)
