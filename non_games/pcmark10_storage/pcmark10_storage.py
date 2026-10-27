@@ -1,13 +1,12 @@
 """UL PCMark 10 Storage test script"""
 import logging
+import shutil
 import subprocess
 import sys
+import threading
 import time
-import shutil
 from argparse import ArgumentParser
 from pathlib import Path
-import os
-import threading
 
 import psutil
 from utils import (
@@ -21,8 +20,9 @@ from utils import (
 PARENT_DIRECTORY = str(Path(__file__).resolve().parent.parent.parent)
 sys.path.insert(1, PARENT_DIRECTORY)
 
-from harness_utils.artifacts import ArtifactManager, ArtifactType
+from harness_utils.artifacts import create_artifacts_manifest
 from harness_utils.output_logging import setup_logging
+from harness_utils.paths import harness_directories
 from harness_utils.report import (
     seconds_to_milliseconds,
     write_report_json,
@@ -31,13 +31,13 @@ from harness_utils.report import (
 #####
 # Globals
 #####
-SCRIPT_DIR = Path(__file__).resolve().parent
-LOG_DIR = SCRIPT_DIR / "run"
+logger = logging.getLogger(__name__)
+SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
 DIR_PCMARK10 = Path(get_install_path())
 EXECUTABLE = "PCMark10Cmd.exe"
 ABS_EXECUTABLE_PATH = DIR_PCMARK10 / EXECUTABLE
 TMP_DIR = Path(r"C:\ProgramData\UL\PCMark 10\tmp")
-CONFIG_DIR = SCRIPT_DIR / "config"
+CONFIG_DIR = SCRIPT_DIRECTORY / "config"
 BENCHMARK_CONFIG = {
     "full": {
         "config": str(CONFIG_DIR / "pcm10_storage_full_default.pcmdef"),
@@ -56,7 +56,7 @@ BENCHMARK_CONFIG = {
 }
 
 RESULTS_FILENAME = "result.xml"
-RESULTS_XML_PATH = LOG_DIR / RESULTS_FILENAME
+RESULTS_XML_PATH = ARTIFACTS_DIRECTORY / RESULTS_FILENAME
 
 def get_arguments():
     """get arguments"""
@@ -136,13 +136,13 @@ def prepare_drive(drive_letter: str, fill_percent: str, test_type: str):
             existing_filler,
         )
     else:
-        logging.info("Drive preparation disabled.")
+        logger.info("Drive preparation disabled.")
 
         if filler_path.exists():
-            logging.info("Filler file found. Removing existing filler file.")
+            logger.info("Filler file found. Removing existing filler file.")
             filler_path.unlink()
 
-    logging.info("Issuing TRIM for consistency.")
+    logger.info("Issuing TRIM for consistency.")
 
     subprocess.run(
         ["defrag", f"{drive_letter}:", "/L"],
@@ -151,7 +151,7 @@ def prepare_drive(drive_letter: str, fill_percent: str, test_type: str):
         text=True,
     )
 
-    logging.info("Waiting 60 seconds for drive to settle.")
+    logger.info("Waiting 60 seconds for drive to settle.")
     time.sleep(60)
 
 def resize_filler_file(path: Path, desired_size: int, current_size: int):
@@ -160,7 +160,7 @@ def resize_filler_file(path: Path, desired_size: int, current_size: int):
     """
 
     if desired_size == current_size:
-        logging.info(
+        logger.info(
             "Drive already prepared (%.2f GB filler).",
             current_size / 1024**3,
         )
@@ -168,22 +168,22 @@ def resize_filler_file(path: Path, desired_size: int, current_size: int):
 
     if desired_size == 0:
         if path.exists():
-            logging.info("Removing filler file.")
+            logger.info("Removing filler file.")
             path.unlink()
         return
 
     if current_size == 0:
-        logging.info(
+        logger.info(
             "Creating %.2f GB filler file.",
             desired_size / 1024**3,
         )
     elif desired_size > current_size:
-        logging.info(
+        logger.info(
             "Increasing filler file by %.2f GB.",
             (desired_size - current_size) / 1024**3,
         )
     else:
-        logging.info(
+        logger.info(
             "Reducing filler file by %.2f GB.",
             (current_size - desired_size) / 1024**3,
         )
@@ -211,7 +211,7 @@ def resize_filler_file(path: Path, desired_size: int, current_size: int):
         f.flush()
 
 def cleanup_pcmark():
-    logging.info("Cleaning up lingering PCMark processes...")
+    logger.info("Cleaning up lingering PCMark processes...")
 
     found = False
 
@@ -225,7 +225,7 @@ def cleanup_pcmark():
             "FMSIScan.exe"
         ):
             found = True
-            logging.info(
+            logger.info(
                 "Killing %s (PID %d)",
                 proc.info["name"],
                 proc.info["pid"],
@@ -234,38 +234,38 @@ def cleanup_pcmark():
             try:
                 proc.kill()
                 proc.wait(timeout=10)
-                logging.info("Successfully terminated %s", proc.info["name"])
+                logger.info("Successfully terminated %s", proc.info["name"])
             except Exception as e:
-                logging.warning(
+                logger.warning(
                     "Failed to terminate %s: %s",
                     proc.info["name"],
                     e,
                 )
 
     if not found:
-        logging.info("No lingering PCMark processes found.")
+        logger.info("No lingering PCMark processes found.")
 
 def log_pcmark_output(proc):
     for line in proc.stdout:
-        logging.info("PCMark: %s", line.strip())
+        logger.info("PCMark: %s", line.strip())
 
 def cleanup_tmp():
     if not TMP_DIR.exists():
         return
 
-    logging.info("Cleaning PCMark temporary directory...")
+    logger.info("Cleaning PCMark temporary directory...")
 
     for item in TMP_DIR.iterdir():
         try:
             if item.is_file():
-                logging.info("Deleting %s", item)
+                logger.info("Deleting %s", item)
                 item.unlink()
             elif item.is_dir():
-                logging.info("Deleting directory %s", item)
+                logger.info("Deleting directory %s", item)
                 shutil.rmtree(item)
 
         except Exception as e:
-            logging.warning("Failed to delete %s: %s", item, e)
+            logger.warning("Failed to delete %s: %s", item, e)
 
 def normalize_drive_letter(drive_letter: str) -> str:
     """Strips the drive letter to pass it to the harness"""
@@ -305,14 +305,14 @@ def run_benchmark(process_name, command_to_run, start_time):
         universal_newlines=True,
         bufsize=1
     ) as proc:
-        logging.info("Starting PCMark 10 Storage benchmark.")
+        logger.info("Starting PCMark 10 Storage benchmark.")
         output_thread = threading.Thread(
             target=log_pcmark_output,
             args=(proc,),
             daemon=True,
         )
         output_thread.start()
-        logging.info("Waiting for PCMark 10 Storage test to initialize.")
+        logger.info("Waiting for PCMark 10 Storage test to initialize.")
         while True:
             now = time.time()
             elapsed = now - start_time
@@ -321,7 +321,7 @@ def run_benchmark(process_name, command_to_run, start_time):
             process = is_process_running(process_name)
             if process is not None:
                 process.nice(psutil.HIGH_PRIORITY_CLASS)
-                logging.info("PCMark 10 Storage benchmark has initialized.")
+                logger.info("PCMark 10 Storage benchmark has initialized.")
                 break
             time.sleep(0.2)
 
@@ -330,13 +330,13 @@ def run_benchmark(process_name, command_to_run, start_time):
 
 
 try:
-    setup_logging(LOG_DIR)
+    setup_logging(LOG_DIRECTORY)
     args = get_arguments()
     letter = normalize_drive_letter(args.drive_letter)
     option = BENCHMARK_CONFIG[args.test]["config"]
     cmd = create_pcmark10_command(letter,option)
     cleanup_pcmark()
-    logging.info(
+    logger.info(
         "Preparing %s drive to %s%% utilization (%s test).",
         letter,
         args.drive_prepare,
@@ -347,37 +347,35 @@ try:
         args.drive_prepare,
         args.test
     )
-    logging.info("Starting benchmark!")
-    logging.info(cmd)
+    logger.info("Starting benchmark!")
+    logger.info(cmd)
     time.sleep(7)
     start_time = time.time()
     pr = run_benchmark(BENCHMARK_CONFIG[args.test]["process_name"], cmd, start_time)
 
     if pr.returncode > 0:
-        logging.error("PCMark 10 exited with return code %d", pr.returncode)
+        logger.error("PCMark 10 exited with return code %d", pr.returncode)
         sys.exit(pr.returncode)
 
     end_time = time.time()
     elapsed_test_time = round(end_time - start_time, 2)
 
-    am = ArtifactManager(LOG_DIR)
-    am.copy_file(RESULTS_XML_PATH, ArtifactType.RESULTS_TEXT, "results xml file")
-    am.create_manifest()
+    create_artifacts_manifest(ARTIFACTS_DIRECTORY)
     results_regex = BENCHMARK_CONFIG[args.test]["result_regex"]
     score_str = regex_find_score_in_xml(results_regex)
     if not score_str:
-        logging.error("Could not find overall score!")
+        logger.error("Could not find overall score!")
         sys.exit(1)
     score = int(score_str)
 
     pcmark_version = find_pcmark10_version()
     if not pcmark_version:
-        logging.error("Could not determine PCMark 10 version!")
+        logger.error("Could not determine PCMark 10 version!")
         sys.exit(1)
 
     test_version = find_test_version()
     if not test_version:
-        logging.error("Could not determine PCMark 10 test version!")
+        logger.error("Could not determine PCMark 10 test version!")
         sys.exit(1)
 
     report = {
@@ -391,15 +389,15 @@ try:
             "end_time": seconds_to_milliseconds(end_time),
         }
 
-    logging.info("Benchmark took %.2f seconds", elapsed_test_time)
-    logging.info("Score was %s", score)
+    logger.info("Benchmark took %.2f seconds", elapsed_test_time)
+    logger.info("Score was %s", score)
 
-    write_report_json(str(LOG_DIR), "report.json", report)
+    write_report_json(str(LOG_DIRECTORY), "report.json", report)
     time.sleep(60)
 
 except Exception as e:
-    logging.error("Something went wrong running the benchmark!")
-    logging.exception(e)
+    logger.error("Something went wrong running the benchmark!")
+    logger.exception(e)
     cleanup_pcmark()
     cleanup_tmp()
     sys.exit(1)

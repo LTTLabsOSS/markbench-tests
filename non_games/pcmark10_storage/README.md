@@ -12,6 +12,7 @@ Runs the PCMark 10 Storage benchmark (specifying either quick or full test) and 
 
 - `--drive_letter` : Allows you to specify a drive letter (default is C)
 - `--test` : Specifies which test to run [full,quick] 
+- `--drive_prepare` : Allows a user to target a specific drive filled % size [no,25,50,75,90]
 
 ## Output
 
