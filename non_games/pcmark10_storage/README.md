@@ -6,7 +6,7 @@ Runs the PCMark 10 Storage benchmark (specifying either quick or full test) and 
 
 - Python 3.10+
 - PCMark 10 with the Storage benchmark installed
-- At least 200GB (Full) or 25GB (Quick) free space on the drive to test
+- At least 80GB (Full) or 10GB (Quick) free space on the drive to test
 
 ## Options
 

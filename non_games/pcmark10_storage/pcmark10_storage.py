@@ -77,7 +77,7 @@ def get_arguments():
             "--drive_prepare",
             dest="drive_prepare",
             default="no",
-            choices=["no", "25", "50", "75", "90"],
+            choices=["No", "25", "50", "75", "90"],
             help="Prepare the drive to the requested utilization.",
         )
     argies = parser.parse_args()
