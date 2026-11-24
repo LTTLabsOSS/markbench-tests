@@ -1,4 +1,4 @@
-"""Wait for the user to stop a MarkBench recording session."""
+"""Wait for the user to stop a manual recording in MarkBench."""
 
 import sys
 import time
@@ -19,7 +19,7 @@ def main() -> None:
     start_time = seconds_to_milliseconds(time.time())
 
     window = tk.Tk()
-    window.title("Recording Session")
+    window.title("Manual Recording")
     window.resizable(False, False)
     window.protocol("WM_DELETE_WINDOW", window.destroy)
     stop_button = tk.Button(window, text="Stop", width=16, command=window.destroy)
