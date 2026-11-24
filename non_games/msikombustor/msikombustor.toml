@@ -2,7 +2,6 @@ friendly_name = "MSI Kombustor"
 py_script = "msikombustor.py"
 executable = "MSI-Kombustor-x64.exe"
 presentmon_enabled = true
-presentmon_ignore_exit = true
 category = "non_game"
 ocr = false
 

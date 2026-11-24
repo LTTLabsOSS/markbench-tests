@@ -2,6 +2,5 @@ friendly_name = "Black Myth Wukong"
 py_script = "black_myth_wukong.py"
 executable = "b1-Win64-Shipping.exe"
 presentmon_enabled = true
-presentmon_ignore_exit = true
 category = "game"
 ocr = true

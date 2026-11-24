@@ -2,7 +2,6 @@ friendly_name = "Total War: Warhammer 3"
 py_script = "total_war_warhammer_iii.py"
 executable = "warhammer3.exe"
 presentmon_enabled = true
-presentmon_ignore_exit = true
 category = "game"
 ocr = true
 

@@ -2,7 +2,6 @@ friendly_name = "Cinebench 2026"
 py_script = "cinebench_2026.py"
 executable = "Cinebench.exe"
 presentmon_enabled = false
-presentmon_ignore_exit = true
 category = "non_game"
 ocr = false
 
