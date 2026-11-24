@@ -1,0 +1,7 @@
+friendly_name = "Recording Session"
+py_script = "recording_session.py"
+executable = ""
+presentmon_enabled = false
+ocr = false
+save_run = true
+category = "utility"
