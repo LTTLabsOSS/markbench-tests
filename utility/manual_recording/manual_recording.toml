@@ -1,7 +1,0 @@
-friendly_name = "Manual Recording"
-py_script = "manual_recording.py"
-executable = ""
-presentmon_enabled = true
-ocr = false
-save_run = true
-category = "utility"
