@@ -39,7 +39,6 @@ friendly_name = "Example Game"
 py_script = "example_game.py"
 executable = "ExampleGame.exe"
 presentmon_enabled = true
-presentmon_ignore_exit = true
 category = "game"
 ocr = true
 
@@ -57,7 +56,7 @@ tooltip = "Benchmark duration in seconds"
 default = "120"
 ```
 
-`presentmon_ignore_exit` is an optional field, defaults to FALSE.
+PresentMon continues to capture if the target process exits before the harness ends.
 
 `[[args]]` is optional and repeatable.
 
@@ -67,8 +66,6 @@ Option types:
 - `input`: accepts free-form text
 - `tooltip`: optional help text
 - `default`: optional default for the field
-
-- `presentmon_ignore_exit`
 
 ## Outputs
 

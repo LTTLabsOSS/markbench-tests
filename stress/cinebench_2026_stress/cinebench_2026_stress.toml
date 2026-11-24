@@ -2,7 +2,6 @@ friendly_name = "Cinebench 2026 Stress"
 py_script = "cinebench_2026_stress.py"
 executable = "Cinebench.exe"
 presentmon_enabled = false
-presentmon_ignore_exit = true
 category = "stress"
 ocr = false
 
