@@ -32,31 +32,25 @@ The Python entry point handles:
 
 ## Generic harness TOML example
 
-This example includes all current fields and option types:
-
 ```toml
 friendly_name = "Example Game"
-py_script = "example_game.py"
-executable = "ExampleGame.exe"
-presentmon_enabled = true
 category = "game"
-ocr = true
+ocr = false
+save_run = true
+py_script = "run.py"
+executable = "game.exe"
+presentmon_enabled = true
+presentmon_terminate_on_proc_exit = false
+presentmon_delay = 0
 
 [[args]]
-name = "benchmark"
+name = "quality"
 type = "select"
-tooltip = "Choose the benchmark scene"
-values = ["battle", "campaign"]
-default = "battle"
-
-[[args]]
-name = "duration_seconds"
-type = "input"
-tooltip = "Benchmark duration in seconds"
-default = "120"
+values = ["Low", "High"]
+default = "High"
+tooltip = "Graphics quality"
 ```
 
-PresentMon continues to capture if the target process exits before the harness ends.
 
 `[[args]]` is optional and repeatable.
 
