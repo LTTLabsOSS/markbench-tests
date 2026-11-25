@@ -49,8 +49,8 @@ intro_videos = [VIDEO_PATH / "rebellion.webm"]
 def read_current_resolution() -> tuple[int, int]:
     """Read the resolution from the config snapshot taken during the run."""
     text = (ARTIFACTS_DIRECTORY / CONFIG_FILENAME).read_text(encoding="utf-8")
-    width = re.search(r"^\s*Resolution_Width = (\d+);", text, re.MULTILINE)
-    height = re.search(r"^\s*Resolution_Height = (\d+);", text, re.MULTILINE)
+    width = re.search(r"^\s*Resolution_Width = (\d+)", text, re.MULTILINE)
+    height = re.search(r"^\s*Resolution_Height = (\d+)", text, re.MULTILINE)
     if not width or not height:
         raise ValueError(f"Resolution not found in {CONFIG_FILENAME}")
     return int(width.group(1)), int(height.group(1))
