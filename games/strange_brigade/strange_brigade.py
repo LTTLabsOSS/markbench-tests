@@ -68,7 +68,6 @@ def replace_exe(render_engine):
     else:
         raise ValueError(f"Unsupported render engine: {render_engine}")
 
-    # existing backup means a crashed run left an engine exe in place
     if not check_backup.exists():
         launcher_exe.replace(check_backup)
     shutil.copy(engine_exe, launcher_exe)
@@ -148,17 +147,14 @@ def run_benchmark(render_engine):
 
     test_end_time = int(time.time()) - 1
 
-    # Wait 5 seconds for benchmark info
     time.sleep(5)
 
     capture_and_save_screenshot(ARTIFACTS_DIRECTORY / "results.png", vulkan=is_vulkan)
     copy_artifact(CONFIG_FULL_PATH, ARTIFACTS_DIRECTORY)
 
-    # End the run
     elapsed_test_time = round(test_end_time - test_start_time, 2)
     logger.info("Benchmark took %f seconds", elapsed_test_time)
 
-    # Exit
     terminate_process(PROCESS_NAME)
 
     time.sleep(5)
