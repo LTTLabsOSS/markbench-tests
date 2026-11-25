@@ -47,20 +47,13 @@ intro_videos = [VIDEO_PATH / "rebellion.webm"]
 
 
 def read_current_resolution() -> tuple[int, int]:
-    """Read the current resolution from the game config."""
-    width_pattern = re.compile(r"Resolution_Width = (\d+);")
-    height_pattern = re.compile(r"Resolution_Height = (\d+);")
-    width = 0
-    height = 0
-    with CONFIG_FULL_PATH.open(encoding="utf-8") as file:
-        for line in file:
-            width_match = width_pattern.search(line)
-            height_match = height_pattern.search(line)
-            if width_match is not None:
-                width = int(width_match.group(1))
-            if height_match is not None:
-                height = int(height_match.group(1))
-    return width, height
+    """Read the resolution from the config snapshot taken during the run."""
+    text = (ARTIFACTS_DIRECTORY / CONFIG_FILENAME).read_text(encoding="utf-8")
+    width = re.search(r"^\s*Resolution_Width = (\d+);", text, re.MULTILINE)
+    height = re.search(r"^\s*Resolution_Height = (\d+);", text, re.MULTILINE)
+    if not width or not height:
+        raise ValueError(f"Resolution not found in {CONFIG_FILENAME}")
+    return int(width.group(1)), int(height.group(1))
 
 
 def replace_exe(render_engine):
@@ -188,7 +181,7 @@ def main():
 
     try:
         start_time, endtime = run_benchmark(args.render_engine)
-        height, width = read_current_resolution()
+        width, height = read_current_resolution()
         report = {
             "resolution": format_resolution(width, height),
             "start_time": seconds_to_milliseconds(start_time),
