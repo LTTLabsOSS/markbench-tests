@@ -65,7 +65,7 @@ def read_current_resolution() -> tuple[int, int]:
 
 def replace_exe(render_engine):
     """Replace the launcher with the selected renderer executable."""
-    check_backup = EXE_PATH / "StrangeBrigade_launcher.exe"
+    check_backup = EXE_PATH / "StrangeBrigade_backup.exe"
     launcher_exe = EXE_PATH / "StrangeBrigade.exe"
 
     if render_engine == "vulkan":
@@ -75,25 +75,16 @@ def replace_exe(render_engine):
     else:
         raise ValueError(f"Unsupported render engine: {render_engine}")
 
-    staged_exe = EXE_PATH / "StrangeBrigade_harness.exe"
-    shutil.copy(engine_exe, staged_exe)
-
+    # existing backup means a crashed run left an engine exe in place
     if not check_backup.exists():
-        staged_backup = EXE_PATH / "StrangeBrigade_launcher_harness.exe"
-        try:
-            shutil.copy(launcher_exe, staged_backup)
-        except OSError:
-            staged_backup.unlink(missing_ok=True)
-            raise
-        staged_backup.replace(check_backup)
-
-    staged_exe.replace(launcher_exe)
+        launcher_exe.replace(check_backup)
+    shutil.copy(engine_exe, launcher_exe)
     logger.info("Launcher replaced with %s", engine_exe.name)
 
 
 def restore_exe():
     """Restore the original launcher executable."""
-    check_backup = EXE_PATH / "StrangeBrigade_launcher.exe"
+    check_backup = EXE_PATH / "StrangeBrigade_backup.exe"
     launcher_exe = EXE_PATH / "StrangeBrigade.exe"
     if not check_backup.exists():
         logger.info("No launcher backup found.")
