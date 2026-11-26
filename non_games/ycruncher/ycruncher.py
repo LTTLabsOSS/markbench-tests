@@ -64,8 +64,12 @@ def main():
         command = [executable_path, "skip-warnings", test_type, "1b", "-o", str(test_result)]
         logger.info(command)
         for _ in range(5):
-            with Popen(command) as process:
+            with Popen(command, stdout=PIPE, stderr=PIPE) as process:
                 exit_code = process.wait()
+                out, err = process.communicate()
+                logger.info("exit=%s", exit_code)
+                logger.info("stdout:\n%s", out.decode(errors="replace"))
+                logger.error("stderr:\n%s", err.decode(errors="replace"))
                 if exit_code != 0:
                     logger.error("Test failed with exit code %s", exit_code)
                     sys.exit(exit_code)
