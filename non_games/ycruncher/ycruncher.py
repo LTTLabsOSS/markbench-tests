@@ -67,11 +67,11 @@ def main():
             with Popen(command, stdout=PIPE, stderr=PIPE) as process:
                 out, err = process.communicate()
                 exit_code = process.wait()
-                logger.info("exit=%s", exit_code)
-                logger.info("stdout:\n%s", out.decode(errors="replace"))
-                logger.error("stderr:\n%s", err.decode(errors="replace"))
+                
                 if exit_code != 0:
                     logger.error("Test failed with exit code %s", exit_code)
+                    logger.info("stdout:\n%s", out.decode(errors="replace"))
+                    logger.error("stderr:\n%s", err.decode(errors="replace"))
                     sys.exit(exit_code)
 
             latest_file = max(
