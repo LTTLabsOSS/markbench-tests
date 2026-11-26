@@ -93,7 +93,7 @@ def run_benchmark():
 
     logger.info("Saw the main menu. Proceeding.")
 
-    press("down*4, enter")
+    press("down*5, enter")
 
     result = find_word("daze", vulkan=True, interval=3, timeout=15)
     if not result:

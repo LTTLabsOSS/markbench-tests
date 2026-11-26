@@ -2,7 +2,6 @@ friendly_name = "Ashes of the Singularity: Escalation"
 py_script = "ashes_of_the_singularity_escalation.py"
 executable = "StardockLauncher.exe"
 presentmon_enabled = true
-presentmon_ignore_exit = true
 category = "game"
 ocr = true
 

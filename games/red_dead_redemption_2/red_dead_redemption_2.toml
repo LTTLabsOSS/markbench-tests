@@ -2,6 +2,5 @@ friendly_name = "Red Dead Redemption 2"
 py_script = "red_dead_redemption_2.py"
 executable = "RDR2.exe"
 presentmon_enabled = true
-presentmon_ignore_exit = true
 category = "game"
 ocr = true

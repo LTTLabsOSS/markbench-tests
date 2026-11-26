@@ -4,7 +4,6 @@ executable = "superposition.exe"
 category = "non_game"
 ocr = false
 presentmon_enabled = true
-presentmon_ignore_exit = true
 
 [[args]]
 name = "api"
