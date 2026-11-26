@@ -1,0 +1,6 @@
+friendly_name = "Manual Recording"
+category = "utility"
+ocr = false
+py_script = "manual_recording.py"
+executable = ""
+presentmon_enabled = true
