@@ -1,7 +1,6 @@
 """Gears of War E-Day test script"""
 
 import logging
-import os
 import re
 import sys
 import time
