@@ -138,3 +138,12 @@ def download_ycruncher():
 def current_time_ms():
     """Get current timestamp in milliseconds since epoch"""
     return int(time.time() * 1000)
+
+
+def friendly_test_name(test: str) -> str:
+    """Return a friendlier string given a test argument"""
+    if test == "bench":
+        return "Chudnovsky"
+    if test == "bench-bbp":
+        return "BBP"
+    return test
