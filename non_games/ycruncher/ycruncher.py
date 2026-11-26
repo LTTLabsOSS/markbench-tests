@@ -4,7 +4,7 @@ import logging
 import re
 import sys
 from pathlib import Path
-from subprocess import Popen
+from subprocess import PIPE, Popen
 
 from ycruncher_utils import (
     YCRUNCHER_VERSION,
@@ -65,8 +65,8 @@ def main():
         logger.info(command)
         for _ in range(5):
             with Popen(command, stdout=PIPE, stderr=PIPE) as process:
-                exit_code = process.wait()
                 out, err = process.communicate()
+                exit_code = process.wait()
                 logger.info("exit=%s", exit_code)
                 logger.info("stdout:\n%s", out.decode(errors="replace"))
                 logger.error("stderr:\n%s", err.decode(errors="replace"))
