@@ -29,16 +29,28 @@ SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__fil
 
 
 
-def match_time(subject: str):
-    """Extract time value from line"""
-    time_pattern = r":\s*([\d.]+)\s+seconds"
-    return re.match(time_pattern, subject).group(1)
+def match_time(subject: str, marker: str) -> float:
+    """Extract the seconds value that follows an exact marker string."""
+    pattern = rf"{re.escape(marker)}:\s*([\d.]+)\s+seconds"
+    match = re.search(pattern, subject)
+    if match is None:
+        raise ValueError(
+            f"y-cruncher output format changed: "
+            f"could not parse time from line: {subject!r}"
+        )
+    return float(match.group(1))
 
 
-def match_tune(subject: str):
-    """Extract tuning value from line"""
-    tune_pattern = r"^.*:\s*(.*)$"
-    return re.match(tune_pattern, subject).group(1)
+def match_tune(subject: str, marker: str) -> str:
+    """Extract the tuning value preceding any '=>' resolution suffix."""
+    pattern = rf"{re.escape(marker)}:\s*(.*?)\s*(?:=>.*)?$"
+    match = re.search(pattern, subject)
+    if match is None:
+        raise ValueError(
+            f"y-cruncher output format changed: "
+            f"could not parse tuning from line: {subject!r}"
+        )
+    return match.group(1).strip()
 
 
 def main():
@@ -61,6 +73,7 @@ def main():
         time_marker = (
             "Total Computation Time" if test_type == "bench" else "Total Time"
         )
+        tuning_marker = "Tuning Profile"
         test_result_folder = ARTIFACTS_DIRECTORY / test_type
         test_result_folder.mkdir(parents=True, exist_ok=True)
 
@@ -81,9 +94,9 @@ def main():
             with test_result.open(encoding="utf-8") as file:
                 for line in file.readlines():
                     if time_marker in line:
-                        scores.append(float(match_time(line)))
-                    if "Tuning Profile:" in line:
-                        tunings.append(match_tune(line))
+                        scores.append(match_time(line, time_marker))
+                    if tuning_marker in line:
+                        tunings.append(match_tune(line, tuning_marker))
         end_time = current_time_ms()
 
         if not scores:
