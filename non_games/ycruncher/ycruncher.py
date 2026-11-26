@@ -31,7 +31,7 @@ SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__fil
 
 def match_time(subject: str):
     """Extract time value from line"""
-    time_pattern = r"^.*:\s*(.*) seconds$"
+    time_pattern = r":\s*([\d.]+)\s+seconds"
     return re.match(time_pattern, subject).group(1)
 
 
@@ -52,18 +52,22 @@ def main():
         download_ycruncher()
 
     executable_path = str(get_ycruncher_executable())
-    # omit the first arg which is the script name
     logger.info(sys.argv[1:])
 
     for test_type in test_types:
         start_time = current_time_ms()
         scores = []
         tunings = []
-        test_result = ARTIFACTS_DIRECTORY / test_type
-        test_result.mkdir(parents=True, exist_ok=True)
-        command = [executable_path, "skip-warnings", test_type, "1b", "-o", str(test_result)]
-        logger.info(command)
-        for _ in range(5):
+        time_marker = (
+            "Total Computation Time" if test_type == "bench" else "Total Time"
+        )
+        test_result_folder = ARTIFACTS_DIRECTORY / test_type
+        test_result_folder.mkdir(parents=True, exist_ok=True)
+
+        for i in range(5):
+            test_result = test_result_folder / f"{test_type}-{i}.txt"
+            command = [executable_path, "skip-warnings", f'logfile:"{test_result}"', test_type, "1b"]
+            logger.info(command)
             with Popen(command, stdout=PIPE, stderr=PIPE) as process:
                 out, err = process.communicate()
                 exit_code = process.wait()
@@ -74,16 +78,11 @@ def main():
                     logger.error("stderr:\n%s", err.decode(errors="replace"))
                     sys.exit(exit_code)
 
-            latest_file = max(
-                test_result.glob("*.txt"), key=lambda item: item.stat().st_ctime
-            )
-            logger.info(latest_file)
-
-            with latest_file.open(encoding="utf-8") as file:
+            with test_result.open(encoding="utf-8") as file:
                 for line in file.readlines():
-                    if "Total Computation Time" in line:
+                    if time_marker in line:
                         scores.append(float(match_time(line)))
-                    if "Binary:" in line:
+                    if "Tuning Profile:" in line:
                         tunings.append(match_tune(line))
         end_time = current_time_ms()
 
