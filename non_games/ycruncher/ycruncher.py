@@ -80,7 +80,7 @@ def main():
 
     report = {
         "start_time": start_time,
-        "version": "v0.8.5.9545b",
+        "version": "v0.8.7.9547",
         "end_time": end_time,
         "score": avg_score,
         "unit": "seconds",
