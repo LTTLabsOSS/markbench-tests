@@ -7,9 +7,10 @@ from pathlib import Path
 from subprocess import Popen
 
 from ycruncher_utils import (
-    YCRUNCHER_FOLDER_NAME,
+    YCRUNCHER_VERSION,
     current_time_ms,
     download_ycruncher,
+    get_ycruncher_executable,
     ycruncher_folder_exists,
 )
 
@@ -23,7 +24,7 @@ from harness_utils.report import write_report_json
 logger = logging.getLogger(__name__)
 
 SCRIPT_DIRECTORY, LOG_DIRECTORY, ARTIFACTS_DIRECTORY = harness_directories(__file__)
-EXECUTABLE_PATH = SCRIPT_DIRECTORY / YCRUNCHER_FOLDER_NAME / "y-cruncher.exe"
+
 
 
 def match_time(subject: str):
@@ -46,22 +47,21 @@ def main():
         logger.info("Downloading ycruncher")
         download_ycruncher()
 
+    executable_path = str(get_ycruncher_executable())
     # omit the first arg which is the script name
     logger.info(sys.argv[1:])
 
-    arg_string = ["skip-warnings", "bench", "1b", "-o", LOG_DIRECTORY]
+    command = [executable_path, "skip-warnings", "bench", "1b", "-o", str(LOG_DIRECTORY)]
 
-    logger.info(arg_string)
+    logger.info(command)
     scores = []
     tunings = []
     start_time = current_time_ms()
     for _ in range(5):
-        with Popen(
-            executable=f"{EXECUTABLE_PATH}".rstrip(), args=arg_string
-        ) as process:
+        with Popen(command) as process:
             exit_code = process.wait()
-            if exit_code > 0:
-                logger.error("Test failed!")
+            if exit_code != 0:
+                logger.error("Test failed with exit code %s", exit_code)
                 sys.exit(exit_code)
 
         latest_file = max(
@@ -76,11 +76,15 @@ def main():
                 if "Binary:" in line:
                     tunings.append(match_tune(line))
     end_time = current_time_ms()
+
+    if not scores:
+        raise RuntimeError("No scores parsed from y-cruncher output")
+
     avg_score = round(sum(scores) / len(scores), 2)
 
     report = {
         "start_time": start_time,
-        "version": "v0.8.7.9547",
+        "version": YCRUNCHER_VERSION,
         "end_time": end_time,
         "score": avg_score,
         "unit": "seconds",
