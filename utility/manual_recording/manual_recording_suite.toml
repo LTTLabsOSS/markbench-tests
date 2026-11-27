@@ -1,9 +1,0 @@
-projectSlug = ""
-assetTag = ""
-
-[[tests]]
-testName = "manual_recording"
-parameter = ""
-tag = ""
-repeat = 1
-dir = "."
