@@ -106,7 +106,7 @@ def main():
 
         avg_score = round(sum(scores) / len(scores), 2)
 
-        logger.info("Result for %s was average %s seconds over 5 runs.", test_type, avg_score)
+        logger.info("Result for %s was average %s seconds over 5 runs.", friendly_test_name(test_type), avg_score)
 
         report = {
             "start_time": start_time,
